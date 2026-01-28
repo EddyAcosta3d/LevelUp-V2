@@ -1,0 +1,232 @@
+  // Router
+  function setActiveRoute(route){
+    state.route = route;
+    $$('.page').forEach(p => p.classList.toggle('is-active', p.dataset.page === route));
+    $$('.pill[data-route]').forEach(b => b.classList.toggle('is-active', b.dataset.route === route));
+    $$('#bottomNav .bottomNav__btn').forEach(b => b.classList.toggle('is-active', b.dataset.route === route));
+    const titleMap = { fichas:'FICHAS', desafios:'DESAFÍOS', eventos:'EVENTOS', personajes:'PERSONAJES', recompensas:'RECOMPENSAS' };
+    const titleEl = $('#pageTitle');
+    if (titleEl) titleEl.textContent = titleMap[route] || route.toUpperCase();
+    const dbgRoute = $('#dbgRoute');
+    if (dbgRoute) dbgRoute.textContent = route;
+    updateEditButton();
+    applyFichaLock();
+    updateChestUI(currentHero());
+  }
+
+  
+  function isEditEnabled(){ return state.role === 'teacher'; }
+  function updateEditButton(){
+    const btn = $('#btnEdicion');
+    if(!btn) return;
+    // Visible (desktop): te permite habilitar edición también para Desafíos/Materias
+    const show = true;
+    btn.hidden = !show;
+    if(isEditEnabled()){
+      btn.textContent = '✎ Editar';
+      btn.classList.remove('pill--danger');
+      btn.classList.add('is-active');
+    }else{
+      btn.textContent = '🔒 Solo ver';
+      btn.classList.add('pill--danger');
+      btn.classList.remove('is-active');
+    }
+  }
+
+  // Cofre (por ficha): siempre visible; muestra badge si hay pendientes
+  function updateChestUI(hero){
+    const btn = $('#btnChest');
+    const badge = $('#chestBadge');
+    if (!btn || !badge) return;
+    const count = hero && Array.isArray(hero.pendingRewards) ? hero.pendingRewards.length : 0;
+    badge.hidden = !(count > 0);
+    badge.textContent = String(count || 1);
+    btn.classList.toggle('is-pending', count > 0);
+  }
+
+  // Locking framework for Fichas (easy to extend: add selectors here)
+  const FICHA_LOCK = {
+    disableSelectors: [
+      '#btnNuevoHeroe',
+      '#btnEliminar',
+      '#btnFotoOverlay',
+      '#inNombre',
+      '#inEdad',
+      '#selRol',
+      '#txtDesc',
+      '#txtMeta',
+      '#btnXpM5', '#btnXpM1', '#btnXpP1', '#btnXpP5',
+      '#actChips button',
+      '#btnWeekReset'
+    ],
+    statsRangeSelector: '#statsBox .statRange',
+    statsSegsSelector: '#statsBox .statSegs'
+  };
+
+  function applyFichaLock(){
+    const locked = !isEditEnabled();
+    document.body.classList.toggle('is-view-locked', locked);
+
+    // Disable only when we are on fichas; other pages don't need this lock yet
+    if(state.route !== 'fichas') return;
+
+    FICHA_LOCK.disableSelectors.forEach(sel=>{
+      $$(sel).forEach(el=>{
+        if('disabled' in el) el.disabled = locked;
+        el.setAttribute('aria-disabled', locked ? 'true' : 'false');
+      });
+    });
+
+    // Stats
+    $$(FICHA_LOCK.statsRangeSelector).forEach(r=>{ r.disabled = locked; });
+    $$(FICHA_LOCK.statsSegsSelector).forEach(seg=>{
+      seg.style.pointerEvents = locked ? 'none' : 'auto';
+    });
+  }
+// Drawer
+  function isDrawerLayout(){ return window.matchMedia('(max-width: 980px)').matches; }
+  function closeDrawer(){ $('#shell').classList.remove('is-drawer-open'); $('#overlay').hidden = true; }
+  function openDrawer(){ $('#shell').classList.add('is-drawer-open'); $('#overlay').hidden = false; }
+
+  function isDetailsAvailable(){ return window.matchMedia('(min-width: 1181px)').matches; }
+  function syncDetailsUI(){
+    const shell = $('#shell');
+    const btn = $('#btnDebugPanel');
+    if (!shell || !btn) return;
+
+    const canShow = isDetailsAvailable();
+    if (!canShow){
+      state.isDetailsOpen = false;
+      shell.classList.remove('is-details-open');
+      btn.classList.remove('is-active');
+      btn.setAttribute('aria-pressed','false');
+      btn.hidden = true;
+      return;
+    }
+
+    btn.hidden = false;
+    shell.classList.toggle('is-details-open', state.isDetailsOpen);
+    btn.classList.toggle('is-active', state.isDetailsOpen);
+    btn.setAttribute('aria-pressed', String(state.isDetailsOpen));
+  }
+  function toggleDetails(){
+    if (!isDetailsAvailable()) return;
+    state.isDetailsOpen = !state.isDetailsOpen;
+    syncDetailsUI();
+  }
+
+  // Debug
+  function updateDeviceDebug(){
+    let d = 'desktop';
+    if (window.matchMedia('(max-width: 640px)').matches) d = 'mobile';
+    else if (window.matchMedia('(max-width: 1180px)').matches) d = 'tablet';
+    $('#dbgDevice').textContent = d;
+  }
+
+  function updateDataDebug(){
+    $('#dbgRole').textContent = state.role;
+    const loaded = state.loadedFrom || state.dataSource;
+    const label = (loaded === 'remote' && state.hasLocalChanges) ? `${loaded} (cambios locales)` : loaded;
+    $('#dbgDataSrc').textContent = label;
+    const upd = state.data?.meta?.updatedAt ? new Date(state.data.meta.updatedAt).toLocaleString() : '—';
+    $('#dbgUpdated').textContent = upd;
+    $('#brandSubtitle').textContent = (state.data?.meta?.app || 'LevelUp');
+
+    // Extra debug: build + conteos
+    const subCount = Array.isArray(state.data?.subjects) ? state.data.subjects.length : 0;
+    const chCount  = Array.isArray(state.data?.challenges) ? state.data.challenges.length : 0;
+    $('#dbgBuild') && ($('#dbgBuild').textContent = BUILD_ID);
+    $('#dbgSubCount') && ($('#dbgSubCount').textContent = String(subCount));
+    $('#dbgChCount') && ($('#dbgChCount').textContent = String(chCount));
+  }
+
+  // Dropdown
+  function toggleDatos(open){
+    const dd = $('#btnDatos').closest('.dropdown');
+    const isOpen = dd.classList.contains('is-open');
+    const next = (typeof open === 'boolean') ? open : !isOpen;
+    dd.classList.toggle('is-open', next);
+    $('#btnDatos').setAttribute('aria-expanded', String(next));
+  }
+  function closeDatos(){ toggleDatos(false); }
+
+  // Top "..." menu (mobile)
+  function initTopMoreMenu(){
+    const btn = $('#btnTopMore');
+    const menu = $('#topMoreMenu');
+    if (!btn || !menu) return;
+
+    const close = () => {
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded','false');
+    };
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const next = menu.hidden;
+      menu.hidden = !next ? true : false;
+      // If it was hidden, show; if shown, hide
+      if (next){
+        menu.hidden = false;
+        btn.setAttribute('aria-expanded','true');
+      } else {
+        close();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (menu.hidden) return;
+      if (menu.contains(e.target) || btn.contains(e.target)) return;
+      close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+
+    menu.addEventListener('click', () => setTimeout(close, 0));
+  }
+
+  // Textarea auto-grow (prevents inner scrollbars)
+  function autoGrowTextarea(el){
+    if (!el) return;
+    el.style.height = 'auto';
+    // Más compacto: las notas de descripción/meta no deben crecer demasiado.
+    el.style.height = Math.max(el.scrollHeight, 56) + 'px';
+  }
+  function wireAutoGrow(root=document){
+    $$('textarea', root).forEach(t => {
+      if (t.dataset.autogrow === '1') return;
+      t.dataset.autogrow = '1';
+      autoGrowTextarea(t);
+      t.addEventListener('input', () => autoGrowTextarea(t));
+    });
+  }
+
+  // Toast
+  let toastTimer = null;
+  function toast(msg){
+    let el = document.getElementById('toast');
+    if (!el){
+      el = document.createElement('div');
+      el.id = 'toast';
+      el.style.position = 'fixed';
+      el.style.left = '50%';
+      el.style.bottom = 'calc(18px + env(safe-area-inset-bottom, 0px))';
+      el.style.transform = 'translateX(-50%)';
+      el.style.padding = '10px 14px';
+      el.style.borderRadius = '999px';
+      el.style.background = 'rgba(10,10,10,0.92)';
+      el.style.border = '1px solid rgba(0,210,255,0.22)';
+      el.style.color = 'rgba(255,255,255,0.92)';
+      el.style.boxShadow = '0 14px 40px rgba(0,0,0,0.55)';
+      el.style.zIndex = '9999';
+      el.style.fontSize = '13px';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ el.style.opacity = '0'; }, 2200);
+  }
+

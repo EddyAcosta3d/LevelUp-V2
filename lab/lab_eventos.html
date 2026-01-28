@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LevelUp — LAB Eventos (Secretos)</title>
+  <link rel="stylesheet" href="lab_eventos.css?v=lab2" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brandMark">LU</div>
+      <div class="brandText">
+        <div class="brandTitle">LevelUp</div>
+        <div class="brandSub">LAB — Eventos/Jefes secretos</div>
+      </div>
+    </div>
+
+    <div class="topbarActions">
+      <button id="btnReload" class="btn">Recargar</button>
+      <label class="toggle">
+        <input id="chkTryRemote" type="checkbox" checked />
+        <span>Intentar cargar <code>data/data.json</code></span>
+      </label>
+      <label class="toggle">
+        <input id="chkShowLocked" type="checkbox" checked />
+        <span>Mostrar bloqueados</span>
+      </label>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section class="panel">
+      <div class="panelHeader">
+        <div>
+          <div class="h1">Tarjetas (vertical)</div>
+          <div class="muted">
+            Bloqueados = secretos: no muestran nombre ni descripción. Solo cómo desbloquear.
+          </div>
+        </div>
+        <div class="pill" id="statusPill">Cargando…</div>
+      </div>
+
+      <div id="eventsGrid" class="eventsGrid" aria-live="polite"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panelHeader">
+        <div>
+          <div class="h1">Notas</div>
+          <div class="muted">Abrir con Live Server para que fetch funcione.</div>
+        </div>
+      </div>
+      <div class="notes">
+        <ol>
+          <li>Convención imágenes:
+            <ul>
+              <li><code>assets/jefes/Boss_&lt;id&gt;_locked.jpg</code> / <code>Boss_&lt;id&gt;_unlocked.jpg</code></li>
+              <li><code>assets/eventos/Event_&lt;id&gt;_locked.jpg</code> / <code>Event_&lt;id&gt;_unlocked.jpg</code></li>
+            </ul>
+          </li>
+          <li>Modal se cierra con ✕, click fuera o ESC.</li>
+          <li>En este LAB puedes simular desbloqueo (solo local en el lab).</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="modalBackdrop" class="backdrop hidden"></div>
+  <div id="eventModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modalCard">
+      <div class="modalTop">
+        <div class="modalTitleWrap">
+          <div id="modalEyebrow" class="modalEyebrow"></div>
+          <div id="modalTitle" class="modalTitle"></div>
+        </div>
+        <button id="btnCloseModal" class="iconBtn" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="modalMedia">
+          <img id="modalImg" alt="" />
+          <div id="modalImgFallback" class="imgFallback hidden">SIN IMAGEN</div>
+          <div id="modalSilhouette" class="silhouette hidden"></div>
+        </div>
+
+        <div class="modalContent">
+          <div id="modalBadges" class="badges"></div>
+
+          <div class="reqBox">
+            <div class="reqTitle">Para desbloquear</div>
+            <div id="modalReq" class="reqText"></div>
+          </div>
+
+          <div id="modalDescWrap" class="descWrap">
+            <div class="descTitle">Detalles</div>
+            <div id="modalDesc" class="modalDesc"></div>
+          </div>
+
+          <div class="modalActions">
+            <button id="btnRetar" class="btnPrimary">Retar</button>
+            <button id="btnToggleUnlock" class="btn">Simular desbloqueo</button>
+          </div>
+
+          <div id="modalToast" class="modalToast hidden"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="lab_eventos.js?v=lab2"></script>
+</body>
+</html>

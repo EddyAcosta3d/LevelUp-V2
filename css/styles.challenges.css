@@ -1,0 +1,358 @@
+/* Desafíos: pesos visuales */
+.challengeName{ font-weight: 900; letter-spacing: .2px; }
+.challengeItem{ position:relative; overflow:hidden; }
+.challengeItem::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background: rgba(220,220,230,0.08); }
+.challengeItem[data-diff="easy"]::before{ background: rgba(0,210,255,0.75); box-shadow: 0 0 14px rgba(0,210,255,0.22); }
+.challengeItem[data-diff="medium"]::before{ background: rgba(114,26,255,0.80); box-shadow: 0 0 14px rgba(114,26,255,0.22); }
+.challengeItem[data-diff="hard"]::before{ background: rgba(255,90,90,0.80); box-shadow: 0 0 14px rgba(255,90,90,0.18); }
+
+.challengeBody{ min-height: 220px; font-size: 15px; line-height: 1.35; color: rgba(220,220,230,0.94); white-space: pre-wrap; }
+
+/* Pills de dificultad: colorear el activo */
+.diffPills .pill{ border-color: rgba(220,220,230,0.14); }
+.diffPills .pill.is-active{ border-color: rgba(0,210,255,0.40); background: rgba(0,210,255,0.10); }
+.diffPills .pill.is-active[data-diff="easy"]{ border-color: rgba(0,210,255,0.55); background: rgba(0,210,255,0.12); }
+.diffPills .pill.is-active[data-diff="medium"]{ border-color: rgba(114,26,255,0.55); background: rgba(114,26,255,0.12); }
+.diffPills .pill.is-active[data-diff="hard"]{ border-color: rgba(255,90,90,0.55); background: rgba(255,90,90,0.12); }
+
+/* Acciones: en móvil, usar menú "⋯" para no saturar */
+#btnChallengeMore{ display:none; }
+html:not(.is-edit) #btnChallengeEdit,
+html:not(.is-edit) #btnChallengeDelete,
+html:not(.is-edit) #btnChallengeMore{ display:none !important; }
+@media (max-width: 640px){
+  #btnChallengeEdit, #btnChallengeDelete{ display:none; }
+  html.is-edit #btnChallengeMore{ display:inline-flex; }
+  .challengeDetailActions{ gap: 10px; }
+  .challengeTop{ gap: 10px; }
+}
+
+/* Menú contextual de desafío (portal) */
+#challengeMoreMenu{ position: fixed; z-index: 25000; min-width: 220px; border-radius: 14px; padding: 6px; border: 1px solid rgba(0,210,255,0.18); background: rgba(25,42,86,0.92); box-shadow: 0 18px 50px rgba(0,0,0,0.55); }
+
+/* Materias modal */
+.subjectsList{ display:grid; gap: 10px; }
+.subjectRow{ display:flex; align-items:center; justify-content:space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(0,210,255,0.14); background: rgba(0,0,0,0.18); }
+.subjectRow__name{ font-weight: 800; }
+.subjectRow__actions{ display:flex; gap: 8px; flex-wrap:wrap; }
+.ddItem{width:100%;text-align:left;padding:10px 10px;border:0;background:transparent;color:var(--text,#dcdce6);cursor:pointer}
+.ddItem:hover{background:rgba(0,210,255,0.08)}
+
+.ghostBox{
+  margin-top: 10px; border-radius: 14px; height: 110px;
+  border: 1px dashed rgba(0,210,255,0.18); background: rgba(255,255,255,0.02);
+  display:flex; align-items:center; justify-content:center;
+  color: rgba(255,255,255,0.35);
+}
+
+.modal{
+  position: fixed;
+  inset: 0;
+  z-index: 30000;
+  display:grid;
+  place-items:center;
+  padding: 20px;
+}
+
+/* Ensure confirmation modal always appears on top of other open modals */
+#confirmModal{ z-index: 45000; }
+.modal[hidden]{ display:none; }
+.modal__backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+}
+.modal__card{
+  position:relative;
+  width: min(720px, 96vw);
+  max-height: min(78vh, 760px);
+  overflow:auto;
+  border-radius: var(--radius);
+  padding: 16px;
+  background: rgba(12,12,12,0.96);
+  border: 1px solid rgba(0,210,255,0.18);
+  box-shadow: var(--shadow);
+}
+.modal__header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.roleList{ display:grid; gap: 10px; }
+.roleItem{
+  text-align:left;
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0,210,255,0.18);
+  background: rgba(0,0,0,0.18);
+  cursor:pointer;
+  display:grid;
+  gap: 4px;
+}
+.roleItem:hover{ border-color: rgba(0,210,255,0.32); background: rgba(0,210,255,0.08); }
+.roleItem__name{ font-weight: 800; letter-spacing: .4px; }
+.roleItem__desc{ font-size: 13px; color: var(--muted); }
+
+.gridCards{ display:grid; grid-template-columns: repeat(4, minmax(190px, 1fr)); gap: var(--gap); padding-bottom: 14px; }
+.tile{ border-radius: 18px; border: 1px solid rgba(0,210,255,0.14); background: rgba(0,0,0,0.18); padding: 12px; display:flex; flex-direction:column; gap: 10px; }
+.tile__img{ height: 180px; border-radius: 14px; border: 1px solid rgba(0,210,255,0.10); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.22)); position:relative; overflow:hidden; }
+.tile.locked .tile__img::after{ content:""; position:absolute; inset:0; background: radial-gradient(200px 200px at 50% 40%, rgba(0,0,0,0.20), rgba(0,0,0,0.75)); }
+.tile__img--unlocked{ background: linear-gradient(180deg, rgba(120,255,180,0.10), rgba(0,0,0,0.22)); }
+.tile__name{ font-weight: 900; letter-spacing: 1px; }
+.tile.locked .tile__name{ letter-spacing: 3px; opacity:.7; }
+.tile__req{ opacity:.65; font-size: 12px; }
+
+.table{ border-radius: 14px; overflow:hidden; border: 1px solid rgba(0,210,255,0.10); }
+.tr{ display:grid; grid-template-columns: 1fr 80px 120px 120px; gap: 10px; padding: 10px 12px; background: rgba(0,0,0,0.18); }
+.tr:nth-child(even){ background: rgba(0,0,0,0.10); }
+.th{ font-weight: 800; background: rgba(0,210,255,0.06); }
+
+.kv{ display:grid; grid-template-columns: 90px 1fr; gap: 8px 10px; font-size: 13px; }
+.k{ opacity:.7; }
+.v{ opacity:.9; font-weight: 650; }
+
+.overlay{
+  position:absolute; inset:0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+  z-index: 20;
+}
+.overlay[hidden]{ display:none !important; pointer-events: none !important; }
+
+/* --- Desafíos (nuevo header + detalle) --- */
+.challengeTop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+.challengeTop .dropdown{position:relative}
+#subjectMenu{min-width:220px}
+.diffPills{display:flex;gap:8px;flex-wrap:wrap}
+.challengeDetailHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 10px}
+.challengeDetailActions{display:flex;gap:8px;flex-wrap:wrap}
+.challengeDetailMeta{
+  color:var(--text, #dcdce6);
+  opacity:.95;
+  display:flex;
+  flex-wrap:wrap;
+  column-gap:10px;
+  row-gap:10px;
+  align-items:center;
+}
+.challengeBody{min-height:140px;white-space:pre-wrap;border:1px solid rgba(0,210,255,.18);background:rgba(15,15,20,.45);border-radius:16px;padding:12px;color:var(--text, #dcdce6)}
+@media (max-width:640px){
+  .challengeBody{min-height:180px}
+}
+
+
+
+/* ===== LevelUP_V2_00.029 — Ajustes Desafíos (legibilidad y chips) ===== */
+/* Evita encimado de badges (ej. "Tecnología" + "Difícil") en el encabezado de detalle */
+.challengeDetailMeta{ align-items:flex-start; }
+
+.challengeHintBadges{
+  display:flex !important;
+  flex-wrap:wrap;
+  gap:10px !important;
+  align-items:center;
+  margin-top:6px;
+}
+
+.challengeHintBadges .badge{
+  margin:0 !important;
+  white-space:nowrap;
+}
+
+/* Respaldo extra: aunque el layout falle, que nunca se encimen */
+.challengeHintBadges .badge + .badge{ margin-left: 0 !important; }
+
+/* Lista: un poco más de aire entre título y chips */
+.challengeRow{ gap:10px; }
+.challengeMetaRow{ gap:8px; }
+
+/* Detail: que el bloque de badges no se comprima raro */
+.challengeDetailMeta > .challengeHintBadges{ min-width: 0; }
+
+/* =============================
+   LevelUP_V2_00.030 overrides
+   ============================= */
+
+/* Evita que los paneles flex se "aplasten" por alturas implícitas */
+.main,
+.mainContent,
+.page,
+.card,
+.cardBody{ min-height: 0; }
+
+/* Desafíos: cuerpo con un poquito más de aire en escritorio */
+.challengeBody{ min-height: 180px; }
+@media (max-width: 768px){
+  .challengeBody{ min-height: 150px; }
+}
+
+/* Badges: separación y lectura consistente */
+.challengeHintBadges{ gap:10px !important; flex-wrap:wrap; }
+.challengeHintBadges .badge{ padding:6px 10px; border-radius: 999px; }
+
+/* Modales: z-index claro para que confirmación siempre esté arriba */
+.modal{ z-index: 20000; }
+#confirmModal{ z-index: 30000; }
+
+/* Splash: logo más grande + brillo menos invasivo (evita barra blanca) */
+.splash__inner{ max-width: 560px; }
+.splash__logo{ width: clamp(320px, 50vw, 620px); }
+.splash__shine{
+  opacity: 0.25;
+  filter: blur(1.2px);
+  mix-blend-mode: soft-light;
+}
+
+
+/* Hide edit-only controls in Solo ver */
+html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
+
+
+/* Themed selects (modals) */
+.modal select, .panel select{
+  appearance:none;
+  -webkit-appearance:none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(220,220,230,.85) 50%),
+                    linear-gradient(135deg, rgba(220,220,230,.85) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 34px;
+}
+
+
+/* Difficulty buttons (modal) */
+.diffButtons{ display:flex; gap:10px; }
+.diffButtons .pill{ flex:1; }
+.pill{ border:1px solid rgba(0,210,255,.18); background: rgba(0,0,0,.18); color: rgba(220,220,230,.92); padding:10px 12px; border-radius:999px; cursor:pointer; }
+.pill.is-active{ border-color: rgba(0,210,255,.55); box-shadow: 0 0 0 2px rgba(0,210,255,.10) inset, 0 0 18px rgba(0,210,255,.12); }
+.pill--easy.is-active{ border-color: rgba(0,210,255,.65); }
+.pill--medium.is-active{ border-color: rgba(114,26,255,.55); }
+.pill--hard.is-active{ border-color: rgba(255,90,90,.55); }
+
+
+/* Events / Bosses cards */
+.eventCard{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  text-align:left;
+  padding:14px;
+  border-radius:18px;
+  border:1px solid rgba(0,210,255,.18);
+  background: rgba(0,0,0,.20);
+  box-shadow: 0 14px 40px rgba(0,0,0,.35);
+  cursor:pointer;
+}
+.eventCard:hover{ border-color: rgba(0,210,255,.35); }
+.eventCard__img{
+  width:100%;
+  aspect-ratio: 3/4;
+  border-radius:16px;
+  border:1px solid rgba(0,210,255,.16);
+  background: radial-gradient(circle at 40% 30%, rgba(0,210,255,.12), rgba(0,0,0,0) 55%),
+              rgba(0,0,0,.28);
+  background-size: cover;
+  background-position: center;
+  position:relative;
+}
+.eventCard__img.is-locked::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:16px;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.65));
+}
+.eventCard__meta{ display:flex; flex-direction:column; gap:6px; }
+.eventCard__name{ font-weight:700; letter-spacing:.3px; }
+.eventCard__req{ color: rgba(220,220,230,.75); font-size: 13px; }
+
+.modal__card--event{ max-width: 860px; }
+.eventModalGrid{ display:grid; grid-template-columns: 280px 1fr; gap:18px; align-items:start; }
+.eventModalImg{ width:100%; aspect-ratio:3/4; border-radius:18px; border:1px solid rgba(0,210,255,.18); background: rgba(0,0,0,.28); background-size:cover; background-position:center; }
+.eventModalImg.is-locked{ filter: grayscale(1) contrast(1.1) brightness(.75); }
+@media (max-width: 720px){
+  .eventModalGrid{ grid-template-columns: 1fr; }
+  .eventModalImg{ aspect-ratio: 16/10; }
+}
+
+
+/* --- V2.00.031 additions --- */
+html:not(.is-edit) [data-edit-only="1"]{
+  display:none !important;
+}
+
+.input--select{
+  -webkit-appearance:none;
+  appearance:none;
+  padding-right:34px;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(0,210,255,.9) 50%),
+                    linear-gradient(135deg, rgba(0,210,255,.9) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 13px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat:no-repeat;
+}
+
+.diffPick{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.diffPick .pill{
+  flex:1;
+  justify-content:center;
+}
+.diffPick .pill.is-active{
+  border-color: rgba(114,26,255,.8);
+  box-shadow: 0 0 0 2px rgba(114,26,255,.18), 0 0 18px rgba(114,26,255,.22);
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+
+
+/* --- V2_00.032 fixes: Challenges readability + chips spacing --- */
+.challengeItem .chips, .challengeItem .challengeChips, .challengeMeta, .challengeDetailMeta{
+  display:flex !important;
+  flex-wrap:wrap;
+  gap:8px !important;
+  align-items:center;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:4px 10px;
+  min-height:26px;
+  line-height:1;
+  border-radius:999px;
+  white-space:nowrap;
+}
+/* modal selects */
+.input--select, select.input{
+  -webkit-appearance:none;
+  appearance:none;
+  background: rgba(25,42,86,.72);
+  border: 1px solid rgba(0,210,255,.22);
+  color: rgb(220,220,230);
+  border-radius: 12px;
+  padding-right: 34px;
+}
+.selectWrap{ position:relative; }
+.selectWrap::after{
+  content:"▾";
+  position:absolute;
+  right:12px; top:50%;
+  transform: translateY(-50%);
+  color: rgba(0,210,255,.8);
+  pointer-events:none;
+}
+
