@@ -1,3 +1,50 @@
+  // --- Image helpers (supports .jpg/.png swaps and folder swaps: /eventos/ <-> /jefes/) ---
+  function _eventImageCandidates(src){
+    if (!src || typeof src !== 'string') return [];
+    const out = [];
+    const add = (s) => { if (s && !out.includes(s)) out.push(s); };
+    add(src);
+
+    // Extension swaps
+    if (/\.jpg$/i.test(src)) add(src.replace(/\.jpg$/i, '.png'));
+    if (/\.png$/i.test(src)) add(src.replace(/\.png$/i, '.jpg'));
+
+    // Folder swaps
+    if (src.includes('/eventos/')) add(src.replace('/eventos/', '/jefes/'));
+    if (src.includes('/jefes/')) add(src.replace('/jefes/', '/eventos/'));
+
+    // Combine folder+ext swaps
+    out.slice().forEach(s => {
+      if (/\.jpg$/i.test(s)) add(s.replace(/\.jpg$/i, '.png'));
+      if (/\.png$/i.test(s)) add(s.replace(/\.png$/i, '.jpg'));
+    });
+
+    return out;
+  }
+
+  function _setEventBgImage(el, preferredSrc){
+    if (!el) return;
+    const candidates = _eventImageCandidates(preferredSrc);
+    if (!candidates.length){
+      el.style.backgroundImage = '';
+      return;
+    }
+
+    let i = 0;
+    const tryNext = () => {
+      const src = candidates[i];
+      const img = new Image();
+      img.onload = () => { el.style.backgroundImage = `url(${src})`; };
+      img.onerror = () => {
+        i += 1;
+        if (i < candidates.length) tryNext();
+        else el.style.backgroundImage = '';
+      };
+      img.src = src;
+    };
+    tryNext();
+  }
+
   function openEventModal(eventId){
     const modal = $('#eventModal');
     if (!modal) return;
@@ -17,7 +64,8 @@
     const img = $('#eventModalImg');
     if (img){
       img.classList.toggle('is-locked', !unlocked);
-      img.style.backgroundImage = unlocked && ev.image ? `url(${ev.image})` : (ev.lockedImage ? `url(${ev.lockedImage})` : '');
+      const src = unlocked ? ev.image : ev.lockedImage;
+      _setEventBgImage(img, src);
     }
 
     const btnFight = $('#btnEventFight');
@@ -28,7 +76,7 @@
 
     const btnToggleUnlock = $('#btnEventToggleUnlock');
     if (btnToggleUnlock){
-      btnToggleUnlock.disabled = (state.role !== 'teacher');
+      btnToggleUnlock.disabled = false;
       btnToggleUnlock.textContent = unlocked ? 'Bloquear' : 'Desbloquear';
       btnToggleUnlock.dataset.eventId = eventId;
     }
@@ -64,7 +112,8 @@
       const img = div.querySelector('.eventCard__img');
       if (img){
         img.classList.toggle('is-locked', !unlocked);
-        img.style.backgroundImage = unlocked && ev.image ? `url(${ev.image})` : (ev.lockedImage ? `url(${ev.lockedImage})` : '');
+        const src = unlocked ? ev.image : ev.lockedImage;
+        _setEventBgImage(img, src);
       }
       div.addEventListener('click', ()=> openEventModal(ev.id));
       grid.appendChild(div);

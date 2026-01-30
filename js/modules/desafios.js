@@ -93,8 +93,8 @@ function renderChallengeDetail(){
     btnComplete.classList.toggle('is-active', done);
     btnComplete.textContent = done ? '↺ Cancelar' : '✔ Completado';
   }
-  if (btnEdit) btnEdit.disabled = (state.role !== 'teacher');
-  if (btnDel) btnDel.disabled = (state.role !== 'teacher');
-}
+  if (btnEdit) btnEdit.disabled = false;
+  if (btnDel) btnDel.disabled = false;
+  }
 
   

@@ -93,6 +93,7 @@ body{
 .notifBtn:hover{ border-color: rgba(0,210,255,0.45); background: rgba(25,42,86,0.55); }
 .notifBadge{
   position:absolute;
+  z-index:1;
   top: -6px;
   right: -6px;
   padding: 2px 6px;
@@ -437,8 +438,86 @@ body{
 
 /* --- Avatar: contenedor con tamaño real (para que la imagen no se vaya a 0px) --- */
 .avatar__frame{ position:relative; }
+/* --- Avatar: parallax (solo móvil / pantallas con scroll) --- */
+.avatarParallax{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.avatarLayer{
+  position:absolute;
+  inset:-12%; /* margen para mover sin mostrar bordes */
+  transform: translate3d(0,0,0);
+  will-change: transform;
+  opacity: 1;
+}
+.avatarLayer--bg{
+  background:
+    radial-gradient(120px 120px at 22% 18%, rgba(255,255,255,0.14), transparent 55%),
+    radial-gradient(180px 180px at 68% 30%, rgba(0,210,255,0.14), transparent 60%),
+    radial-gradient(220px 220px at 52% 78%, rgba(114,26,255,0.18), transparent 65%),
+    linear-gradient(180deg, rgba(10,15,22,0.65), rgba(10,20,32,0.55));
+}
+.avatarLayer--mid{
+  background:
+    radial-gradient(240px 240px at 50% 45%, rgba(255,255,255,0.08), transparent 62%),
+    radial-gradient(180px 180px at 52% 80%, rgba(0,210,255,0.10), transparent 70%);
+  mix-blend-mode: screen;
+  opacity: .75;
+}
+
+/* Asegura que la foto quede encima de las capas */
+.avatar__box{ z-index:1; }
+
+/* En escritorio: sin "marco" visible (solo la imagen) */
+@media (min-width: 981px){
+  .avatar__frame{
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+
+@media (min-width: 981px){
+  /* Desktop: más aire sobre la cabeza (similar a móvil) */
+  .heroScene{ min-height: 620px; }
+
+  .heroSceneLayer--fg{
+    inset: -6%;
+    background-position: 52% 98%;
+    filter: drop-shadow(0 14px 24px rgba(0,0,0,.32));
+  }
+
+  /* Nombre fuera de la cara (también en escritorio) */
+  .heroName--overlay{
+    left: 18px;
+    top: 14px;
+    transform: none;
+    text-align: left;
+    max-width: 70%;
+  }
+
+  /* Fade superior menos oscuro en escritorio */
+  .heroSceneShade{
+    background:
+      radial-gradient(900px 620px at 50% 30%, rgba(0,210,255,0.10), rgba(0,0,0,0) 62%),
+      radial-gradient(1200px 900px at 50% 50%, rgba(0,0,0,0.10), rgba(0,0,0,0.55) 78%),
+      linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.00) 32%),
+      linear-gradient(0deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.00) 46%);
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce){
+  .avatarLayer{ transform:none !important; }
+}
+
 .avatar__box{
   position:absolute;
+  z-index:1;
   inset:0;
   display:flex;
   align-items:center;
@@ -488,7 +567,45 @@ body{
 .avatar__actions #btnQuitarFoto{ display:none; }
 .avatar__actions--secondary{ margin-top: -2px; }
 
-.heroName{ font-size: 22px; letter-spacing: 4px; font-weight: 800; opacity: .9; }
+.heroName{ font-size: 28px; letter-spacing: 4px; font-weight: 900; opacity: .92; }
+
+/* Hero name overlay (encima del avatar, sin tocar la foto) */
+.heroAvatarWrap{ position:relative; display:flex; justify-content:center; align-items:center; width: fit-content; margin: 0 auto; }
+.heroName--overlay{
+  position:absolute;
+  left: 18px;
+  top: 14px;
+  transform: none;
+  z-index: 6;
+  pointer-events:none;
+  max-width: 92%;
+  text-align:left;
+
+  /* Estilo "nombre flotando" (sin pastilla) */
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+
+  color: rgba(245,248,255,0.92);
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+
+  /* 3D / glow sutil */
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.55),
+    0 6px 14px rgba(0,0,0,0.55),
+    0 0 18px rgba(0,210,255,0.20);
+  -webkit-text-stroke: 0.6px rgba(0,0,0,0.35);
+}
+
+@media (max-width: 520px){
+  .heroName{ font-size: 22px; letter-spacing: 4px; }
+  .heroName--overlay{ font-size: 22px; letter-spacing: 4px; top: 10px; left: 14px; }
+}
+
 
 /* Option C: move Meta/Descripción to the right panel */
 .notesCard{
@@ -843,8 +960,175 @@ body::-webkit-scrollbar,
   position: relative;
   display:flex;
   flex-direction:column;
-  align-items:center;
+  align-items:stretch;
   gap: 10px;
+  padding: 0; /* sin marco visible: la escena ocupa todo */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* --- Fichas: escena grande por capas (parallax en móvil) --- */
+.heroScene{
+  position: relative;
+  width: 100%;
+  min-height: 560px;
+  border-radius: calc(var(--radius) - 4px);
+  overflow: hidden;
+  background: radial-gradient(1200px 700px at 50% 30%, rgba(255,255,255,0.10), rgba(0,0,0,0) 60%),
+              linear-gradient(180deg, rgba(9,14,22,0.92), rgba(6,10,18,0.92));
+}
+
+.heroSceneLayer{
+  position:absolute;
+  /* BG necesita más margen para moverse; FG/MID tendrán su propio inset */
+  inset: -28%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: translate3d(0,0,0);
+  will-change: transform;
+}
+
+/* Capas */
+.heroSceneLayer--bg{
+  background-image: var(--heroLayerBg);
+  filter: saturate(0.95) contrast(1.02);
+}
+
+.heroSceneLayer--mid{
+  background-image: var(--heroLayerMid);
+  opacity: .95;
+  inset: -18%;
+  background-position: 50% 65%;
+}
+
+.heroSceneLayer--fg{
+  background-image: var(--heroLayerFg);
+  opacity: .98;
+  /* Para que se vea casi completa y no se recorte tanto */
+  inset: -10%;
+  background-size: contain;
+  background-position: 52% 92%;
+  filter: drop-shadow(0 16px 28px rgba(0,0,0,.35));
+}
+
+
+/* Foto (si existe) ocupa TODO el panel; si no, se oculta y se ven las capas */
+.heroPhotoFill{
+  position:absolute;
+  inset: 0;
+  z-index: 3;
+  transform: translate3d(0,0,0);
+  background: radial-gradient(900px 600px at 50% 20%, rgba(255,255,255,0.06), rgba(0,0,0,0) 60%),
+              linear-gradient(180deg, rgba(8,12,20,0.35), rgba(0,0,0,0.55));
+}
+.heroPhotoFill.is-empty{ display:none; }
+.heroPhotoFill img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* mostrar casi toda la imagen */
+  object-position: 50% 100%;
+  display:block;
+}
+
+.heroSceneShade{
+  position:absolute;
+  inset: 0;
+  z-index: 4;
+  /* Fades para legibilidad (sin "tapar" tanto el arte) */
+  background:
+    radial-gradient(900px 620px at 50% 30%, rgba(0,210,255,0.10), rgba(0,0,0,0) 62%),
+    radial-gradient(1200px 900px at 50% 50%, rgba(0,0,0,0.10), rgba(0,0,0,0.55) 78%),
+    linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.00) 38%),
+    linear-gradient(0deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.00) 46%);
+  pointer-events:none;
+}
+
+
+/* Botones dentro de la escena */
+.heroPhotoBtn{
+  position:absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 6;
+  border-color: rgba(0,210,255,0.24);
+}
+
+/* Notas como overlay, para que la imagen siga ocupando todo el bloque */
+.heroNotesOverlay{
+  position:absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 6;
+
+  /* Dock: que no invada toda la ilustración */
+  max-height: 34%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none; /* la rejilla vuelve a habilitarlo */
+}
+
+.heroNotesOverlay .noteGrid--overlay{
+  pointer-events: auto;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Overlay más "ligero" */
+.noteGrid--overlay{
+  margin-top: 0;
+  gap: 10px;
+}
+.noteGrid--overlay .noteCol{
+  background: rgba(12,14,20,.30);
+  border: 1px solid rgba(0,210,255,.12);
+  backdrop-filter: blur(10px);
+  padding: 10px;
+}
+.noteGrid--overlay .noteTitle{
+  font-size: 12px;
+  opacity: .86;
+}
+
+/* Textareas más compactas en overlay */
+.noteGrid--overlay .textarea--short{
+  min-height: 54px;
+  max-height: 96px;
+}
+
+
+@media (max-width: 980px){
+  .heroScene{ min-height: 72svh; }
+
+  /* En móvil: que se vea más "cuerpo" (menos cara gigante) */
+  .heroSceneLayer--fg{
+    inset: -6%;
+    background-position: 52% 96%;
+    filter: drop-shadow(0 14px 24px rgba(0,0,0,.32));
+  }
+
+  /* Dock más compacto en móvil */
+  .heroNotesOverlay{ max-height: 30%; }
+  .heroNotesOverlay .noteGrid--overlay{ max-width: 92vw; }
+
+  /* Nombre fuera de la cara */
+  .heroName--overlay{
+    left: 16px;
+    top: 12px;
+    transform: none;
+    text-align: left;
+    max-width: 72%;
+    font-size: 22px;
+    letter-spacing: 4px;
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .heroSceneLayer{ transform: none !important; }
 }
 .iconBtn{
   width: 40px; height: 40px;
@@ -1477,18 +1761,30 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{ width:0; height:0; }
 .statNum{
   min-width: 34px;
   text-align:center;
-  font-weight: 900;
+  font-weight: 1000;
   font-size: 12px;
-  line-height: 1.1;
+  line-height: 1.05;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.2px;
-  color: rgba(220,220,230,0.95);
+  color: rgba(250,250,255,0.98);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  background: rgba(0,0,0,0.18);
-  border: 1px solid rgba(0,210,255,0.18);
-  border-radius: 999px;
-  padding: 2px 8px;
-  box-shadow: 0 0 10px rgba(0,210,255,0.08);
+
+  /* Sin "pill": más limpio */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+
+  /* Más visible sin crecer layout: escala por transform */
+  transform: translateZ(0) scale(1.12);
+  -webkit-text-stroke: 0.7px rgba(0,0,0,0.45);
+
+  /* Efecto 3D (extrusión) + glow */
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.60),
+    0 2px 0 rgba(0,0,0,0.55),
+    0 3px 0 rgba(0,0,0,0.45),
+    0 6px 14px rgba(0,0,0,0.55),
+    0 0 16px rgba(0,210,255,0.22);
 }
 
 
@@ -1635,3 +1931,54 @@ body.is-view-locked #btnQuitarFoto{
   .brand__logo svg{ width: 26px !important; height: 26px !important; }
 }
 
+@media (min-width: 981px){
+  /* En escritorio: un poco menos de zoom y encuadre más agradable */
+  .heroSceneLayer--fg{
+    inset: -12%;
+    background-position: 54% 92%;
+  }
+  .heroNotesOverlay .noteGrid--overlay{ max-width: 520px; }
+}
+
+
+
+
+
+/* --- Notes toggle button: esquina inferior derecha de la foto --- */
+.heroNotesToggleBtn{
+  position:absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 8;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  background: rgba(10,12,16,0.30);
+  border: 1px solid rgba(0,210,255,0.16);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35), 0 0 14px rgba(0,210,255,0.12);
+}
+.heroNotesToggleBtn:hover{ background: rgba(10,12,16,0.40); }
+
+/* Al colapsar: ocultar SOLO los textareas, conservar títulos y el botón */
+.heroScene.notesCollapsed .heroNotesOverlay textarea,
+.heroScene.notesCollapsed .noteGrid--overlay textarea{
+  display: none !important;
+}
+.heroScene.notesCollapsed .heroNotesOverlay .noteCol,
+.heroScene.notesCollapsed .noteGrid--overlay .noteCol{
+  padding-bottom: 8px;
+}
+
+/* Parallax 2 capas: esconder capa mid si existe */
+.heroSceneLayer--mid{ display:none !important; }
+
+/* Quitar el oscurecido extra encima de la imagen (mantener legibilidad con shade suave) */
+.heroPhotoFill{
+  background: none !important;
+}
+.heroSceneShade{
+  opacity: .50; /* menos oscuro */
+}

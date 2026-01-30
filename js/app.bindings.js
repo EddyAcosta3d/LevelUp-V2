@@ -2,7 +2,11 @@
 
 function bind(){
     // Cualquier botón "pill" con data-route (topnav + acciones derecha)
-    $$('.pill[data-route]').forEach(btn => btn.addEventListener('click', () => setActiveRoute(btn.dataset.route)));
+    // EXCEPTO Recompensas: ahí queremos comportamiento tipo "switch" (ir y volver).
+    $$('.pill[data-route]').forEach(btn => {
+      if (btn && btn.id === 'btnRecompensas') return;
+      btn.addEventListener('click', () => setActiveRoute(btn.dataset.route));
+    });
     $$('#bottomNav .bottomNav__btn').forEach(btn => btn.addEventListener('click', () => setActiveRoute(btn.dataset.route)));
 
     $('#btnMenu').addEventListener('click', ()=>{
@@ -46,13 +50,35 @@ function bind(){
       window.addEventListener('orientationchange', ()=>{ closeTopMore(); closeDrawer(); });
     }
 
+    // Recompensas como "switch":
+    // - 1er click: abre Recompensas
+    // - 2o click: regresa a la pestaña donde estabas
+    function toggleRewardsRoute(){
+      const current = state.route || 'fichas';
+      if (current !== 'recompensas'){
+        state._routeBeforeRewards = current;
+        setActiveRoute('recompensas');
+      }else{
+        setActiveRoute(state._routeBeforeRewards || 'fichas');
+      }
+    }
+
+    const btnRecompensas = $('#btnRecompensas');
+    if (btnRecompensas){
+      btnRecompensas.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        toggleRewardsRoute();
+      });
+    }
+
     // Mobile: botón directo a Recompensas (trofeo). Más confiable que el menú "..." en iOS.
     const btnMobileRewards = $('#btnMobileRewards');
     if (btnMobileRewards){
       btnMobileRewards.addEventListener('click', (e)=>{
         e.preventDefault();
         e.stopPropagation();
-        setActiveRoute('recompensas');
+        toggleRewardsRoute();
         closeDrawer();
       });
     }
@@ -249,9 +275,7 @@ function refreshChallengeUI(){
 }
 
 // Materias modal
-function openSubjectsModal(){
-  if (state.role !== 'teacher'){ toast('Activa edición para modificar materias'); return; }
-  const m = $('#subjectsModal');
+function openSubjectsModal(){  const m = $('#subjectsModal');
   if (!m) return;
   closeAllModals('subjectsModal');
   renderSubjectsModal();
@@ -323,9 +347,7 @@ function setChallengeModalDiff(diff){
     pts.value = d==='hard'?40 : d==='medium'?20 : 10;
   }
 }
-function openChallengeModal(mode='create', ch=null){
-  if (state.role !== 'teacher'){ toast('Activa edición para crear/editar desafíos'); return; }
-  const m = $('#challengeModal');
+function openChallengeModal(mode='create', ch=null){  const m = $('#challengeModal');
   if (!m) return;
   closeAllModals('challengeModal');
   const title = $('#challengeModalTitle');
@@ -432,9 +454,7 @@ async function saveChallengeFromModal(){
   renderChallengeDetail();
 }
 
-async function deleteSelectedChallenge(){
-  if (state.role !== 'teacher'){ toast('Activa edición para borrar'); return; }
-  const ch = (state.data?.challenges || []).find(x=> x.id === state.selectedChallengeId);
+async function deleteSelectedChallenge(){  const ch = (state.data?.challenges || []).find(x=> x.id === state.selectedChallengeId);
   if (!ch) return;
   const ok = await openConfirmModal({ title:'Eliminar desafío', message:`Eliminar "${ch.title}"?`, okText:'Eliminar', cancelText:'Cancelar' });
   if (!ok) return;
@@ -450,10 +470,7 @@ async function deleteSelectedChallenge(){
 function openChallengeMoreMenu(){
   const btn = $('#btnChallengeMore');
   const menu = $('#challengeMoreMenu');
-  if (!btn || !menu) return;
-  if (state.role !== 'teacher'){ return; }
-
-  const ch = (state.data?.challenges || []).find(x => x.id === state.selectedChallengeId);
+  if (!btn || !menu) return;  const ch = (state.data?.challenges || []).find(x => x.id === state.selectedChallengeId);
   menu.innerHTML = '';
 
   const mk = (label, onClick)=>{
@@ -510,9 +527,7 @@ document.addEventListener('click', (e)=>{
 // Modal: materias
 $('#btnCloseSubjects')?.addEventListener('click', closeSubjectsModal);
 $('#subjectsBackdrop')?.addEventListener('click', closeSubjectsModal);
-$('#btnAddSubject')?.addEventListener('click', ()=>{
-  if (state.role !== 'teacher') return;
-  const inp = $('#inNewSubject');
+$('#btnAddSubject')?.addEventListener('click', ()=>{  const inp = $('#inNewSubject');
   const name = String(inp?.value || '').trim();
   if (!name) return;
   state.data.subjects = Array.isArray(state.data.subjects) ? state.data.subjects : [];

@@ -37,8 +37,8 @@
     safe('Datos', updateDataDebug);
   }
 
-  // “Edición” sin PIN aún (solo demo)
-  function setRole(nextRole){
+  // Modo público: SOLO VER (sin PIN, sin edición dentro de la app)
+function setRole(nextRole){
     state.role = nextRole;
     try{ document.documentElement.classList.toggle('is-edit', state.role === 'teacher'); }catch(_e){}
     updateEditButton();

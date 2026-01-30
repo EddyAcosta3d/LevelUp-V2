@@ -1,27 +1,32 @@
 {
   "meta": {
     "app": "LevelUp",
-    "version": "LevelUP_V2_00.032",
-    "updatedAt": "2026-01-27T19:56:52.998288+00:00"
+    "version": "LevelUP_V2_00.033",
+    "updatedAt": "2026-01-30T18:09:19.814Z"
   },
   "heroes": [
     {
       "id": "h_2d_1",
       "group": "2D",
       "name": "Eddy",
-      "age": 12,
-      "role": "Guerrero",
+      "age": 32,
+      "role": "Mentor",
       "level": 1,
       "xp": 0,
       "xpMax": 100,
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 6,
-        "SAB": 1,
-        "CAR": 3,
-        "RES": 2,
-        "CRE": 5
+        "INT": 8,
+        "SAB": 8,
+        "CAR": 8,
+        "RES": 8,
+        "CRE": 8,
+        "int": 8,
+        "sab": 8,
+        "car": 8,
+        "res": 8,
+        "cre": 8
       },
       "desc": "",
       "goal": "",
@@ -36,47 +41,16 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_2d_2",
       "group": "2D",
       "name": "Natanael",
-      "age": 12,
-      "role": "Analista",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 0,
-        "SAB": 8,
-        "CAR": 5,
-        "RES": 4,
-        "CRE": 2
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_3",
-      "group": "2D",
-      "name": "Maia",
-      "age": 12,
-      "role": "Bardo",
+      "age": 13,
+      "role": "Comunicaador",
       "level": 1,
       "xp": 0,
       "xpMax": 100,
@@ -84,178 +58,18 @@
       "weekXpMax": 40,
       "stats": {
         "INT": 4,
-        "SAB": 7,
-        "CAR": 1,
-        "RES": 6,
-        "CRE": 6
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_4",
-      "group": "2D",
-      "name": "Jesús",
-      "age": 12,
-      "role": "Alquimista",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 2,
-        "SAB": 1,
-        "CAR": 8,
-        "RES": 5,
-        "CRE": 5
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_5",
-      "group": "2D",
-      "name": "Alexa",
-      "age": 12,
-      "role": "Sanador",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 3,
-        "SAB": 7,
-        "CAR": 6,
-        "RES": 6,
-        "CRE": 1
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_6",
-      "group": "2D",
-      "name": "Ernesto",
-      "age": 12,
-      "role": "Hechicero",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 8,
-        "SAB": 2,
-        "CAR": 5,
-        "RES": 2,
-        "CRE": 1
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_7",
-      "group": "2D",
-      "name": "Alexis",
-      "age": 12,
-      "role": "Guerrero",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 5,
         "SAB": 3,
-        "CAR": 3,
-        "RES": 8,
-        "CRE": 2
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_8",
-      "group": "2D",
-      "name": "Josué",
-      "age": 12,
-      "role": "Inventor",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 8,
-        "SAB": 7,
-        "CAR": 1,
+        "CAR": 8,
         "RES": 4,
-        "CRE": 7
+        "CRE": 5,
+        "int": 4,
+        "sab": 3,
+        "car": 8,
+        "res": 4,
+        "cre": 5
       },
-      "desc": "",
-      "goal": "",
+      "desc": "Divertido, alegre con amor por los panqueques. Le gusta la robótica.",
+      "goal": "Sacar buenas calificaciones en español.",
       "goodAt": "",
       "improve": "",
       "photo": "",
@@ -267,80 +81,16 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
-      "id": "h_2d_9",
+      "id": "h_2d_3",
       "group": "2D",
-      "name": "Santiago",
-      "age": 12,
-      "role": "Mentor",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 0,
-        "SAB": 7,
-        "CAR": 0,
-        "RES": 3,
-        "CRE": 2
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_10",
-      "group": "2D",
-      "name": "Tadeo",
-      "age": 12,
-      "role": "Explorador",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 8,
-        "SAB": 7,
-        "CAR": 6,
-        "RES": 6,
-        "CRE": 2
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_11",
-      "group": "2D",
-      "name": "Eric",
-      "age": 12,
-      "role": "Mentor",
+      "name": "Maia",
+      "age": 14,
+      "role": "Estratega",
       "level": 1,
       "xp": 0,
       "xpMax": 100,
@@ -349,9 +99,134 @@
       "stats": {
         "INT": 6,
         "SAB": 4,
-        "CAR": 1,
+        "CAR": 8,
         "RES": 5,
-        "CRE": 6
+        "CRE": 7,
+        "int": 6,
+        "sab": 4,
+        "car": 8,
+        "res": 5,
+        "cre": 7
+      },
+      "desc": "Divertida, honesta y carismática.\nLe encanta la música y es buena jugando voleibol.",
+      "goal": "Sacar mejores calificaciones. Mejorar en las operaciones básicas.",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_4",
+      "group": "2D",
+      "name": "Jesús",
+      "age": 13,
+      "role": "Creador",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 3,
+        "SAB": 5,
+        "CAR": 5,
+        "RES": 2,
+        "CRE": 8,
+        "int": 3,
+        "sab": 5,
+        "car": 5,
+        "res": 2,
+        "cre": 8
+      },
+      "desc": "",
+      "goal": "Pasar todas las materias.",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_5",
+      "group": "2D",
+      "name": "Alexa",
+      "age": 13,
+      "role": "Guardián",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 6,
+        "SAB": 4,
+        "CAR": 4,
+        "RES": 7,
+        "CRE": 8,
+        "int": 6,
+        "sab": 4,
+        "car": 4,
+        "res": 7,
+        "cre": 8
+      },
+      "desc": "Es comprensiva, inteligente, responsable, desesperada. Le gusta el voleibol y dormir. Comprende fácilmente a las personas y es buena resolviendo problemas.",
+      "goal": "Aplicarse más en las materias que no le gustan.",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_6",
+      "group": "2D",
+      "name": "Ernesto",
+      "age": 13,
+      "role": "Investigador",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 3,
+        "SAB": 3,
+        "CAR": 5,
+        "RES": 8,
+        "CRE": 4,
+        "int": 3,
+        "sab": 3,
+        "car": 5,
+        "res": 8,
+        "cre": 4
       },
       "desc": "",
       "goal": "",
@@ -366,13 +241,215 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_7",
+      "group": "2D",
+      "name": "Alexis",
+      "age": 12,
+      "role": "Analista",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 7,
+        "SAB": 5,
+        "CAR": 6,
+        "RES": 7,
+        "CRE": 8,
+        "int": 7,
+        "sab": 5,
+        "car": 6,
+        "res": 7,
+        "cre": 8
+      },
+      "desc": "Es bueno en matemáticas, inteligente y responsable.",
+      "goal": "",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_8",
+      "group": "2D",
+      "name": "Josué",
+      "age": 13,
+      "role": "Colaborador",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 3,
+        "SAB": 5,
+        "CAR": 5,
+        "RES": 2,
+        "CRE": 7,
+        "int": 3,
+        "sab": 5,
+        "car": 5,
+        "res": 2,
+        "cre": 7
+      },
+      "desc": "Es bueno boxeando, y bueno en los videojuegos.",
+      "goal": "Sacar buenas calificaciones.",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_9",
+      "group": "2D",
+      "name": "Santiago",
+      "age": 14,
+      "role": "Explorador",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 4,
+        "SAB": 5,
+        "CAR": 7,
+        "RES": 3,
+        "CRE": 2,
+        "int": 4,
+        "sab": 5,
+        "car": 7,
+        "res": 3,
+        "cre": 2
+      },
+      "desc": "Es bueno jugando voleibol, entiende rápido las cosas y tiene conocimientos de varias materias.",
+      "goal": "Subir sus calificaciones, mejorar su escritura y hablar en público.",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_10",
+      "group": "2D",
+      "name": "Tadeo",
+      "age": 13,
+      "role": "Investigador",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 3,
+        "SAB": 4,
+        "CAR": 6,
+        "RES": 7,
+        "CRE": 5,
+        "int": 3,
+        "sab": 4,
+        "car": 6,
+        "res": 7,
+        "cre": 5
+      },
+      "desc": "Le gustan los memes.",
+      "goal": "",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_11",
+      "group": "2D",
+      "name": "Eric",
+      "age": 13,
+      "role": "Explorador",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 2,
+        "SAB": 4,
+        "CAR": 5,
+        "RES": 1,
+        "CRE": 7,
+        "int": 2,
+        "sab": 4,
+        "car": 5,
+        "res": 1,
+        "cre": 7
+      },
+      "desc": "",
+      "goal": "",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_2d_12",
       "group": "2D",
       "name": "Majo",
-      "age": 12,
+      "age": 13,
       "role": "Inventor",
       "level": 1,
       "xp": 0,
@@ -382,9 +459,54 @@
       "stats": {
         "INT": 4,
         "SAB": 6,
-        "CAR": 0,
-        "RES": 7,
-        "CRE": 2
+        "CAR": 3,
+        "RES": 6,
+        "CRE": 4,
+        "int": 4,
+        "sab": 6,
+        "car": 3,
+        "res": 6,
+        "cre": 4
+      },
+      "desc": "Es buena jugando futbol y videojuegos, bajita y tranquila.",
+      "goal": "Mejorar sus calificaciones.",
+      "goodAt": "",
+      "improve": "",
+      "photo": "",
+      "photoFit": {
+        "x": 50,
+        "y": 50,
+        "scale": 1
+      },
+      "tokens": 0,
+      "rewardsHistory": [],
+      "pendingRewards": [],
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
+    },
+    {
+      "id": "h_2d_13",
+      "group": "2D",
+      "name": "Brandon",
+      "age": 13,
+      "role": "Creador",
+      "level": 1,
+      "xp": 0,
+      "xpMax": 100,
+      "weekXp": 0,
+      "weekXpMax": 40,
+      "stats": {
+        "INT": 4,
+        "SAB": 5,
+        "CAR": 6,
+        "RES": 2,
+        "CRE": 8,
+        "int": 4,
+        "sab": 5,
+        "car": 6,
+        "res": 2,
+        "cre": 8
       },
       "desc": "",
       "goal": "",
@@ -399,14 +521,16 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
-      "id": "h_2d_13",
+      "id": "h_2d_14",
       "group": "2D",
-      "name": "Brandon",
-      "age": 12,
-      "role": "Guerrero",
+      "name": "Arely",
+      "age": 13,
+      "role": "Artista",
       "level": 1,
       "xp": 0,
       "xpMax": 100,
@@ -414,10 +538,15 @@
       "weekXpMax": 40,
       "stats": {
         "INT": 6,
-        "SAB": 7,
+        "SAB": 6,
         "CAR": 3,
         "RES": 7,
-        "CRE": 8
+        "CRE": 8,
+        "int": 6,
+        "sab": 6,
+        "car": 3,
+        "res": 7,
+        "cre": 8
       },
       "desc": "",
       "goal": "",
@@ -432,40 +561,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
-    },
-    {
-      "id": "h_2d_14",
-      "group": "2D",
-      "name": "Arely",
-      "age": 12,
-      "role": "Analista",
-      "level": 1,
-      "xp": 0,
-      "xpMax": 100,
-      "weekXp": 0,
-      "weekXpMax": 40,
-      "stats": {
-        "INT": 3,
-        "SAB": 8,
-        "CAR": 3,
-        "RES": 1,
-        "CRE": 5
-      },
-      "desc": "",
-      "goal": "",
-      "goodAt": "",
-      "improve": "",
-      "photo": "",
-      "photoFit": {
-        "x": 50,
-        "y": 50,
-        "scale": 1
-      },
-      "tokens": 0,
-      "rewardsHistory": [],
-      "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_1",
@@ -483,7 +581,12 @@
         "SAB": 4,
         "CAR": 8,
         "RES": 2,
-        "CRE": 2
+        "CRE": 2,
+        "int": 5,
+        "sab": 4,
+        "car": 8,
+        "res": 2,
+        "cre": 2
       },
       "desc": "",
       "goal": "",
@@ -498,7 +601,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_2",
@@ -516,7 +621,12 @@
         "SAB": 7,
         "CAR": 7,
         "RES": 3,
-        "CRE": 4
+        "CRE": 4,
+        "int": 6,
+        "sab": 7,
+        "car": 7,
+        "res": 3,
+        "cre": 4
       },
       "desc": "",
       "goal": "",
@@ -531,7 +641,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_3",
@@ -549,7 +661,12 @@
         "SAB": 2,
         "CAR": 2,
         "RES": 0,
-        "CRE": 1
+        "CRE": 1,
+        "int": 2,
+        "sab": 2,
+        "car": 2,
+        "res": 0,
+        "cre": 1
       },
       "desc": "",
       "goal": "",
@@ -564,7 +681,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_4",
@@ -582,7 +701,12 @@
         "SAB": 0,
         "CAR": 3,
         "RES": 2,
-        "CRE": 0
+        "CRE": 0,
+        "int": 0,
+        "sab": 0,
+        "car": 3,
+        "res": 2,
+        "cre": 0
       },
       "desc": "",
       "goal": "",
@@ -597,7 +721,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_5",
@@ -615,7 +741,12 @@
         "SAB": 7,
         "CAR": 2,
         "RES": 0,
-        "CRE": 7
+        "CRE": 7,
+        "int": 5,
+        "sab": 7,
+        "car": 2,
+        "res": 0,
+        "cre": 7
       },
       "desc": "",
       "goal": "",
@@ -630,7 +761,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_6",
@@ -648,7 +781,12 @@
         "SAB": 3,
         "CAR": 6,
         "RES": 8,
-        "CRE": 6
+        "CRE": 6,
+        "int": 4,
+        "sab": 3,
+        "car": 6,
+        "res": 8,
+        "cre": 6
       },
       "desc": "",
       "goal": "",
@@ -663,7 +801,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_7",
@@ -681,7 +821,12 @@
         "SAB": 3,
         "CAR": 4,
         "RES": 5,
-        "CRE": 6
+        "CRE": 6,
+        "int": 6,
+        "sab": 3,
+        "car": 4,
+        "res": 5,
+        "cre": 6
       },
       "desc": "",
       "goal": "",
@@ -696,7 +841,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_8",
@@ -714,7 +861,12 @@
         "SAB": 5,
         "CAR": 8,
         "RES": 0,
-        "CRE": 6
+        "CRE": 6,
+        "int": 4,
+        "sab": 5,
+        "car": 8,
+        "res": 0,
+        "cre": 6
       },
       "desc": "",
       "goal": "",
@@ -729,7 +881,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_9",
@@ -747,7 +901,12 @@
         "SAB": 0,
         "CAR": 3,
         "RES": 7,
-        "CRE": 3
+        "CRE": 3,
+        "int": 1,
+        "sab": 0,
+        "car": 3,
+        "res": 7,
+        "cre": 3
       },
       "desc": "",
       "goal": "",
@@ -762,7 +921,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_10",
@@ -780,7 +941,12 @@
         "SAB": 8,
         "CAR": 0,
         "RES": 1,
-        "CRE": 3
+        "CRE": 3,
+        "int": 5,
+        "sab": 8,
+        "car": 0,
+        "res": 1,
+        "cre": 3
       },
       "desc": "",
       "goal": "",
@@ -795,7 +961,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_11",
@@ -813,7 +981,12 @@
         "SAB": 4,
         "CAR": 2,
         "RES": 8,
-        "CRE": 7
+        "CRE": 7,
+        "int": 7,
+        "sab": 4,
+        "car": 2,
+        "res": 8,
+        "cre": 7
       },
       "desc": "",
       "goal": "",
@@ -828,7 +1001,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_12",
@@ -846,7 +1021,12 @@
         "SAB": 2,
         "CAR": 2,
         "RES": 1,
-        "CRE": 2
+        "CRE": 2,
+        "int": 3,
+        "sab": 2,
+        "car": 2,
+        "res": 1,
+        "cre": 2
       },
       "desc": "",
       "goal": "",
@@ -861,7 +1041,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_13",
@@ -879,7 +1061,12 @@
         "SAB": 6,
         "CAR": 0,
         "RES": 2,
-        "CRE": 4
+        "CRE": 4,
+        "int": 5,
+        "sab": 6,
+        "car": 0,
+        "res": 2,
+        "cre": 4
       },
       "desc": "",
       "goal": "",
@@ -894,7 +1081,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     },
     {
       "id": "h_3d_14",
@@ -912,7 +1101,12 @@
         "SAB": 4,
         "CAR": 1,
         "RES": 1,
-        "CRE": 1
+        "CRE": 1,
+        "int": 8,
+        "sab": 4,
+        "car": 1,
+        "res": 1,
+        "cre": 1
       },
       "desc": "",
       "goal": "",
@@ -927,7 +1121,9 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {}
+      "challengeCompletions": {},
+      "statsCap": 20,
+      "photoSrc": ""
     }
   ],
   "subjects": [
@@ -1039,8 +1235,8 @@
       "id": "ev1",
       "kind": "boss",
       "title": "El Loquito del Centro",
-      "image": "assets/eventos/loquito.png",
-      "lockedImage": "assets/eventos/loquito_locked.png",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
       "unlock": {
         "label": "Completa 3 desafíos (cualquiera)",
         "type": "challengesCompleted",

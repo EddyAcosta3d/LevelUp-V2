@@ -8,7 +8,7 @@
    2) si falla, usa la última copia en localStorage
    3) siempre puedes importar JSON manual (iPad offline) y se guarda localmente
 */
-  window.LEVELUP_BUILD = 'LevelUP_V2_00.033';
+  window.LEVELUP_BUILD = 'LevelUP_V2_00.034';
 
   // CLEAN PASS v29: stability + small UI tweaks
 
@@ -114,7 +114,7 @@ function seedChallengesDemo(S){
 
   // Build marker (para confirmar en GitHub que sí cargó la versión correcta)
   // Build identifier (also used for cache-busting via querystring in index.html)
-  const BUILD_ID = 'LevelUP_V2_00.033';
+  const BUILD_ID = 'LevelUP_V2_00.034';
 
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));

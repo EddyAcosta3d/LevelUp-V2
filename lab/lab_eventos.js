@@ -20,7 +20,9 @@ function getEventImageInfo(ev, isUnlocked){
   const id = ev.assetKey || ev.id;
   const kind = ev.kind === 'boss' ? 'jefes' : 'eventos';
   const prefix = ev.kind === 'boss' ? 'Boss_' : 'Event_';
-  const ext = (ev.ext || 'jpg').replace('.','');
+  // En tu repo estás usando PNG (ej. Boss_loquito_locked.png).
+  // En el LAB, si no se especifica ext en los datos de demo, asumimos png.
+  const ext = (ev.ext || 'png').replace('.','');
   const suffix = isUnlocked ? `_unlocked.${ext}` : `_locked.${ext}`;
   return `../assets/${kind}/${prefix}${id}${suffix}`;
 }
@@ -186,6 +188,10 @@ function bindUI(){
 
   $('#btnCloseModal').addEventListener('click', closeModal);
   $('#modalBackdrop').addEventListener('click', closeModal);
+  // Cierra también si haces click "afuera" del contenido (sobre el overlay)
+  $('#eventModal').addEventListener('click', (e)=>{
+    if (e.target && e.target.id === 'eventModal') closeModal();
+  });
   document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
 }
 

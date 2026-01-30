@@ -67,22 +67,30 @@
     const locked = !isEditEnabled();
     document.body.classList.toggle('is-view-locked', locked);
 
-    // Disable only when we are on fichas; other pages don't need this lock yet
-    if(state.route !== 'fichas') return;
-
-    FICHA_LOCK.disableSelectors.forEach(sel=>{
-      $$(sel).forEach(el=>{
-        if('disabled' in el) el.disabled = locked;
-        el.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    // Inputs/textarea: solo lectura en modo "Solo ver" (sin apagarse visualmente)
+    FICHA_LOCK.disableSelectors.forEach(sel => {
+      $$(sel).forEach(el => {
+        const tag = (el.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea'){
+          try { el.readOnly = locked; } catch(e){}
+          el.setAttribute('aria-readonly', String(locked));
+        } else {
+          // Botones u otros controles: deshabilitar (además se ocultan por CSS)
+          try { el.disabled = locked; } catch(e){}
+          el.setAttribute('aria-disabled', String(locked));
+        }
       });
     });
 
-    // Stats
-    $$(FICHA_LOCK.statsRangeSelector).forEach(r=>{ r.disabled = locked; });
-    $$(FICHA_LOCK.statsSegsSelector).forEach(seg=>{
-      seg.style.pointerEvents = locked ? 'none' : 'auto';
+    // Chips de actividades (+2/+5/+10): ocultos por CSS, pero también deshabilitados por seguridad
+    $$('#actChips [data-xp]').forEach(b => {
+      try { b.disabled = locked; } catch(e){}
+      b.setAttribute('aria-disabled', String(locked));
     });
+
+    // Stats: se bloquean (sin cambiar brillo) vía pointer-events en CSS
   }
+
 // Drawer
   function isDrawerLayout(){ return window.matchMedia('(max-width: 980px)').matches; }
   function closeDrawer(){ $('#shell').classList.remove('is-drawer-open'); $('#overlay').hidden = true; }

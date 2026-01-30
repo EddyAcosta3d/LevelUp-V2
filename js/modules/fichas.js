@@ -215,6 +215,8 @@ function renderHeroAvatar(hero){
     box.replaceChildren();
 
     if (url){
+      box.classList.remove('is-empty');
+      box.removeAttribute('aria-hidden');
       const img = document.createElement('img');
       img.src = String(url);
       img.alt = heroName ? `Foto de ${heroName}` : 'Foto del héroe';
@@ -224,19 +226,96 @@ function renderHeroAvatar(hero){
       return;
     }
 
-    // No custom photo: show placeholder and try auto-load from assets/personajes/<Nombre>.(jpg|png|...)
-    box.textContent = 'Sin foto';
-    if (heroName) {
-      tryLoadAutoAvatar(heroName, hero, box);
+    // Sin foto: oculta la capa de foto para que se vean las capas de prueba.
+    box.classList.add('is-empty');
+    box.setAttribute('aria-hidden','true');
+
+    // Nota: ya no hacemos "autoload" automático desde assets/personajes/<Nombre>.
+    // La imagen se define explícitamente en el JSON/GitHub, y aquí solo se muestra si existe.
+  }
+
+  function applyHeroSceneLayers(hero){
+    const scene = document.getElementById('heroScene');
+    if (!scene) return;
+
+    let bg = '', mid = '', fg = '';
+
+    // DEMO: solo en la ficha de Eddy (h_2d_1) cargamos las 3 capas de prueba.
+    if (hero && String(hero.id||'') === 'h_2d_1'){
+      bg = 'assets/parallax/eddy_bg.png';
+      mid = '';
+      fg = 'assets/parallax/eddy_fg.png';
+      scene.dataset.parallax = '1';
+    }else{
+      scene.dataset.parallax = '0';
     }
+
+    const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
+    scene.style.setProperty('--heroLayerBg', bg ? `url("${abs(bg)}")` : 'none');
+    scene.style.setProperty('--heroLayerMid', mid ? `url("${abs(mid)}")` : 'none');
+    scene.style.setProperty('--heroLayerFg', fg ? `url("${abs(fg)}")` : 'none');
+
+    // Botón para ocultar/mostrar Descripción/Meta (si existe overlay)
+    ensureHeroNotesToggle(scene);
+  }
+
+  function ensureHeroNotesToggle(scene){
+    try{
+      if (!scene) return;
+      // Creamos el botón una sola vez, y lo dejamos en la esquina inferior derecha de la foto.
+      let btn = scene.querySelector('.heroNotesToggleBtn');
+      if (!btn){
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'heroNotesToggleBtn';
+        btn.setAttribute('aria-label', 'Mostrar u ocultar notas');
+        btn.title = 'Mostrar/Ocultar Descripción y Meta';
+        btn.textContent = '🗒';
+        btn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          e.stopPropagation();
+          const next = !scene.classList.contains('notesCollapsed');
+          scene.classList.toggle('notesCollapsed', next);
+          try{ localStorage.setItem('lu_notesCollapsed', next ? '1' : '0'); }catch(_){ }
+        });
+        scene.appendChild(btn);
+      }
+
+      // Restaurar preferencia
+      let saved = false;
+      try{ saved = (localStorage.getItem('lu_notesCollapsed') === '1'); }catch(_){ }
+      scene.classList.toggle('notesCollapsed', saved);
+    }catch(_){ }
   }
 
   const ROLE_OPTIONS = [
-    { id:'analista', name:'Analista', desc:'Observa, detecta patrones y propone mejoras.' },
-    { id:'mentor', name:'Mentor', desc:'Acompaña, explica y ayuda a otros a avanzar.' },
-    { id:'creador', name:'Creador', desc:'Diseña ideas nuevas, soluciones y proyectos.' },
-    { id:'guardian', name:'Guardián', desc:'Cuida el orden, el enfoque y las reglas del equipo.' },
-    { id:'explorador', name:'Explorador', desc:'Prueba caminos nuevos y se adapta rápido a los retos.' }
+    // Académico / mental
+    { id:'analista',      name:'Analista',      desc:'Observa con calma, detecta patrones y propone mejoras.' },
+    { id:'estratega',     name:'Estratega',     desc:'Planea pasos, organiza al equipo y decide prioridades.' },
+    { id:'investigador',  name:'Investigador',  desc:'Hace preguntas, busca evidencias y explica lo que encontró.' },
+    { id:'bibliotecario', name:'Bibliotecario', desc:'Encuentra recursos, resume ideas y ayuda a estudiar mejor.' },
+
+    // Creativo / expresión
+    { id:'creador',       name:'Creador',       desc:'Imagina soluciones nuevas y se anima a probar cosas.' },
+    { id:'artista',       name:'Artista',       desc:'Cuida el estilo, los detalles y expresa ideas con creatividad.' },
+    { id:'disenador',     name:'Diseñador',     desc:'Ordena la idea, la hace clara y la presenta con buena estética.' },
+
+    // Tecnología / manos a la obra
+    { id:'programador',   name:'Programador',   desc:'Piensa en pasos, lógica y arregla errores con paciencia.' },
+    { id:'tecnico',       name:'Técnico',       desc:'Configura, repara y hace que las cosas funcionen en la práctica.' },
+    { id:'inventor',      name:'Inventor',      desc:'Construye prototipos, mejora objetos y aprende probando.' },
+
+    // Social / liderazgo
+    { id:'lider',         name:'Líder',         desc:'Motiva, organiza y ayuda a que el grupo avance.' },
+    { id:'comunicador',   name:'Comunicador',   desc:'Explica claro, presenta ideas y conecta con los demás.' },
+    { id:'mediador',      name:'Mediador',      desc:'Calma conflictos y busca acuerdos justos.' },
+    { id:'colaborador',   name:'Colaborador',   desc:'Trabaja en equipo, apoya y comparte responsabilidades.' },
+    { id:'mentor',        name:'Mentor',        desc:'Acompaña a otros, enseña sin juzgar y da consejos útiles.' },
+
+    // Acción / energía
+    { id:'explorador',    name:'Explorador',    desc:'Se adapta rápido, prueba caminos nuevos y no se paraliza.' },
+    { id:'deportista',    name:'Deportista',    desc:'Trae energía, disciplina y empuja con constancia.' },
+    { id:'guardian',      name:'Guardián',      desc:'Cuida el orden, el enfoque y las reglas del equipo.' }
   ];
 
   function renderRoleOptions(){
@@ -284,7 +363,10 @@ function renderHeroAvatar(hero){
     const hero = currentHero();
     if (!hero) return;
 
-    // Avatar image (optional: add hero.img = "assets/.../file.png" in your JSON)
+    // Capas de escena (parallax demo)
+    applyHeroSceneLayers(hero);
+
+    // Foto del héroe (si existe). En este layout ocupa TODO el panel izquierdo.
     renderHeroAvatar(hero);
 
     $('#heroName').textContent = (hero.name || 'NUEVO HÉROE').toUpperCase();
@@ -585,4 +667,113 @@ function isChallengeDone(hero, challengeId){
   hero.challengeCompletions = (hero.challengeCompletions && typeof hero.challengeCompletions === 'object') ? hero.challengeCompletions : {};
   return !!hero.challengeCompletions[String(challengeId || '')];
 }
+
+
+
+// --- Parallax en Fichas (solo móvil): 2 capas (bg + fg) ---
+(function initHeroSceneParallax(){
+  try{
+    if (window.__luHeroSceneParallaxInit) return;
+    window.__luHeroSceneParallaxInit = true;
+
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    const mqMobile = window.matchMedia ? window.matchMedia('(max-width: 980px)') : { matches: false, addEventListener: null };
+
+    // Al cambiar entre móvil/escritorio, reseteamos transforms para que no se quede el offset del parallax.
+    let lastMobile = !!mqMobile.matches;
+    function resetHeroLayerTransforms(){
+      const scene = document.getElementById('heroScene');
+      if (!scene) return;
+      const layers = scene.querySelectorAll('.heroSceneLayer[data-speed]');
+      layers.forEach(l=>{ l.style.transform = 'translate3d(0,0,0)'; });
+    }
+
+
+    // En esta app el scroll principal vive en .pages (no en window) en móvil.
+    let scroller = null;
+    function getScroller(){
+      scroller = document.querySelector('.pages') || window;
+      return scroller;
+    }
+
+    let ticking = false;
+
+    function offsetTopWithin(el, ancestor){
+      let y = 0;
+      let n = el;
+      while (n && n !== ancestor){
+        y += (n.offsetTop || 0);
+        n = n.offsetParent;
+      }
+      return y;
+    }
+
+    function update(){
+      ticking = false;
+      // Solo en la pantalla de fichas
+      if (typeof state !== 'undefined' && state.route && state.route !== 'fichas') return;
+      if (!mqMobile.matches){
+        if (lastMobile){ resetHeroLayerTransforms(); lastMobile = false; }
+        return;
+      }
+      lastMobile = true;
+
+      const scene = document.getElementById('heroScene');
+      if (!scene) return;
+      if (String(scene.dataset.parallax||'0') !== '1'){
+        if (lastMobile){ resetHeroLayerTransforms(); }
+        return;
+      }
+      const layers = scene.querySelectorAll('.heroSceneLayer[data-speed]');
+      if (!layers || !layers.length) return;
+
+      // Usamos el scroll REAL (contenedor .pages en móvil). Esto es más confiable que window.scroll.
+      const isWindow = (scroller === window);
+      const scrollTop = isWindow ? (window.scrollY || document.documentElement.scrollTop || 0) : (scroller.scrollTop || 0);
+      const viewH = isWindow ? (window.innerHeight || 1) : (scroller.clientHeight || 1);
+      const sceneTop = isWindow ? (scene.getBoundingClientRect().top + scrollTop) : offsetTopWithin(scene, scroller);
+      const sceneH = scene.offsetHeight || 1;
+      const center = scrollTop + viewH * 0.5;
+      const progress = (center - sceneTop) / (sceneH + viewH); // aprox 0..1
+      const p = Math.max(-0.25, Math.min(1.25, progress));
+
+      layers.forEach(layer => {
+        const speed = parseFloat(layer.getAttribute('data-speed') || '0.2');
+        // Efecto más fuerte (se nota más en celular al hacer scroll)
+        const y = (p - 0.5) * 380 * speed;
+        layer.style.transform = `translate3d(0, ${y}px, 0)`;
+      });
+    }
+
+    function onScroll(){
+      if (!ticking){
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }
+
+    // Listeners: window + contenedor .pages (si existe)
+    const s = getScroller();
+    if (s && s !== window) s.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true }); // fallback (desktop / casos raros)
+    window.addEventListener('resize', onScroll);
+
+    if (mqMobile.addEventListener) mqMobile.addEventListener('change', (e)=>{
+      if (!e.matches){ resetHeroLayerTransforms(); lastMobile = false; }
+      onScroll();
+    });
+
+    // init: dispara varias veces por si la UI se pinta después del load
+    onScroll();
+    setTimeout(onScroll, 0);
+    setTimeout(onScroll, 250);
+    setTimeout(onScroll, 800);
+
+  }catch(e){
+    // Fail silently (viewer experience)
+    console.warn('hero scene parallax init error', e);
+  }
+})();
 

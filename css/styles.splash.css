@@ -51,6 +51,73 @@
   box-shadow: 0 20px 90px rgba(0,0,0,0.70);
 }
 
+/* ============================================================
+   SPLASH VARIANTS
+   Cambia la clase en index.html:
+   - splash--free   (logo libre, sin "cuadrado")
+   - splash--orb    (orbe / anillo)
+   - splash--curtain(cinemático con base)
+   ============================================================ */
+
+/* --- A) FREE: logo libre (sin marco) --- */
+.splash.splash--free{
+  background: radial-gradient(1200px 800px at 50% 35%, rgba(114,26,255,.10), rgba(0,0,0,0) 62%),
+              radial-gradient(900px 700px at 50% 70%, rgba(0,210,255,.08), rgba(0,0,0,0) 64%),
+              rgba(12,12,16,.98);
+}
+.splash.splash--free .splash__inner{
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.splash.splash--free .splash__inner::before,
+.splash.splash--free .splash__inner::after{
+  display:none;
+}
+.splash.splash--free .splash__logo{
+  width: clamp(360px, 72vmin, 760px);
+  filter:
+    drop-shadow(0 26px 100px rgba(0,0,0,.72))
+    drop-shadow(0 0 28px rgba(0,210,255,.10));
+}
+.splash.splash--free .splash__glow{
+  inset: -160px;
+  opacity: .85;
+  filter: blur(32px);
+}
+
+/* --- B) ORB: mantiene idea pero 100% circular (sin rectángulo) --- */
+.splash.splash--orb .splash__inner{
+  border-radius: 999px;
+  padding: 34px;
+  background: radial-gradient(circle at 50% 40%, rgba(114,26,255,.14), rgba(0,0,0,0) 62%),
+              rgba(0,0,0,0.16);
+  border: 1px solid rgba(0,210,255,0.18);
+}
+.splash.splash--orb .splash__inner::after{ border-radius: 999px; }
+.splash.splash--orb .splash__logo{ width: clamp(320px, 62vmin, 640px); }
+
+/* --- C) CURTAIN: logo un poco más abajo, vibe "poster" --- */
+.splash.splash--curtain{ place-items: end center; padding-bottom: 9vh; }
+.splash.splash--curtain .splash__inner{
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.splash.splash--curtain .splash__logo{ width: clamp(340px, 68vmin, 720px); }
+.splash.splash--curtain::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height: 34vh;
+  background: linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0));
+  pointer-events:none;
+}
+
 /* impact ring */
 .splash__inner::before{
   content:"";

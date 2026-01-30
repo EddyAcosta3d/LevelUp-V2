@@ -10,12 +10,14 @@
   <!-- Icono de la pestaña (pon tu archivo en assets/logo.png o cambia la ruta) -->
   <link rel="icon" href="assets/logo.png" type="image/png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
-  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.033" />
-  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.033" />
-  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.033" />
+  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.034" />
+  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.034" />
+  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.034" />
 </head>
 <body>
-  <div class="splash" id="splash" aria-label="LevelUp" role="status">
+  <!-- Splash: cambia la variante con la clase:
+       splash--free (default), splash--orb, splash--curtain -->
+  <div class="splash splash--free" id="splash" aria-label="LevelUp" role="status">
     <div class="splash__inner">
       <img class="splash__logo" src="assets/logo.png" alt="LevelUp" />
       <div class="splash__glow" aria-hidden="true"></div>
@@ -109,45 +111,36 @@
           <article class="page is-active" data-page="fichas">
             <div class="cardGrid">
               <div class="card card--center card--avatar">
-                <!-- Eliminar héroe (fuera del marco para no descentrar la foto) -->
-                <button class="iconBtn heroChestBtn" id="btnChest" title="Recompensas" aria-label="Recompensas">
-                  <!-- Inline SVG para que se vea como cofre (no emoji caja de herramientas) -->
-                  <svg class="chestIcon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-                    <!-- tapa -->
-                    <path d="M12 26c0-10 8-18 20-18s20 8 20 18v4H12v-4z" fill="rgba(114,26,255,.18)" stroke="rgba(0,210,255,.55)" stroke-width="2"/>
-                    <!-- cuerpo -->
-                    <path d="M10 30h44v22c0 3-2 6-6 6H16c-4 0-6-3-6-6V30z" fill="rgba(25,42,86,.85)" stroke="rgba(0,210,255,.55)" stroke-width="2"/>
-                    <!-- refuerzo -->
-                    <path d="M10 40h44" stroke="rgba(0,210,255,.35)" stroke-width="2"/>
-                    <!-- cerradura -->
-                    <path d="M28 41h8v10h-8z" fill="rgba(220,220,230,.12)" stroke="rgba(220,220,230,.55)" stroke-width="2"/>
-                    <circle cx="32" cy="46" r="1.8" fill="rgba(0,210,255,.9)"/>
-                  </svg>
-                  <span class="notifBadge" id="chestBadge" aria-hidden="true" hidden>1</span>
-                </button>
-                <button class="iconBtn iconBtn--danger heroDeleteBtn" id="btnEliminar" data-edit-only="1" title="Eliminar héroe" aria-label="Eliminar héroe">🗑</button>
-                <div class="avatar">
-				  <div class="avatar__frame" id="avatarFrame">
-					<div class="avatar__box" id="avatarBox">
-						<div class="avatar__placeholder">Sin foto</div>
-					</div>
-                    <!-- Overlay edit icon: appears on hover (desktop) or always on touch -->
-                    <button class="avatarEditBtn" id="btnFotoOverlay" data-edit-only="1" title="Editar foto" aria-label="Editar foto">✎</button>
-				  </div>
+                <!-- ESCENA grande (sin marco): 3 capas para parallax en móvil -->
+                <div class="heroScene" id="heroScene" aria-label="Imagen del héroe">
+                  <div class="heroSceneLayer heroSceneLayer--bg" data-speed="0.18" aria-hidden="true"></div>
+                  <div class="heroSceneLayer heroSceneLayer--mid" data-speed="0.32" aria-hidden="true"></div>
+                  <div class="heroSceneLayer heroSceneLayer--fg" data-speed="0.48" aria-hidden="true"></div>
+                  <!-- Foto del heroe (si existe) ocupa toda el area; si no, se oculta y se ven las capas de prueba -->
+                  <div class="heroPhotoFill is-empty" id="avatarBox" aria-hidden="true"></div>
+                  <div class="heroSceneShade" aria-hidden="true"></div>
+
+                  <!-- Botones flotantes (no ocupan espacio y no "encuadran" la imagen) -->
+                  <button class="iconBtn iconBtn--danger heroDeleteBtn" id="btnEliminar" data-edit-only="1" title="Eliminar héroe" aria-label="Eliminar héroe">🗑</button>
+                  <!-- Botón de editar imagen removido: la foto se gestiona directo en GitHub/JSON -->
+
+                  <!-- Nombre encima de la imagen -->
+                  <div class="heroName heroName--overlay" id="heroName">NUEVO HÉROE</div>
+
+                  <!-- Notas como overlay (para que la imagen abarque TODO el bloque) -->
+                  <div class="heroNotesOverlay" id="heroNotesOverlay">
+                    <div class="noteGrid noteGrid--overlay">
+                      <div class="noteCol">
+                        <div class="noteTitle">Descripción rápida</div>
+                        <textarea class="textarea textarea--short" id="txtDesc"></textarea>
+                      </div>
+                      <div class="noteCol">
+                        <div class="noteTitle">Meta del trimestre</div>
+                        <textarea class="textarea textarea--short" id="txtMeta"></textarea>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-
-                <div class="heroName" id="heroName">NUEVO HÉROE</div>
-
-          <div class="noteGrid">
-            <div class="noteCol">
-              <div class="noteTitle">Descripción rápida</div>
-              <textarea class="textarea textarea--short" id="txtDesc" ></textarea>
-            </div>
-            <div class="noteCol">
-              <div class="noteTitle">Meta del trimestre</div>
-              <textarea class="textarea textarea--short" id="txtMeta" ></textarea>
-            </div>
-</div>
               </div>
 
               <div class="card">
@@ -519,16 +512,16 @@
     </div>
   </div>
 
-<script src="js/splash.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/modules/store.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/modules/fichas.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/modules/desafios.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/modules/eventos.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/app.bindings.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/app.main.js?v=LevelUP_V2_00.033" defer></script>
-  <script src="js/app.js?v=LevelUP_V2_00.033" defer></script>
+<script src="js/splash.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/modules/store.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/modules/fichas.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/modules/desafios.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/modules/eventos.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/app.bindings.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/app.main.js?v=LevelUP_V2_00.034" defer></script>
+  <script src="js/app.js?v=LevelUP_V2_00.034" defer></script>
 </body>
 </html>
