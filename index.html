@@ -5,14 +5,14 @@
   <!-- iOS: evita zoom raro al rotar y mantiene el layout estable -->
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
-  <!-- LevelUp STABLE_RESET_v14 -->
+  <!-- LevelUp STABLE_RESET_v15_CLEAN -->
 <title>LevelUp</title>
   <!-- Icono de la pestaña (pon tu archivo en assets/logo.png o cambia la ruta) -->
   <link rel="icon" href="assets/logo.png" type="image/png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
-  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.034" />
-  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.034" />
-  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.034" />
+  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.041" />
+  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.041" />
+  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.041" />
 </head>
 <body>
   <!-- Splash: cambia la variante con la clase:
@@ -117,7 +117,7 @@
                   <div class="heroSceneLayer heroSceneLayer--mid" data-speed="0.32" aria-hidden="true"></div>
                   <div class="heroSceneLayer heroSceneLayer--fg" data-speed="0.48" aria-hidden="true"></div>
                   <!-- Foto del heroe (si existe) ocupa toda el area; si no, se oculta y se ven las capas de prueba -->
-                  <div class="heroPhotoFill is-empty" id="avatarBox" aria-hidden="true"></div>
+                  <div class="heroPhotoFill is-empty" id="avatarBox" aria-label="Foto del héroe"></div>
                   <div class="heroSceneShade" aria-hidden="true"></div>
 
                   <!-- Botones flotantes (no ocupan espacio y no "encuadran" la imagen) -->
@@ -131,7 +131,10 @@
                   <div class="heroNotesOverlay" id="heroNotesOverlay">
                     <div class="noteGrid noteGrid--overlay">
                       <div class="noteCol">
-                        <div class="noteTitle">Descripción rápida</div>
+                        <div class="noteTitleRow noteTitleRow--desc">
+                          <div class="noteTitle">Descripción rápida</div>
+                          <div class="noteTitleTools"></div>
+                        </div>
                         <textarea class="textarea textarea--short" id="txtDesc"></textarea>
                       </div>
                       <div class="noteCol">
@@ -238,24 +241,40 @@
               <button class="pill pill--ghost" id="btnManageSubjects" type="button" data-edit-only="1">✎ Materias</button>
             </div>
 
-            <!-- Menú contextual (mobile/compact) para acciones del desafío seleccionado -->
-            <div class="dropdown__menu" id="challengeMoreMenu" role="menu" aria-label="Acciones de desafío" hidden></div>
+            
 
-<div class="cards2">
+<div class="cards2 cards2--ch">
               <div class="card">
-                <div class="cardTitle">Lista</div>
+                <div class="cardHead cardHead--ch">
+                  <div>
+                    <h3 class="h3">Desafíos</h3>
+                    <div class="muted small" id="chSubtitle">Elige un reto y gana XP.</div>
+                  </div>
+                  <div class="chProgressChips" id="chProgressChips" aria-label="Progreso de desafíos"></div>
+                </div>
+
+                <div class="chProgressBar" aria-hidden="true">
+                  <div class="chProgressFill" id="chProgressFill" style="width:0%"></div>
+                </div>
+                <div class="muted small" id="chProgressText" style="margin:6px 0 10px 0;">—</div>
+
                 <div class="challengeList" id="challengeList"></div>
               </div>
 
               <div class="card">
-                <div class="cardTitle">Detalle</div>
+                <div class="cardHead cardHead--chDetail">
+                  <div>
+                    <h3 class="h3" id="challengeDetailTitle">Detalle</h3>
+                    <div class="muted small" id="challengeDetailSub">Selecciona un desafío para ver instrucciones.</div>
+                  </div>
+                  <div class="chDetailBadges" id="challengeDetailBadges" aria-label="Etiquetas"></div>
+                </div>
+
                 <div class="challengeDetailHead">
                   <div class="challengeDetailMeta" id="challengeHint">Selecciona un desafío.</div>
                   <div class="challengeDetailActions">
-                    <button class="pill pill--small" id="btnChallengeComplete" type="button">✔ Completado</button>
-                    <button class="pill pill--small pill--ghost" id="btnChallengeEdit" data-edit-only="1" type="button">✎ Editar</button>
-                    <button class="pill pill--small pill--danger" id="btnChallengeDelete" data-edit-only="1" type="button">🗑</button>
-                    <button class="pill pill--small pill--ghost" id="btnChallengeMore" type="button" aria-label="Más acciones" data-edit-only="1">⋯</button>
+                    <!-- El profe puede alternar Pendiente/Completado. Alumnos no ven este control. -->
+                    <button class="pill pill--small pill--status" id="btnChallengeComplete" type="button" data-edit-only="1">⏳ Pendiente</button>
                   </div>
                 </div>
                 <div class="challengeBody" id="challengeBody"></div>
@@ -265,8 +284,14 @@
 
           <article class="page" data-page="eventos">
             <div class="pageIntro">
-              <h2 class="h2">Eventos</h2>
-              <p class="muted">Tarjetas (placeholder) listas para desbloqueos.</p>
+              <div class="pageIntro__row">
+                <h2 class="h2" id="eventsTitle">Jefes</h2>
+                <div class="eventTabs" id="eventTabs" role="tablist" aria-label="Jefes y eventos">
+                  <button class="pill pill--ghost is-active" type="button" data-event-tab="boss">Jefes</button>
+                  <button class="pill pill--ghost" type="button" data-event-tab="event">Eventos</button>
+                </div>
+              </div>
+              <p class="muted" id="eventsSubtitle">Tarjetas listas para desbloqueos.</p>
             </div>
             <div class="gridCards" id="eventGrid"></div>
           </article>
@@ -308,7 +333,7 @@
           <div class="ghostBox">PIN se agrega en fase siguiente</div>
         </div>
       </aside>
-      <input type="file" id="fileHeroPhoto" accept="image/*" hidden />
+      <!-- Las fotos de los héroes se gestionan en la carpeta /assets (no se suben desde la app). -->
     </main>
 
     <nav class="bottomNav" id="bottomNav" aria-label="Navegación inferior">
@@ -327,33 +352,6 @@
         </div>
         <div class="modal__body">
           <div class="roleList" id="roleList"></div>
-        </div>
-      </div>
-    </div>
-
-    
-    <!-- Modal: Editor de foto (encuadre) -->
-    <div class="modal" id="photoModal" hidden>
-      <div class="modal__backdrop" id="photoBackdrop"></div>
-      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle">
-        <div class="modal__header">
-          <div class="cardTitle" id="photoModalTitle">Editar foto</div>
-          <button class="pill pill--small pill--ghost" id="btnPhotoCancel" type="button">Cerrar</button>
-        </div>
-        <div class="modal__body">
-          <div id="photoPreviewBox" aria-label="Arrastra para encuadrar"></div>
-
-          <div class="photoFitRow">
-            <div class="muted">Posición: <span id="photoPosLabel">50% · 50%</span></div>
-            <div class="muted">Zoom: <span id="photoZoomLabel">100%</span></div>
-          </div>
-
-          <div class="photoFitRow">
-            <input id="photoZoom" type="range" min="1" max="2.5" step="0.01" value="1" />
-            <button class="pill pill--small" id="btnPhotoReset" type="button">Reset</button>
-            <button class="pill pill--small pill--ghost" id="btnPhotoChange" type="button">Cambiar imagen</button>
-            <button class="pill pill--small pill--danger" id="btnPhotoSave" type="button">Guardar</button>
-          </div>
         </div>
       </div>
     </div>
@@ -438,12 +436,17 @@
           <button class="pill pill--small pill--ghost" id="btnCloseChallengeModal" type="button">✕</button>
         </div>
         <div class="modal__body">
-          <div class="fields3" style="grid-template-columns: 1fr 120px 1fr;">
+          <div class="challengeFormGrid">
             <div class="field">
               <label class="label">Materia</label>
-              <select class="input input--select" id="inChSubject"></select>
+              <input type="hidden" id="inChSubject" value="" />
+              <div class="dropdown" id="chModalSubjectDropdown">
+                <button class="pill" id="btnChModalSubject" type="button">Materia ▾</button>
+                <div class="dropdown__menu" id="chModalSubjectMenu" role="menu" aria-label="Materias"></div>
+              </div>
             </div>
-            <div class="field">
+
+            <div class="field field--diff">
               <label class="label">Dificultad</label>
               <input type="hidden" id="inChDiff" value="easy" />
               <div class="diffPick" id="inChDiffPick" role="group" aria-label="Dificultad">
@@ -452,10 +455,12 @@
                 <button type="button" class="pill pill--small" data-diff="hard">Difícil</button>
               </div>
             </div>
+
             <div class="field">
               <label class="label">Puntos</label>
               <input class="input" id="inChPoints" inputmode="numeric" />
             </div>
+          </div>
           </div>
 
           <div class="field">
@@ -512,16 +517,16 @@
     </div>
   </div>
 
-<script src="js/splash.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/modules/store.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/modules/fichas.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/modules/desafios.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/modules/eventos.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/app.bindings.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/app.main.js?v=LevelUP_V2_00.034" defer></script>
-  <script src="js/app.js?v=LevelUP_V2_00.034" defer></script>
+<script src="js/splash.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/modules/store.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/modules/fichas.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/modules/desafios.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/modules/eventos.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/app.bindings.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/app.main.js?v=LevelUP_V2_00.041" defer></script>
+  <script src="js/app.js?v=LevelUP_V2_00.041" defer></script>
 </body>
 </html>

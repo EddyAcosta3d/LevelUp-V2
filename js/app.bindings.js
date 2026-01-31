@@ -16,40 +16,6 @@ function bind(){
     });
     $('#overlay').addEventListener('click', closeDrawer);
 
-    // Mobile: overflow menu for header actions (Recompensas/Estado/Datos/Edición)
-    const btnTopMore = $('#btnTopMore');
-    const topMoreMenu = $('#topMoreMenu');
-    const closeTopMore = ()=>{
-      if (!btnTopMore || !topMoreMenu) return;
-      topMoreMenu.hidden = true;
-      btnTopMore.setAttribute('aria-expanded','false');
-    };
-    const toggleTopMore = ()=>{
-      if (!btnTopMore || !topMoreMenu) return;
-      const willOpen = topMoreMenu.hidden;
-      topMoreMenu.hidden = !willOpen;
-      btnTopMore.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-    };
-    if (btnTopMore && topMoreMenu){
-      btnTopMore.addEventListener('click', (e)=>{ e.stopPropagation(); toggleTopMore(); });
-      topMoreMenu.addEventListener('click', (e)=>{
-        const item = e.target.closest('[data-proxy-click]');
-        if (!item) return;
-        const id = item.getAttribute('data-proxy-click');
-        const target = id ? document.getElementById(id) : null;
-        if (target) target.click();
-        closeTopMore();
-      });
-      document.addEventListener('click', (e)=>{
-        if (topMoreMenu.hidden) return;
-        if (e.target === btnTopMore) return;
-        if (topMoreMenu.contains(e.target)) return;
-        closeTopMore();
-      });
-      window.addEventListener('resize', closeTopMore);
-      window.addEventListener('orientationchange', ()=>{ closeTopMore(); closeDrawer(); });
-    }
-
     // Recompensas como "switch":
     // - 1er click: abre Recompensas
     // - 2o click: regresa a la pestaña donde estabas
@@ -154,22 +120,6 @@ function bind(){
       setRole(state.role === 'viewer' ? 'teacher' : 'viewer');
     });
 
-    // Cofre de recompensas (por ficha):
-    // - Si hay recompensas pendientes, abre el modal de level-up para reclamar.
-    // - Si no hay pendientes, manda a la pestaña de Recompensas (historial con fecha).
-    $('#btnChest')?.addEventListener('click', (e)=>{
-      e.preventDefault();
-      e.stopPropagation();
-      const h = currentHero();
-      if (!h) return;
-      h.pendingRewards = Array.isArray(h.pendingRewards) ? h.pendingRewards : [];
-      if (h.pendingRewards.length){
-        openLevelUpModal();
-      } else {
-        setActiveRoute('recompensas');
-      }
-    });
-
 // --- Desafíos UI ---
 const btnSubject = $('#btnSubject');
 const subjectMenu = $('#subjectMenu');
@@ -224,6 +174,8 @@ $('#btnChallengeComplete')?.addEventListener('click', ()=>{
     updateDataDebug();
     renderHeroList();
     renderHeroDetail();
+    try{ renderChallenges(); }catch(e){}
+    try{ renderChallengeDetail(); }catch(e){}
   };
 
   if (hero.challengeCompletions[key]){
@@ -256,6 +208,7 @@ $('#btnChallengeComplete')?.addEventListener('click', ()=>{
 
   saveLocal(state.data);
   renderChallenges();
+  renderChallengeDetail();
 });
 
 // --- CRUD: Materias y Desafíos ---
@@ -277,15 +230,21 @@ function refreshChallengeUI(){
 // Materias modal
 function openSubjectsModal(){  const m = $('#subjectsModal');
   if (!m) return;
+  // Cierra dropdowns/controles que puedan quedar por encima del modal
+  try{ document.activeElement && document.activeElement.blur(); }catch(e){}
+  try{ if (typeof closeSubjectDropdown === 'function') closeSubjectDropdown(); }catch(e){}
+  try{ document.body.classList.add('is-modal-open'); }catch(e){}
   closeAllModals('subjectsModal');
   renderSubjectsModal();
   m.hidden = false;
+  try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
   setTimeout(()=> $('#inNewSubject')?.focus(), 50);
 }
 function closeSubjectsModal(){
   const m = $('#subjectsModal');
   if (!m) return;
   m.hidden = true;
+  try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
 }
 function renderSubjectsModal(){
   const box = $('#subjectsList');
@@ -335,37 +294,91 @@ function renderSubjectsModal(){
 let editingChallengeId = null;
 
 function setChallengeModalDiff(diff){
+  const d = String(diff||'easy').toLowerCase();
   const hid = document.getElementById('inChDiff');
-  if (hid) hid.value = String(diff||'easy');
-  document.querySelectorAll('#chDiffButtons [data-diff]').forEach(b=>{
-    b.classList.toggle('is-active', b.dataset.diff === String(diff||'easy'));
-  });
-  // Update points label
+  if (hid) hid.value = d;
+
+  // Visual state on difficulty buttons
+  const group = document.getElementById('inChDiffPick');
+  if (group){
+    // atributo extra para CSS (más robusto que solo class)
+    group.dataset.active = d;
+    group.querySelectorAll('[data-diff]').forEach(b=>{
+      const isOn = String(b.dataset.diff||'').toLowerCase() === d;
+      b.classList.toggle('is-active', isOn);
+      b.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+    });
+  }
+
+  // Default points per difficulty (only if user hasn't touched it)
   const pts = document.getElementById('inChPoints');
-  if (pts){
-    const d = String(diff||'easy');
+  if (pts && !pts.dataset.touched){
     pts.value = d==='hard'?40 : d==='medium'?20 : 10;
   }
 }
+
+
+// --- Challenge modal subject dropdown (custom, matches main Materia dropdown) ---
+function closeChModalSubjectDropdown(){
+  const dd = document.getElementById('chModalSubjectDropdown');
+  if (dd) dd.classList.remove('is-open');
+}
+function toggleChModalSubjectDropdown(){
+  const dd = document.getElementById('chModalSubjectDropdown');
+  if (!dd) return;
+  dd.classList.toggle('is-open');
+}
+function ensureChModalSubjectDropdown(subjects){
+  const dd = document.getElementById('chModalSubjectDropdown');
+  const btn = document.getElementById('btnChModalSubject');
+  const menu = document.getElementById('chModalSubjectMenu');
+  const hid = document.getElementById('inChSubject');
+  if (!dd || !btn || !menu || !hid) return;
+
+  // Populate menu
+  menu.innerHTML = '';
+  (subjects||[]).forEach(s=>{
+    const it = document.createElement('button');
+    it.type = 'button';
+    it.className = 'ddItem';
+    it.dataset.subjectId = String(s.id);
+    it.textContent = s.name || 'Materia';
+    it.addEventListener('click', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      hid.value = String(s.id);
+      btn.textContent = (it.textContent + ' ▾');
+      closeChModalSubjectDropdown();
+    });
+    menu.appendChild(it);
+  });
+
+  // Bind open/close once
+  if (!ensureChModalSubjectDropdown._bound){
+    btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggleChModalSubjectDropdown(); });
+    menu.addEventListener('click', (e)=> e.stopPropagation());
+    document.addEventListener('click', ()=> closeChModalSubjectDropdown());
+    document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closeChModalSubjectDropdown(); });
+    ensureChModalSubjectDropdown._bound = true;
+  }
+}
+
 function openChallengeModal(mode='create', ch=null){  const m = $('#challengeModal');
   if (!m) return;
+  // Cierra dropdowns/controles abiertos (evita que se queden encima del modal)
+  try{ document.activeElement && document.activeElement.blur(); }catch(e){}
+  try{ if (typeof closeSubjectDropdown === 'function') closeSubjectDropdown(); }catch(e){}
+  try{ document.body.classList.add('is-modal-open'); }catch(e){}
+  // Evita overlays encimados (ej. menú de materias abierto detrás del modal)
   closeAllModals('challengeModal');
   const title = $('#challengeModalTitle');
   if (title) title.textContent = (mode === 'edit') ? 'Editar desafío' : 'Nuevo desafío';
   editingChallengeId = (mode === 'edit' && ch) ? ch.id : null;
 
-  // Populate subject select
-  const selSub = $('#inChSubject');
+  // Populate subject dropdown (custom)
   const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
-  if (selSub){
-    selSub.innerHTML = '';
-    subjects.forEach(s=>{
-      const opt = document.createElement('option');
-      opt.value = String(s.id);
-      opt.textContent = s.name || 'Materia';
-      selSub.appendChild(opt);
-    });
-  }
+  ensureChModalSubjectDropdown(subjects);
+  const selSub = $('#inChSubject');
+  const btnSub = $('#btnChModalSubject');
 
   const selDiff = $('#inChDiff');
   const inPts = $('#inChPoints');
@@ -374,6 +387,10 @@ function openChallengeModal(mode='create', ch=null){  const m = $('#challengeMod
 
   const chosenSubject = ch?.subjectId || state.challengeFilter.subjectId || subjects[0]?.id || '';
   if (selSub) selSub.value = String(chosenSubject);
+  if (btnSub){
+    const activeName = subjects.find(s=>String(s.id)===String(chosenSubject))?.name || 'Materia';
+    btnSub.textContent = (activeName + ' ▾');
+  }
 
   // Bind difficulty buttons (once)
   if (!openChallengeModal._bound){
@@ -394,9 +411,8 @@ function openChallengeModal(mode='create', ch=null){  const m = $('#challengeMod
 
   inPts?.addEventListener('input', ()=>{ if (inPts) inPts.dataset.touched = '1'; });
 
-  inPts?.addEventListener('input', ()=>{ if (inPts) inPts.dataset.touched = '1'; });
-
   m.hidden = false;
+  try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
   setTimeout(()=> inTitle?.focus(), 50);
 }
 
@@ -405,6 +421,7 @@ function closeChallengeModal(){
   if (!m) return;
   m.hidden = true;
   editingChallengeId = null;
+  try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
   const inPts = $('#inChPoints');
   if (inPts) delete inPts.dataset.touched;
 }
@@ -466,63 +483,10 @@ async function deleteSelectedChallenge(){  const ch = (state.data?.challenges ||
   toast('Desafío eliminado');
 }
 
-// Menú "⋯" para móviles
-function openChallengeMoreMenu(){
-  const btn = $('#btnChallengeMore');
-  const menu = $('#challengeMoreMenu');
-  if (!btn || !menu) return;  const ch = (state.data?.challenges || []).find(x => x.id === state.selectedChallengeId);
-  menu.innerHTML = '';
-
-  const mk = (label, onClick)=>{
-    const it = document.createElement('button');
-    it.type = 'button';
-    it.className = 'ddItem';
-    it.textContent = label;
-    it.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); closeChallengeMoreMenu(); onClick(); });
-    menu.appendChild(it);
-  };
-
-  mk('✎ Editar', ()=>{ if (ch) openChallengeModal('edit', ch); });
-  mk('🗑 Eliminar', ()=> deleteSelectedChallenge());
-
-  const r = btn.getBoundingClientRect();
-  const pad = 10;
-  const w = 220;
-  let left = Math.min(Math.max(pad, r.right - w), window.innerWidth - w - pad);
-  let top = r.bottom + 10;
-  const maxH = Math.min(window.innerHeight * 0.6, 260);
-  if (top + maxH > window.innerHeight - pad){ top = Math.max(pad, r.top - 10 - maxH); }
-  menu.style.left = `${left}px`;
-  menu.style.top = `${top}px`;
-  menu.style.maxHeight = `${maxH}px`;
-  menu.style.overflow = 'auto';
-  menu.hidden = false;
-}
-function closeChallengeMoreMenu(){
-  const menu = $('#challengeMoreMenu');
-  if (!menu) return;
-  menu.hidden = true;
-}
-
 // Bind: Materias/Desafíos
 $('#btnManageSubjects')?.addEventListener('click', openSubjectsModal);
 $('#btnAddChallenge')?.addEventListener('click', ()=> openChallengeModal('create'));
-$('#btnChallengeEdit')?.addEventListener('click', ()=>{
-  const ch = (state.data?.challenges || []).find(x => x.id === state.selectedChallengeId);
-  if (!ch) return toast('Selecciona un desafío');
-  openChallengeModal('edit', ch);
-});
-$('#btnChallengeDelete')?.addEventListener('click', deleteSelectedChallenge);
-$('#btnChallengeMore')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); openChallengeMoreMenu(); });
 
-// Cierra el menú contextual al tocar fuera
-document.addEventListener('click', (e)=>{
-  const menu = $('#challengeMoreMenu');
-  const btn = $('#btnChallengeMore');
-  if (!menu || menu.hidden) return;
-  if (menu.contains(e.target) || (btn && btn.contains(e.target))) return;
-  closeChallengeMoreMenu();
-});
 
 // Modal: materias
 $('#btnCloseSubjects')?.addEventListener('click', closeSubjectsModal);
@@ -544,6 +508,35 @@ $('#btnCloseChallengeModal')?.addEventListener('click', closeChallengeModal);
 $('#challengeBackdrop')?.addEventListener('click', closeChallengeModal);
 $('#btnCancelChallenge')?.addEventListener('click', closeChallengeModal);
 $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
+
+// Acciones dentro de cada tarjeta de desafío (delegado, para que no se rompa al re-render)
+// Nota: los botones de editar/borrar están dentro de .challengeItem y usan data-act="edit"/"del".
+(function bindChallengeCardActions(){
+  const list = document.getElementById('challengeList');
+  if (!list) return;
+  if (list.dataset.boundActs === '1') return;
+  list.dataset.boundActs = '1';
+  list.addEventListener('click', async (e)=>{
+    const btn = e.target && e.target.closest ? e.target.closest('button[data-act]') : null;
+    if (!btn) return;
+    const act = String(btn.getAttribute('data-act')||'');
+    if (act !== 'edit' && act !== 'del') return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const card = btn.closest ? btn.closest('.challengeItem') : null;
+    const cid = card?.dataset?.cid;
+    if (!cid) return;
+    state.selectedChallengeId = cid;
+
+    if (act === 'edit'){
+      const ch = (state.data?.challenges || []).find(x=> String(x.id) === String(cid));
+      if (ch) openChallengeModal('edit', ch);
+      return;
+    }
+    await deleteSelectedChallenge();
+  });
+})();
 
     $('#btnDebugPanel').addEventListener('click', toggleDetails);
 
@@ -607,8 +600,6 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
     bindHeroField('#inEdad', (el,h)=>{ h.age = el.value === '' ? '' : Number(el.value); });
     bindHeroField('#txtDesc', (el,h)=>{ h.desc = String(el.value || ''); });
     bindHeroField('#txtMeta', (el,h)=>{ h.goal = String(el.value || ''); });
-    bindHeroField('#txtBien', (el,h)=>{ h.goodAt = String(el.value || ''); });
-    bindHeroField('#txtMejorar', (el,h)=>{ h.improve = String(el.value || ''); });
 
 
     // Level Up modal backdrop
@@ -670,7 +661,7 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
     });
 
     // UI helpers
-    initTopMoreMenu();
+    if (typeof initTopMoreMenu === 'function') initTopMoreMenu();
     const resetBtn = $('#btnWeekReset');
     resetBtn?.addEventListener('click', async (e)=>{
       e.preventDefault();
@@ -716,58 +707,18 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
       toast('Ficha eliminada');
     });
 
-    // Foto de héroe (subir/quitar)
-    const photoInput = $('#fileHeroPhoto');
-    const openPhotoPicker = () => {
-      if (!photoInput) return;
-      photoInput.value = '';
-      photoInput.click();
-    };
-
-    // Icono overlay (hover en desktop / siempre visible en touch)
-    const btnFotoOverlay = $('#btnFotoOverlay');
-    btnFotoOverlay?.addEventListener('click', (e)=>{
-      e.preventDefault();
-      e.stopPropagation();
-      // openPhotoModal ya abre selector si no hay imagen
-      openPhotoModal();
-    });
-
-    // En iPad/iPhone también es cómodo que tocar la imagen abra el editor
-    const avatarFrame = $('#avatarFrame');
-    avatarFrame?.addEventListener('click', (e)=>{
-      // evita doble trigger cuando se toca el botón
-      if (e.target && (e.target === btnFotoOverlay)) return;
-      if (!window.matchMedia('(hover: none)').matches) return; // solo touch
-      if (!isEditEnabled()) return;
-      openPhotoModal();
-    });
-
-    photoInput?.addEventListener('change', async ()=>{
-      const h = currentHero();
-      if (!h) return;
-      const file = photoInput.files && photoInput.files[0];
-      if (!file) return;
-      try{
-        const dataUrl = await readFileAsDataURL(file);
-        h.photo = dataUrl;
-        h.photoSrc = '';
-        h.photoFit = h.photoFit || { x:50, y:50, scale:1 };
-        saveLocal(state.data);
-        if (state.dataSource === 'remote') state.dataSource = 'local';
-        updateDataDebug();
-        renderHeroDetail(h);
-        renderHeroList();
-        // abre editor para encuadrar de inmediato
-        openPhotoModal();
-      }catch(err){
-        console.error(err);
-        toast('No se pudo cargar la foto.');
-      }
-    });
+    // Nota: Fotos se gestionan en /assets y en el JSON. No hay carga/edición dentro de la app.
 
     wireAutoGrow(document);
-  }
+  
+    // Exponer acciones para handlers que viven en otros módulos (desafios.js)
+    try{
+      window.openChallengeModal = openChallengeModal;
+      window.deleteSelectedChallenge = deleteSelectedChallenge;
+      window.openSubjectsModal = openSubjectsModal;
+      window.openChallengeModalCreate = () => openChallengeModal('create', null);
+    }catch(_e){}
+}
 
   
   // Splash intro

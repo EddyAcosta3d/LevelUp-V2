@@ -8,7 +8,7 @@
    2) si falla, usa la última copia en localStorage
    3) siempre puedes importar JSON manual (iPad offline) y se guarda localmente
 */
-  window.LEVELUP_BUILD = 'LevelUP_V2_00.034';
+  window.LEVELUP_BUILD = 'LevelUP_V2_00.035';
 
   // CLEAN PASS v29: stability + small UI tweaks
 
@@ -60,8 +60,9 @@ function makeBlankHero(group){
     desc: '',
     goal: '',
     photo: '',
-    // Para edición de encuadre (si más adelante activamos el editor)
-    photoFit: { x: 50, y: 50, scale: 1 }
+    // Ruta a la imagen dentro del proyecto (por ejemplo: assets/personajes/eddy.png)
+    // Se gestiona fuera de la app (carpetas/GitHub/JSON).
+    photoSrc: ''
   };
 }
 
@@ -107,6 +108,7 @@ function seedChallengesDemo(S){
     selectedHeroId: null,
     selectedChallengeId: null,
     challengeFilter: { subjectId: null, diff: 'easy' },
+    eventsTab: 'boss',
     isDetailsOpen: false,
     data: null,
     dataSource: '—'      // remote | local | demo
@@ -114,13 +116,13 @@ function seedChallengesDemo(S){
 
   // Build marker (para confirmar en GitHub que sí cargó la versión correcta)
   // Build identifier (also used for cache-busting via querystring in index.html)
-  const BUILD_ID = 'LevelUP_V2_00.034';
+  const BUILD_ID = 'LevelUP_V2_00.035';
 
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
   // Modal helper (evita que un modal quede debajo de otro)
-  const MODAL_IDS = ['roleModal','photoModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal'];
+  const MODAL_IDS = ['roleModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal'];
   const getModal = (id) => document.getElementById(id);
   function closeAllModals(exceptId=null){
     MODAL_IDS.forEach(id=>{
@@ -128,21 +130,17 @@ function seedChallengesDemo(S){
       const m = getModal(id);
       if (m) m.hidden = true;
     });
+    try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(e){}
   }
 
-
-function readFileAsDataURL(file){
-  return new Promise((resolve, reject)=>{
+  function syncModalOpenState(){
     try{
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result || ''));
-      reader.onerror = () => reject(reader.error || new Error('No se pudo leer la imagen'));
-      reader.readAsDataURL(file);
-    } catch (err){
-      reject(err);
-    }
-  });
-}
+      const anyOpen = !!document.querySelector('.modal:not([hidden])');
+      document.body.classList.toggle('is-modal-open', anyOpen);
+    }catch(e){}
+  }
+  window.syncModalOpenState = syncModalOpenState;
+
 
   function demoData(){
     return {
@@ -204,6 +202,50 @@ function totalCompletedAcrossHeroes(){
   return n;
 }
 
+function normalizeDifficulty(diff){
+  const d = String(diff||'').toLowerCase().trim();
+  if (!d) return '';
+  if (['easy','facil','fácil','f'].includes(d)) return 'easy';
+  if (['medium','medio','m'].includes(d)) return 'medium';
+  if (['hard','dificil','difícil','d'].includes(d)) return 'hard';
+  return d;
+}
+
+function isChallengeDone(hero, challengeId){
+  if (!hero) return false;
+  hero.challengeCompletions = (hero.challengeCompletions && typeof hero.challengeCompletions === 'object') ? hero.challengeCompletions : {};
+  return !!hero.challengeCompletions[String(challengeId || '')];
+}
+
+function getFilteredChallenges(){
+  const challenges = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
+  const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
+  const f = state.challengeFilter || {};
+  let sub = f.subjectId ? String(f.subjectId) : '';
+  const diff = f.diff ? String(f.diff) : '';
+  if (!sub && subjects.length){
+    sub = subjects[0].id;
+    state.challengeFilter = state.challengeFilter || {};
+    state.challengeFilter.subjectId = sub;
+  }
+  return challenges.filter(ch=>{
+    if (sub && String(ch.subjectId || '') !== String(sub)) return false;
+    if (diff && String(ch.difficulty || '') !== diff) return false;
+    return true;
+  });
+}
+
+function countCompletedForHeroByDifficulty(hero, difficulty){
+  if (!hero) return 0;
+  const diff = normalizeDifficulty(difficulty);
+  const map = new Map((Array.isArray(state.data?.challenges) ? state.data.challenges : []).map(c=>[String(c.id), c]));
+  const comp = (hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
+  return Object.keys(comp).reduce((acc, id)=>{
+    const ch = map.get(String(id));
+    return acc + ((ch && normalizeDifficulty(ch.difficulty) === diff) ? 1 : 0);
+  }, 0);
+}
+
 function countCompletedForHero(hero){
   if (!hero) return 0;
   const c = (hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
@@ -216,16 +258,42 @@ function isEventUnlocked(ev){
   const u = ev.unlock || {};
   const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
   const total = totalCompletedAcrossHeroes();
-  if (u.type==='completions_total') return total >= Number(u.count||0);
-  if (u.type==='level_any') return heroes.some(h=>Number(h.level||1) >= Number(u.min||1));
+
+  // Compat: nombres antiguos de reglas
+  const type = String(u.type||'').trim();
+
+  if (type==='completions_total' || type==='challengesCompleted' || type==='completionsTotal'){
+    return total >= Number(u.count||0);
+  }
+
+  if (type==='level_any' || type==='levelAny'){
+    const min = Number(u.min ?? u.level ?? 1);
+    return heroes.some(h=>Number(h.level||1) >= min);
+  }
+
   return false;
 }
 
 function isHeroEligibleForEvent(hero, ev){
   if (!hero || !ev) return false;
   const r = ev.eligibility || {};
-  if (r.type==='level') return Number(hero.level||1) >= Number(r.min||1);
-  if (r.type==='completions_hero') return countCompletedForHero(hero) >= Number(r.count||0);
+  const type = String(r.type||'').trim();
+
+  if (type==='level' || type==='minLevel'){
+    const min = Number(r.min ?? r.level ?? 1);
+    return Number(hero.level||1) >= min;
+  }
+
+  if (type==='completions_hero' || type==='challengesCompletedHero'){
+    return countCompletedForHero(hero) >= Number(r.count||0);
+  }
+
+  if (type==='difficultyCompleted'){
+    const need = Number(r.count||1);
+    const diff = normalizeDifficulty(r.difficulty);
+    return countCompletedForHeroByDifficulty(hero, diff) >= need;
+  }
+
   return true;
 }
 function normalizeData(data){
@@ -238,6 +306,18 @@ function normalizeData(data){
     d.events = Array.isArray(d.events) ? d.events : [];
 
     d.subjects = Array.isArray(d.subjects) ? d.subjects : [];
+    // Normaliza IDs a string para evitar comparaciones estrictas rotas (dataset siempre devuelve string)
+    d.heroes.forEach(h => { if (h && h.id !== undefined) h.id = String(h.id); else if (h) h.id = String(uid('h')); });
+    d.subjects.forEach(s => { if (s && s.id !== undefined) s.id = String(s.id); else if (s) s.id = String(uid('sub')); });
+    d.challenges.forEach(c => {
+      if (!c || typeof c !== 'object') return;
+      if (c.id === undefined || c.id === null || c.id === '') c.id = uid('c');
+      c.id = String(c.id);
+      if (c.subjectId !== undefined && c.subjectId !== null && c.subjectId !== '') c.subjectId = String(c.subjectId);
+      // Compat: algunos datos traen "subject" en vez de "subjectId"; lo mantenemos como texto
+    });
+    d.events.forEach(ev => { if (ev && ev.id !== undefined) ev.id = String(ev.id); else if (ev) ev.id = String(uid('ev')); });
+
 
     // Si vienen desafíos pero no vienen materias, reconstruimos materias desde los desafíos
     // (para evitar que la UI quede sin opciones en el dropdown).
@@ -299,7 +379,6 @@ d.heroes.forEach(h=>{
       // statsCap was used in an older autoevaluación clamp; kept for future use but not enforced.
       // Default to 20 so it doesn't imply a hard cap.
       h.statsCap = Number(h.statsCap ?? 20);
-      h.photoFit = h.photoFit || { x:50, y:50, scale:1 };
       h.photoSrc = h.photoSrc || '';
       h.desc = h.desc || '';
       h.goal = h.goal || '';

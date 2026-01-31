@@ -44,7 +44,10 @@ function setRole(nextRole){
     updateEditButton();
     applyFichaLock();
     updateDataDebug();
-    renderChallengeDetail();
+    // Re-render lists so action buttons (editar/borrar) appear immediately on load
+    try{ if (typeof renderChallenges === 'function') renderChallenges(); }catch(e){}
+    try{ if (typeof renderChallengeDetail === 'function') renderChallengeDetail(); }catch(e){}
+    try{ if (typeof renderEvents === 'function') renderEvents(); }catch(e){}
     toast(state.role === 'teacher' ? 'Edición activada' : 'Modo solo ver');
   }
 
@@ -121,155 +124,8 @@ function setRole(nextRole){
   }
   // Bind
   
-  // --- Photo Fit Editor (encuadre + zoom) ---
-  state.ui = state.ui || {};
-  state.ui.photoEditOpen = false;
-
-  function openPhotoModal(){
-    const hero = currentHero();
-    if (!hero) return;
-    const modal = $('#photoModal');
-    if (!modal) return;
-
-    closeAllModals('photoModal');
-
-    // Ensure fit defaults
-    hero.photoFit = hero.photoFit || { x:50, y:50, scale:1 };
-
-    // Ensure we have a source
-    const src = hero.photo || hero.img || hero.image || hero.photoSrc || '';
-    if (!src){
-      // no image yet -> open picker
-      const file = $('#fileHeroPhoto');
-      file && (file.value='');
-      file && file.click();
-      return;
-    }
-
-    const previewBox = $('#photoPreviewBox');
-
-    // Match the real avatar frame size so the encuadre is 1:1 with what se verá
-    const frame = $('#avatarFrame');
-    if (frame && previewBox){
-      const r = frame.getBoundingClientRect();
-      // fallback in case width is 0 (hidden)
-      const w = Math.max(220, Math.round(r.width || 280));
-      const h = Math.max(240, Math.round(r.height || 320));
-      previewBox.style.setProperty('--photoPreviewW', w + 'px');
-      previewBox.style.setProperty('--photoPreviewH', h + 'px');
-    }
-    previewBox.replaceChildren();
-    const img = document.createElement('img');
-    img.id = 'photoPreviewImg';
-    img.setAttribute('draggable','false');
-    img.draggable = false;
-    img.addEventListener('dragstart', (e)=>{ e.preventDefault(); });
-    img.src = src;
-    img.alt = 'Previsualización';
-    img.loading = 'eager';
-    previewBox.appendChild(img);
-    applyPhotoFit(img, hero);
-
-    const zoom = $('#photoZoom');
-    zoom.value = String(hero.photoFit.scale ?? 1);
-
-    // drag to pan
-    let dragging = false;
-    let startX = 0, startY = 0;
-    let startFit = null;
-
-    const onDown = (e)=>{
-      dragging = true;
-      previewBox.setPointerCapture(e.pointerId);
-      startX = e.clientX;
-      startY = e.clientY;
-      startFit = { x: hero.photoFit.x, y: hero.photoFit.y, scale: hero.photoFit.scale };
-    };
-    const onMove = (e)=>{
-      if (!dragging) return;
-      const rect = previewBox.getBoundingClientRect();
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      const nx = startFit.x - (dx / rect.width) * 100;
-      const ny = startFit.y - (dy / rect.height) * 100;
-      hero.photoFit.x = Math.max(0, Math.min(100, nx));
-      hero.photoFit.y = Math.max(0, Math.min(100, ny));
-      applyPhotoFit(img, hero);
-      // update labels
-      const lbl = $('#photoPosLabel');
-      if (lbl) lbl.textContent = `${Math.round(hero.photoFit.x)}% · ${Math.round(hero.photoFit.y)}%`;
-    };
-    const onUp = ()=>{ dragging = false; };
-
-    // bind listeners (overwrite previous)
-    previewBox.onpointerdown = onDown;
-    previewBox.onpointermove = onMove;
-    previewBox.onpointerup = onUp;
-    previewBox.onpointercancel = onUp;
-
-    // zoom slider
-    zoom.oninput = ()=>{
-      hero.photoFit.scale = Number(zoom.value || 1);
-      applyPhotoFit(img, hero);
-      const zlbl = $('#photoZoomLabel');
-      if (zlbl) zlbl.textContent = `${Math.round(hero.photoFit.scale*100)}%`;
-    };
-
-    // reset
-    $('#btnPhotoReset')?.addEventListener('click', ()=>{
-      hero.photoFit = { x:50, y:50, scale:1 };
-      zoom.value = '1';
-      applyPhotoFit(img, hero);
-      const lbl = $('#photoPosLabel');
-      if (lbl) lbl.textContent = `50% · 50%`;
-      const zlbl = $('#photoZoomLabel');
-      if (zlbl) zlbl.textContent = `100%`;
-    }, { once:true });
-
-    // change image (optional)
-    $('#btnPhotoChange')?.addEventListener('click', ()=>{
-      const file = $('#fileHeroPhoto');
-      if (!file) return;
-      file.value = '';
-      file.click();
-    }, { once:true });
-
-    // save
-    $('#btnPhotoSave')?.addEventListener('click', ()=>{
-      saveLocal(state.data);
-      if (state.dataSource === 'remote') state.dataSource = 'local';
-      updateDataDebug();
-      closePhotoModal();
-      renderHeroDetail();
-      renderHeroList();
-      toast('Foto guardada.');
-    }, { once:true });
-
-    $('#btnPhotoCancel')?.addEventListener('click', ()=>{
-      // Do not revert fit (simple). If you want revert, we'd need snapshot. Keep simple.
-      closePhotoModal();
-      renderHeroDetail();
-    }, { once:true });
-
-    modal.hidden = false;
-    state.ui.photoEditOpen = true;
-
-    // Update labels
-    const lbl = $('#photoPosLabel');
-    if (lbl) lbl.textContent = `${Math.round(hero.photoFit.x)}% · ${Math.round(hero.photoFit.y)}%`;
-    const zlbl = $('#photoZoomLabel');
-    if (zlbl) zlbl.textContent = `${Math.round((hero.photoFit.scale||1)*100)}%`;
-  }
-
-  function closePhotoModal(){
-    const modal = $('#photoModal');
-    if (!modal) return;
-    modal.hidden = true;
-    state.ui.photoEditOpen = false;
-  }
-
-
   // --- Level Up Modal + reward claiming ---
+  state.ui = state.ui || {};
   state.ui.levelUpOpen = false;
   state.ui.pendingToastHeroId = null;
   state.ui.claimingReward = false;
@@ -490,6 +346,7 @@ function setRole(nextRole){
       const modal = $('#confirmModal');
       if (!modal){ resolve(window.confirm(message)); return; }
 	      closeAllModals('confirmModal');
+      try{ document.body.classList.add('is-modal-open'); }catch(e){}
       $('#confirmTitle').textContent = title;
       const msgEl = $('#confirmMessage');
       if (msgEl){
@@ -505,10 +362,12 @@ function setRole(nextRole){
         okBtn.onclick = null;
         cancelBtn.onclick = null;
         modal.hidden = true;
+        try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
         resolve(val);
       };
       okBtn.onclick = ()=> cleanup(true);
       cancelBtn.onclick = ()=> cleanup(false);
       modal.hidden = false;
+      try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
     });
   }

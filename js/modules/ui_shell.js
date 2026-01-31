@@ -4,14 +4,10 @@
     $$('.page').forEach(p => p.classList.toggle('is-active', p.dataset.page === route));
     $$('.pill[data-route]').forEach(b => b.classList.toggle('is-active', b.dataset.route === route));
     $$('#bottomNav .bottomNav__btn').forEach(b => b.classList.toggle('is-active', b.dataset.route === route));
-    const titleMap = { fichas:'FICHAS', desafios:'DESAFÍOS', eventos:'EVENTOS', personajes:'PERSONAJES', recompensas:'RECOMPENSAS' };
-    const titleEl = $('#pageTitle');
-    if (titleEl) titleEl.textContent = titleMap[route] || route.toUpperCase();
     const dbgRoute = $('#dbgRoute');
     if (dbgRoute) dbgRoute.textContent = route;
     updateEditButton();
     applyFichaLock();
-    updateChestUI(currentHero());
   }
 
   
@@ -33,26 +29,14 @@
     }
   }
 
-  // Cofre (por ficha): siempre visible; muestra badge si hay pendientes
-  function updateChestUI(hero){
-    const btn = $('#btnChest');
-    const badge = $('#chestBadge');
-    if (!btn || !badge) return;
-    const count = hero && Array.isArray(hero.pendingRewards) ? hero.pendingRewards.length : 0;
-    badge.hidden = !(count > 0);
-    badge.textContent = String(count || 1);
-    btn.classList.toggle('is-pending', count > 0);
-  }
-
   // Locking framework for Fichas (easy to extend: add selectors here)
   const FICHA_LOCK = {
     disableSelectors: [
       '#btnNuevoHeroe',
       '#btnEliminar',
-      '#btnFotoOverlay',
+      '#avatarBox',
       '#inNombre',
       '#inEdad',
-      '#selRol',
       '#txtDesc',
       '#txtMeta',
       '#btnXpM5', '#btnXpM1', '#btnXpP1', '#btnXpP5',
@@ -157,44 +141,6 @@
     $('#btnDatos').setAttribute('aria-expanded', String(next));
   }
   function closeDatos(){ toggleDatos(false); }
-
-  // Top "..." menu (mobile)
-  function initTopMoreMenu(){
-    const btn = $('#btnTopMore');
-    const menu = $('#topMoreMenu');
-    if (!btn || !menu) return;
-
-    const close = () => {
-      menu.hidden = true;
-      btn.setAttribute('aria-expanded','false');
-    };
-
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const next = menu.hidden;
-      menu.hidden = !next ? true : false;
-      // If it was hidden, show; if shown, hide
-      if (next){
-        menu.hidden = false;
-        btn.setAttribute('aria-expanded','true');
-      } else {
-        close();
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      if (menu.hidden) return;
-      if (menu.contains(e.target) || btn.contains(e.target)) return;
-      close();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') close();
-    });
-
-    menu.addEventListener('click', () => setTimeout(close, 0));
-  }
-
   // Textarea auto-grow (prevents inner scrollbars)
   function autoGrowTextarea(el){
     if (!el) return;

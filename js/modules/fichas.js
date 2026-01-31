@@ -45,9 +45,6 @@
           renderEvents();
         }
 
-        // Ensure hero-specific chest badge updates as well
-        updateChestUI(currentHero());
-
         if (isDrawerLayout()) closeDrawer();
       });
       list.appendChild(btn);
@@ -158,52 +155,8 @@
     return Array.from(new Set(out));
   }
 
-  function tryLoadAutoAvatar(heroName, heroObj, mountEl){
-    const candidates = buildAssetCandidates(heroName);
-    if (!candidates.length || !mountEl) return;
-
-    let idx = 0;
-    const probe = new Image();
-    const tryNext = () => {
-      if (idx >= candidates.length) return;
-      const src = candidates[idx++];
-      probe.onload = () => {
-        // cache the resolved asset path on the hero so it persists in exports/backups
-        if (heroObj && !heroObj.photoSrc && !heroObj.photo && !heroObj.img && !heroObj.image){
-          heroObj.photoSrc = src;
-          // ensure default fit exists
-          heroObj.photoFit = heroObj.photoFit || { x:50, y:50, scale:1 };
-          saveLocal(state.data);
-          if (state.dataSource === 'remote') state.dataSource = 'local';
-          updateDataDebug();
-        }
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = heroName;
-        img.loading = 'lazy';
-        mountEl.replaceChildren(img);
-        // Apply fit if available
-        applyPhotoFit(img, heroObj);
-      };
-      probe.onerror = () => tryNext();
-      probe.src = src;
-    };
-    tryNext();
-  }
-
-  
-  function applyPhotoFit(imgEl, heroObj){
-    if (!imgEl) return;
-    const fit = (heroObj && heroObj.photoFit) ? heroObj.photoFit : null;
-    const x = fit && Number.isFinite(Number(fit.x)) ? Number(fit.x) : 50;
-    const y = fit && Number.isFinite(Number(fit.y)) ? Number(fit.y) : 50;
-    const scale = fit && Number.isFinite(Number(fit.scale)) ? Number(fit.scale) : 1;
-
-    imgEl.style.objectFit = 'cover';
-    imgEl.style.objectPosition = `${x}% ${y}%`;
-    imgEl.style.transformOrigin = 'center';
-    imgEl.style.transform = `scale(${scale})`;
-  }
+  // Nota: Ya no existe editor ni auto-load de fotos. Las fotos se gestionan en /assets
+  // y se referencian en el JSON con hero.photo o hero.photoSrc.
 
 function renderHeroAvatar(hero){
     const box = $('#avatarBox');
@@ -222,7 +175,6 @@ function renderHeroAvatar(hero){
       img.alt = heroName ? `Foto de ${heroName}` : 'Foto del héroe';
       img.loading = 'lazy';
       box.appendChild(img);
-      applyPhotoFit(img, hero);
       return;
     }
 
@@ -230,8 +182,7 @@ function renderHeroAvatar(hero){
     box.classList.add('is-empty');
     box.setAttribute('aria-hidden','true');
 
-    // Nota: ya no hacemos "autoload" automático desde assets/personajes/<Nombre>.
-    // La imagen se define explícitamente en el JSON/GitHub, y aquí solo se muestra si existe.
+    // Sin foto: se oculta la capa para que se vean las capas de escena (parallax/demo).
   }
 
   function applyHeroSceneLayers(hero){
@@ -262,22 +213,53 @@ function renderHeroAvatar(hero){
   function ensureHeroNotesToggle(scene){
     try{
       if (!scene) return;
-      // Creamos el botón una sola vez, y lo dejamos en la esquina inferior derecha de la foto.
+
+      const placeBtn = ()=>{
+        const btn = scene.querySelector('.heroNotesToggleBtn');
+        if (!btn) return;
+
+        const collapsed = scene.classList.contains('notesCollapsed');
+
+        // Cuando está visible: poner el botón EN la línea superior del cuadro de Descripción.
+        if (!collapsed){
+          const row = scene.querySelector('.noteTitleRow--desc .noteTitleTools');
+          if (row && btn.parentElement !== row){
+            row.appendChild(btn);
+          }
+          btn.classList.add('is-inline');
+          return;
+        }
+
+        // Cuando está oculto: regresar el botón a la esquina inferior derecha (sobre la imagen)
+        if (btn.parentElement !== scene){
+          scene.appendChild(btn);
+        }
+        btn.classList.remove('is-inline');
+      };
+
+      // Crear botón una sola vez
       let btn = scene.querySelector('.heroNotesToggleBtn');
       if (!btn){
         btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'heroNotesToggleBtn';
-        btn.setAttribute('aria-label', 'Mostrar u ocultar notas');
+        btn.setAttribute('aria-label', 'Mostrar u ocultar descripción y meta');
         btn.title = 'Mostrar/Ocultar Descripción y Meta';
         btn.textContent = '🗒';
+
         btn.addEventListener('click', (e)=>{
           e.preventDefault();
           e.stopPropagation();
+
           const next = !scene.classList.contains('notesCollapsed');
           scene.classList.toggle('notesCollapsed', next);
+
           try{ localStorage.setItem('lu_notesCollapsed', next ? '1' : '0'); }catch(_){ }
+
+          placeBtn();
         });
+
+        // por default va en la esquina (si luego se muestra, placeBtn lo moverá)
         scene.appendChild(btn);
       }
 
@@ -285,6 +267,9 @@ function renderHeroAvatar(hero){
       let saved = false;
       try{ saved = (localStorage.getItem('lu_notesCollapsed') === '1'); }catch(_){ }
       scene.classList.toggle('notesCollapsed', saved);
+
+      // Colocar según estado actual
+      placeBtn();
     }catch(_){ }
   }
 
@@ -381,10 +366,6 @@ function renderHeroAvatar(hero){
     wireAutoGrow(document);
     autoGrowTextarea(tDesc);
     autoGrowTextarea(tMeta);
-    const txtBien = $('#txtBien');
-    if (txtBien) txtBien.value = hero.goodAt || '';
-    const txtMejorar = $('#txtMejorar');
-    if (txtMejorar) txtMejorar.value = hero.improve || '';
 
     renderStats(hero);
 
@@ -414,9 +395,6 @@ function renderHeroAvatar(hero){
         state.ui.pendingToastHeroId = hero.id;
       }
     }
-
-    // Cofre de recompensas (por ficha)
-    updateChestUI(hero);
 
     // Apply lock state after rendering dynamic controls (stats/chips)
     updateEditButton();
@@ -623,7 +601,7 @@ function positionSubjectMenu(){
   menu.style.minWidth = `${desiredW}px`;
   menu.style.maxHeight = `${maxH}px`;
   menu.style.overflow = 'auto';
-  menu.style.zIndex = '40050';
+  menu.style.zIndex = '25050';
 }
 
 function openSubjectDropdown(){
@@ -642,31 +620,8 @@ function toggleSubjectDropdown(){
   if (dd.classList.contains('is-open')) positionSubjectMenu();
 }
 
-function getFilteredChallenges(){
-  const challenges = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
-  const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
-  let sub = state.challengeFilter?.subjectId || null;
-  const diff = state.challengeFilter?.diff || null;
-
-  // Single-subject view: if none selected, default to first
-  if (!sub && subjects.length){
-    sub = subjects[0].id;
-    state.challengeFilter.subjectId = sub;
-  }
-
-  return challenges.filter(ch=>{
-    if (sub && String(ch.subjectId || '') !== String(sub)) return false;
-    if (diff && String(ch.difficulty || '') !== diff) return false;
-    return true;
-  });
-}
 
 
-function isChallengeDone(hero, challengeId){
-  if (!hero) return false;
-  hero.challengeCompletions = (hero.challengeCompletions && typeof hero.challengeCompletions === 'object') ? hero.challengeCompletions : {};
-  return !!hero.challengeCompletions[String(challengeId || '')];
-}
 
 
 

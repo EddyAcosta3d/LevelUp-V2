@@ -8,6 +8,61 @@
 
 .challengeBody{ min-height: 220px; font-size: 15px; line-height: 1.35; color: rgba(220,220,230,0.94); white-space: pre-wrap; }
 
+/* ===== Desafíos: hacer la vista más "game-like" y evitar redundancias ===== */
+/* Header del listado: que el bloque de progreso no se encime con el título */
+.cardHead--ch{ align-items:flex-start; }
+.cardHead--ch > div:first-child{ min-width:0; }
+.chProgressChips{
+  max-width: 290px;
+  display:grid;
+  gap: 6px;
+  justify-items:end;
+}
+
+.chProgItem{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.chProgItem b{ color: var(--text); font-weight: 900; }
+.chProgIcon{ width: 18px; text-align:center; opacity: .95; }
+@media (max-width: 540px){
+  .chProgressChips{ max-width: none; display:flex; justify-content:flex-start; }
+}
+
+/* Tarjetas: un poco más de contraste y brillo sutil */
+.cards2--ch .card{
+  background: rgba(13,16,22,0.88);
+  border-color: var(--borderSoft);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+}
+.cards2--ch .card:hover{ border-color: rgba(34,211,238,0.28); }
+
+/* XP como "recompensa" (dorado) solo en Desafíos */
+.page[data-page="desafios"] .badge--pts{
+  border-color: rgba(251,191,36,0.34);
+  background: rgba(251,191,36,0.10);
+}
+
+/* Pendiente: que destaque sin duplicar información */
+.badge--pending{
+  border-color: rgba(251,191,36,0.22);
+  background: rgba(251,191,36,0.06);
+  color: rgba(240,235,220,0.92);
+}
+
+/* Lista: selección más clara y estilo de "misión" */
+.challengeItem{ background: rgba(0,0,0,0.16); }
+.challengeItem:hover{ transform: translateY(-1px); border-color: rgba(0,210,255,0.22); box-shadow: 0 12px 26px rgba(0,0,0,0.28); }
+.challengeItem.is-selected{ border-color: rgba(0,210,255,0.42); box-shadow: 0 0 0 2px rgba(0,210,255,0.12) inset, 0 20px 50px rgba(0,0,0,0.35); }
+.challengeItem.is-done{ opacity: .78; }
+
+/* Detalle: badges solo en header (evitar duplicados en el cuerpo) */
+.challengeDetailMeta{ padding-top: 2px; }
+
 /* Pills de dificultad: colorear el activo */
 .diffPills .pill{ border-color: rgba(220,220,230,0.14); }
 .diffPills .pill.is-active{ border-color: rgba(0,210,255,0.40); background: rgba(0,210,255,0.10); }
@@ -15,24 +70,41 @@
 .diffPills .pill.is-active[data-diff="medium"]{ border-color: rgba(114,26,255,0.55); background: rgba(114,26,255,0.12); }
 .diffPills .pill.is-active[data-diff="hard"]{ border-color: rgba(255,90,90,0.55); background: rgba(255,90,90,0.12); }
 
-/* Acciones: en móvil, usar menú "⋯" para no saturar */
-#btnChallengeMore{ display:none; }
-html:not(.is-edit) #btnChallengeEdit,
-html:not(.is-edit) #btnChallengeDelete,
-html:not(.is-edit) #btnChallengeMore{ display:none !important; }
-@media (max-width: 640px){
-  #btnChallengeEdit, #btnChallengeDelete{ display:none; }
-  html.is-edit #btnChallengeMore{ display:inline-flex; }
-  .challengeDetailActions{ gap: 10px; }
-  .challengeTop{ gap: 10px; }
+/* Acciones por-item (editar / borrar) viven en la tarjeta del listado */
+.chItemActions{
+  position:absolute;
+  top: 10px;
+  right: 10px;
+  display:flex;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  transition: opacity .16s ease, transform .16s ease;
+  z-index: 30;
 }
-
-/* Menú contextual de desafío (portal) */
-#challengeMoreMenu{ position: fixed; z-index: 25000; min-width: 220px; border-radius: 14px; padding: 6px; border: 1px solid rgba(0,210,255,0.18); background: rgba(25,42,86,0.92); box-shadow: 0 18px 50px rgba(0,0,0,0.55); }
+html.is-edit .chItemActions{
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.chIconBtn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.22);
+  color: var(--text, #dcdce6);
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+.chIconBtn:hover{ border-color: rgba(0,210,255,0.32); background: rgba(0,210,255,0.08); }
+.chIconBtn--danger:hover{ border-color: rgba(255,90,90,0.45); background: rgba(255,90,90,0.10); }
 
 /* Materias modal */
 .subjectsList{ display:grid; gap: 10px; }
-.subjectRow{ display:flex; align-items:center; justify-content:space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(0,210,255,0.14); background: rgba(0,0,0,0.18); }
+.subjectRow{ display:flex; align-items:center; justify-content:space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--borderSoft); background: rgba(0,0,0,0.18); }
 .subjectRow__name{ font-weight: 800; }
 .subjectRow__actions{ display:flex; gap: 8px; flex-wrap:wrap; }
 .ddItem{width:100%;text-align:left;padding:10px 10px;border:0;background:transparent;color:var(--text,#dcdce6);cursor:pointer}
@@ -48,20 +120,25 @@ html:not(.is-edit) #btnChallengeMore{ display:none !important; }
 .modal{
   position: fixed;
   inset: 0;
-  z-index: 30000;
+  z-index: 100000;
   display:grid;
   place-items:center;
   padding: 20px;
 }
 
 /* Ensure confirmation modal always appears on top of other open modals */
-#confirmModal{ z-index: 45000; }
+#confirmModal{ z-index: 110000; }
 .modal[hidden]{ display:none; }
+/* When a modal is open, force header dropdowns behind the overlay */
+body.is-modal-open .dropdown,
+body.is-modal-open .dropdown__menu{
+  z-index: 1 !important;
+}
 .modal__backdrop{
   position:absolute;
   inset:0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,0.74);
+  backdrop-filter: none;
 }
 .modal__card{
   position:relative;
@@ -70,9 +147,9 @@ html:not(.is-edit) #btnChallengeMore{ display:none !important; }
   overflow:auto;
   border-radius: var(--radius);
   padding: 16px;
-  background: rgba(12,12,12,0.96);
-  border: 1px solid rgba(0,210,255,0.18);
-  box-shadow: var(--shadow);
+  background: var(--panel);
+  border: 1px solid var(--borderSoft);
+  box-shadow: 0 22px 80px rgba(0,0,0,0.70);
 }
 .modal__header{
   display:flex;
@@ -80,13 +157,15 @@ html:not(.is-edit) #btnChallengeMore{ display:none !important; }
   justify-content:space-between;
   gap: 10px;
   margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--borderSoft);
 }
 .roleList{ display:grid; gap: 10px; }
 .roleItem{
   text-align:left;
   border-radius: 16px;
   padding: 12px 14px;
-  border: 1px solid rgba(0,210,255,0.18);
+  border: 1px solid var(--borderSoft);
   background: rgba(0,0,0,0.18);
   cursor:pointer;
   display:grid;
@@ -138,7 +217,7 @@ html:not(.is-edit) #btnChallengeMore{ display:none !important; }
   row-gap:10px;
   align-items:center;
 }
-.challengeBody{min-height:140px;white-space:pre-wrap;border:1px solid rgba(0,210,255,.18);background:rgba(15,15,20,.45);border-radius:16px;padding:12px;color:var(--text, #dcdce6)}
+.challengeBody{min-height:140px;white-space:pre-wrap;border:1px solid var(--borderSoft);background:rgba(0,0,0,0.22);border-radius:16px;padding:12px;color:var(--text, #dcdce6)}
 @media (max-width:640px){
   .challengeBody{min-height:180px}
 }
@@ -194,7 +273,7 @@ html:not(.is-edit) #btnChallengeMore{ display:none !important; }
 .challengeHintBadges .badge{ padding:6px 10px; border-radius: 999px; }
 
 /* Modales: z-index claro para que confirmación siempre esté arriba */
-.modal{ z-index: 20000; }
+.modal{ z-index: 30000; }
 #confirmModal{ z-index: 30000; }
 
 /* Splash: logo más grande + brillo menos invasivo (evita barra blanca) */
@@ -294,6 +373,7 @@ html:not(.is-edit) [data-edit-only="1"]{
   background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 13px) calc(50% - 3px);
   background-size: 6px 6px, 6px 6px;
   background-repeat:no-repeat;
+  background-color: #121724;
 }
 
 .diffPick{
@@ -304,11 +384,35 @@ html:not(.is-edit) [data-edit-only="1"]{
 .diffPick .pill{
   flex:1;
   justify-content:center;
+  border-color: var(--borderSoft);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
 }
 .diffPick .pill.is-active{
-  border-color: rgba(114,26,255,.8);
-  box-shadow: 0 0 0 2px rgba(114,26,255,.18), 0 0 18px rgba(114,26,255,.22);
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
 }
+.diffPick .pill[data-diff="easy"].is-active{
+  border-color: var(--accent);
+  background: rgba(34,211,238,0.22);
+  color: rgba(232,236,244,0.96);
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.18), 0 0 18px rgba(34,211,238,0.18);
+}
+.diffPick .pill[data-diff="medium"].is-active{
+  border-color: rgba(251,191,36,0.80);
+  background: rgba(251,191,36,0.22);
+  color: rgba(232,236,244,0.96);
+  box-shadow: 0 0 0 2px rgba(251,191,36,0.14), 0 0 18px rgba(251,191,36,0.18);
+}
+.diffPick .pill[data-diff="hard"].is-active{
+  border-color: var(--danger);
+  background: rgba(248,113,113,0.22);
+  color: rgba(232,236,244,0.96);
+  box-shadow: 0 0 0 2px rgba(248,113,113,0.14), 0 0 18px rgba(248,113,113,0.14);
+}
+
+/* Asegura contraste en el modal (evita texto oscuro al activar dificultad) */
+#challengeModal .diffPick .pill.is-active{ color: rgba(232,236,244,0.96) !important; }
 
 .badge{
   display:inline-flex;
@@ -340,9 +444,9 @@ html:not(.is-edit) [data-edit-only="1"]{
 .input--select, select.input{
   -webkit-appearance:none;
   appearance:none;
-  background: rgba(25,42,86,.72);
-  border: 1px solid rgba(0,210,255,.22);
-  color: rgb(220,220,230);
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgb(232,236,244);
   border-radius: 12px;
   padding-right: 34px;
 }
@@ -356,3 +460,251 @@ html:not(.is-edit) [data-edit-only="1"]{
   pointer-events:none;
 }
 
+
+
+
+/* =============================
+   v23 — Detalle de desafío más claro y atractivo
+   ============================= */
+
+/* Caja de estado (derecha) en el encabezado */
+/* Caja de estado (derecha) en el encabezado: más compacta (sin ocupar media tarjeta) */
+#challengeDetailBadges{ display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+
+
+/* Pills del detalle (más "tarjeta", menos elipse) */
+
+/* Pills dentro de la tarjeta de desafío (columna central) */
+.challengeMetaRow{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.challengeMetaRow .chPill{ padding:6px 9px; border-radius: 13px; font-size: 12px; }
+.challengeItem.is-selected .challengeMetaRow .chPill{ filter: brightness(1.08); }
+
+.chPill{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  font-size: 12.5px;
+  line-height: 1;
+  font-weight: 900;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  color: var(--text, #e8ecf4);
+  white-space: nowrap;
+}
+.chPill .i{ width: 18px; text-align:center; opacity: .95; }
+.chPill--easy{ border-color: rgba(34,211,238,0.55); background: rgba(34,211,238,0.12); }
+.chPill--medium{ border-color: rgba(114,26,255,0.55); background: rgba(114,26,255,0.12); }
+.chPill--hard{ border-color: rgba(255,90,90,0.55); background: rgba(255,90,90,0.12); }
+.chPill--xp{ border-color: rgba(251,191,36,0.42); background: rgba(251,191,36,0.14); }
+.chPill--status{ border-color: rgba(255,255,255,0.10); background: rgba(255,255,255,0.03); }
+.chPill--status.is-done{ border-color: rgba(34,211,238,0.40); background: rgba(34,211,238,0.10); }
+
+/* Botón de estado (Pendiente / Completado) — solo edición */
+.pill--status{ border-color: rgba(255,255,255,0.10) !important; background: rgba(255,255,255,0.03) !important; }
+.pill--status.is-done,
+.pill--status.is-active{ border-color: rgba(34,211,238,0.42) !important; background: rgba(34,211,238,0.12) !important; }
+
+/* Acciones por desafío en la lista (editar/borrar), sin robar espacio al detalle */
+.chItemActions{
+  position:absolute;
+  top: 10px;
+  right: 10px;
+  display:flex;
+  gap: 8px;
+  z-index: 30;
+  opacity: 0;
+  pointer-events:none;
+  transform: translateY(-2px);
+  transition: opacity .14s ease, transform .14s ease;
+}
+html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: translateY(0); }
+
+.chIconBtn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.22);
+  color: rgba(232,236,244,0.92);
+  cursor:pointer;
+}
+.chIconBtn:hover{ border-color: rgba(34,211,238,0.35); background: rgba(34,211,238,0.08); }
+.chIconBtn--danger:hover{ border-color: rgba(255,90,90,0.45); background: rgba(255,90,90,0.10); }
+
+/* Modal: formulario de desafío sin encimados */
+.challengeFormGrid{
+  display:grid;
+  grid-template-columns: 220px 1fr 150px;
+  gap: 12px;
+  align-items:end;
+}
+
+/* Modal: materia dropdown like main */
+.challengeFormGrid #chModalSubjectDropdown{ width:100%; }
+.challengeFormGrid #btnChModalSubject{ width:100%; justify-content:space-between; }
+.challengeFormGrid #chModalSubjectMenu{ left:0; right:auto; width:100%; min-width:unset; max-height:260px; overflow:auto; }
+
+@media (max-width: 720px){
+  .challengeFormGrid{ grid-template-columns: 1fr; }
+  .challengeFormGrid .field--diff .diffPick{ width:100%; }
+}
+
+.challengeFormGrid__diff{ grid-column: 1 / -1; }
+@media (max-width: 640px){
+  .challengeFormGrid{ grid-template-columns: 1fr; }
+  .challengeFormGrid__diff{ grid-column: 1; }
+}
+
+/* Instrucciones: más legibles y con acento lateral */
+.page[data-page="desafios"] .challengeBody{
+  position: relative;
+  background: rgba(0,0,0,0.34);
+  border-color: rgba(255,255,255,0.10);
+  padding: 16px 16px 16px 18px;
+  font-size: 16px;
+  line-height: 1.5;
+  box-shadow: 0 14px 44px rgba(0,0,0,0.50);
+}
+.page[data-page="desafios"] .challengeBody::before{
+  content:"";
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width: 4px;
+  border-radius: 16px 0 0 16px;
+  background: rgba(34,211,238,0.65);
+  box-shadow: 0 0 18px rgba(34,211,238,0.18);
+}
+.chInstrLabel{
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(232,236,244,0.62);
+  margin-bottom: 10px;
+}
+.chBodyP{ margin: 0 0 10px; }
+.chBodyList{ margin: 0 0 10px 18px; }
+
+
+/* ===== Modal (Nuevo/Editar desafío) — look like Desafíos cards ===== */
+#challengeModal .modal__card{
+  background: rgba(13,16,22,0.96);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 28px 90px rgba(0,0,0,0.70);
+}
+#challengeModal .modal__header .cardTitle{ font-weight: 900; letter-spacing: .4px; }
+#challengeModal .field{ display:grid; gap: 6px; }
+#challengeModal .label{ color: rgba(232,236,244,0.72); font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; }
+#challengeModal .input, #challengeModal .textarea, #challengeModal select.input, #challengeModal .input--select{
+  background: rgba(0,0,0,0.26);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(232,236,244,0.94);
+}
+#challengeModal .input:focus, #challengeModal .textarea:focus, #challengeModal select:focus{
+  outline: none;
+  border-color: rgba(34,211,238,0.42);
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.12);
+}
+#challengeModal .diffPick .pill{ border-color: rgba(255,255,255,0.14); background: rgba(0,0,0,0.16); }
+#challengeModal .diffPick .pill.is-active{
+  font-weight: 700;
+  /* El color final lo define el data-diff (easy/medium/hard) más abajo */
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
+}
+
+/* Evita que el dropdown de materias quede visible mientras hay un modal */
+.is-modal-open #subjectDropdown .dropdown__menu{ display:none !important; }
+
+/* Modal fields: match page look */
+.modal .input,
+.modal .textarea,
+.modal select.input{
+  background: #121724;
+  border: 1px solid #1B2333;
+  color: var(--text);
+}
+
+/* Fuerza tema oscuro también en dropdowns nativos (cuando el navegador lo soporta) */
+.modal{ color-scheme: dark; }
+.modal select.input{ color-scheme: dark; }
+.modal select.input option{
+  background: #0D1016;
+  color: rgb(232,236,244);
+}
+.modal select.input option:checked{
+  background: rgba(34,211,238,0.18);
+  color: rgb(232,236,244);
+}
+.modal .input:focus,
+.modal .textarea:focus,
+.modal select.input:focus{
+  outline: none;
+  border-color: rgba(34,211,238,0.55);
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.12);
+}
+.modal .formCard{
+  background: #121724;
+  border: 1px solid #1B2333;
+}
+.modal__header{ background: #0D1016; }
+
+/* Difficulty picker coloring */
+.field--diff .diffPick{ width:100%; }
+.field--diff .diffPick .pill{ flex:1; justify-content:center; }
+.field--diff .diffPick .pill.is-active{
+  font-weight: 700;
+  color: rgb(232,236,244);
+  border-color: rgba(255,255,255,0.12);
+}
+.field--diff .diffPick .pill.is-active[data-diff="easy"]{
+  background: rgba(34,211,238,0.18);
+  border-color: rgba(34,211,238,0.55);
+}
+.field--diff .diffPick .pill.is-active[data-diff="medium"]{
+  background: rgba(251,191,36,0.18);
+  border-color: rgba(251,191,36,0.55);
+}
+.field--diff .diffPick .pill.is-active[data-diff="hard"]{
+  background: rgba(248,113,113,0.18);
+  border-color: rgba(248,113,113,0.55);
+}
+
+/* --- Modal: dificultad (más notorio + resiliente) --- */
+#challengeModal .field--diff .diffPick{
+  /* JS: data-active="easy|medium|hard" */
+  --diff-bg: rgba(255,255,255,0.06);
+  --diff-bd: rgba(255,255,255,0.14);
+  --diff-tx: rgba(240,244,252,0.95);
+}
+#challengeModal .field--diff .diffPick .pill{
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+#challengeModal .field--diff .diffPick .pill.is-active,
+#challengeModal .field--diff .diffPick[data-active="easy"] .pill[data-diff="easy"],
+#challengeModal .field--diff .diffPick[data-active="medium"] .pill[data-diff="medium"],
+#challengeModal .field--diff .diffPick[data-active="hard"] .pill[data-diff="hard"]{
+  color: var(--diff-tx) !important;
+  background: var(--diff-bg) !important;
+  border-color: var(--diff-bd) !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 10px 28px rgba(0,0,0,0.35);
+}
+#challengeModal .field--diff .diffPick[data-active="easy"]{
+  --diff-bg: rgba(34,211,238,0.22);
+  --diff-bd: rgba(34,211,238,0.65);
+}
+#challengeModal .field--diff .diffPick[data-active="medium"]{
+  --diff-bg: rgba(251,191,36,0.22);
+  --diff-bd: rgba(251,191,36,0.65);
+}
+#challengeModal .field--diff .diffPick[data-active="hard"]{
+  --diff-bg: rgba(248,113,113,0.22);
+  --diff-bd: rgba(248,113,113,0.68);
+}
+
+
+/* Eventos: resalta cuando el héroe actual ya puede retar */
+.eventCard__img.is-eligible{ box-shadow: 0 0 0 2px rgba(255,200,80,.25), 0 18px 50px rgba(0,0,0,.45); border-color: rgba(255,200,80,.28); }

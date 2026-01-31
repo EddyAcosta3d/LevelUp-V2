@@ -84,19 +84,52 @@
     modal.hidden = false;
   }
 
+  let _eventTabsBound = false;
+  function ensureEventTabs(){
+    const wrap = $('#eventTabs');
+    if (!wrap || _eventTabsBound) return;
+    _eventTabsBound = true;
+    wrap.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-event-tab]');
+      if (!btn) return;
+      const tab = btn.getAttribute('data-event-tab');
+      state.eventsTab = tab || 'boss';
+      renderEvents();
+    });
+  }
   function renderEvents(){
     const grid = $('#eventGrid');
     if (!grid) return;
+
+    ensureEventTabs();
+
+    const tab = (state.eventsTab || 'boss');
+    const title = $('#eventsTitle');
+    const sub = $('#eventsSubtitle');
+    if (title) title.textContent = (tab === 'boss' ? 'Jefes' : 'Eventos');
+    if (sub) sub.textContent = (tab === 'boss'
+      ? 'Desbloquea jefes para retarlos.'
+      : 'Eventos sorpresa: pueden dar beneficios o consecuencias.');
+
+    const tabsWrap = $('#eventTabs');
+    if (tabsWrap){
+      tabsWrap.querySelectorAll('button[data-event-tab]').forEach(b=>{
+        b.classList.toggle('is-active', b.getAttribute('data-event-tab') === tab);
+      });
+    }
+
     grid.innerHTML = '';
 
     const hero = currentHero();
     const evs = Array.isArray(state.data?.events) ? state.data.events : [];
-    if (!evs.length){
-      grid.innerHTML = '<div class="muted">Sin eventos.</div>';
+    const list = evs.filter(ev => (ev.kind || 'event') === tab);
+
+    if (!list.length){
+      grid.innerHTML = `<div class="muted">Sin ${(tab === 'boss') ? 'jefes' : 'eventos'}.</div>`;
       return;
     }
 
-    evs.forEach(ev=>{
+    list.forEach(ev=>{
       const unlocked = isEventUnlocked(ev);
       const eligible = hero ? isHeroEligibleForEvent(hero, ev) : false;
       const div = document.createElement('button');
@@ -119,4 +152,3 @@
       grid.appendChild(div);
     });
   }
-
