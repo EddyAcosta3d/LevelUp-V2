@@ -182,26 +182,12 @@ $('#btnChallengeComplete')?.addEventListener('click', ()=>{
     const awarded = Number(hero.challengeCompletions[key].points ?? pts);
     delete hero.challengeCompletions[key];
 
-    hero.weekXp = Number(hero.weekXp ?? 0) - awarded;
-    if (hero.weekXp < 0) hero.weekXp = 0;
-
     applyNegativeXp(-awarded);
     toast('Desafío descompletado');
   } else {
-    const max = Number(hero.weekXpMax || DEFAULT_WEEK_XP_MAX || 40);
-    hero.weekXp = Number(hero.weekXp || 0);
-    const remaining = max - hero.weekXp;
-    if (remaining <= 0){
-      toast('Ya llegaste al máximo de XP semanal...');
-      return;
-    }
-    if (pts > remaining){
-      toast(`Solo quedan ${remaining} XP esta semana`);
-      return;
-    }
 
     hero.challengeCompletions[key] = { at: Date.now(), points: pts };
-    hero.weekXp += pts;
+    // Los desafíos NO consumen límite semanal. El límite semanal es solo para actividades pequeñas.
     bumpHeroXp(pts);
     toast('Desafío completado');
   }

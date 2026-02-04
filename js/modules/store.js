@@ -80,3 +80,20 @@
     return `${role} · Nivel ${hero.level ?? 1}`;
   }
 
+
+// ------------------------------------------------------------------
+// Compat layer: some modules still call saveData() (legacy name).
+// Keep it as a thin wrapper over saveLocal(state.data).
+// ------------------------------------------------------------------
+function saveData(){
+  try{
+    // state is defined in core_globals.js (same global scope)
+    saveLocal(state.data);
+  }catch(err){
+    console.warn('saveData() wrapper failed', err);
+  }
+}
+
+// Ensure legacy helpers are globally reachable (some browsers/extensions can change scoping)
+try{ window.saveData = saveData; }catch(_){ }
+

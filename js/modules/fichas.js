@@ -386,6 +386,9 @@ function renderHeroAvatar(hero){
 
     renderRewards();
 
+    // Inline button to claim pending rewards (visible only when there are pending rewards)
+    _syncPendingRewardsInline(hero);
+
     // Pending reward mini-notification
     hero.pendingRewards = Array.isArray(hero.pendingRewards) ? hero.pendingRewards : [];
     if (hero.pendingRewards.length){
@@ -399,6 +402,36 @@ function renderHeroAvatar(hero){
     // Apply lock state after rendering dynamic controls (stats/chips)
     updateEditButton();
     applyFichaLock();
+  }
+
+  // Botón inline para reclamar recompensas pendientes (solo aparece si hay pendientes)
+  function _syncPendingRewardsInline(hero){
+    const btn = document.getElementById('btnClaimPendingInline');
+    const badge = document.getElementById('pendingRewardCountInline');
+    if (!btn || !badge) return;
+
+    const pending = Array.isArray(hero?.pendingRewards) ? hero.pendingRewards.length : 0;
+    if (pending > 0){
+      btn.hidden = false;
+      badge.textContent = String(pending);
+      badge.hidden = false;
+    } else {
+      btn.hidden = true;
+      badge.hidden = true;
+    }
+
+    // Evita doble-binding: marcamos el botón con un flag
+    if (!btn.dataset.bound){
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', ()=>{
+        try{
+          // Abre el modal de subida de nivel EN MODO "pendiente" (si existe)
+          if (typeof openLevelUpModal === 'function') openLevelUpModal();
+          else if (typeof window.openLevelUpModal === 'function') window.openLevelUpModal();
+          else toast('No se pudo abrir el modal de recompensa.');
+        }catch(_){ toast('No se pudo abrir el modal de recompensa.'); }
+      });
+    }
   }
 
   // --- Recompensas (general + por héroe) ---

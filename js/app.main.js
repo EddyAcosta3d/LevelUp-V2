@@ -17,6 +17,7 @@ async function init(){
     });
 
     bind();
+	  preventIOSDoubleTapZoom();
 
     // Rol inicial: edición habilitada (sin bloqueos)
     try{ state.role='teacher'; }catch(_e){}
@@ -28,6 +29,30 @@ async function init(){
     syncDetailsUI();
   }
   (async()=>{ try{ await init(); } finally { hideSplash(); } })();
+
+	  // iOS Safari: prevent accidental double-tap zoom inside the app UI.
+	  // Note: This also disables pinch-to-zoom while the app is open.
+	  function preventIOSDoubleTapZoom(){
+	    const ua = navigator.userAgent || '';
+	    const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && 'ontouchend' in document);
+	    if (!isIOS) return;
+
+	    // Prevent double-tap zoom
+	    let lastTouchEnd = 0;
+	    document.addEventListener('touchend', (e)=>{
+	      const now = Date.now();
+	      if (now - lastTouchEnd <= 300){
+	        e.preventDefault();
+	      }
+	      lastTouchEnd = now;
+	    }, { passive: false });
+
+	    // Reduce the chance of text selection/callout triggering zoom-ish behaviors
+	    try{
+	      document.documentElement.style.webkitTextSizeAdjust = '100%';
+	      document.documentElement.style.webkitTouchCallout = 'none';
+	    }catch(_e){}
+	  }
 
   // ---- Generic modal close (backdrops) + Event modal close ----
   document.addEventListener('click', (e)=>{

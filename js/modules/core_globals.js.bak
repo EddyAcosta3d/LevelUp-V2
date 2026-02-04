@@ -1,9 +1,5 @@
 'use strict';
 
-
-const BUILD_ID = 'LevelUP_V2_00.050';
-window.LEVELUP_BUILD = BUILD_ID;
-
 // CLEAN PASS v29: stability + small UI tweaks
 
 /* LevelUp Hybrid Skeleton — app.js
@@ -12,6 +8,8 @@ window.LEVELUP_BUILD = BUILD_ID;
    2) si falla, usa la última copia en localStorage
    3) siempre puedes importar JSON manual (iPad offline) y se guarda localmente
 */
+  window.LEVELUP_BUILD = BUILD_ID;
+
   // CLEAN PASS v29: stability + small UI tweaks
 
   const CONFIG = {
@@ -212,6 +210,8 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
 
   // Build marker (para confirmar en GitHub que sí cargó la versión correcta)
   // Build identifier (also used for cache-busting via querystring in index.html)
+  const BUILD_ID = 'LevelUP_V2_00.050';
+
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 

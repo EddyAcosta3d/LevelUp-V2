@@ -130,6 +130,106 @@ function setRole(nextRole){
   state.ui.pendingToastHeroId = null;
   state.ui.claimingReward = false;
 
+  // --- helpers: hero art (prefer parallax foreground layer) ---
+  function _slugify(str){
+    try{
+      return String(str||'')
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{Diacritic}+/gu,'')
+        .replace(/[^a-z0-9]+/g,'_')
+        .replace(/^_+|_+$/g,'');
+    }catch(e){
+      return String(str||'').trim().toLowerCase().replace(/\s+/g,'_');
+    }
+  }
+
+  function _uniqueUrls(arr){
+    const out = [];
+    const seen = new Set();
+    (arr||[]).forEach(u=>{
+      if (!u) return;
+      const key = String(u);
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(key);
+    });
+    return out;
+  }
+
+  function resolveHeroArtUrls(hero){
+    const urls = [];
+    if (!hero) return urls;
+
+    // 1) Explicit fields (highest priority)
+    if (hero.levelUpFg) urls.push(hero.levelUpFg);
+    if (hero.levelUpArt) urls.push(hero.levelUpArt);
+
+    // 2) Prefer full character renders in assets/personajes/<Name>.png (more "victory screen" than close-up FG)
+    const rawName = hero.assetName || hero.assetKey || hero.name || hero.id || '';
+    const safeName = (typeof sanitizeFileName === 'function')
+      ? sanitizeFileName(rawName)
+      : _slugify(rawName);
+    if (safeName){
+      urls.push(`assets/personajes/${safeName}.png`);
+      urls.push(`assets/personajes/${safeName}.jpg`);
+      urls.push(`assets/personajes/${safeName}.jpeg`);
+      // Also allow "Name 2D" style keys if you ever add them later
+      urls.push(`assets/personajes/${safeName}_full.png`);
+    }
+
+    // 3) Parallax convention: assets/parallax/<slug>_fg.png (usually a close-up / mid-shot)
+    const key = hero.assetKey || hero.slug || _slugify(hero.name || hero.id || '');
+    if (key){
+      urls.push(`assets/parallax/${key}_fg.png`);
+      urls.push(`assets/parallax/${key}_mid.png`);
+      urls.push(`assets/parallax/${key}_bg.png`);
+    }
+
+    // 4) Fallbacks: photo fields
+    if (hero.fg) urls.push(hero.fg);
+    if (hero.foreground) urls.push(hero.foreground);
+    if (hero.photo) urls.push(hero.photo);
+    if (hero.photoSrc) urls.push(hero.photoSrc);
+
+    return _uniqueUrls(urls);
+  }
+
+
+// Back-compat helper: some parts of the app still call this name.
+// We prefer returning FG first (resolveHeroArtUrls already does).
+function _heroArtCandidates(hero){
+  return resolveHeroArtUrls(hero);
+}
+
+  function setBgWithFallback(el, urls){
+    if (!el) return;
+    const list = _uniqueUrls(urls);
+    if (!list.length){
+      el.style.backgroundImage = '';
+      el.classList.remove('has-art');
+      return;
+    }
+    let i = 0;
+    const tryLoad = ()=>{
+      if (i >= list.length){
+        el.style.backgroundImage = '';
+        el.classList.remove('has-art');
+        return;
+      }
+      const url = list[i];
+      const img = new Image();
+      img.onload = ()=>{
+        el.style.backgroundImage = `url('${url}')`;
+        el.classList.add('has-art');
+      };
+      img.onerror = ()=>{ i++; tryLoad(); };
+      img.src = url;
+    };
+    tryLoad();
+  }
+
   function getNextPendingReward(hero){
     const list = Array.isArray(hero.pendingRewards) ? hero.pendingRewards : [];
     if (!list.length) return null;
@@ -148,7 +248,23 @@ function setRole(nextRole){
 
     closeAllModals('levelUpModal');
 
+    // Fill header
     $('#levelUpHeroName').textContent = hero.name || '(sin nombre)';
+
+    // Hero art: prefer parallax foreground (the layer that includes the character).
+    const artEl = $('#levelUpHeroArt');
+    if (artEl){
+      const urls = _heroArtCandidates(hero);
+      if (urls.length){
+        // Use shared helper to set background-image with fallback candidates.
+        // (Older code referenced _setBgWithFallback; keep call site aligned.)
+        setBgWithFallback(artEl, urls);
+        artEl.classList.remove('is-empty');
+      } else {
+        artEl.style.backgroundImage = '';
+        artEl.classList.add('is-empty');
+      }
+    }
     const numEl = $('#levelUpNum');
     if (numEl){
       // Animate number
@@ -177,6 +293,26 @@ function setRole(nextRole){
     modal.classList.add('is-open');
     state.ui.levelUpOpen = true;
 
+    // Persona-like entrance animation (re-trigger every time)
+    const card = modal.querySelector('.modal__card--levelup');
+    if (card){
+      card.classList.remove('lvlAnim');
+      void card.offsetWidth; // force reflow
+      card.classList.add('lvlAnim');
+    }
+
+    // Stagger reward cards (more "Persona" motion).
+    const picks = Array.from(modal.querySelectorAll('.rewardPick'));
+    if (picks.length){
+      picks.forEach((el, i)=>{
+        el.classList.remove('lvlRewardIn');
+        // ensure we can re-trigger even if modal opened twice in a row
+        void el.offsetWidth;
+        el.style.animationDelay = (0.22 + i * 0.06).toFixed(2) + 's';
+        el.classList.add('lvlRewardIn');
+      });
+    }
+
     // Mini notification while pending
     toast('🎁 Tienes una recompensa por reclamar');
   }
@@ -184,6 +320,23 @@ function setRole(nextRole){
   function closeLevelUpModal(){
     const modal = $('#levelUpModal');
     if (!modal) return;
+    // If there are pending rewards, do not allow closing.
+    try{
+      const hero = currentHero();
+      const hasPending = !!(hero && Array.isArray(hero.pendingRewards) && hero.pendingRewards.length);
+      if (hasPending){
+        // shake feedback
+        const card = modal.querySelector('.modal__card--levelup');
+        if (card){
+          card.classList.remove('lvlShake');
+          void card.offsetWidth;
+          card.classList.add('lvlShake');
+        }
+        toast('🎁 Elige una recompensa para continuar');
+        return;
+      }
+    }catch(_e){}
+
     modal.hidden = true;
     modal.classList.remove('is-open');
     state.ui.levelUpOpen = false;
@@ -212,7 +365,7 @@ function setRole(nextRole){
       backBtn?.addEventListener('click', ()=> renderRewardPickGrid('main'));
 
       const statKeys = ['INT','SAB','CAR','RES','CRE'];
-      statKeys.forEach(k=>{
+      statKeys.forEach((k, idx)=>{
         const lowKey = k.toLowerCase();
         // IMPORTANT: UI uses lowercase keys; prefer them to avoid desync issues.
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
@@ -220,6 +373,8 @@ function setRole(nextRole){
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'rewardPick rewardPick--stat';
+        // Stagger reveal animation
+        btn.style.animationDelay = `${idx * 60}ms`;
         btn.innerHTML = `
           <div class="rewardPick__title">${k}</div>
           <div class="rewardPick__meta"><span class="badge badge--mini">${curVal}</span><span class="rewardPick__plus">+1</span></div>
@@ -247,15 +402,18 @@ function setRole(nextRole){
     // main rewards
     const opts = [
       { id:'stat+1', icon:'⚡', title:'+1 a una estadística', desc:'Elige una stat para subir en +1.' },
-      { id:'weekMax+10', icon:'📈', title:'+10 al límite semanal', desc:'Aumenta el máximo de XP semanal.' },
+      // Reemplazo del “límite semanal” (los desafíos ya no tienen tope)
+      { id:'xp+10', icon:'⭐', title:'+10 XP', desc:'Un empujón extra en tu barra de XP.' },
       { id:'token+1', icon:'🪙', title:'+1 comodín', desc:'Un comodín para canjear después.' },
       { id:'perk', icon:'✨', title:'Privilegio en clase', desc:'Un privilegio acordado contigo.' }
     ];
 
-    opts.forEach(o=>{
+    opts.forEach((o, idx)=>{
       const div = document.createElement('button');
       div.type = 'button';
       div.className = 'rewardPick';
+      // Stagger reveal animation
+      div.style.animationDelay = `${idx * 70}ms`;
       div.innerHTML = `
         <div class="rewardPick__row">
           <div class="rewardPick__icon" aria-hidden="true">${escapeHtml(o.icon)}</div>
@@ -270,6 +428,26 @@ function setRole(nextRole){
 
         if (o.id === 'stat+1'){
           renderRewardPickGrid('stat');
+          return;
+        }
+
+        if (o.id === 'xp+10'){
+          // Suma XP sin detonar otro nivel inmediato (evita cadena de modales).
+          const xpMax = Number(hero.xpMax ?? 100);
+          const cur = Number(hero.xp ?? 0);
+          const safeCap = Math.max(0, xpMax - 1);
+          const add = Math.max(0, Math.min(10, safeCap - cur));
+          if (add > 0){
+            hero.xp = cur + add;
+            hero.totalXp = Number(hero.totalXp ?? 0) + add;
+            saveData();
+            renderAll();
+          }
+          claimPendingReward({
+            rewardId: 'xp+10',
+            title: `+${add} XP`,
+            badge: '+XP'
+          });
           return;
         }
 

@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <!-- iOS: evita zoom raro al rotar y mantiene el layout estable -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
   <!-- LevelUp STABLE_RESET_v15_CLEAN -->
 <title>LevelUp</title>
   <!-- Icono de la pestaña (pon tu archivo en assets/logo.png o cambia la ruta) -->
   <link rel="icon" href="assets/logo.png" type="image/png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
-  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.041" />
-  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.041" />
-  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.041" />
+  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.050" />
+  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.050" />
+  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.050" />
 </head>
 <body>
   <!-- Splash: cambia la variante con la clase:
@@ -168,6 +168,12 @@
                   <div class="xpHeader">
                     <div class="xpLevel" id="xpLevel">Lvl 1</div>
                     <div class="xpText" id="xpText">· XP 0/100</div>
+
+                    <!-- Solo aparece si el héroe tiene recompensas pendientes -->
+                    <button id="btnClaimPendingInline" class="notifBtn notifBtn--compact" type="button" hidden>
+                      🎁 Reclamar
+                      <span id="pendingRewardCountInline" class="notifBadge" hidden>1</span>
+                    </button>
                     <div class="xpBtns">
                       <button class="pill pill--small pill--ghost" id="btnXpM5" data-edit-only="1">-5 XP</button>
                       <button class="pill pill--small pill--ghost" id="btnXpM1" data-edit-only="1">-1 XP</button>
@@ -186,7 +192,9 @@
                       </div>
                     </div>
                     <div class="subCard subCard--week">
-                      <div class="subCard__title">Esta semana:</div>
+                      <div class="subCard__title subCard__titleRow">
+                        <span>Esta semana:</span>
+                      </div>
                       <div class="subCard__valRow">
                         <div class="subCard__val" id="weekXp">0/40 XP</div>
                         <button class="iconBtn iconBtn--tiny" id="btnWeekReset" data-edit-only="1" title="Reiniciar XP semanal" aria-label="Reiniciar XP semanal">↺</button>
@@ -361,19 +369,29 @@
     <div class="modal" id="levelUpModal" hidden>
       <div class="modal__backdrop" id="levelUpBackdrop"></div>
       <div class="modal__card modal__card--levelup" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
-        <div class="modal__header">
-          <div class="cardTitle" id="levelUpTitle">¡Subiste de nivel!</div>
-          <button class="pill pill--small pill--ghost" id="btnLevelUpClose" type="button">Cerrar</button>
-        </div>
-        <div class="modal__body">
-          <div class="levelUpHeroLine">
-            <div class="muted">Héroe:</div>
-            <div class="levelUpHeroName" id="levelUpHeroName">—</div>
-          </div>
+        <div class="lvlHeader">
+  <div class="lvlHeader__center">
+    <div class="lvlHeader__kicker" id="levelUpTitle">LEVEL UP</div>
+    <div class="lvlHeroNameBig" id="levelUpHeroName">—</div>
+  </div>
+</div>
 
-          <div class="levelUpBig">
-            <div class="levelUpBig__label">Nivel</div>
-            <div class="levelUpBig__num" id="levelUpNum">1</div>
+        <div class="modal__body modal__body--levelup">
+          <!-- Escena (estilo videojuego) -->
+          <div class="lvlStage" role="presentation">
+            <div class="lvlParticles" aria-hidden="true"></div>
+
+            <div class="lvlHeroPanel" aria-hidden="true">
+              <div class="lvlHeroArt" id="levelUpHeroArt"></div>
+              <div class="lvlHeroCut"></div>
+            </div>
+
+            <div class="lvlBadgeWrap" role="presentation">
+              <div class="lvlBadge" role="presentation">
+                <div class="lvlBadge__label">Nivel</div>
+                <div class="levelUpBig__num" id="levelUpNum">1</div>
+              </div>
+            </div>
           </div>
 
           <div class="levelUpPickTitle">Elige tu recompensa</div>
@@ -517,16 +535,16 @@
     </div>
   </div>
 
-<script src="js/splash.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/modules/store.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/modules/fichas.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/modules/desafios.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/modules/eventos.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/app.bindings.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/app.main.js?v=LevelUP_V2_00.041" defer></script>
-  <script src="js/app.js?v=LevelUP_V2_00.041" defer></script>
+<script src="js/splash.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/modules/store.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/modules/fichas.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/modules/desafios.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/modules/eventos.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/app.bindings.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/app.main.js?v=LevelUP_V2_00.050" defer></script>
+  <script src="js/app.js?v=LevelUP_V2_00.050" defer></script>
 </body>
 </html>
