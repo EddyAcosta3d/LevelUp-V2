@@ -2747,3 +2747,49 @@ body.is-view-locked #btnEliminar,
     max-height: calc(100svh - 140px);
   }
 }
+
+
+
+/* =========================================================
+   FINAL iPhone tuning (v50.10): hero card framing + LevelUp centering
+   ========================================================= */
+@media (max-width: 560px){
+  /* Fichas: reduce alto del contenedor y baja el FG para que no se note el corte inferior */
+  .heroScene{ min-height: 470px !important; }
+
+  .heroSceneLayer--fg{
+    background-size: contain !important;
+    /* empuja hacia abajo para “pisar” el borde inferior */
+    background-position: 50% 114% !important;
+    /* da espacio extra abajo fuera del contenedor (sin subir el rostro) */
+    inset: -2% -6% -16% -6% !important;
+  }
+
+  /* Modal Level Up: centrar mejor el header */
+  #levelUpModal .lvlHeader{
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 14px 12px 12px !important;
+  }
+  #levelUpModal .lvlHeader__center{
+    width: 100% !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+  }
+  #levelUpModal .lvlHeader__kicker{
+    letter-spacing: 5px !important;
+    opacity: .9 !important;
+  }
+  #levelUpModal .lvlHeroNameBig{
+    margin-top: 2px !important;
+    line-height: 1.05 !important;
+  }
+
+  /* Modal Level Up: stage y medalla centrados, menos “aplastados” */
+  #levelUpModal .lvlStage{
+    padding: 14px 12px 8px !important;
+  }
+  #levelUpModal .lvlBadgeWrap{
+    padding: 16px 12px !important;
+  }
+}
