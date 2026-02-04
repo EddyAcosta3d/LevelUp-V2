@@ -2711,3 +2711,39 @@ body.is-view-locked #btnEliminar,
 
 /* --- Hard hide for elements using the HTML `hidden` attribute (author CSS must not override) --- */
 [hidden]{ display:none !important; }
+
+
+
+/* =========================================================
+   MOBILE HOTFIX (iPhone): Hero FG bottom + LevelUp compact
+   ========================================================= */
+@media (max-width: 560px){
+  /* --- Fichas: anclar FG al piso en iPhone --- */
+  .heroSceneLayer--fg{
+    inset: 0 !important;
+    background-size: cover !important;
+    background-position: 50% 100% !important;
+  }
+
+  /* --- Level Up modal: modo compacto (sin fotos) --- */
+  #levelUpModal .lvlStage{
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    min-height: 160px;
+  }
+  #levelUpModal .lvlHeroPanel{ display:none !important; }
+  #levelUpModal .lvlBadgeWrap{
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 18px 14px !important;
+  }
+
+  /* Asegura scroll en el cuerpo del modal */
+  #levelUpModal .modal__body{
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+    max-height: calc(100svh - 140px);
+  }
+}
