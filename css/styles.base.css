@@ -2793,3 +2793,80 @@ body.is-view-locked #btnEliminar,
     padding: 16px 12px !important;
   }
 }
+
+
+/* === LevelUp modal: fixed stage + scroll rewards, centered badge, subtle glint === */
+#levelUpModal .modal__body--levelup{
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+
+/* Keep the stage (badge/scene) steady; rewards scroll independently */
+#levelUpModal .lvlStage{ flex: 0 0 auto; }
+#levelUpModal .levelUpScrollArea{
+  flex: 1 1 auto;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px;
+}
+
+/* Title size (less shouty) */
+#levelUpModal .levelUpPickTitle{
+  font-size: 16px;
+  letter-spacing: .08em;
+}
+
+/* Use the dedicated badge classes (label + number) */
+#levelUpModal .lvlBadge{
+  padding-top: 10px;
+  gap: 6px;
+}
+#levelUpModal .lvlBadgeLabel{
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: .38em;
+  text-transform: uppercase;
+  opacity: .95;
+  transform: translateY(6px);
+}
+#levelUpModal .lvlBadgeNumber{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width: 100%;
+  line-height: .92;
+  transform: translateY(2px);
+}
+
+/* Micro shine sweep on the medal */
+#levelUpModal .lvlBadgeGlint{
+  position:absolute;
+  inset: -18px;
+  border-radius: 999px;
+  pointer-events:none;
+  background: linear-gradient(115deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.10) 18%,
+    rgba(0,210,255,.18) 28%,
+    rgba(255,255,255,.06) 40%,
+    rgba(255,255,255,0) 55%);
+  transform: translateX(-140%) rotate(12deg);
+  opacity: .28;
+  mix-blend-mode: screen;
+  filter: blur(.2px);
+  animation: lvlGlintSweep 5.6s ease-in-out infinite;
+}
+@keyframes lvlGlintSweep{
+  0%,55%{ transform: translateX(-140%) rotate(12deg); opacity: 0; }
+  62%{ opacity: .22; }
+  78%{ opacity: .30; }
+  100%{ transform: translateX(140%) rotate(12deg); opacity: 0; }
+}
+
+@media (max-width: 560px){
+  #levelUpModal .levelUpPickTitle{ font-size: 15px; }
+  #levelUpModal .modal__card--levelup{ max-height: 92svh; }
+  #levelUpModal .modal__body--levelup{ max-height: calc(92svh - 96px); } /* header space */
+}
+
