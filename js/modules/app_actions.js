@@ -286,6 +286,14 @@ const numEl = $('#levelUpNum');
     renderRewardPickGrid('main');
     modal.hidden = false;
     modal.classList.add('is-open');
+    // Mobile: always start at the top of the modal (iOS Safari may keep scroll position)
+    try{
+      const body = modal.querySelector('.modal__body--levelup');
+      if (body) body.scrollTop = 0;
+      const card = modal.querySelector('.modal__card');
+      if (card){ card.setAttribute('tabindex','-1'); card.focus({preventScroll:true}); }
+    }catch(_e){}
+
     try{ modal.style.pointerEvents = 'auto'; }catch(_e){}
     state.ui.levelUpOpen = true;
 

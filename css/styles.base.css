@@ -2486,8 +2486,8 @@ body.is-view-locked #btnEliminar,
   animation: lvlFloat 2.6s ease-in-out infinite;
 }
 @keyframes lvlFloat{
-  0%,100%{ transform: translateY(0) rotate(-0.25deg); }
-  50%{ transform: translateY(-8px) rotate(0.25deg); }
+  0%,100%{ transform: translateY(4px) rotate(-0.25deg); }
+  50%{ transform: translateY(-6px) rotate(0.25deg); }
 }
 @media (prefers-reduced-motion: reduce){
   #levelUpModal .lvlHeroFg.has-art{ animation:none !important; transform:none !important; }
@@ -2642,6 +2642,34 @@ body.is-view-locked #btnEliminar,
   #levelUpModal .lvlBadge{ width: 150px; height: 150px; }
   #levelUpModal .lvlBadgeNumber{ font-size: 78px; }
 }
+
+/* --- Mobile framing fixes (iPhone): keep FG aligned to bottom --- */
+@media (max-width: 560px){
+  /* Fichas: capa FG del héroe (parallax/scene) */
+  .heroSceneLayer--fg{
+    background-position: 50% 104% !important; /* push down */
+    inset: -8% -10% -2% -10% !important;      /* more room at bottom */
+  }
+  /* LevelUp modal: ensure FG is visible + bottom-aligned */
+  #levelUpModal .lvlHeroFg{
+    background-position: 50% 100% !important;
+    background-size: contain !important;
+  }
+  #levelUpModal .lvlHeroBg{
+    background-position: 55% 35% !important;
+  }
+  /* Make the stage feel "present" on mobile and keep the badge readable */
+  #levelUpModal .lvlStage{
+    height: 300px !important; /* taller than default 240 */
+  }
+  #levelUpModal .lvlBadgeWrap{
+    left: 50% !important;
+    right: auto !important;
+    bottom: 10px !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
 
 
 
