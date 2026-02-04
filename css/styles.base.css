@@ -2266,7 +2266,7 @@ body.is-view-locked #btnEliminar,
 .modal__card--levelup .levelUpPickTitle{
   margin-top: 10px;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: .01em;
 }
@@ -2475,7 +2475,8 @@ body.is-view-locked #btnEliminar,
   z-index: 0;
 }
 #levelUpModal .lvlHeroFg{
-  background-position: 45% 24%;
+  inset: -40px -22px -80px -22px;
+  background-position: 48% 18%;
   z-index: 2;
   filter: drop-shadow(0 18px 26px rgba(0,0,0,.55));
   will-change: transform;
@@ -2522,9 +2523,17 @@ body.is-view-locked #btnEliminar,
   }
   #levelUpModal .lvlBadgeWrap::before{ inset: 10px; }
   #levelUpModal .lvlBadge{
-    width: 176px;
-    height: 176px;
-  }
+  width: 196px;
+  height: 196px;
+  border-radius: 999px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.10), rgba(255,255,255,.03) 42%, rgba(0,0,0,.0) 70%);
+  border: 1px solid rgba(45,220,255,.18);
+  box-shadow: 0 18px 52px rgba(0,0,0,.55);
+}
+
   #levelUpModal .lvlHeroNameBig{ font-size: 28px; }
 }
 
@@ -2613,20 +2622,35 @@ body.is-view-locked #btnEliminar,
 @keyframes lvlAuraPulse{ 0%,100%{ transform: scale(.98); opacity:.7;} 50%{ transform: scale(1.02); opacity: 1;} }
 
 #levelUpModal .lvlBadgeLabel{
+  z-index: 3;
+
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: .34em;
   opacity: 1;
   text-shadow: 0 10px 22px rgba(0,0,0,.7);
 }
+
 #levelUpModal .lvlBadgeNumber{
+  z-index: 3;
+
+  position: relative;
   font-size: 112px;
   line-height: 0.95;
   letter-spacing: -0.04em;
   text-shadow:
     0 22px 52px rgba(0,0,0,.55),
-    0 0 26px rgba(45,220,255,.16);
+    0 0 26px rgba(45,220,255,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width: 100%;
 }
+
 
 /* Reward title + cards */
 #levelUpModal .levelUpPickTitle{
@@ -2841,6 +2865,8 @@ body.is-view-locked #btnEliminar,
 
 /* Micro shine sweep on the medal */
 #levelUpModal .lvlBadgeGlint{
+  z-index: 2;
+
   position:absolute;
   inset: -18px;
   border-radius: 999px;
