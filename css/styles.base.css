@@ -2493,6 +2493,42 @@ body.is-view-locked #btnEliminar,
   #levelUpModal .lvlHeroFg.has-art{ animation:none !important; transform:none !important; }
 }
 
+/* =========================================================
+   MOBILE SAFARI FIXES (iPhone)
+   - Fichas: anclar FG al piso (evitar que "suba" y se corte abajo)
+   - LevelUp: en móvil ocultar arte y mostrar solo medalla + recompensas
+   ========================================================= */
+
+@media (max-width: 560px){
+  /* --- Fichas: escena parallax --- */
+  .heroScene{ min-height: 520px; }
+  .heroSceneLayer--fg{
+    inset: 0;                 /* evita que la capa se “despegue” y se recorte abajo */
+    background-size: contain;
+    background-position: 50% 100%;
+  }
+  .heroSceneLayer--mid{ background-position: 50% 72%; }
+
+  /* --- LevelUp: móvil compacto (sin arte) --- */
+  #levelUpModal .lvlStage{
+    grid-template-columns: 1fr;
+    height: auto;
+    padding: 14px 12px;
+  }
+  #levelUpModal .lvlHeroPanel{ display:none; }
+  #levelUpModal .lvlBadgeWrap{
+    grid-column: 1;
+    padding: 8px;
+  }
+  #levelUpModal .lvlBadgeWrap::before{ inset: 10px; }
+  #levelUpModal .lvlBadge{
+    width: 176px;
+    height: 176px;
+  }
+  #levelUpModal .lvlHeroNameBig{ font-size: 28px; }
+}
+
+
 /* Soft shade to keep text readable */
 #levelUpModal .lvlHeroShade{
   position:absolute;
