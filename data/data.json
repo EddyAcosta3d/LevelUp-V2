@@ -1070,7 +1070,7 @@
         "scope": "any",
         "type": "minChallenges",
         "perHero": 3,
-        "label": "Alguien del grupo completa 3 desafíos"
+        "label": "Completar 3 desafíos"
       },
       "eligibility": {
         "type": "level",
@@ -1088,7 +1088,7 @@
         "scope": "any",
         "type": "anyStatAtLeast",
         "threshold": 10,
-        "label": "Alguien del grupo llega a 10 en una stat"
+        "label": "Llegar a 10 en una stat"
       },
       "eligibility": {
         "type": "level",
@@ -1107,7 +1107,7 @@
         "type": "hasDifficulty",
         "difficulty": "medium",
         "perHero": 1,
-        "label": "Alguien del grupo completa 1 desafío medio"
+        "label": "Completar 1 desafío medio"
       },
       "eligibility": {
         "type": "level",
@@ -1125,7 +1125,7 @@
         "scope": "any",
         "type": "anyStatAtLeast",
         "threshold": 15,
-        "label": "Alguien del grupo llega a 15 en una stat"
+        "label": "Llegar a 15 en una stat"
       },
       "eligibility": {
         "type": "level",
@@ -1144,7 +1144,7 @@
         "type": "hasDifficulty",
         "difficulty": "hard",
         "perHero": 1,
-        "label": "Alguien del grupo completa 1 desafío difícil"
+        "label": "Completar 1 desafío difícil"
       },
       "eligibility": {
         "type": "level",
@@ -1162,7 +1162,7 @@
         "scope": "any",
         "type": "anyStatAtLeast",
         "threshold": 20,
-        "label": "Alguien del grupo llega a 20 en una stat"
+        "label": "Llegar a 20 en una stat"
       },
       "eligibility": {
         "type": "level",
@@ -1180,7 +1180,7 @@
         "scope": "any",
         "type": "minChallenges",
         "perHero": 8,
-        "label": "Alguien del grupo completa 8 desafíos"
+        "label": "Completar 8 desafíos"
       },
       "eligibility": {
         "type": "level",
@@ -1198,7 +1198,7 @@
         "scope": "any",
         "type": "anyStatAtLeast",
         "threshold": 25,
-        "label": "Alguien del grupo llega a 25 en una stat"
+        "label": "Llegar a 25 en una stat"
       },
       "eligibility": {
         "type": "level",
