@@ -105,14 +105,7 @@
   }
 
   // Render helpers
-  function escapeHtml(s){
-    return String(s ?? '')
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'",'&#039;');
-  }
+  // escapeHtml is defined in core_globals.js (loaded before this file)
 
   function heroLabel(hero){
     const role = (hero.role && hero.role.trim()) ? hero.role.trim() : 'Sin rol';
