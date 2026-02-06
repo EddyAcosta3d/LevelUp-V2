@@ -58,6 +58,9 @@
       });
       list.appendChild(btn);
     });
+
+    // Miniaturas: intenta cargar la imagen por nombre; si falla, usa silueta por género.
+    applyThumbFallbacks(list);
   }
 
   function currentHero(){
@@ -128,14 +131,15 @@
 
       saveData();
       if (typeof window.renderHeroList === 'function') window.renderHeroList();
-      updateHeroHeaderUI();
+      // En algunas versiones esta función no existe; evitamos crashear.
+      if (typeof window.updateHeroHeaderUI === 'function') window.updateHeroHeaderUI();
     });
 
     box.appendChild(row);
   });
 
-    // Aplicar fallback de siluetas si no existen las imágenes del nombre
-    applyThumbFallbacks(list);
+    // Nota: el fallback de miniaturas se aplica al terminar de renderizar la lista,
+    // no aquí (aquí no existe la variable `list`).
 }
 
   function stripDiacritics(str){

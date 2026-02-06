@@ -267,3 +267,105 @@
       grid.appendChild(div);
     });
   }
+
+  // ------------------------------------------------------------
+  // Boss unlock celebration overlay (full-screen)
+  // ------------------------------------------------------------
+  function _getBossUnlockOverlayEl(){
+    return document.getElementById('bossUnlockOverlay');
+  }
+
+  function _ensureBossUnlockOverlayBindings(){
+    const ov = _getBossUnlockOverlayEl();
+    if (!ov || ov.__bound) return;
+    ov.__bound = true;
+
+    const close = ()=>{
+      try{ ov.hidden = true; document.documentElement.classList.remove('is-boss-unlock'); }catch(_e){}
+    };
+    const go = ()=>{
+      close();
+      try{ state.eventsTab = 'boss'; }catch(_e){}
+      try{ if (typeof setActiveRoute === 'function') setActiveRoute('eventos'); }catch(_e){}
+      try{ if (typeof renderEvents === 'function') renderEvents(); }catch(_e){}
+      // Jump to top so the grid is visible immediately
+      try{ window.scrollTo({ top: 0, behavior: 'smooth' }); }catch(_e){ try{ window.scrollTo(0,0); }catch(__){} }
+    };
+
+    // click anywhere on overlay to go
+    ov.addEventListener('click', (e)=>{
+      const btn = e.target && e.target.closest ? e.target.closest('[data-boss-unlock-go]') : null;
+      const closer = e.target && e.target.closest ? e.target.closest('[data-boss-unlock-close]') : null;
+      if (btn) return go();
+      if (closer) return close();
+      // default: go
+      go();
+    });
+  }
+
+  function showBossUnlockOverlay(ev){
+    const ov = _getBossUnlockOverlayEl();
+    if (!ov) return;
+    _ensureBossUnlockOverlayBindings();
+
+    // Fill UI
+    const title = ov.querySelector('[data-boss-unlock-title]');
+    const sub = ov.querySelector('[data-boss-unlock-sub]');
+    const img = ov.querySelector('[data-boss-unlock-img]');
+
+    const kind = (ev && ev.kind === 'boss') ? 'JEFE' : 'EVENTO';
+    const t = (ev && ev.title) ? ev.title : kind;
+    if (title) title.textContent = `¡Un nuevo ${kind.toLowerCase()} apareció!`;
+    if (sub) sub.textContent = t;
+
+    // Use unlocked image if available; fallback to lockedImage
+    const src = (ev && ev.image) ? ev.image : (ev && ev.lockedImage ? ev.lockedImage : '');
+    if (img){
+      img.style.backgroundImage = src ? `url(${src})` : '';
+    }
+
+    // Show
+    try{ ov.hidden = false; document.documentElement.classList.add('is-boss-unlock'); }catch(_e){}
+  }
+
+  // Global checker called from renderAll()
+  function checkBossUnlockOverlay(){
+    try{
+      const list = Array.isArray(state.data?.events) ? state.data.events : [];
+      if (!list.length) return;
+
+      // Create storage the first time (avoid popups on initial load)
+      if (!window.__bossUnlockPrev){
+        window.__bossUnlockPrev = {};
+        list.forEach(ev=>{
+          if (ev && (ev.kind === 'boss')){
+            window.__bossUnlockPrev[String(ev.id)] = !!isEventUnlocked(ev);
+          }
+        });
+        window.__bossUnlockInitDone = true;
+        return;
+      }
+
+      // If overlay is already showing, don't trigger again right now
+      const ov = _getBossUnlockOverlayEl();
+      if (ov && !ov.hidden) return;
+
+      // Find newly unlocked bosses
+      for (const ev of list){
+        if (!ev || ev.kind !== 'boss') continue;
+        const id = String(ev.id);
+        const prev = !!window.__bossUnlockPrev[id];
+        const now = !!isEventUnlocked(ev);
+        if (!prev && now){
+          window.__bossUnlockPrev[id] = true;
+          showBossUnlockOverlay(ev);
+          break;
+        }
+        window.__bossUnlockPrev[id] = now;
+      }
+    }catch(_e){}
+  }
+
+  // Expose helpers (called from app_actions.js)
+  try{ window.checkBossUnlockOverlay = checkBossUnlockOverlay; }catch(_e){}
+  try{ window.showBossUnlockOverlay = showBossUnlockOverlay; }catch(_e){}

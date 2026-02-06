@@ -35,6 +35,12 @@
     safe('Eventos', renderEvents);
     safe('Tienda', ()=> { if (typeof renderTienda === 'function') renderTienda(); });
     safe('Datos', updateDataDebug);
+
+    // Celebración global: si se desbloquea un JEFE en cualquier momento,
+    // mostramos un overlay a pantalla completa y luego mandamos a la pestaña de Jefes.
+    safe('Boss Unlock Overlay', ()=>{
+      if (typeof checkBossUnlockOverlay === 'function') checkBossUnlockOverlay();
+    });
   }
 
   // Modo público: SOLO VER (sin PIN, sin edición dentro de la app)
