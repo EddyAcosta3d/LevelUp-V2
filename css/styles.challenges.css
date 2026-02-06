@@ -313,51 +313,417 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 .pill--hard.is-active{ border-color: rgba(255,90,90,.55); }
 
 
-/* Events / Bosses cards */
-.eventCard{
+/* Events / Bosses — redesigned layout (V2.068) */
+/* Goals:
+   - Clean, ordered hierarchy
+   - Card looks intentional (title integrated with artwork)
+   - Locked state feels like silhouette / mystery
+   - Single requirement line visible (unlock OR eligibility)
+   - Modal feels premium + readable on all resolutions
+*/
+
+:root{
+  --evCardBg: rgba(0,0,0,.22);
+  --evCardBorder: rgba(0,210,255,.16);
+  --evCardBorderHover: rgba(0,210,255,.32);
+  --evInk: rgba(240,245,255,.94);
+  --evMuted: rgba(220,220,230,.72);
+}
+
+.gridCards--events{
+  align-items: stretch;
+}
+
+/* ===== Cards ===== */
+.evCard{
+  position:relative;
   display:flex;
   flex-direction:column;
-  gap:10px;
   text-align:left;
-  padding:14px;
-  border-radius:18px;
-  border:1px solid rgba(0,210,255,.18);
-  background: rgba(0,0,0,.20);
-  box-shadow: 0 14px 40px rgba(0,0,0,.35);
+  padding:12px;
+  border-radius:20px;
+  border:1px solid var(--evCardBorder);
+  background: var(--evCardBg);
+  box-shadow: 0 18px 50px rgba(0,0,0,.38);
   cursor:pointer;
+  gap:10px;
+  min-height: 0;
+  transition: transform .08s ease, border-color .15s ease, box-shadow .15s ease;
 }
-.eventCard:hover{ border-color: rgba(0,210,255,.35); }
-.eventCard__img{
+.evCard:hover{
+  border-color: var(--evCardBorderHover);
+  box-shadow: 0 18px 55px rgba(0,0,0,.42);
+}
+.evCard:active{ transform: translateY(1px); }
+.evCard:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,210,255,.22), 0 18px 55px rgba(0,0,0,.42);
+}
+
+/* Artwork area */
+.evCard__media{
+  position:relative;
+  width:100%;
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.26);
+}
+.evCard__img{
   width:100%;
   aspect-ratio: 3/4;
-  border-radius:16px;
-  border:1px solid rgba(0,210,255,.16);
-  background: radial-gradient(circle at 40% 30%, rgba(0,210,255,.12), rgba(0,0,0,0) 55%),
-              rgba(0,0,0,.28);
+  background:
+    radial-gradient(260px 220px at 40% 28%, rgba(0,210,255,.12), rgba(0,0,0,0) 60%),
+    rgba(0,0,0,.22);
   background-size: cover;
   background-position: center;
-  position:relative;
+  transform: scale(1.02);
 }
-.eventCard__img.is-locked::after{
-  content:"";
+
+/* Overlay and title integrated on artwork */
+.evCard__overlay{
   position:absolute;
   inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,.35) 55%, rgba(0,0,0,.10));
+}
+.evCard__titleOnArt{
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:12px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  pointer-events:none;
+}
+.evCard__title{
+  font-weight: 950;
+  letter-spacing:.3px;
+  color: var(--evInk);
+  line-height:1.05;
+  text-shadow: 0 12px 30px rgba(0,0,0,.55);
+  max-width: 80%;
+}
+.evCard__chev{
+  width:30px;
+  height:30px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(0,210,255,.18);
+  background: rgba(0,0,0,.20);
+  color: rgba(240,245,255,.90);
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+}
+
+/* Pills */
+.evCard__pills{
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  pointer-events:none;
+}
+.evPill{
+  display:inline-flex;
+  align-items:center;
+  height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  border:1px solid rgba(0,210,255,.22);
+  background: rgba(0,0,0,.30);
+  color: rgba(240,245,255,.92);
+  backdrop-filter: blur(8px);
+}
+.evPill--kind{ border-color: rgba(255,215,120,.22); }
+.evCard.is-locked .evPill--state{ border-color: rgba(255,90,90,.20); }
+.evCard.is-unlocked .evPill--state{ border-color: rgba(120,255,180,.18); }
+.evCard.is-eligible .evPill--state{ box-shadow: 0 0 0 2px rgba(255,200,80,.10) inset; }
+
+/* Requirement line */
+.evCard__req{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:2px 2px 0;
+  min-height: 0;
+}
+.evReqIcon{
+  width:26px;
+  height:26px;
+  flex:0 0 auto;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(0,210,255,.14);
+  background: rgba(0,0,0,.18);
+  color: rgba(240,245,255,.82);
+}
+.evReqText{
+  color: var(--evMuted);
+  font-size: 13px;
+  line-height: 1.25;
+  margin-top: 3px;
+}
+
+/* Locked “mystery” treatment */
+.evCard.is-locked .evCard__img{
+  filter: grayscale(1) contrast(1.22) brightness(.62);
+}
+.evCard.is-locked .evCard__overlay{
+  background:
+    radial-gradient(260px 200px at 50% 30%, rgba(0,0,0,0), rgba(0,0,0,.55)),
+    linear-gradient(to top, rgba(0,0,0,.92), rgba(0,0,0,.50) 55%, rgba(0,0,0,.20));
+}
+.evCard.is-locked .evCard__title{
+  letter-spacing: 2.6px;
+  opacity: .78;
+}
+
+/* ===== Modal (premium + ordered) ===== */
+.modal__card--event{
+  max-width: 1040px;
+  width: min(1040px, calc(100vw - 24px));
+  max-height: min(92vh, 860px);
+  overflow: hidden;
+}
+
+/* Header */
+.evModalHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  background:
+    radial-gradient(900px 260px at 20% -30%, rgba(0,210,255,.12), transparent 55%),
+    rgba(10,12,18,.88);
+  backdrop-filter: blur(10px);
+}
+.evModalHead__left{ min-width: 0; display:flex; flex-direction:column; gap:8px; }
+.evModalKickerRow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+.evTag{
+  display:inline-flex;
+  align-items:center;
+  height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  letter-spacing:.9px;
+  text-transform:uppercase;
+  border:1px solid rgba(255,215,120,.22);
+  background: rgba(0,0,0,.24);
+  color: rgba(240,245,255,.92);
+}
+.evChip{
+  display:inline-flex;
+  align-items:center;
+  height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  letter-spacing:.9px;
+  text-transform:uppercase;
+  border:1px solid rgba(0,210,255,.22);
+  background: rgba(0,0,0,.24);
+  color: rgba(240,245,255,.92);
+}
+.evChip--state{ opacity:.95; }
+.evChip--elig{ border-color: rgba(255,200,80,.18); }
+
+#eventModalTitle{
+  margin:0;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: .2px;
+}
+.evModalSubtitle{
+  color: rgba(220,220,230,.70);
+  font-size: 13px;
+  line-height: 1.25;
+  max-width: 70ch;
+}
+
+/* Close button */
+#btnEventClose.iconBtn{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border:1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.24);
+  color: rgba(240,245,255,.92);
+}
+#btnEventClose.iconBtn:hover{ border-color: rgba(0,210,255,.28); }
+
+/* Body grid */
+.eventModalGrid{
+  display:grid;
+  grid-template-columns: minmax(300px, 380px) 1fr;
+  gap: 18px;
+  padding: 16px 18px 18px;
+  align-items: stretch;
+}
+
+/* Artwork */
+.eventModalImgWrap{
+  position:relative;
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.07);
+  overflow:hidden;
+  background: rgba(0,0,0,.28);
+  min-height: 360px;
+}
+.eventModalImg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  transform: scale(1.03);
+}
+.eventModalImg.is-locked{ filter: grayscale(1) contrast(1.15) brightness(.70); }
+
+.eventModalImgShade{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(80% 70% at 50% 28%, rgba(0,210,255,.12), transparent 55%),
+    linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,.30) 55%, rgba(0,0,0,.10));
+}
+.eventModalImgStamp{
+  position:absolute;
+  left:14px;
+  bottom:14px;
+  padding:10px 12px;
   border-radius:16px;
-  background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.65));
+  border:1px solid rgba(0,210,255,.16);
+  background: rgba(0,0,0,.30);
+  font-weight: 950;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(240,245,255,.92);
+  backdrop-filter: blur(10px);
 }
-.eventCard__meta{ display:flex; flex-direction:column; gap:6px; }
-.eventCard__name{ font-weight:700; letter-spacing:.3px; }
-.eventCard__req{ color: rgba(220,220,230,.75); font-size: 13px; }
 
-.modal__card--event{ max-width: 860px; }
-.eventModalGrid{ display:grid; grid-template-columns: 280px 1fr; gap:18px; align-items:start; }
-.eventModalImg{ width:100%; aspect-ratio:3/4; border-radius:18px; border:1px solid rgba(0,210,255,.18); background: rgba(0,0,0,.28); background-size:cover; background-position:center; }
-.eventModalImg.is-locked{ filter: grayscale(1) contrast(1.1) brightness(.75); }
-@media (max-width: 720px){
+/* Right panel */
+.eventModalInfo{
+  min-width: 0;
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+.eventModalReqGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.eventModalReqBox{
+  border:1px solid rgba(255,255,255,.07);
+  background: rgba(0,0,0,.18);
+  border-radius:18px;
+  padding: 14px;
+}
+.eventModalReqTitle{
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: rgba(240,245,255,.90);
+}
+.eventModalReqText{
+  margin-top: 8px;
+  color: rgba(220,220,230,.78);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.eventModalMini{
+  margin-top:10px;
+  font-size:12px;
+  color: rgba(220,220,230,.64);
+}
+.miniMeter{
+  margin-top:10px;
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid rgba(0,210,255,.14);
+  background: rgba(0,0,0,.22);
+}
+.miniMeter__fill{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, rgba(0,210,255,.85), rgba(255,255,255,.35));
+}
+
+/* Actions */
+.eventModalActions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  padding-top: 2px;
+}
+.eventModalActions .btn{
+  border-radius: 14px;
+}
+.eventModalActions .btnPrimary{
+  min-width: 180px;
+}
+.eventModalFoot{
+  margin-top:auto;
+  color: rgba(220,220,230,.58);
+  font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 920px){
   .eventModalGrid{ grid-template-columns: 1fr; }
-  .eventModalImg{ aspect-ratio: 16/10; }
+  .eventModalImgWrap{ min-height: 260px; }
+  .eventModalReqGrid{ grid-template-columns: 1fr; }
+  .evModalSubtitle{ max-width: 100%; }
 }
-
+@media (max-width: 560px){
+  .modal__card--event{
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .evModalHead{
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+  .eventModalActions{
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    padding: 10px 0 8px;
+    background: linear-gradient(to top, rgba(10,12,18,.94), rgba(10,12,18,.62), transparent);
+    backdrop-filter: blur(10px);
+  }
+}
+@media (max-width: 420px){
+  .evCard{ padding:10px; border-radius:18px; }
+  .evCard__media{ border-radius:14px; }
+  .evPill, .evTag, .evChip{ height:26px; padding:0 10px; font-size:11px; }
+  #eventModalTitle{ font-size: 24px; }
+}
 
 /* --- V2.00.031 additions --- */
 html:not(.is-edit) [data-edit-only="1"]{
@@ -706,5 +1072,23 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 }
 
 
-/* Eventos: resalta cuando el héroe actual ya puede retar */
-.eventCard__img.is-eligible{ box-shadow: 0 0 0 2px rgba(255,200,80,.25), 0 18px 50px rgba(0,0,0,.45); border-color: rgba(255,200,80,.28); }
+/* Eventos/Jefes: resalta cuando el héroe actual ya puede retar */
+.evCard.is-eligible .evCard__media{
+  box-shadow: 0 0 0 2px rgba(255,200,80,.18), 0 18px 50px rgba(0,0,0,.45);
+  border-color: rgba(255,200,80,.22);
+}
+
+/* Level-up medal hint (shown near end of level) */
+.medalGateHint{
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.92);
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 10px 0 10px 0;
+}
+.medalGateHint b{ color: rgba(255,255,255,0.98); }
+.medalGateHint .ok{ color: rgba(180,255,200,0.98); }
+.medalGateHint .warn{ color: rgba(255,220,150,0.98); }

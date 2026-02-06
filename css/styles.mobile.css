@@ -1,0 +1,331 @@
+/* ============================================
+   OPTIMIZACIONES MÓVIL
+   ============================================ */
+
+/* Asegurar tamaños táctiles mínimos de 44x44px */
+@media (max-width: 768px) {
+  
+  /* BOTONES - Tamaño mínimo para tocar fácilmente */
+  .pill,
+  .bottomNav__btn,
+  button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 20px;
+    font-size: 16px; /* Evitar zoom en iOS */
+  }
+  
+  .pill--small {
+    min-height: 40px;
+    padding: 10px 16px;
+    font-size: 15px;
+  }
+  
+  /* INPUTS - Evitar zoom en iOS */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+    min-height: 44px;
+    padding: 12px;
+  }
+  
+  textarea {
+    min-height: 100px;
+  }
+  
+  /* TEXTOS - Más grandes para legibilidad */
+  .heroCard__name {
+    font-size: 18px !important;
+  }
+  
+  .heroCard__level {
+    font-size: 28px !important;
+  }
+  
+  .challengeItem__title {
+    font-size: 17px !important;
+    line-height: 1.4;
+  }
+  
+  .challengeItem__subtitle {
+    font-size: 14px !important;
+  }
+  
+  .statBadge {
+    font-size: 15px !important;
+    padding: 6px 10px !important;
+  }
+  
+  /* MEDALLAS - Muy visible */
+  #heroMedalsCount {
+    font-size: 32px !important;
+    font-weight: 900;
+  }
+  
+  /* XP BAR - Más grande */
+  .xpBar {
+    height: 12px !important;
+    border-radius: 12px;
+  }
+  
+  /* CARDS - Más espacio */
+  .heroCard {
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .card {
+    padding: 20px;
+  }
+  
+  /* CHALLENGES LIST - Mejor espaciado */
+  .challengeItem {
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+  }
+  
+  /* MODALS - Pantalla completa en móvil pequeño */
+  @media (max-width: 480px) {
+    .modal__card {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+      border-radius: 0 !important;
+    }
+  }
+  
+  /* STATS - Indicadores más grandes */
+  .statRange {
+    height: 10px;
+  }
+  
+  .statSeg {
+    min-width: 8px;
+  }
+  
+  /* BADGES - Más visibles */
+  .badge {
+    font-size: 14px !important;
+    padding: 6px 12px !important;
+  }
+  
+  .badge--mini {
+    font-size: 13px !important;
+    padding: 4px 10px !important;
+  }
+  
+  /* PILLS GROUP - Espaciado para dedos */
+  .diffPills {
+    gap: 12px !important;
+  }
+  
+  .diffPills .pill {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  /* EVENT CARDS (maqueta) - 2 columnas cuando haya espacio; 1 columna en pantallas muy chicas */
+  .gridCards--events{
+    grid-template-columns: repeat(2, minmax(150px, 1fr)) !important;
+    gap: 14px !important;
+  }
+  @media (max-width: 380px){
+    .gridCards--events{ grid-template-columns: 1fr !important; }
+  }
+  
+  /* HERO DETAIL - Mejor layout */
+  .heroDetail {
+    gap: 16px;
+  }
+  
+  .heroDetail__section {
+    padding: 16px;
+  }
+  
+  /* FLOATING ACTION BUTTONS - Más grandes */
+  .fab {
+    width: 56px !important;
+    height: 56px !important;
+    font-size: 24px !important;
+  }
+  
+  /* TOAST NOTIFICATIONS - Más legibles */
+  .toast {
+    font-size: 16px !important;
+    padding: 16px 24px !important;
+    min-height: 52px;
+    border-radius: 12px;
+  }
+  
+  /* NAVIGATION - Mejor accesibilidad táctil */
+  .bottomNav {
+    height: 60px;
+  }
+  
+  .bottomNav__btn {
+    font-size: 15px;
+    padding: 8px 12px;
+  }
+  
+  /* HEADERS - Más legibles */
+  .h2 {
+    font-size: 28px !important;
+  }
+  
+  .h3 {
+    font-size: 22px !important;
+  }
+  
+  .pageIntro {
+    padding: 20px;
+  }
+  
+  /* DROPDOWN MENUS - Mejor espaciado */
+  .dropdown__menu {
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .dropdown__item {
+    padding: 14px 16px !important;
+    font-size: 16px !important;
+  }
+  
+  /* FORMS - Mejor UX */
+  .field {
+    margin-bottom: 20px;
+  }
+  
+  .label {
+    font-size: 15px !important;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  
+  /* REWARDS LIST - Más espacio entre items */
+  .rewardsList {
+    gap: 12px;
+  }
+  
+  .rewardItem {
+    padding: 14px;
+  }
+  
+  /* STATS SELECTOR - Más fácil de tocar */
+  #statsBox .statRow {
+    margin-bottom: 16px;
+  }
+  
+  .statLabel {
+    font-size: 15px !important;
+  }
+  
+  /* CHALLENGE CHIPS - Más grandes */
+  .chProgressChips {
+    gap: 8px;
+  }
+  
+  .chChip {
+    min-width: 44px;
+    min-height: 32px;
+    font-size: 14px;
+  }
+  
+  /* PHOTO BOX - Área de toque clara */
+  .photoBox {
+    min-height: 200px;
+  }
+  
+  /* SAFE AREA para iPhones con notch */
+  @supports (padding: max(0px)) {
+    body {
+      padding-top: max(0px, env(safe-area-inset-top));
+      padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+    
+    .bottomNav {
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+  }
+  
+  /* LANDSCAPE MODE - Ajustes */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .luStage {
+      height: 150px !important;
+    }
+    
+    .luBadge {
+      width: 80px !important;
+      height: 80px !important;
+    }
+    
+    .luNum {
+      font-size: 40px !important;
+    }
+    
+    .luKicker {
+      font-size: 16px !important;
+    }
+  }
+}
+
+/* EXTRA SMALL SCREENS (iPhone SE, etc) */
+@media (max-width: 375px) {
+  .pill {
+    font-size: 15px;
+    padding: 10px 16px;
+  }
+  
+  .heroCard__name {
+    font-size: 16px !important;
+  }
+  
+  .challengeItem__title {
+    font-size: 16px !important;
+  }
+  
+  .h2 {
+    font-size: 24px !important;
+  }
+  
+  .h3 {
+    font-size: 20px !important;
+  }
+}
+
+/* PREVENIR ZOOM ACCIDENTAL en inputs */
+@media (max-width: 768px) {
+  input:focus,
+  textarea:focus,
+  select:focus {
+    font-size: 16px !important;
+  }
+}
+
+/* SCROLL SUAVE EN MÓVIL */
+@media (max-width: 768px) {
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* CONTRASTE MEJORADO EN MÓVIL */
+@media (max-width: 768px) {
+  .muted {
+    opacity: 0.8; /* Más visible que 0.6 */
+  }
+  
+  /* Bordes más visibles */
+  .card,
+  .modal__card {
+    border-width: 2px;
+  }
+}

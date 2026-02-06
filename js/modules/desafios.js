@@ -12,6 +12,51 @@ function renderChallenges(){
   list.innerHTML = '';
 
   const hero = currentHero();
+
+  // --- Level-up medal hint (near end of level) ---
+  try{
+    const hint = $('#medalGateHint');
+    if (hint){
+      const xp = Number(hero?.xp ?? 0);
+      const xpMax = Number(hero?.xpMax ?? 100);
+      const near = xpMax > 0 && xp >= (xpMax * 0.80);
+      if (!hero || !near){
+        hint.hidden = true;
+      } else {
+        if (typeof hero.levelStartAt !== 'number' || !isFinite(hero.levelStartAt)) hero.levelStartAt = Date.now();
+        const since = Number(hero.levelStartAt || 0);
+        const comp = (hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
+        const chList = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
+        const byId = new Map(chList.map(c=>[String(c.id), c]));
+        let total=0, hasMed=false, hasHard=false;
+        for (const cid in comp){
+          const at = Number(comp[cid]?.at || 0);
+          if (!at || at < since) continue;
+          const ch = byId.get(String(cid));
+          if (!ch) continue;
+          total++;
+          const d = String(ch.difficulty||'').toLowerCase();
+          if (d==='medium') hasMed = true;
+          if (d==='hard') hasHard = true;
+        }
+        const needTotal = Math.max(0, 3-total);
+        const needM = !hasMed;
+        const needH = !hasHard;
+        const ok = (total>=3 && hasMed && hasHard);
+        if (ok){
+          hint.innerHTML = `🎖️ <span class="ok"><b>Medalla por subir de nivel:</b> lista.</span> (En este nivel ya hiciste <b>${total}</b> desafíos con <b>1 Medio</b> y <b>1 Difícil</b>.)`;
+        } else {
+          const parts = [];
+          if (needTotal) parts.push(`<b>${needTotal}</b> desafío${needTotal===1?'':'s'} más`);
+          if (needM) parts.push(`<b>1 Medio</b>`);
+          if (needH) parts.push(`<b>1 Difícil</b>`);
+          hint.innerHTML = `🎖️ <span class="warn"><b>Para ganar medalla al subir de nivel</b></span> te falta: ${parts.join(' y ')}.`;
+        }
+        hint.hidden = false;
+      }
+    }
+  }catch(_e){}
+
   const filtered = getFilteredChallenges();
 
   // --- Progress UI (counts + bar) ---

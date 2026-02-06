@@ -10,9 +10,13 @@
   <!-- Icono de la pestaña (pon tu archivo en assets/logo.png o cambia la ruta) -->
   <link rel="icon" href="assets/logo.png" type="image/png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
-  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.050" />
-  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.050" />
-  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.050" />
+  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.levelup.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.tienda.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.celebrations.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.mobile.css?v=LevelUP_V2_00.069" />
 </head>
 <body>
   <!-- Splash: cambia la variante con la clase:
@@ -68,7 +72,7 @@
         <button class="pill is-active" data-route="fichas">Fichas</button>
         <button class="pill" data-route="desafios">Desafíos</button>
         <button class="pill" data-route="eventos">Eventos</button>
-        <button class="pill" data-route="personajes">Personajes</button>
+        <button class="pill" data-route="tienda">Tienda</button>
       </nav>
 
       <div class="topbar__right">
@@ -160,6 +164,19 @@
                     <div class="labelSmall">Rol</div>
                     <input class="input input--select" id="inRol" value='Selecciona un rol' readonly aria-haspopup="dialog" aria-controls="roleModal" />
                   </div>
+                  <div class="field field--medals">
+                    <div class="labelSmall">Medallas</div>
+
+                    <!-- Re-usa el estilo de la tienda: logo SVG + contador en una sola pastilla -->
+                    <div class="medalBadgeSmall" id="heroMedalsPill" aria-label="Medallas del héroe">
+                      <svg viewBox="0 0 24 24" class="medalSvg" aria-hidden="true">
+                        <path d="M7 2h4l1 5-3 2-2-7zM13 2h4l-2 7-3-2 1-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <circle cx="12" cy="16" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 13v6M9 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      <span class="medalCount" id="heroMedalsCount">0</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="stats" id="statsBox"></div>
@@ -247,6 +264,7 @@
 
               <button class="pill" id="btnAddChallenge" type="button" data-edit-only="1">+ Desafío</button>
               <button class="pill pill--ghost" id="btnManageSubjects" type="button" data-edit-only="1">✎ Materias</button>
+              <button class="pill pill--ghost" id="btnHistory" type="button">📜 Historial</button>
             </div>
 
             
@@ -265,6 +283,8 @@
                   <div class="chProgressFill" id="chProgressFill" style="width:0%"></div>
                 </div>
                 <div class="muted small" id="chProgressText" style="margin:6px 0 10px 0;">—</div>
+
+                <div class="medalGateHint" id="medalGateHint" hidden></div>
 
                 <div class="challengeList" id="challengeList"></div>
               </div>
@@ -291,29 +311,25 @@
           </article>
 
           <article class="page" data-page="eventos">
-            <div class="pageIntro">
+            <!-- Nota: header simplificado (sin título/subtítulo). Solo tabs centrados. -->
+            <div class="pageIntro pageIntro--events">
               <div class="pageIntro__row">
-                <h2 class="h2" id="eventsTitle">Jefes</h2>
                 <div class="eventTabs" id="eventTabs" role="tablist" aria-label="Jefes y eventos">
                   <button class="pill pill--ghost is-active" type="button" data-event-tab="boss">Jefes</button>
                   <button class="pill pill--ghost" type="button" data-event-tab="event">Eventos</button>
                 </div>
               </div>
-              <p class="muted" id="eventsSubtitle">Tarjetas listas para desbloqueos.</p>
             </div>
-            <div class="gridCards" id="eventGrid"></div>
+            <div class="gridCards gridCards--events" id="eventGrid"></div>
           </article>
 
-          <article class="page" data-page="personajes">
+          <article class="page" data-page="tienda">
             <div class="pageIntro">
-              <h2 class="h2">Personajes</h2>
-              <p class="muted">Vista global (placeholder): lista.</p>
+              <h2 class="h2">Tienda</h2>
+              <p class="muted">Canjea tus medallas por recompensas especiales</p>
             </div>
 
-            <div class="card">
-              <div class="cardTitle">Tabla rápida</div>
-              <div class="table" id="peopleTable"></div>
-            </div>
+            <div id="tiendaContainer"></div>
           </article>
         </div>
       </section>
@@ -348,7 +364,7 @@
       <button class="bottomNav__btn is-active" data-route="fichas">Fichas</button>
       <button class="bottomNav__btn" data-route="desafios">Desafíos</button>
       <button class="bottomNav__btn" data-route="eventos">Eventos</button>
-      <button class="bottomNav__btn" data-route="personajes">Personajes</button>
+      <button class="bottomNav__btn" data-route="tienda">Tienda</button>
     </nav>
 
     <div class="modal" id="roleModal" hidden>
@@ -366,43 +382,31 @@
 
     
     <!-- Modal: Subir de nivel + elegir recompensa -->
-    <div class="modal" id="levelUpModal" hidden>
+    <div class="modal luModal" id="levelUpModal" hidden>
       <div class="modal__backdrop" id="levelUpBackdrop"></div>
-      <div class="modal__card modal__card--levelup" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
-        <div class="lvlHeader">
-  <div class="lvlHeader__center">
-    <div class="lvlHeader__kicker" id="levelUpTitle">LEVEL UP</div>
-    <div class="lvlHeroNameBig" id="levelUpHeroName">—</div>
-  </div>
-</div>
 
-        <div class="modal__body modal__body--levelup">
-          <!-- Escena (estilo videojuego) -->
-          <div class="lvlStage" role="presentation">
-            <div class="lvlParticles" aria-hidden="true"></div>
+      <div class="modal__card luCard" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
+        <!-- STAGE -->
+        <div class="luStage" id="levelUpStage">
+          <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
+          <div class="luStageShade" aria-hidden="true"></div>
 
-            <div class="lvlHeroPanel" aria-hidden="true">
-              <div class="lvlHeroArt" id="levelUpHeroArt">
-                <div class="lvlHeroLayer lvlHeroBg" aria-hidden="true"></div>
-                <div class="lvlHeroLayer lvlHeroFg" aria-hidden="true"></div>
-                <div class="lvlHeroShade" aria-hidden="true"></div>
-              </div>
-              <div class="lvlHeroCut"></div>
+          <div class="luStageText">
+            <div class="luKicker" id="levelUpTitle">¡Desbloqueaste un nuevo nivel!</div>
+          </div>
+
+          <div class="luBadgeWrap" aria-hidden="false">
+            <div class="luBadge">
+              <div class="luNum" id="levelUpNum">1</div>
             </div>
+          </div>
+        </div>
 
-            <div class="lvlBadgeWrap" role="presentation">
-              <div class="lvlBadge" role="presentation">
-                <div class="lvlBadgeGlint" aria-hidden="true"></div>
-                <div class="lvlBadgeLabel">NIVEL</div>
-                <div class="lvlBadgeNumber" id="levelUpNum">1</div>
-              </div>
-            </div>
-          </div><div class="levelUpScrollArea">
-
-          <div class="levelUpPickTitle">Elige tu recompensa</div>
-          <div class="rewardPickGrid" id="rewardPickGrid"></div>
-
-          <div class="muted levelUpHint" id="levelUpHint">Tienes una recompensa pendiente. Elígela para reclamarla.</div></div>
+        <!-- BODY -->
+        <div class="luBody" id="levelUpScrollArea">
+          <div class="luPickTitle">ELIGE TU RECOMPENSA</div>
+          <div class="luNote" id="levelUpNote" hidden></div>
+          <div class="luChoices" id="levelUpChoices"></div>
         </div>
       </div>
     </div>
@@ -484,7 +488,6 @@
               <input class="input" id="inChPoints" inputmode="numeric" />
             </div>
           </div>
-          </div>
 
           <div class="field">
             <label class="label">Título</label>
@@ -507,6 +510,21 @@
       </div>
     </div>
 
+    <!-- Historial de desafíos completados -->
+    <div class="modal" id="historyModal" hidden>
+      <div class="modal__backdrop" id="historyBackdrop"></div>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+        <div class="modal__header">
+          <div class="cardTitle" id="historyModalTitle">Historial de desafíos</div>
+          <button class="pill pill--small pill--ghost" id="btnCloseHistoryModal" type="button">✕</button>
+        </div>
+        <div class="modal__body">
+          <div class="muted" style="margin-bottom:10px;">Materia · Dificultad · Nombre · Fecha</div>
+          <div id="historyList" class="historyList"></div>
+        </div>
+      </div>
+    </div>
+
 
     <input type="file" id="fileJson" accept="application/json" hidden />
   </div>
@@ -517,40 +535,63 @@
   <!-- Eventos: modal de detalle -->
   <div class="modal" id="eventModal" hidden>
     <div class="modal__backdrop" data-close="eventModal"></div>
+
     <div class="modal__card modal__card--event" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
-      <div class="modal__head">
-        <div class="modal__titleRow">
-          <div class="badge badge--subj" id="eventModalKind">EVENTO</div>
+      <div class="modal__head evModalHead">
+        <div class="evModalHead__left">
           <h3 id="eventModalTitle">Evento</h3>
+          <div class="evModalSubtitle" id="eventModalSubtitle">—</div>
         </div>
+
         <button class="iconBtn" id="btnEventClose" title="Cerrar" aria-label="Cerrar">✕</button>
       </div>
+
       <div class="modal__body">
         <div class="eventModalGrid">
-          <div class="eventModalImg" id="eventModalImg" aria-hidden="true"></div>
+          <div class="eventModalImgWrap">
+            <div class="eventModalImg" id="eventModalImg" aria-hidden="true"></div>
+            <div class="eventModalImgShade" aria-hidden="true"></div>
+          </div>
+
           <div class="eventModalInfo">
-            <div class="muted" id="eventModalReq"></div>
-            <div class="row gap">
-              <button class="btn btnPrimary" id="btnEventFight">⚔️ Retar</button>
-              <button class="btn" id="btnEventToggleUnlock" data-edit-only="1">Desbloquear</button>
-            </div>
-          <div class="lvlBadgeGlint" aria-hidden="true"></div>
+            <div class="eventModalReqGrid">
+              <div class="eventModalReqBox" id="eventModalUnlockBox">
+                <div class="eventModalReqTitle">Para desbloquear</div>
+                <div class="eventModalReqText" id="eventModalUnlockText">—</div>
+                <div class="eventModalMini" id="eventModalUnlockMini"></div>
+                <div class="miniMeter" aria-hidden="true"><div class="miniMeter__fill" id="eventModalUnlockMeter"></div></div>
               </div>
+
+              <div class="eventModalReqBox" id="eventModalEligBox">
+                <div class="eventModalReqTitle">Para retar</div>
+                <div class="eventModalReqText" id="eventModalReq">—</div>
+                <div class="eventModalMini" id="eventModalEligMini"></div>
+                <div class="miniMeter" aria-hidden="true"><div class="miniMeter__fill" id="eventModalEligMeter"></div></div>
+              </div>
+            </div>
+
+            <div class="eventModalActions">
+              <button class="btn btnPrimary" id="btnEventFight">⚔️ Retar</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-<script src="js/splash.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/modules/store.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/modules/fichas.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/modules/desafios.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/modules/eventos.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/app.bindings.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/app.main.js?v=LevelUP_V2_00.050" defer></script>
-  <script src="js/app.js?v=LevelUP_V2_00.050" defer></script>
+
+<script src="js/splash.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/store.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/fichas.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/desafios.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/eventos.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/tienda.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/celebrations.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/app.bindings.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/app.main.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/app.js?v=LevelUP_V2_00.069" defer></script>
 </body>
 </html>

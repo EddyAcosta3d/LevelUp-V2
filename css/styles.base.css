@@ -77,7 +77,7 @@ body{
   background: var(--panel);
   box-shadow: var(--shadow);
   border: 1px solid var(--borderSoft);
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
 }
 .topbar__left{ display:flex; align-items:center; gap: 12px; min-width: 320px; }
 .topbar__right{ display:flex; align-items:center; gap: 10px; flex-wrap:wrap; justify-content:flex-end; }
@@ -443,6 +443,10 @@ body{
 .eventTabs{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
 .eventTabs .pill{ padding-left:14px; padding-right:14px; }
 .eventTabs .pill.is-active{ border-color: rgba(0,210,255,.45); box-shadow: 0 0 0 2px rgba(0,210,255,.12) inset; }
+
+/* Eventos/Jefes: header sin título; tabs centrados */
+.pageIntro--events .pageIntro__row{ justify-content:center; }
+.pageIntro--events .eventTabs{ justify-content:center; }
 .muted{ color: var(--muted); font-size: 13px; line-height: 1.4; }
 .cardTitle{ font-size: 14px; letter-spacing: 1px; opacity: .9; margin-bottom: 10px; }
 .avatar__frame{
@@ -1236,7 +1240,7 @@ body::-webkit-scrollbar,
 .noteGrid--overlay .noteCol{
   background: rgba(12,14,20,.30);
   border: 1px solid rgba(0,210,255,.12);
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
   padding: 10px;
 }
 .noteGrid--overlay .noteTitle{
@@ -1276,7 +1280,7 @@ body::-webkit-scrollbar,
   place-items:center;
   background: rgba(10,12,16,0.30);
   border: 1px solid rgba(0,210,255,0.16);
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
   box-shadow: 0 10px 18px rgba(0,0,0,0.35), 0 0 14px rgba(0,210,255,0.12);
   cursor: pointer;
 }
@@ -1661,9 +1665,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{ width:0; height:0; }
   animation: lvlPop .75s cubic-bezier(.2,1.2,.2,1) both;
 }
 @keyframes lvlPop{
-  0%{ transform: scale(.6); filter: blur(2px); opacity:.0; }
-  55%{ transform: scale(1.12); filter: blur(0); opacity:1; }
-  100%{ transform: scale(1.0); }
+  0%{transform: translateY(10px) scale(0.88); opacity: 0.0;}
+  55%{transform: translateY(-2px) scale(1.04); opacity: 1.0;}
+  100%{transform: translateY(0) scale(1); opacity: 1.0;}
 }
 .levelUpPickTitle{
   font-weight:700;
@@ -2896,3 +2900,1850 @@ body.is-view-locked #btnEliminar,
   #levelUpModal .modal__body--levelup{ max-height: calc(92svh - 96px); } /* header space */
 }
 
+
+
+/* === Mobile/Modal polish overrides (v50 patch) === */
+
+#levelUpModal .lvlBadgeWrap{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:0;}
+#levelUpModal .lvlBadge{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;}
+#levelUpModal .lvlBadgeLabel{position:static;transform:none;margin:0 0 10px 0;font-weight:800;letter-spacing:6px;opacity:.9;}
+#levelUpModal .lvlBadgeNum{margin:0;line-height:1;}
+#levelUpModal #levelUpTitle{font-size:22px;letter-spacing:3px;}
+@media (min-width: 900px){
+  #levelUpModal .lvlHeader{padding:16px 22px 14px;}
+  #levelUpModal .lvlHeaderName{font-size:40px;}
+  #levelUpModal .lvlHeaderKicker{font-size:12px;}
+}
+
+/* Medal micro-glint */
+.rewardPick--medal .rewardPick__icon{position:relative;overflow:hidden;}
+.rewardPick--medal .rewardPick__icon::after{content:'';position:absolute;top:-20%;left:-60%;width:40%;height:140%;transform:skewX(-20deg);background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);opacity:.0;animation:medalGlint 2.6s ease-in-out infinite;}
+@keyframes medalGlint{0%,55%{left:-60%;opacity:0;}60%{opacity:.0;}65%{opacity:.55;}75%{left:140%;opacity:0;}100%{left:140%;opacity:0;}}
+
+/* === v50_mobilefix6_overrides === */
+
+
+/* Level Up modal: tighter header + centered badge */
+#levelUpModal .lvlHeader{
+  padding: 14px 16px;
+}
+#levelUpModal .lvlHeaderInner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+#levelUpModal .lvlTitle{
+  text-align:center;
+}
+#levelUpModal .lvlName{
+  text-align:center;
+}
+
+#levelUpModal .lvlBadgeWrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#levelUpModal .lvlBadge{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+#levelUpModal .lvlBadgeLabel{
+  position:static !important;
+  transform:none !important;
+  margin:0 0 10px 0;
+  font-weight:800;
+  letter-spacing:0.28em;
+  opacity:.92;
+}
+#levelUpModal .lvlBadgeNumber{
+  line-height:1;
+  margin:0;
+}
+
+/* Smaller section title */
+#levelUpModal #levelUpTitle{
+  font-size: 1.05rem;
+  letter-spacing: 0.20em;
+}
+
+/* Medal micro shimmer */
+.rewardPick--medal .rewardPick__icon{
+  position:relative;
+  overflow:hidden;
+}
+.rewardPick--medal .rewardPick__icon::after{
+  content:"";
+  position:absolute;
+  inset:-60% -120%;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.55) 45%, rgba(255,255,255,0) 70%);
+  transform: translateX(-60%) rotate(25deg);
+  animation: medalSweep 3.3s ease-in-out infinite;
+  opacity: .65;
+  pointer-events:none;
+  mix-blend-mode: screen;
+}
+@keyframes medalSweep{
+  0%{ transform: translateX(-80%) rotate(25deg); opacity:0; }
+  18%{ opacity:.65; }
+  45%{ transform: translateX(80%) rotate(25deg); opacity:0; }
+  100%{ transform: translateX(80%) rotate(25deg); opacity:0; }
+}
+
+/* Mobile: adjust hero parallax framing */
+@media (max-width: 640px){
+  .heroScene{
+    height: 60vh;
+    max-height: 520px;
+  }
+  .heroSceneLayer--fg{
+    background-size: contain;
+    background-position: center 118%;
+  }
+}
+
+/* Desktop: slightly reduce header height */
+@media (min-width: 901px){
+  #levelUpModal .lvlHeader{
+    padding: 12px 18px;
+  }
+}
+
+/* --- Patch: remove NIVEL label and center badge --- */
+.lvlBadgeLabel { display: none !important; }
+.lvlBadge { padding-top: 0 !important; }
+.lvlBadgeCircle { display:flex !important; align-items:center !important; justify-content:center !important; }
+.lvlBadgeNumber { position: relative !important; top: 0 !important; left: 0 !important; transform: none !important; }
+
+/* === v50: LevelUp cinematic (opción 2) === */
+
+/* Hide redundant NIVEL label everywhere */
+#levelUpModal .lvlBadgeLabel{ display:none !important; }
+
+/* Perfect centering for the badge and number */
+#levelUpModal .lvlBadgeWrap{ display:grid; place-items:center; padding:0 !important; }
+#levelUpModal .lvlBadge{
+  display:grid !important;
+  place-items:center !important;
+}
+#levelUpModal .lvlBadgeNumber{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  transform: translateY(1px);
+}
+
+/* Remove bottom hint text (redundant) */
+#levelUpModal .lvlFooter{ display:none !important; }
+
+/* Reduce header height a bit so the stage has more protagonism */
+#levelUpModal .modal__header--levelup{ padding: 14px 18px !important; }
+#levelUpModal .modal__headerTitle--levelup{ font-size: 34px !important; }
+
+/* Cinematic: show the level first (badge in foreground), then reveal rewards */
+#levelUpModal .lvlHeroPanel,
+#levelUpModal .lvlBadgeWrap,
+#levelUpModal .lvlRewardTitle,
+#levelUpModal .lvlRewardArea{ transition: opacity .45s ease, transform .45s ease, filter .45s ease; }
+
+#levelUpModal.is-cine:not(.cine-done) .lvlHeroPanel{
+  opacity: 0.25;
+  filter: blur(3px) saturate(.85);
+}
+#levelUpModal.is-cine:not(.cine-done) .lvlBadgeWrap{
+  grid-column: 1 / -1;
+  transform: scale(1.15);
+  opacity: 1;
+}
+#levelUpModal.is-cine:not(.cine-done) .lvlRewardTitle,
+#levelUpModal.is-cine:not(.cine-done) .lvlRewardArea{
+  opacity: 0;
+  transform: translateY(14px);
+  pointer-events: none;
+}
+#levelUpModal.cine-done .lvlBadgeWrap{
+  transform: scale(1);
+}
+#levelUpModal.cine-done .lvlHeroPanel{
+  opacity: 1;
+  filter: none;
+}
+#levelUpModal.cine-done .lvlRewardTitle,
+#levelUpModal.cine-done .lvlRewardArea{
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Make title slightly smaller */
+#levelUpModal .lvlRewardTitle{ font-size: 15px !important; letter-spacing: .12em; }
+
+
+/* === v50: LevelUp cinematic (opción 2) === */
+
+/* Hide redundant NIVEL label everywhere */
+#levelUpModal .lvlBadgeLabel{ display:none !important; }
+
+/* Perfect centering for the badge and number */
+#levelUpModal .lvlBadgeWrap{ display:grid; place-items:center; padding:0 !important; }
+#levelUpModal .lvlBadge{
+  display:grid !important;
+  place-items:center !important;
+}
+#levelUpModal .lvlBadgeNumber{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+  width:100%;
+}
+
+/* Remove bottom hint text (not needed) */
+#levelUpModal .lvlFooter{ display:none !important; }
+
+/* Smooth transitions */
+#levelUpModal .lvlHeroPanel,
+#levelUpModal .lvlBadgeWrap,
+#levelUpModal .lvlRewardArea{
+  transition: opacity .45s ease, transform .45s ease, filter .45s ease;
+}
+
+/* Cinematic: first show the level in foreground, then reveal rewards */
+#levelUpModal.is-cine .lvlStage{ position:relative; overflow:hidden; }
+
+#levelUpModal.is-cine:not(.cine-done) .lvlHeroPanel{
+  opacity:0.35;
+  filter: blur(3px) saturate(.85);
+  transform: scale(1.01);
+}
+
+#levelUpModal.is-cine:not(.cine-done) .lvlBadgeWrap{
+  grid-column:1 / -1;
+  justify-self:center;
+  align-self:center;
+  transform: scale(1.12);
+  z-index:3;
+}
+
+#levelUpModal.is-cine:not(.cine-done) .lvlRewardArea{
+  opacity:0;
+  transform: translateY(14px);
+  pointer-events:none;
+}
+
+#levelUpModal.is-cine.cine-done .lvlBadgeWrap{
+  transform: none;
+}
+
+#levelUpModal.is-cine.cine-done .lvlHeroPanel{
+  opacity:1;
+  filter:none;
+  transform:none;
+}
+
+#levelUpModal.is-cine.cine-done .lvlRewardArea{
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
+}
+
+/* Reduce dead space in the header */
+#levelUpModal .modal__cardHeader{ padding: 14px 16px 12px !important; }
+#levelUpModal .lvlTitle{ margin-top: 0 !important; }
+
+/* On very small screens, keep the badge section compact and let rewards scroll */
+@media (max-width: 520px){
+  #levelUpModal .lvlStage{ min-height: 240px !important; }
+  #levelUpModal .lvlRewardTitle{ font-size: 18px !important; letter-spacing: 0.08em !important; }
+  #levelUpModal .lvlRewardArea{ max-height: 52vh !important; overflow:auto !important; }
+}
+
+/* === v50: LevelUp cinematic (opción 2) === */
+
+/* Hide redundant NIVEL label everywhere */
+#levelUpModal .lvlBadgeLabel{ display:none !important; }
+
+/* Perfect centering for the badge and number */
+#levelUpModal .lvlBadgeWrap{ display:grid; place-items:center; padding:0 !important; }
+#levelUpModal .lvlBadge{
+  display:grid !important;
+  place-items:center !important;
+}
+#levelUpModal .lvlBadgeNumber{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+  margin:0;
+  padding:0;
+}
+
+/* Remove tiny helper line at bottom (not needed) */
+#levelUpModal .lvlFooter,
+#levelUpModal .lvlPendingHint{ display:none !important; }
+
+/* Make reward title a bit smaller */
+#levelUpModal .lvlRewardTitle{ font-size:16px !important; letter-spacing:0.12em; }
+
+/* Make rewards area the only scrollable part */
+#levelUpModal .lvlRewardArea{
+  max-height: min(48vh, 420px);
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 720px){
+  #levelUpModal .lvlRewardArea{
+    max-height: calc(100vh - 380px);
+  }
+}
+
+/* Cinematic: show the level first, then reveal rewards */
+#levelUpModal .lvlHeroPanel,
+#levelUpModal .lvlBadgeWrap,
+#levelUpModal .lvlRewardArea{
+  transition: opacity .45s ease, transform .45s ease, filter .45s ease;
+}
+
+#levelUpModal.is-cine:not(.cine-done) .lvlStage{
+  grid-template-columns: 1fr !important;
+}
+
+#levelUpModal.is-cine:not(.cine-done) .lvlStageHero{ display:none !important; }
+
+#levelUpModal.is-cine:not(.cine-done) .lvlHeroPanel{
+  opacity: .28;
+  filter: blur(4px) saturate(.85);
+}
+
+#levelUpModal.is-cine:not(.cine-done) .lvlBadgeWrap{
+  grid-column: 1 / -1;
+  transform: scale(1.15);
+  z-index: 3;
+}
+
+#levelUpModal.is-cine:not(.cine-done) .lvlRewardArea{
+  opacity: 0;
+  transform: translateY(18px);
+  pointer-events: none;
+}
+
+#levelUpModal.cine-done .lvlRewardArea{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+#levelUpModal .lvlBadgeNumber{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height: 1 !important;
+  margin:0 !important;
+}
+#levelUpModal .lvlStageBadge{ display:grid; place-items:center; }
+
+/* Reduce title size a bit */
+#levelUpModal .lvlRewardTitle{ font-size: 16px !important; letter-spacing: 0.12em; }
+
+/* Remove bottom helper text in the modal */
+#levelUpModal .lvlFooter{ display:none !important; }
+
+/* Make only rewards scroll (badge stays fixed) */
+#levelUpModal .lvlRewardArea{ max-height: min(48vh, 420px); overflow:auto; }
+
+#levelUpModal .lvlHeroPanel,
+#levelUpModal .lvlBadgeWrap,
+#levelUpModal .lvlRewardArea{
+  transition: opacity .45s ease, transform .45s ease, filter .45s ease;
+}
+
+/* Cinematic sequence: show big level first */
+#levelUpModal.is-cine:not(.cine-done) .lvlStage{
+  grid-template-columns: 1fr !important;
+}
+#levelUpModal.is-cine:not(.cine-done) .lvlStageHero{ display:none !important; }
+#levelUpModal.is-cine:not(.cine-done) .lvlHeroPanel{
+  opacity: 0.22;
+  filter: blur(4px) saturate(0.8);
+}
+#levelUpModal.is-cine:not(.cine-done) .lvlBadgeWrap{
+  grid-column: 1 / -1;
+  transform: scale(1.15);
+  z-index: 3;
+}
+#levelUpModal.is-cine:not(.cine-done) .lvlRewardArea{
+  opacity: 0;
+  transform: translateY(18px);
+  pointer-events: none;
+}
+#levelUpModal.is-cine.cine-done .lvlBadgeWrap{
+  transform: none;
+}
+#levelUpModal.is-cine.cine-done .lvlHeroPanel{
+  opacity: 1;
+  filter: none;
+}
+#levelUpModal.is-cine.cine-done .lvlRewardArea{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (max-width: 720px){
+  #levelUpModal .lvlRewardArea{ max-height: calc(100vh - 360px); }
+}
+
+/* =========================================================
+   LEVEL UP MODAL — Cinematic BG-only (v2)
+   - Sin header superior
+   - BG del parallax como fondo
+   - Número centrado con look 3D
+   - Vignette oscura + rays
+   - Rewards con scroll (especialmente en móvil)
+   ========================================================= */
+
+#levelUpModal .lvlHeader{display:none !important;}
+
+#levelUpModal .lvlStage{
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 18px 18px 22px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#levelUpModal .lvlStageBg{
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.03);
+  filter: saturate(1.05) contrast(1.05);
+}
+
+#levelUpModal .lvlStageVignette{
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 55%, rgba(0,0,0,0.88) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.75) 100%);
+  opacity: 1;
+}
+
+#levelUpModal .lvlStageRays{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140vmax;
+  height: 140vmax;
+  transform: translate(-50%, -50%) rotate(0deg);
+  opacity: 0.22;
+  filter: blur(1px);
+  background:
+    conic-gradient(from 0deg,
+      rgba(255,255,255,0.00) 0deg,
+      rgba(255,255,255,0.13) 16deg,
+      rgba(255,255,255,0.00) 34deg,
+      rgba(255,255,255,0.10) 52deg,
+      rgba(255,255,255,0.00) 70deg,
+      rgba(255,255,255,0.12) 92deg,
+      rgba(255,255,255,0.00) 110deg,
+      rgba(255,255,255,0.10) 136deg,
+      rgba(255,255,255,0.00) 160deg,
+      rgba(255,255,255,0.14) 182deg,
+      rgba(255,255,255,0.00) 210deg,
+      rgba(255,255,255,0.10) 236deg,
+      rgba(255,255,255,0.00) 260deg,
+      rgba(255,255,255,0.12) 286deg,
+      rgba(255,255,255,0.00) 310deg,
+      rgba(255,255,255,0.13) 336deg,
+      rgba(255,255,255,0.00) 360deg);
+  animation: lvlRaysSpin 10s linear infinite;
+}
+
+@keyframes lvlRaysSpin{
+  0%{transform: translate3d(-50%,-50%,0) rotate(0deg);} 
+  100%{transform: translate3d(-50%,-50%,0) rotate(360deg);} 
+}
+#levelUpModal .lvlStageText{
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 560px;
+}
+
+#levelUpModal .lvlStageName{
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-size: clamp(20px, 4.6vw, 38px);
+  text-shadow: 0 8px 22px rgba(0,0,0,0.55);
+}
+
+#levelUpModal .lvlStageCongrats{
+  margin-top: 6px;
+  font-weight: 650;
+  opacity: 0.9;
+  font-size: clamp(13px, 2.7vw, 18px);
+  text-shadow: 0 8px 22px rgba(0,0,0,0.55);
+}
+
+#levelUpModal .lvlBadgeWrap{
+  position: relative;
+  z-index: 2;
+  width: min(58vw, 330px);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  margin-top: 4px;
+}
+
+#levelUpModal .lvlBadgeCircle{
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 28%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 35%, rgba(0,0,0,0.00) 70%),
+              radial-gradient(circle at 55% 60%, rgba(80,180,255,0.20) 0%, rgba(80,180,255,0.00) 55%),
+              linear-gradient(135deg, rgba(92,120,255,0.25) 0%, rgba(20,18,40,0.25) 50%, rgba(255,190,80,0.10) 100%);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow:
+    0 18px 46px rgba(0,0,0,0.62),
+    inset 0 0 0 2px rgba(255,255,255,0.06),
+    inset 0 -24px 60px rgba(0,0,0,0.35);
+}
+
+#levelUpModal .lvlBadgeNumber{
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  font-size: clamp(68px, 12vw, 142px);
+  color: #eef6ff;
+  line-height: 1;
+  transform: translateZ(0);
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.45),
+    0 10px 28px rgba(0,0,0,0.70),
+    0 0 18px rgba(120,200,255,0.18);
+  filter: drop-shadow(0 22px 34px rgba(0,0,0,0.55));
+}
+
+/* Cinemática: el número entra primero y se queda un poco más */
+#levelUpModal.is-cine .lvlBadgeWrap{
+  transform: scale(0.75);
+  opacity: 0;
+  filter: none;
+}
+#levelUpModal.is-cine.cine-done .lvlBadgeWrap{
+  transform: scale(1);
+  opacity: 1;
+  filter: blur(0);
+  transition: transform 820ms cubic-bezier(.16,1,.3,1), opacity 820ms, filter 820ms;
+}
+
+#levelUpModal.is-cine .lvlStageRays{opacity: 0.0;}
+#levelUpModal.is-cine.cine-done .lvlStageRays{opacity: 0.22; transition: opacity 900ms;}
+
+/* Título de recompensas más pequeño */
+#levelUpModal .lvlTitle{
+  font-size: clamp(16px, 3.8vw, 22px) !important;
+  letter-spacing: 0.12em;
+}
+
+/* Scroll SOLO en recompensas (modal completo fijo) */
+#levelUpModal .lvlRewards{
+  max-height: 44vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 720px){
+  #levelUpModal .lvlModalContent{
+    max-height: min(90vh, 820px);
+  }
+  #levelUpModal .lvlStage{
+    min-height: 220px;
+    padding: 16px 14px 18px;
+  }
+  #levelUpModal .lvlRewards{max-height: 42vh;}
+}
+
+/* Micro brillo en la medalla/iconos (sutil) */
+#levelUpModal .rewardCardIcon{
+  position: relative;
+  overflow: hidden;
+}
+#levelUpModal .rewardCardIcon::after{
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: linear-gradient(120deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0) 65%);
+  transform: translateX(-120%) rotate(12deg);
+  opacity: 0.7;
+  animation: lvlIconShine 5.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes lvlIconShine{
+  0%, 55%{transform: translateX(-120%) rotate(12deg); opacity: 0.0;}
+  60%{opacity: 0.75;}
+  72%{transform: translateX(120%) rotate(12deg); opacity: 0.0;}
+  100%{transform: translateX(120%) rotate(12deg); opacity: 0.0;}
+}
+
+
+/* ===== LevelUp Modal: final layout + crisp number ===== */
+#levelUpModal .lvlStage{
+  --lvlPad: 18px;
+  --lvlHeroH: clamp(220px, 44vh, 340px);
+  display: grid;
+  grid-template-rows: var(--lvlHeroH) auto;
+  gap: 14px;
+  padding: var(--lvlPad);
+  align-content: start;
+  justify-items: stretch;
+}
+
+/* Darken rewards area so hero stays dramatic */
+#levelUpModal .lvlStage::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  top: calc(var(--lvlPad) + var(--lvlHeroH) - 6px);
+  background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.75) 30%, rgba(0,0,0,0.88) 100%);
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Place hero text + number inside hero row, independent of rewards */
+#levelUpModal .lvlStageText{
+  grid-row: 1;
+  align-self: start;
+  justify-self: center;
+  margin-top: 10px;
+}
+#levelUpModal .lvlBadgeWrap{
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+}
+#levelUpModal .lvlTitle{
+  grid-row: 2;
+  margin-top: 0;
+}
+#levelUpModal .lvlRewards{
+  grid-row: 2;
+}
+
+/* Keep BG + vignette + rays focused, but not affecting layout */
+#levelUpModal .lvlStageBg,
+#levelUpModal .lvlVignette,
+#levelUpModal .lvlRays{
+  inset: var(--lvlPad);
+  height: var(--lvlHeroH);
+  bottom: auto;
+  border-radius: 16px;
+}
+
+/* Make badge truly center itself in the hero container */
+#levelUpModal .lvlBadgeWrap{
+  position: relative;
+  width: min(62vw, 360px);
+  aspect-ratio: 1 / 1;
+}
+#levelUpModal .lvlBadge{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  filter: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+#levelUpModal #levelUpNum{
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Cleaner pop without blur */
+@keyframes lvlPop{
+  0%{transform: translate3d(-50%,-50%,0) scale(0.90); opacity:0;}
+  55%{transform: translate3d(-50%,-50%,0) scale(1.06); opacity:1;}
+  100%{transform: translate3d(-50%,-50%,0) scale(1.00); opacity:1;}
+}
+
+/* Rays: keep square + GPU translate so it doesn't look like it warps on rotation */
+#levelUpModal .lvlRays{
+  width: 180vmax;
+  height: 180vmax;
+  left: 50%;
+  top: calc(var(--lvlPad) + (var(--lvlHeroH) / 2));
+  transform: translate3d(-50%,-50%,0);
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+@keyframes lvlRaysSpin{
+  0%{transform: translate3d(-50%,-50%,0) rotate(0deg);}
+  100%{transform: translate3d(-50%,-50%,0) rotate(360deg);}
+}
+
+@media (max-width: 560px){
+  #levelUpModal .lvlStage{
+    --lvlPad: 14px;
+    --lvlHeroH: clamp(260px, 46vh, 420px);
+    gap: 12px;
+  }
+  #levelUpModal .lvlBadgeWrap{ width: min(72vw, 320px); }
+}
+
+/* ===============================
+   Historial de desafíos
+   =============================== */
+#historyModal .modal__card{ max-width: 900px; }
+.historyList{ display:flex; flex-direction:column; gap:10px; }
+.historyRow{ display:grid; grid-template-columns: 1.1fr .8fr 2fr 1fr; gap:10px; align-items:center;
+  padding:10px 12px;
+  border:1px solid rgba(80,170,255,.22);
+  border-radius:14px;
+  background:rgba(16,25,44,.55);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.historyRow .muted{ opacity:.78; }
+.historyRow .pillMini{ display:inline-flex; align-items:center; justify-content:center; padding:2px 8px; border-radius:999px;
+  border:1px solid rgba(80,170,255,.25);
+  background:rgba(10,18,34,.55);
+  font-size:12px; letter-spacing:.02em;
+}
+@media (max-width: 640px){
+  .historyRow{ grid-template-columns: 1fr; gap:6px; align-items:start; }
+}
+
+/* ===============================
+   LevelUp modal: mantener badge centrado
+   =============================== */
+#levelUpModal .lvlStage{ grid-template-columns: 1fr !important; }
+#levelUpModal .lvlStageBadge{ justify-self:center !important; align-self:center !important; width:100% !important; }
+#levelUpModal .lvlBadgeWrap{ left:50% !important; top:50% !important; transform: translate(-50%,-50%) scale(1) !important; }
+#levelUpModal.cine-done .lvlBadgeWrap{ left:50% !important; top:50% !important; transform: translate(-50%,-50%) scale(1) !important; }
+#levelUpModal .lvlNum{ transform: translateZ(0); -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+
+/* =========================================================
+   LEVEL UP MODAL — Center lock + tidy rewards (v060f)
+   ========================================================= */
+
+/* Keep LevelUp modal centered (don't behave like bottom-sheet on mobile) */
+#levelUpModal{
+  place-items: center !important;
+  padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left)) !important;
+}
+
+#levelUpModal .modal__card--levelup{
+  width: min(1040px, calc(100vw - 24px)) !important;
+  max-height: min(90vh, 940px) !important;
+  overflow: hidden !important;
+}
+
+/* Make the cine layout breathe vertically */
+#levelUpModal .levelUpCine{
+  display: grid !important;
+  grid-template-rows: auto 1fr !important;
+  gap: 12px !important;
+}
+
+#levelUpModal .lvlStage{
+  height: clamp(220px, 30vh, 340px) !important;
+}
+
+/* Choices area */
+#levelUpModal .levelUpScrollArea{
+  overflow: visible !important;
+}
+
+#levelUpModal .levelUpPickTitle{
+  text-align: center !important;
+  margin: 2px 0 10px 0 !important;
+}
+
+/* Main rewards: 3 arriba + 1 centrada abajo */
+#levelUpModal .rewardPickGrid--levelupMain{
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+}
+
+#levelUpModal .rewardPickGrid--levelupMain .rewardPick:nth-child(4){
+  grid-column: 2 !important;
+}
+
+/* Hide any description remnants (belt & suspenders) */
+#levelUpModal .rewardPick__desc{ display: none !important; }
+
+/* Stat choices: 5 stats -> 3 arriba, 2 abajo centradas (mismo tamaño) */
+#levelUpModal .rewardPickGrid--levelupStat{
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+#levelUpModal .rewardPickGrid--levelupStat .rewardPick:nth-child(4){
+  grid-column: 1 !important;
+}
+#levelUpModal .rewardPickGrid--levelupStat .rewardPick:nth-child(5){
+  grid-column: 3 !important;
+}
+
+@media (max-width: 700px){
+  #levelUpModal .rewardPickGrid--levelupMain{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  #levelUpModal .rewardPickGrid--levelupMain .rewardPick:nth-child(4){
+    grid-column: 1 / -1 !important;
+    justify-self: center !important;
+    width: min(520px, 100%) !important;
+  }
+  #levelUpModal .rewardPickGrid--levelupStat{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  /* In 2-col mode, keep them balanced */
+  #levelUpModal .rewardPickGrid--levelupStat .rewardPick:nth-child(5){
+    grid-column: 2 !important;
+  }
+}
+
+
+/* =========================================================
+   LevelUp Modal (RESET v060g) — rebuilt from zero
+   ========================================================= */
+#levelUpModal.luModal{
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: clamp(10px, 2vw, 18px) !important;
+}
+#levelUpModal[hidden]{ display:none !important; }
+
+/* Lock page scroll when LevelUp modal is open */
+body.is-levelup-open{ overflow:hidden !important; }
+
+#levelUpModal .modal__backdrop{
+  position:absolute !important;
+  inset:0 !important;
+}
+
+/* Card */
+#levelUpModal .luCard{
+  width: min(980px, 100%) !important;
+  max-height: min(calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 920px) !important;
+  overflow: hidden !important;
+  padding: 14px !important;
+  border-radius: 22px !important;
+  display: grid !important;
+  grid-template-rows: auto 1fr !important;
+  gap: 12px !important;
+  margin: 0 !important;
+}
+
+/* Stage */
+#levelUpModal .luStage{
+  position: relative !important;
+  height: clamp(210px, 30vh, 340px) !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  display: grid !important;
+  align-items: center !important;
+  justify-items: center !important;
+}
+#levelUpModal .luStageBg{
+  position:absolute !important;
+  inset:0 !important;
+  background-size: cover !important;
+  background-position: center !important;
+  filter: saturate(1.05) contrast(1.02);
+}
+#levelUpModal .luStageShade{
+  position:absolute !important;
+  inset:0 !important;
+  background: radial-gradient(closest-side, rgba(0,0,0,.0), rgba(0,0,0,.45));
+}
+#levelUpModal .luStageText{
+  position:absolute !important;
+  top: 10px !important;
+  left: 12px !important;
+  right: 12px !important;
+  text-align:center !important;
+  padding: 10px 12px !important;
+  z-index: 4 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.18));
+  border: 1px solid rgba(255,255,255,.08);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+#levelUpModal .luKicker{
+  opacity: .98;
+  letter-spacing: .14em;
+  font-size: 14px;
+  text-shadow: 0 2px 18px rgba(0,0,0,.75);
+}
+/* No mostramos nombre del personaje en este modal */
+#levelUpModal .luName{ display:none !important; }
+
+#levelUpModal .luBadgeWrap{
+  position:absolute !important;
+  inset:0 !important;
+  display:grid !important;
+  place-items:center !important;
+  z-index:2 !important;
+}
+#levelUpModal .luBadge{
+  /* Un poco más compacto para que el stage respire */
+  width: clamp(120px, 16vw, 220px) !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 999px !important;
+  display:grid !important;
+  place-items:center !important;
+  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.18), rgba(255,255,255,.06) 40%, rgba(0,0,0,.12));
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 18px 40px rgba(0,0,0,.45);
+  backdrop-filter: blur(7px);
+}
+#levelUpModal .luNum{
+  font-size: clamp(56px, 7vw, 110px) !important;
+  font-weight: 950;
+  line-height: 1;
+}
+
+/* Open animations (impact) */
+@keyframes luBadgePop{
+  0%{ transform: scale(.88); filter: brightness(.9); }
+  60%{ transform: scale(1.04); filter: brightness(1.08); }
+  100%{ transform: scale(1); filter: brightness(1); }
+}
+@keyframes luBgSlowZoom{
+  0%{ transform: scale(1.02); }
+  100%{ transform: scale(1.06); }
+}
+#levelUpModal.is-open .luBadge{ animation: luBadgePop .46s cubic-bezier(.2,.9,.2,1) both; }
+#levelUpModal.is-open .luStageBg{ animation: luBgSlowZoom 2.2s ease-out both; }
+
+/* Body */
+#levelUpModal .luBody{
+  overflow: auto !important;
+  padding: 6px 6px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+#levelUpModal .luPickTitle{
+  text-align:center !important;
+  font-weight: 900 !important;
+  letter-spacing: .14em !important;
+  opacity: .95;
+  margin: 2px 0 10px !important;
+}
+
+/* Choices container */
+#levelUpModal .luChoices{
+  display: grid !important;
+  gap: 12px !important;
+  /* Con pocas opciones se ve centrado y balanceado */
+  align-content: start !important;
+  justify-items: stretch !important;
+  flex: 1 1 auto !important;
+  padding-bottom: 6px !important;
+}
+
+/* Main rewards (4) => 3 + 1 centered */
+#levelUpModal .luChoices[data-mode="main"]{
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+#levelUpModal .luChoices[data-mode="main"] .luPick:nth-child(4){
+  grid-column: 2 !important;
+}
+
+/* Stat picks (5) => 3 + 2 centered */
+#levelUpModal .luChoices[data-mode="autoStat"]{
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+#levelUpModal .luChoices[data-mode="autoStat"] .luPick:nth-child(4){
+  grid-column: 1 / span 1 !important;
+}
+#levelUpModal .luChoices[data-mode="autoStat"] .luPick:nth-child(5){
+  grid-column: 2 / span 1 !important;
+}
+
+/* Pick card */
+#levelUpModal .luPick{
+  min-height: 84px !important;
+  border-radius: 16px !important;
+  padding: 12px 14px !important;
+  display: grid !important;
+  grid-template-columns: 44px 1fr 72px !important;
+  align-items: center !important;
+  gap: 12px !important;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(0,210,255,.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+}
+#levelUpModal .luPickIcon{
+  width: 34px; height: 34px;
+  border-radius: 12px;
+  display:grid; place-items:center;
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.10);
+}
+#levelUpModal .luPickTitleText{
+  font-weight: 900;
+  font-size: 16px;
+  text-align: center;
+}
+#levelUpModal .luPickMeta{
+  opacity:.85;
+  font-weight: 800;
+  text-align: right;
+}
+
+/* Mobile: 2 columns + last spans */
+@media (max-width: 700px){
+  #levelUpModal.luModal{ padding: 10px !important; }
+  #levelUpModal .luCard{ max-height: 92svh !important; }
+
+  #levelUpModal .luStage{ height: clamp(240px, 34vh, 360px) !important; }
+
+  #levelUpModal .luChoices[data-mode="main"],
+  #levelUpModal .luChoices[data-mode="autoStat"]{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  #levelUpModal .luChoices[data-mode="main"] .luPick:nth-child(4),
+  #levelUpModal .luChoices[data-mode="autoStat"] .luPick:nth-child(5){
+    grid-column: 1 / -1 !important;
+    justify-self: center !important;
+    width: min(560px, 100%) !important;
+  }
+
+/* Extra small phones: 1 column + safer header + badge spacing */
+@media (max-width: 560px){
+  #levelUpModal .luCard{ padding: 12px !important; gap: 10px !important; }
+  #levelUpModal .luStage{ height: clamp(300px, 42vh, 420px) !important; }
+  #levelUpModal .luBadge{ width: clamp(120px, 40vw, 190px) !important; }
+  #levelUpModal .luBadgeWrap{ transform: translateY(18px) !important; }
+  #levelUpModal .luStageText{ top: 8px !important; left: 10px !important; right: 10px !important; padding: 10px 10px !important; }
+  #levelUpModal .luKicker{ font-size: 13px !important; }
+  #levelUpModal .luChoices[data-mode="main"],
+  #levelUpModal .luChoices[data-mode="autoStat"]{
+    grid-template-columns: 1fr !important;
+  }
+  #levelUpModal .luChoices .luPick{
+    grid-template-columns: 44px 1fr 64px !important;
+  }
+  #levelUpModal .luPickTitleText{ font-size: 15px !important; }
+}
+
+}
+
+/* =========================================================
+   LevelUp — Medallas en ficha (read-only) + refinamiento modal (v060i)
+   ========================================================= */
+
+/* Ficha: compactar inputs y agregar contador de medallas arriba a la derecha */
+.fields3{
+  display: grid;
+  grid-template-columns: 1.35fr .65fr 1.35fr .75fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.field--small .input{ text-align:center; }
+
+.field--medals .labelSmall{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+
+/* Ficha: medallas con el mismo lenguaje visual que Tienda (SVG + contador) */
+.medalBadgeSmall{
+  height: 44px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  padding: 0 14px;
+  font-weight: 950;
+  font-size: 18px;
+  letter-spacing: .02em;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(0,210,255,.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+  user-select:none;
+}
+.medalBadgeSmall .medalCount{ line-height:1; color: rgba(245,245,255,0.95); text-shadow: 0 1px 0 rgba(0,0,0,.65), 0 0 10px rgba(0,0,0,.35); }
+.medalSvg{
+  width: 22px;
+  height: 22px;
+  display:block;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+  opacity: .95;
+}
+
+.medalIcon{ 
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); 
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  margin: 0;
+  transform: translateY(1px);
+}
+
+/* Legacy: se mantiene por compatibilidad (por si algún layout aún lo usa) */
+.medalsPill{
+  height: 44px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 950;
+  font-size: 18px;
+  letter-spacing: .02em;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(0,210,255,.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+  user-select:none;
+}
+
+@media (max-width: 720px){
+  .fields3{
+    grid-template-columns: 1fr .8fr;
+  }
+  .field--medals{ justify-self: end; width: 100%; }
+  .field--medals .medalsPill{ width: 110px; }
+}
+
+/* Modal: nota fuera de la grilla para que no rompa tamaños */
+#levelUpModal .luNote{
+  margin: 0 0 10px 0;
+  opacity: .88;
+  font-size: 13px;
+  line-height: 1.25;
+  text-align: left;
+}
+
+/* Iconos del modal: estilo consistente tipo UI */
+#levelUpModal .luPickIcon{
+  background: rgba(0,0,0,.22);
+}
+
+#levelUpModal .luPickIcon svg{
+  width: 18px;
+  height: 18px;
+  display:block;
+}
+
+
+/* =========================
+   LEVEL UP MODAL WOW (opaco + tarjetas)
+   (override seguro)
+   ========================= */
+#levelUpModal{
+  position: fixed;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding: clamp(10px, 2vw, 18px);
+  z-index: 9999;
+}
+#levelUpModal[hidden]{ display:none !important; }
+#levelUpModal .modal__backdrop{
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(3px);
+}
+#levelUpModal .modal__card--levelup{
+  width: min(980px, calc(100vw - 24px));
+  max-height: min(92dvh, 880px);
+  overflow: hidden;
+  background: rgba(10,12,16,1) !important;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 24px;
+  box-shadow: 0 26px 90px rgba(0,0,0,.65);
+  backdrop-filter: none !important;
+}
+
+#levelUpModal .levelUpCine{
+  display:grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+}
+
+#levelUpModal .lvlStage{
+  height: clamp(260px, 36vh, 340px);
+  border-radius: 22px;
+  overflow:hidden;
+  position: relative;
+  background: linear-gradient(180deg, rgba(14,16,22,1), rgba(10,12,16,1));
+  border: 1px solid rgba(255,255,255,.06);
+}
+#levelUpModal .lvlStageBg{
+  position:absolute;
+  inset:0;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.05) contrast(1.05);
+}
+#levelUpModal .lvlStageVignette{
+  position:absolute; inset:0;
+  background: radial-gradient(closest-side at 50% 45%, rgba(0,0,0,.0), rgba(0,0,0,.55));
+}
+#levelUpModal .lvlStageRays{
+  position:absolute; inset:-140px -240px;
+  background:
+    repeating-conic-gradient(from 200deg,
+      rgba(255,255,255,.06) 0 8deg,
+      rgba(255,255,255,0) 8deg 16deg);
+  opacity:.30;
+  filter: blur(2px);
+  animation: luRaysSpin 10s linear infinite;
+  pointer-events:none;
+}
+@keyframes luRaysSpin{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
+
+#levelUpModal .lvlStageCopy{
+  position:absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display:flex;
+  justify-content:center;
+  z-index: 3;
+}
+#levelUpModal .lvlStageKicker{
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.10);
+  text-align:center;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+#levelUpModal .lvlBadgeWrap{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  z-index: 3;
+}
+#levelUpModal .lvlBadge{
+  width: clamp(150px, 18vw, 240px);
+  aspect-ratio: 1/1;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.12), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 18px 60px rgba(0,0,0,.60), inset 0 0 0 1px rgba(255,255,255,.06);
+  animation: luBadgePop .55s cubic-bezier(.2,1.2,.2,1);
+}
+@keyframes luBadgePop{ 0%{ transform: scale(.65); filter: blur(1px);} 80%{ transform: scale(1.06);} 100%{ transform: scale(1);} }
+
+#levelUpModal .lvlBadgeNumber{
+  font-size: clamp(64px, 8vw, 120px);
+  font-weight: 950;
+  line-height: 1;
+  text-shadow:
+    0 2px 0 rgba(0,0,0,.55),
+    0 12px 28px rgba(0,0,0,.65),
+    0 0 18px rgba(120,200,255,.18);
+}
+
+#levelUpModal .levelUpScrollArea{
+  padding: 4px 14px 16px;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: calc(92dvh - 360px);
+}
+#levelUpModal .levelUpPickTitle{
+  text-align:center;
+  font-weight: 900;
+  letter-spacing: .14em;
+  margin: 8px 0 12px;
+  text-transform: uppercase;
+}
+
+#levelUpModal .luChoicesGrid{
+  display:grid;
+  gap: 12px;
+  justify-content:center;
+}
+#levelUpModal .luChoicesGrid--rewards{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#levelUpModal .luChoicesGrid--stats{
+  grid-template-columns: repeat(6, 1fr);
+}
+#levelUpModal .luChoicesGrid--stats .rewardPick{
+  grid-column: span 2;
+}
+#levelUpModal .luChoicesGrid--stats .rewardPick:nth-of-type(4){
+  grid-column: 2 / span 2;
+}
+#levelUpModal .luChoicesGrid--stats .rewardPick:nth-of-type(5){
+  grid-column: 4 / span 2;
+}
+
+#levelUpModal .rewardPick--card{
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(16,18,24,1), rgba(10,12,16,1));
+  border: 2px solid rgba(255,255,255,.10);
+  box-shadow: 0 14px 40px rgba(0,0,0,.45);
+  padding: 14px 12px;
+  min-height: 120px;
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+#levelUpModal .rewardPick--card:hover{
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 18px 54px rgba(0,0,0,.55);
+}
+#levelUpModal .rewardPick__iconBig{
+  width: 66px;
+  height: 66px;
+  display:grid;
+  place-items:center;
+  border-radius: 18px;
+  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.14);
+}
+#levelUpModal .rewardPick__iconBig svg{
+  width: 40px;
+  height: 40px;
+}
+#levelUpModal .rewardPick__titleSmall{
+  font-weight: 900;
+  text-align:center;
+  letter-spacing: .02em;
+}
+#levelUpModal .rewardPick__metaLine{
+  opacity: .78;
+  font-size: 12px;
+}
+#levelUpModal .rewardPick__plus{
+  margin-left: 6px;
+  font-weight: 900;
+  opacity: .92;
+}
+
+/* Colored borders (only border) */
+#levelUpModal .rewardPick--xp{ border-color: rgba(45,220,255,.55); }
+#levelUpModal .rewardPick--stat{ border-color: rgba(168,120,255,.55); }
+#levelUpModal .rewardPick--medal{ border-color: rgba(255,206,120,.60); }
+#levelUpModal .rewardPick--x2{ border-color: rgba(110,255,176,.55); }
+
+@media (max-width: 520px){
+  #levelUpModal .rewardPick__iconBig{ width: 58px; height: 58px; }
+  #levelUpModal .rewardPick__iconBig svg{ width: 34px; height: 34px; }
+  #levelUpModal .rewardPick--card{ min-height: 112px; padding: 12px 10px; }
+  #levelUpModal .lvlBadge{ width: 160px; }
+}
+
+/* =========================
+   LEVEL UP MODAL WOW (opaco + tarjetas)
+   Override seguro para centrar, quitar transparencias y hacer recompensas más "wow".
+   ========================= */
+
+#levelUpModal{
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(10px, 2vw, 18px);
+  z-index: 9999;
+}
+#levelUpModal[hidden]{ display:none !important; }
+
+#levelUpModal .modal__backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.70);
+  backdrop-filter: blur(10px) saturate(130%);
+}
+
+.modal__card--levelup{
+  position: relative;
+  width: min(980px, 96vw);
+  max-height: min(86vh, 820px);
+  overflow: auto;
+  border-radius: 22px;
+  background: #111720; /* OPACO */
+  border: 1px solid rgba(90,200,255,.25);
+  box-shadow: 0 28px 70px rgba(0,0,0,.55);
+}
+
+.lvlStage{
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #0d131b; /* OPACO */
+  border: 1px solid rgba(90,200,255,.18);
+}
+
+.lvlStage__bg{
+  position:absolute;
+  inset:0;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.05) contrast(1.05);
+  transform: scale(1.02);
+}
+
+.lvlStage__shade{
+  position:absolute;
+  inset:0;
+  background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.72));
+}
+
+.lvlStage__topline{
+  position:absolute;
+  left: 16px;
+  right: 16px;
+  top: 12px;
+  text-align:center;
+  color: rgba(255,255,255,.9);
+  font-weight: 800;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  font-size: 12px;
+  text-shadow: 0 6px 16px rgba(0,0,0,.65);
+}
+
+.lvlBadge{
+  position: relative;
+  margin: 52px auto 14px;
+  width: 158px;
+  aspect-ratio: 1/1;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  background: #0f1620; /* OPACO */
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 18px 40px rgba(0,0,0,.55);
+}
+
+.lvlBadge::before{
+  content:"";
+  position:absolute;
+  inset:-22px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,214,90,.25) 0, rgba(255,214,90,0) 60%),
+    radial-gradient(circle at 50% 50%, rgba(126,231,255,.20) 0, rgba(126,231,255,0) 62%);
+  filter: blur(2px);
+  opacity: .9;
+}
+
+.levelUpBig__num{
+  position: relative;
+  z-index: 1;
+  font-size: clamp(56px, 8vw, 86px);
+  font-weight: 1000;
+  letter-spacing: -0.03em;
+  color: rgba(255,255,255,.92);
+  text-shadow:
+    0 10px 24px rgba(0,0,0,.65),
+    0 2px 0 rgba(0,0,0,.35);
+}
+
+.levelUpTitle{
+  text-align:center;
+  font-size: 20px;
+  font-weight: 1000;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.92);
+  margin: 6px 0 14px;
+}
+
+/* Grid de recompensas */
+.rewardGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 18px 18px;
+}
+
+.rewardPick{
+  appearance:none;
+  border: 1px solid rgba(90,200,255,.22);
+  background: #121a24; /* OPACO */
+  border-radius: 18px;
+  padding: 14px 12px 12px;
+  cursor:pointer;
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  min-height: 140px;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 12px 26px rgba(0,0,0,.38);
+}
+
+.rewardPick::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: 18px;
+  border: 2px solid var(--reward-accent, rgba(90,200,255,.0));
+  opacity: .9;
+  pointer-events:none;
+}
+
+.rewardPick:hover{ transform: translateY(-2px); }
+.rewardPick:active{ transform: translateY(0px) scale(.99); }
+
+.rewardPick__iconBig{
+  width: 56px;
+  height: 56px;
+  display:grid;
+  place-items:center;
+  border-radius: 16px;
+  background: rgba(255,255,255,.04);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.rewardPick__titleSmall{
+  font-weight: 900;
+  color: rgba(255,255,255,.92);
+  text-align:center;
+}
+
+.rewardPick__sub{
+  font-size: 12px;
+  color: rgba(210,230,255,.78);
+  text-align:center;
+  line-height: 1.2;
+}
+
+.rewardPick--stat{ --reward-accent: rgba(90,200,255,.50); }
+.rewardPick--xp{ --reward-accent: rgba(255,214,90,.55); }
+.rewardPick--medal{ --reward-accent: rgba(255,110,184,.55); }
+.rewardPick--double{ --reward-accent: rgba(155,125,255,.55); }
+
+/* Paso 1: stats (obligatorio) */
+.statGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 18px 10px;
+}
+
+.statPick{
+  border: 1px solid rgba(90,200,255,.22);
+  background: #121a24;
+  border-radius: 18px;
+  padding: 12px 12px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  min-height: 76px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 12px 26px rgba(0,0,0,.34);
+}
+
+.statPick__left{ display:flex; align-items:center; gap: 10px; }
+
+.statPick__icon{
+  width: 46px;
+  height: 46px;
+  display:grid;
+  place-items:center;
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.statPick__code{ font-weight: 1000; letter-spacing: .08em; }
+
+@media (max-width: 760px){
+  .modal__card--levelup{ width: min(540px, 96vw); }
+  .rewardGrid{ grid-template-columns: repeat(2, 1fr); }
+  .statGrid{ grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 420px){
+  .lvlBadge{ width: 142px; }
+  .rewardPick{ min-height: 132px; }
+}
+
+/* =========================
+   LEVEL UP MODAL WOW (opaco + tarjetas)
+   Override seguro para centrar, quitar transparencias y hacer recompensas más "wow".
+   ========================= */
+
+#levelUpModal{
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(10px, 2vw, 18px);
+  z-index: 9999;
+}
+#levelUpModal[hidden]{ display:none !important; }
+#levelUpModal .modal__backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(10px);
+}
+#levelUpModal .modal__card--levelup{
+  position: relative;
+  width: min(980px, 100%);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(64, 155, 255, .28);
+  background: #141a22; /* opaco */
+  box-shadow: 0 24px 80px rgba(0,0,0,.55);
+}
+
+#levelUpModal .lvlStage{
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 18px;
+  padding: 16px 18px 12px;
+  background: linear-gradient(180deg, #121823 0%, #141a22 40%, #141a22 100%);
+}
+#levelUpModal .lvlStage__bg{
+  position:absolute;
+  inset:0;
+  background: radial-gradient(1200px 300px at 50% 0%, rgba(150,90,255,.22), transparent 60%);
+  pointer-events:none;
+}
+
+#levelUpModal .lvlBadge{
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  background: #0f141c; /* opaco */
+}
+#levelUpModal .lvlBadge__img{
+  position:absolute;
+  inset:0;
+  background-position: center;
+  background-size: cover;
+  filter: saturate(1.05) contrast(1.02);
+}
+#levelUpModal .lvlBadge__img::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.60));
+}
+#levelUpModal .lvlBadge__glow{
+  position:absolute;
+  inset:-40%;
+  background: radial-gradient(circle at 50% 50%, rgba(255,210,120,.30), transparent 55%);
+  filter: blur(22px);
+  pointer-events:none;
+}
+#levelUpModal .levelUpBig{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+#levelUpModal .levelUpBig__num{
+  font-size: clamp(86px, 11vw, 128px);
+  font-weight: 900;
+  letter-spacing: .02em;
+  color: rgba(255,255,255,.95);
+  text-shadow: 0 10px 26px rgba(0,0,0,.65), 0 2px 0 rgba(0,0,0,.35);
+  filter: drop-shadow(0 18px 32px rgba(0,0,0,.35));
+}
+
+#levelUpModal .lvlStage__headline{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 0 6px;
+  color: rgba(255,255,255,.86);
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: 12px;
+}
+#levelUpModal .lvlStage__headline b{
+  font-size: 13px;
+  letter-spacing: .14em;
+}
+#levelUpModal .lvlStage__content{
+  position: relative;
+  z-index: 1;
+}
+
+#levelUpModal .levelUpBody{
+  padding: 12px 18px 18px;
+}
+#levelUpModal .levelUpTitle{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255,255,255,.9);
+}
+#levelUpModal .levelUpHint{
+  margin: 8px 0 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,.70);
+  display:flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+#levelUpModal .levelUpHint .emoji{ line-height: 1.1; }
+
+#levelUpModal .rewardGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+#levelUpModal .rewardGrid--twoRows{
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#levelUpModal .rewardPick{
+  border-radius: 16px;
+  background: #0f141c;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+  padding: 14px 12px 12px;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 126px;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+#levelUpModal .rewardPick:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.18);
+}
+#levelUpModal .rewardPick:active{ transform: translateY(0); }
+
+#levelUpModal .rewardPick--card{ border-color: rgba(70,170,255,.30); box-shadow: inset 0 0 0 1px rgba(70,170,255,.12); }
+#levelUpModal .rewardPick--xp{ border-color: rgba(255,210,120,.30); box-shadow: inset 0 0 0 1px rgba(255,210,120,.10); }
+#levelUpModal .rewardPick--medal{ border-color: rgba(120,255,220,.28); box-shadow: inset 0 0 0 1px rgba(120,255,220,.10); }
+#levelUpModal .rewardPick--double{ border-color: rgba(190,120,255,.28); box-shadow: inset 0 0 0 1px rgba(190,120,255,.10); }
+
+#levelUpModal .rewardPick__iconBig{
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 10px 20px rgba(0,0,0,.28);
+}
+#levelUpModal .rewardPick__iconBig svg{ width: 34px; height: 34px; }
+#levelUpModal .rewardPick__titleSmall{
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255,255,255,.88);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-align: center;
+}
+#levelUpModal .rewardPick__sub{
+  font-size: 12px;
+  color: rgba(255,255,255,.64);
+  text-align: center;
+  margin-top: -6px;
+}
+
+#levelUpModal .statGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+#levelUpModal .statPick{
+  border-radius: 16px;
+  background: #0f141c;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+  padding: 12px 12px;
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 78px;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+#levelUpModal .statPick:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(0,0,0,.42), inset 0 0 0 1px rgba(0,0,0,.18);
+}
+#levelUpModal .statPick__left{ display:flex; align-items:center; gap: 10px; }
+#levelUpModal .statPick__icon{
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display:grid;
+  place-items:center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+}
+#levelUpModal .statPick__label{ font-size: 16px; font-weight: 900; letter-spacing: .08em; }
+#levelUpModal .statPick__right{ display:flex; align-items:center; gap: 10px; }
+#levelUpModal .statPick__cur{
+  width: 44px;
+  height: 34px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.80);
+  font-weight: 800;
+}
+#levelUpModal .statPick__plus{
+  font-size: 16px;
+  font-weight: 900;
+  color: rgba(120,210,255,.95);
+}
+
+@media (max-width: 560px){
+  #levelUpModal{ padding: 10px; }
+  #levelUpModal .modal__card--levelup{ border-radius: 20px; }
+  #levelUpModal .lvlStage{ grid-template-columns: 1fr; }
+  #levelUpModal .lvlBadge{ border-radius: 16px; }
+  #levelUpModal .rewardGrid{ grid-template-columns: repeat(2, 1fr); }
+  #levelUpModal .statGrid{ grid-template-columns: repeat(2, 1fr); }
+  #levelUpModal .levelUpHint{ font-size: 12.5px; }
+}

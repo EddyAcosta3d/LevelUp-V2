@@ -1,0 +1,292 @@
+/* ============================================
+   CELEBRACIONES Y FEEDBACK VISUAL
+   ============================================ */
+
+/* Overlay de recompensa grande */
+.bigRewardOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.bigRewardOverlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Tarjeta de recompensa */
+.bigReward {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 24px;
+  padding: 48px 32px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 
+    0 20px 60px rgba(0,0,0,0.5),
+    0 0 100px rgba(102,126,234,0.3);
+  transform: scale(0.8);
+  animation: bigRewardPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes bigRewardPop {
+  0% {
+    transform: scale(0.5) rotate(-5deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.bigReward__icon {
+  font-size: 120px;
+  margin-bottom: 24px;
+  animation: bigRewardIconSpin 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+}
+
+@keyframes bigRewardIconSpin {
+  0% {
+    transform: scale(0) rotate(-180deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.bigReward__title {
+  font-size: 42px;
+  font-weight: 900;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  text-shadow: 
+    0 2px 10px rgba(0,0,0,0.3),
+    0 0 30px rgba(255,255,255,0.2);
+  animation: bigRewardTextPulse 1s ease-in-out infinite;
+}
+
+@keyframes bigRewardTextPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+  }
+}
+
+.bigReward__subtitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Confeti */
+.confettiContainer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100000;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0.5;
+  }
+}
+
+/* XP flotante */
+.xpFloat {
+  position: fixed;
+  font-size: 32px;
+  font-weight: 900;
+  color: #4ecdc4;
+  text-shadow: 
+    0 0 10px rgba(78,205,196,0.5),
+    0 2px 4px rgba(0,0,0,0.5);
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateX(-50%) translateY(0);
+}
+
+.xpFloat.is-animating {
+  animation: xpFloatUp 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes xpFloatUp {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-30px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-100px) scale(1);
+  }
+}
+
+/* Efecto de pulso en barra de XP */
+#xpFill.is-pulsing {
+  animation: xpBarPulse 0.8s ease-out;
+}
+
+@keyframes xpBarPulse {
+  0%, 100% {
+    box-shadow: none;
+  }
+  50% {
+    box-shadow: 
+      0 0 20px rgba(78,205,196,0.5),
+      inset 0 0 20px rgba(255,255,255,0.3);
+  }
+}
+
+/* Efecto shake */
+.is-shaking {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+/* Efecto de flash para elementos nuevos */
+.flash {
+  animation: flash 0.6s ease-out;
+}
+
+@keyframes flash {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(255,204,0,0.3);
+  }
+}
+
+/* Medalla brillante */
+.medalShine {
+  position: relative;
+  overflow: hidden;
+}
+
+.medalShine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255,255,255,0.3) 50%,
+    transparent 70%
+  );
+  animation: medalShineMove 2s infinite;
+}
+
+@keyframes medalShineMove {
+  0% {
+    transform: translateX(-100%) translateY(-100%);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%);
+  }
+}
+
+/* Partículas flotantes de fondo */
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255,204,0,0.6);
+  border-radius: 50%;
+  animation: particleFloat 3s infinite ease-in-out;
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(50px);
+  }
+}
+
+/* RESPONSIVE - MÓVIL */
+@media (max-width: 640px) {
+  .bigReward {
+    padding: 36px 24px;
+  }
+  
+  .bigReward__icon {
+    font-size: 80px;
+  }
+  
+  .bigReward__title {
+    font-size: 32px;
+  }
+  
+  .bigReward__subtitle {
+    font-size: 18px;
+  }
+  
+  .xpFloat {
+    font-size: 24px;
+  }
+}

@@ -70,7 +70,7 @@ function bind(){
         const h = makeBlankHero(state.group || '2D');
         state.data.heroes.push(h);
         state.selectedHeroId = h.id;
-        saveLocal();
+        saveLocal(state.data);
         renderAll();
         requestAnimationFrame(()=>{
           const nameEl = document.getElementById('inNombre');
@@ -184,14 +184,42 @@ $('#btnChallengeComplete')?.addEventListener('click', ()=>{
     const awarded = Number(hero.challengeCompletions[key].points ?? pts);
     delete hero.challengeCompletions[key];
 
+    // Remove from historial (si se desmarca, ya no debe quedar registrado)
+    hero.challengeHistory = Array.isArray(hero.challengeHistory) ? hero.challengeHistory : [];
+    hero.challengeHistory = hero.challengeHistory.filter(h => String(h.challengeId) !== String(key));
+
     applyNegativeXp(-awarded);
     toast('Desafío descompletado');
   } else {
 
-    hero.challengeCompletions[key] = { at: Date.now(), points: pts };
+    const mult = Math.max(1, Number(hero.nextChallengeMultiplier || 1));
+    const awarded = pts * mult;
+    if (mult > 1) {
+      hero.nextChallengeMultiplier = 1;
+    }
+
+    hero.challengeCompletions[key] = { at: Date.now(), points: awarded };
+
+    // Add to historial (solo una vez mientras siga marcado)
+    hero.challengeHistory = Array.isArray(hero.challengeHistory) ? hero.challengeHistory : [];
+    if (!hero.challengeHistory.some(h => String(h.challengeId) === String(key))){
+      const subjId = ch.subjectId ?? ch.subject ?? ch.subject_id;
+      const subjObj = (state.data?.subjects || []).find(s => String(s.id) === String(subjId));
+      hero.challengeHistory.push({
+        challengeId: String(key),
+        subjectId: subjId != null ? String(subjId) : '',
+        subject: subjObj?.name || subjObj?.title || String(ch.subjectName || ch.subject || ''),
+        difficulty: String(ch.difficulty || ''),
+        name: String(ch.title || ch.name || 'Desafío'),
+        at: Date.now()
+      });
+    }
     // Los desafíos NO consumen límite semanal. El límite semanal es solo para actividades pequeñas.
-    bumpHeroXp(pts);
-    toast('Desafío completado');
+    if (String(ch.difficulty||'').toLowerCase() === 'hard') {
+      hero.medals = (Number(hero.medals) || 0) + 1;
+    }
+    bumpHeroXp(awarded, { source: 'challenge' }); // ✅ Agregar source para activar celebraciones
+    toast(mult > 1 ? 'Desafío completado (x2 XP)' : 'Desafío completado');
   }
 
   saveLocal(state.data);
@@ -201,11 +229,8 @@ $('#btnChallengeComplete')?.addEventListener('click', ()=>{
 
 // --- CRUD: Materias y Desafíos ---
 function pointsForDifficulty(diff){
-  const d = String(diff || '').toLowerCase();
-  if (d === 'easy') return 10;
-  if (d === 'medium') return 20;
-  if (d === 'hard') return 40;
-  return 0;
+  const normalized = normalizeDifficulty(diff);
+  return POINTS_BY_DIFFICULTY[normalized] || 0;
 }
 
 function refreshChallengeUI(){
@@ -277,6 +302,63 @@ function renderSubjectsModal(){
     box.appendChild(row);
   });
 }
+
+// Historial de desafíos completados
+function openHistoryModal(){
+  const m = $('#historyModal');
+  if (!m) return;
+  try{ document.activeElement && document.activeElement.blur(); }catch(e){}
+  try{ document.body.classList.add('is-modal-open'); }catch(e){}
+  closeAllModals('historyModal');
+  renderHistoryModal();
+  m.hidden = false;
+  try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
+}
+function closeHistoryModal(){
+  const m = $('#historyModal');
+  if (!m) return;
+  m.hidden = true;
+  try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
+}
+function renderHistoryModal(){
+  const title = $('#historyModalTitle');
+  const list = $('#historyList');
+  const empty = $('#historyEmpty');
+  if (!list) return;
+
+  const hero = (typeof getSelectedHero==='function') ? getSelectedHero() : null;
+  const heroName = hero?.name || 'Personaje';
+  if (title) title.textContent = `Historial de desafíos — ${heroName}`;
+
+  const items = Array.isArray(hero?.challengeHistory) ? hero.challengeHistory.slice() : [];
+  items.sort((a,b)=> (Number(b.at||0) - Number(a.at||0)));
+
+  list.innerHTML = '';
+  if (empty) empty.hidden = items.length !== 0;
+
+  items.forEach(it=>{
+    const subject = it.subject || it.subjectName || '';
+    const diff = String(it.difficulty||'').toLowerCase();
+    const diffLabel = diff==='hard' ? 'Difícil' : (diff==='medium' ? 'Medio' : 'Fácil');
+    const name = it.name || it.title || 'Desafío';
+    const d = new Date(Number(it.at||0));
+    const dateStr = isNaN(d.getTime()) ? '' : `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+
+    const row = document.createElement('div');
+    row.className = 'historyRow';
+    row.innerHTML = `
+      <div class="historyCell historyCell--subj">${escapeHtml(subject)}</div>
+      <div class="historyCell historyCell--diff">${escapeHtml(diffLabel)}</div>
+      <div class="historyCell historyCell--name">${escapeHtml(name)}</div>
+      <div class="historyCell historyCell--date">${escapeHtml(dateStr)}</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// expose
+window.openHistoryModal = openHistoryModal;
+window.closeHistoryModal = closeHistoryModal;
 
 // Desafío modal
 let editingChallengeId = null;
@@ -473,12 +555,17 @@ async function deleteSelectedChallenge(){  const ch = (state.data?.challenges ||
 
 // Bind: Materias/Desafíos
 $('#btnManageSubjects')?.addEventListener('click', openSubjectsModal);
+$('#btnHistory')?.addEventListener('click', openHistoryModal);
 $('#btnAddChallenge')?.addEventListener('click', ()=> openChallengeModal('create'));
 
 
 // Modal: materias
 $('#btnCloseSubjects')?.addEventListener('click', closeSubjectsModal);
 $('#subjectsBackdrop')?.addEventListener('click', closeSubjectsModal);
+
+// Modal: historial
+$('#btnCloseHistoryModal')?.addEventListener('click', closeHistoryModal);
+$('#historyBackdrop')?.addEventListener('click', closeHistoryModal);
 $('#btnAddSubject')?.addEventListener('click', ()=>{  const inp = $('#inNewSubject');
   const name = String(inp?.value || '').trim();
   if (!name) return;
@@ -660,7 +747,7 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
       if (!ok) return;
       h.weekXp = 0;
       if (!h.weekXpMax) h.weekXpMax = DEFAULT_WEEK_XP_MAX;
-      saveLocal();
+      saveLocal(state.data);
       if (state.dataSource === 'remote') state.dataSource = 'local';
       updateDataDebug();
       renderHeroDetail(h);

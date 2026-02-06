@@ -1,7 +1,7 @@
 'use strict';
 
 
-const BUILD_ID = 'LevelUP_V2_00.050';
+const BUILD_ID = 'LevelUP_V2_00.069';
 window.LEVELUP_BUILD = BUILD_ID;
 
 // CLEAN PASS v29: stability + small UI tweaks
@@ -23,6 +23,77 @@ window.LEVELUP_BUILD = BUILD_ID;
   // Weekly XP cap for "Actividades pequeñas" (per hero). If hero.weekXpMax is missing, we fall back to this.
   const DEFAULT_WEEK_XP_MAX = 40;
 
+  // === CONSTANTES DE DIFICULTAD ===
+  const DIFFICULTY = Object.freeze({
+    EASY: 'easy',
+    MEDIUM: 'medium',
+    HARD: 'hard'
+  });
+
+  // Puntos base por dificultad
+  const POINTS_BY_DIFFICULTY = Object.freeze({
+    [DIFFICULTY.EASY]: 10,
+    [DIFFICULTY.MEDIUM]: 20,
+    [DIFFICULTY.HARD]: 40
+  });
+
+  // === SISTEMA DE LOGGING ===
+  const logger = {
+    _enabled: new URLSearchParams(location.search).has('debug'),
+    
+    error: function(message, data) {
+      console.error(`[LevelUp ERROR] ${message}`, data || '');
+      if (this._enabled) {
+        toast(`⚠️ ${message}`);
+      }
+    },
+    
+    warn: function(message, data) {
+      console.warn(`[LevelUp WARN] ${message}`, data || '');
+    },
+    
+    info: function(message) {
+      if (this._enabled) {
+        console.info(`[LevelUp INFO] ${message}`);
+      }
+    },
+    
+    debug: function(message, data) {
+      if (this._enabled) {
+        console.log(`[LevelUp DEBUG] ${message}`, data || '');
+      }
+    }
+  };
+
+  // === UTILIDADES ===
+  
+  /**
+   * Debounce: retrasa la ejecución hasta que pasen X ms sin llamadas
+   */
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      const context = this;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+  }
+
+  /**
+   * Throttle: ejecuta como máximo una vez cada X ms
+   */
+  function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    };
+  }
+
 // Convierte texto a un nombre seguro de archivo (sin perder mayúsculas/minúsculas)
 function sanitizeFileName(str){
   const raw = String(str || '').trim();
@@ -35,6 +106,16 @@ function sanitizeFileName(str){
   // colapsa espacios
   s = s.replace(/\s+/g,' ').trim();
   return s;
+}
+
+// Escape HTML para prevenir XSS
+function escapeHtml(s){
+  return String(s ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#039;');
 }
 
 function makeId(prefix='h'){
@@ -215,6 +296,13 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
+  // Selected hero helper (used across modules/bindings)
+  function getSelectedHero(){
+    const people = state?.data?.people || [];
+    return people.find(p=>p.id===state.selectedHeroId) || null;
+  }
+  window.getSelectedHero = getSelectedHero;
+
   // UI lock helper: prevents double clicks / repeated actions consistently
   function uiLock(root, locked=true, opts={}){
     if (!root) return;
@@ -370,27 +458,157 @@ function countCompletedForHero(hero){
   return Object.keys(c).length;
 }
 
+function _activeGroup(){
+  // Prefer explicit state.group; fallback to selected hero group if available.
+  const g = String(state?.group || '').trim();
+  if (g) return g;
+  try{
+    const h = (state?.data?.heroes||[]).find(x=>x.id===state.selectedHeroId);
+    return h?.group || '2D';
+  }catch(e){ return '2D'; }
+}
+
+function completedCountForHero(hero){
+  const c = (hero && hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
+  return Object.keys(c).length;
+}
+
+function completedForHeroByDifficulty(hero, diff){
+  const want = String(diff||'').toLowerCase();
+  const c = (hero && hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
+  const ids = Object.keys(c);
+  if (!ids.length) return 0;
+  const map = new Map((state.data?.challenges||[]).map(ch=>[String(ch.id), String(ch.difficulty||'').toLowerCase()]));
+  let n=0;
+  ids.forEach(id=>{ if (map.get(String(id))===want) n++; });
+  return n;
+}
+
+function heroMaxStat(hero){
+  const s = (hero && hero.stats && typeof hero.stats==='object') ? hero.stats : {};
+  let m = 0;
+  Object.keys(s).forEach(k=>{
+    const v = Number(s[k]||0);
+    if (!Number.isNaN(v)) m = Math.max(m, v);
+  });
+  return m;
+}
+
+function _rulePassesForHero(hero, u){
+  const type = String(u.type||'').trim();
+  if (type==='minChallenges'){
+    const need = Number(u.perHero ?? u.count ?? u.value ?? 0);
+    return completedCountForHero(hero) >= need;
+  }
+  if (type==='anyStatAtLeast'){
+    const th = Number(u.threshold ?? u.min ?? u.value ?? 0);
+    return heroMaxStat(hero) >= th;
+  }
+  if (type==='hasDifficulty'){
+    const diff = String(u.difficulty||'').toLowerCase();
+    const need = Number(u.perHero ?? 1);
+    return completedForHeroByDifficulty(hero, diff) >= need;
+  }
+
+  // Compat: reglas antiguas
+  if (type==='completions_total' || type==='challengesCompleted' || type==='completionsTotal'){
+    const total = totalCompletedAcrossHeroes();
+    return total >= Number(u.count||0);
+  }
+  if (type==='level_any' || type==='levelAny'){
+    const min = Number(u.min ?? u.level ?? 1);
+    return Number(hero?.level||1) >= min;
+  }
+  return false;
+}
+
 function isEventUnlocked(ev){
   if (!ev) return false;
   if (ev.unlocked) return true;
   const u = ev.unlock || {};
-  const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
-  const total = totalCompletedAcrossHeroes();
+  const scope = String(u.scope || 'any').trim(); // any | count | percent
+  const heroesAll = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
+  const group = String(u.group || _activeGroup()).trim() || _activeGroup();
+  const heroes = heroesAll.filter(h=>String(h.group||'')===group);
 
-  // Compat: nombres antiguos de reglas
-  const type = String(u.type||'').trim();
+  if (!heroes.length) return false;
 
-  if (type==='completions_total' || type==='challengesCompleted' || type==='completionsTotal'){
-    return total >= Number(u.count||0);
+  if (scope==='any'){
+    return heroes.some(h=>_rulePassesForHero(h, u));
+  }
+  if (scope==='count'){
+    const need = Number(u.value ?? u.count ?? 0);
+    const cur = heroes.filter(h=>_rulePassesForHero(h, u)).length;
+    return cur >= need;
+  }
+  if (scope==='percent'){
+    const needPct = Number(u.value ?? 0);
+    const cur = heroes.filter(h=>_rulePassesForHero(h, u)).length;
+    const pct = (cur / Math.max(1, heroes.length)) * 100;
+    return pct >= needPct;
   }
 
-  if (type==='level_any' || type==='levelAny'){
-    const min = Number(u.min ?? u.level ?? 1);
-    return heroes.some(h=>Number(h.level||1) >= min);
-  }
-
-  return false;
+  // default fallback
+  return heroes.some(h=>_rulePassesForHero(h, u));
 }
+
+// Helper for UI: progress numbers for unlock rules (group-based)
+function getEventUnlockProgress(ev){
+  const u = ev?.unlock || {};
+  const scope = String(u.scope || 'any').trim();
+  const heroesAll = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
+  const group = String(u.group || _activeGroup()).trim() || _activeGroup();
+  const heroes = heroesAll.filter(h=>String(h.group||'')===group);
+  const totalHeroes = Math.max(1, heroes.length);
+
+  if (!heroes.length){
+    return { text:'Sin héroes en el grupo', pct:0, cur:0, need:1, scope, group };
+  }
+
+  if (scope==='any'){
+    // For any, show best current value vs threshold
+    const type = String(u.type||'').trim();
+    if (type==='minChallenges'){
+      const need = Number(u.perHero ?? 0);
+      const cur = heroes.reduce((m,h)=>Math.max(m, completedCountForHero(h)), 0);
+      const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
+      return { text:`Mejor del grupo: ${cur} / ${need} desafíos`, pct, cur, need, scope, group };
+    }
+    if (type==='anyStatAtLeast'){
+      const need = Number(u.threshold ?? 0);
+      const cur = heroes.reduce((m,h)=>Math.max(m, heroMaxStat(h)), 0);
+      const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
+      return { text:`Mejor stat del grupo: ${cur} / ${need}`, pct, cur, need, scope, group };
+    }
+    if (type==='hasDifficulty'){
+      const diff = String(u.difficulty||'').toLowerCase();
+      const need = Number(u.perHero ?? 1);
+      const cur = heroes.reduce((m,h)=>Math.max(m, completedForHeroByDifficulty(h, diff)), 0);
+      const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
+      const tag = diff==='hard' ? 'difíciles' : (diff==='medium' ? 'medios' : diff);
+      return { text:`Mejor del grupo: ${cur} / ${need} desafíos ${tag}`, pct, cur, need, scope, group };
+    }
+    return { text:'Progreso del grupo', pct:0, cur:0, need:1, scope, group };
+  }
+
+  if (scope==='count'){
+    const need = Number(u.value ?? 0);
+    const cur = heroes.filter(h=>_rulePassesForHero(h, u)).length;
+    const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
+    return { text:`${cur} / ${need} del grupo`, pct, cur, need, scope, group };
+  }
+
+  if (scope==='percent'){
+    const need = Number(u.value ?? 0);
+    const cur = heroes.filter(h=>_rulePassesForHero(h, u)).length;
+    const pctCur = Math.round((cur/totalHeroes)*100);
+    const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((pctCur/need)*100)));
+    return { text:`${pctCur}% / ${need}% del grupo`, pct, cur:pctCur, need, scope, group };
+  }
+
+  return { text:'Progreso del grupo', pct:0, cur:0, need:1, scope, group };
+}
+
 
 function isHeroEligibleForEvent(hero, ev){
   if (!hero || !ev) return false;
@@ -482,8 +700,52 @@ function normalizeData(data){
       d.meta.seededEvents = true;
     }
 
+    // Seed demo de tienda (si no hay items aún)
+    if (!d.store || !Array.isArray(d.store.items) || d.store.items.length === 0){
+      d.store = {
+        items: [
+          {
+            id: 'store_demo_1',
+            name: 'Clase con juegos de mesa',
+            description: 'Una clase completa jugando juegos de mesa educativos',
+            icon: '🎲',
+            cost: 6,
+            stock: 1,
+            available: true
+          },
+          {
+            id: 'store_demo_2',
+            name: 'Quitar 1 pregunta del examen',
+            description: 'Elimina una pregunta de tu próximo examen',
+            icon: '📝',
+            cost: 4,
+            stock: 999,
+            available: true
+          },
+          {
+            id: 'store_demo_3',
+            name: 'Elegir tema de exposición',
+            description: 'Escoge el tema que quieras para tu exposición',
+            icon: '🎤',
+            cost: 3,
+            stock: 5,
+            available: true
+          },
+          {
+            id: 'store_demo_4',
+            name: 'Día libre de tarea',
+            description: 'Un día sin tarea (aplica una vez)',
+            icon: '🎉',
+            cost: 5,
+            stock: 3,
+            available: true
+          }
+        ]
+      };
+    }
+
 d.heroes.forEach(h=>{
-      h.id = h.id || uid('h');
+      // ID ya normalizado arriba, solo asegurar defaults para otros campos
       h.group = h.group || '2D';
       h.name = h.name ?? '';
       h.age = h.age ?? '';
@@ -500,8 +762,12 @@ d.heroes.forEach(h=>{
       h.photoSrc = h.photoSrc || '';
       h.desc = h.desc || '';
       h.goal = h.goal || '';
+      h.medals = Number(h.medals ?? 0); // Sistema de medallas
+      h.storeClaims = Array.isArray(h.storeClaims) ? h.storeClaims : []; // Historial de canjes
       h.rewardsHistory = Array.isArray(h.rewardsHistory) ? h.rewardsHistory : [];
       h.challengeCompletions = (h.challengeCompletions && typeof h.challengeCompletions === 'object') ? h.challengeCompletions : {};
+      // Historial de desafíos completados (solo quedan los que siguen marcados como completados)
+      h.challengeHistory = Array.isArray(h.challengeHistory) ? h.challengeHistory : [];
       h.pendingRewards = Array.isArray(h.pendingRewards) ? h.pendingRewards : []; // items: { level, createdAt }
       // Reconcile: remove pending rewards that were already claimed (based on rewardsHistory levels)
       try{

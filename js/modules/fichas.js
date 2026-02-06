@@ -43,6 +43,8 @@
           renderRewards();
         } else if (state.route === 'eventos') {
           renderEvents();
+        } else if (state.route === 'tienda') {
+          if (typeof renderTienda === 'function') renderTienda();
         }
 
         if (isDrawerLayout()) closeDrawer();
@@ -118,7 +120,7 @@
       }
 
       saveData();
-      updateHeroListUI();
+      if (typeof window.renderHeroList === 'function') window.renderHeroList();
       updateHeroHeaderUI();
     });
 
@@ -193,13 +195,33 @@ function renderHeroAvatar(hero){
 
     let bg = '', mid = '', fg = '';
 
-    // DEMO: solo en la ficha de Eddy (h_2d_1) cargamos las 3 capas de prueba.
-    if (hero && String(hero.id||'') === 'h_2d_1'){
-      bg = 'assets/parallax/eddy_bg.png';
-      mid = '';
-      fg = 'assets/parallax/eddy_fg.png';
-      scene.dataset.parallax = '1';
-    }else{
+    // Cargar imágenes parallax para TODOS los héroes (no solo Eddy)
+    if (hero && hero.name) {
+      // Normalizar nombre: minúsculas, sin acentos, sin espacios
+      const heroName = String(hero.name).trim();
+      const cleanName = stripDiacritics(heroName)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')  // Reemplazar espacios y caracteres especiales con _
+        .replace(/^_+|_+$/g, '');     // Quitar _ del inicio y final
+      
+      if (cleanName) {
+        // Construir rutas de imágenes
+        bg = `assets/parallax/${cleanName}_bg.png`;
+        mid = `assets/parallax/${cleanName}_mid.png`;  // Opcional
+        fg = `assets/parallax/${cleanName}_fg.png`;
+        
+        // Activar parallax para este héroe
+        scene.dataset.parallax = '1';
+        
+        // Log para debugging (solo si está en modo debug)
+        if (new URLSearchParams(location.search).has('debug')) {
+          console.log(`[Parallax] Héroe: "${heroName}" → Nombre limpio: "${cleanName}"`);
+          console.log(`[Parallax] Buscando imágenes:`, { bg, mid, fg });
+        }
+      } else {
+        scene.dataset.parallax = '0';
+      }
+    } else {
       scene.dataset.parallax = '0';
     }
 
@@ -361,6 +383,12 @@ function renderHeroAvatar(hero){
     $('#inEdad').value = (hero.age ?? '');
     $('#inRol').value = hero.role || '';
 
+    // Medallas (read-only)
+    const medalsEl = document.getElementById('heroMedalsCount');
+    if (medalsEl){
+      medalsEl.textContent = String(Number(hero.medals ?? 0));
+    }
+
     const tDesc = $('#txtDesc');
     const tMeta = $('#txtMeta');
     tDesc.value = hero.desc || '';
@@ -438,23 +466,10 @@ function renderHeroAvatar(hero){
 
   // --- Recompensas (general + por héroe) ---
   const REWARD_OPTIONS = [
-    // Recompensas al subir de nivel (elige 1)
-    { id:'stat+1', kind:'progreso', title:'+1 punto a una estadística', desc:'Elige una stat para aumentar en +1.', details:'INT/SAB/CAR/RES/CRE. Máximo recomendado: 20.' },
-    { id:'weekMax+10', kind:'progreso', title:'+10 al límite semanal', desc:'Aumenta el máximo de XP semanal de actividades pequeñas.', details:'Si el límite era 40, pasa a 50 (solo para XP semanal).' },
-    { id:'token+1', kind:'comodín', title:'+1 comodín', desc:'Ganas 1 comodín para canjear después.', details:'Úsalo para: reintento de actividad, entregar tarde 1 vez, cambiar respuesta, etc. (tú defines reglas).' },
-    { id:'perk', kind:'privilegio', title:'Privilegio en clase', desc:'Elige un privilegio (1 vez).', details:'Ejemplos: elegir equipo, elegir lugar, 5 min extra, pasar al pizarrón con ayuda, escoger temática, etc.' },
-    { id:'badge', kind:'coleccionable', title:'Insignia/Título', desc:'Ganas una insignia o título visible en tu historial.', details:'Ej.: “Estratega”, “Apoyo del equipo”, “Constante”, “Creativo”, “Líder”.' },
-
-    // Recompensas generales (catálogo)
-    { id:'seat', kind:'privilegio', title:'Elegir asiento', desc:'Puedes elegir tu lugar (1 clase).', details:'Sujeto a reglas del salón y disponibilidad.' },
-    { id:'music', kind:'privilegio', title:'Elegir música (1 canción)', desc:'Eliges 1 canción para un momento permitido.', details:'Sin letras explícitas; volumen moderado.' },
-    { id:'helper', kind:'privilegio', title:'Asistente del profe', desc:'Ayudas a repartir/recoger material (1 clase).', details:'Ideal para sumar responsabilidad sin afectar la dinámica.' },
-    { id:'reroll', kind:'comodín', title:'Reintento', desc:'Reintentar una actividad corta.', details:'Solo una vez; no aplica a exámenes si así lo decides.' },
-    { id:'latepass', kind:'comodín', title:'Pase de entrega tardía', desc:'Entregar una tarea tarde sin penalización (1 vez).', details:'Debe avisarse antes del límite.' },
-    { id:'hint', kind:'comodín', title:'Pista', desc:'Pedir 1 pista extra en un desafío.', details:'No aplica a actividades de memorización si no quieres.' },
-    { id:'xpBoost', kind:'progreso', title:'Bono de XP', desc:'+10 XP extra (una sola vez).', details:'Se agrega a tu XP total; no cuenta para XP semanal.' },
-    { id:'teamPick', kind:'privilegio', title:'Elegir equipo/pareja', desc:'Puedes elegir con quién trabajar (1 actividad).', details:'Con respeto; si alguien queda solo, se reacomoda.' },
-    { id:'skin', kind:'coleccionable', title:'Skin/estética', desc:'Desbloqueas un estilo visual (marco, color, título).', details:'No da ventaja; solo se ve cool.' },
+  { id: "stat+1", label: "+1 a una estadística", desc: "Elige una stat para subir en +1.", icon: "⚡", kind: "stat", amount: 1 },
+  { id: "xp+30", label: "+30 XP", desc: "Un empujón extra en tu barra de XP.", icon: "⭐", kind: "xp", amount: 30 },
+  { id: "medal+1", label: "+1 medalla", desc: "Una medalla para la tienda.", icon: "🏅", kind: "medal", amount: 1 },
+  { id: "doubleNext", label: "Doble XP (siguiente desafío)", desc: "El próximo desafío vale el doble de XP.", icon: "✨", kind: "doubleNext", amount: 2 },
 ];
 
   function formatDateMX(iso){

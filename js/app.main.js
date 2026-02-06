@@ -1,8 +1,21 @@
 'use strict';
 
+function updateTopbarHeightVar(){
+  try{
+    const tb = document.querySelector('.topbar');
+    const h = tb ? Math.round(tb.getBoundingClientRect().height) : 0;
+    if (h > 0){
+      document.documentElement.style.setProperty('--topbar-h', `${h}px`);
+    }
+  }catch(e){}
+}
+
+
 async function init(){
     if (window.__LEVELUP_INIT_DONE) return;
     window.__LEVELUP_INIT_DONE = true;
+    updateTopbarHeightVar();
+    window.addEventListener('resize', updateTopbarHeightVar);
     const DEBUG = new URLSearchParams(location.search).has('debug');
     // Captura errores para que en iPhone no se sienta "se rompió" sin pista
     window.addEventListener('error', (ev)=>{
@@ -18,15 +31,21 @@ async function init(){
       }catch(e){}
     });
 
-    bind();
-	  preventIOSDoubleTapZoom();
+    // Configuración inicial (antes de cargar datos)
+    preventIOSDoubleTapZoom();
 
     // Rol inicial: edición habilitada (sin bloqueos)
     try{ state.role='teacher'; }catch(_e){}
     setActiveRoute(state.route);
     updateDeviceDebug();
     syncDetailsUI();
+    
+    // CARGAR DATOS PRIMERO (crítico para que los bindings tengan datos disponibles)
     await loadData({forceRemote:false});
+    
+    // DESPUÉS hacer bindings (cuando ya hay datos)
+    bind();
+    
     setRole('teacher');
     syncDetailsUI();
   }

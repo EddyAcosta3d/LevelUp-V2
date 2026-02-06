@@ -2,7 +2,7 @@
   "meta": {
     "app": "LevelUp",
     "version": "LevelUP_V2_00.033",
-    "updatedAt": "2026-02-03T00:00:00.000Z",
+    "updatedAt": "2026-02-06T03:48:51.915326Z",
     "build": "LevelUP_V2_00.050"
   },
   "heroes": [
@@ -1061,38 +1061,304 @@
   ],
   "events": [
     {
-      "id": "ev1",
+      "id": "boss01",
       "kind": "boss",
-      "title": "El Loquito del Centro",
+      "title": "Jefe 1",
       "image": "assets/jefes/Boss_loquito_unlocked.png",
       "lockedImage": "assets/jefes/Boss_loquito_locked.png",
       "unlock": {
-        "label": "Completa 3 desafíos (cualquiera)",
-        "type": "challengesCompleted",
-        "count": 3
+        "scope": "any",
+        "type": "minChallenges",
+        "perHero": 3,
+        "label": "Alguien del grupo completa 3 desafíos"
       },
       "eligibility": {
-        "label": "Nivel 2+",
-        "type": "minLevel",
-        "level": 2
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
       }
     },
     {
-      "id": "ev2",
+      "id": "boss02",
+      "kind": "boss",
+      "title": "Jefe 2",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "unlock": {
+        "scope": "any",
+        "type": "anyStatAtLeast",
+        "threshold": 10,
+        "label": "Alguien del grupo llega a 10 en una stat"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "boss03",
+      "kind": "boss",
+      "title": "Jefe 3",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "unlock": {
+        "scope": "any",
+        "type": "hasDifficulty",
+        "difficulty": "medium",
+        "perHero": 1,
+        "label": "Alguien del grupo completa 1 desafío medio"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "boss04",
+      "kind": "boss",
+      "title": "Jefe 4",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "unlock": {
+        "scope": "any",
+        "type": "anyStatAtLeast",
+        "threshold": 15,
+        "label": "Alguien del grupo llega a 15 en una stat"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "boss05",
+      "kind": "boss",
+      "title": "Jefe 5",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "unlock": {
+        "scope": "any",
+        "type": "hasDifficulty",
+        "difficulty": "hard",
+        "perHero": 1,
+        "label": "Alguien del grupo completa 1 desafío difícil"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "boss06",
+      "kind": "boss",
+      "title": "Jefe 6",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "unlock": {
+        "scope": "any",
+        "type": "anyStatAtLeast",
+        "threshold": 20,
+        "label": "Alguien del grupo llega a 20 en una stat"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "boss07",
+      "kind": "boss",
+      "title": "Jefe 7",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "unlock": {
+        "scope": "any",
+        "type": "minChallenges",
+        "perHero": 8,
+        "label": "Alguien del grupo completa 8 desafíos"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "boss08",
+      "kind": "boss",
+      "title": "Jefe 8",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "unlock": {
+        "scope": "any",
+        "type": "anyStatAtLeast",
+        "threshold": 25,
+        "label": "Alguien del grupo llega a 25 en una stat"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "event01",
       "kind": "event",
-      "title": "Reto Relámpago",
+      "title": "Evento 1",
       "image": "assets/eventos/relampago.png",
       "lockedImage": "assets/eventos/relampago_locked.png",
       "unlock": {
-        "label": "Completa 5 desafíos",
-        "type": "challengesCompleted",
-        "count": 5
+        "scope": "count",
+        "type": "minChallenges",
+        "perHero": 1,
+        "value": 4,
+        "label": "4 del grupo completan 1 desafío"
       },
       "eligibility": {
-        "label": "Completa 1 desafío Difícil",
-        "type": "difficultyCompleted",
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "event02",
+      "kind": "event",
+      "title": "Evento 2",
+      "image": "assets/eventos/relampago.png",
+      "lockedImage": "assets/eventos/relampago_locked.png",
+      "unlock": {
+        "scope": "percent",
+        "type": "minChallenges",
+        "perHero": 1,
+        "value": 60,
+        "label": "60% del grupo completa 1 desafío"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "event03",
+      "kind": "event",
+      "title": "Evento 3",
+      "image": "assets/eventos/relampago.png",
+      "lockedImage": "assets/eventos/relampago_locked.png",
+      "unlock": {
+        "scope": "count",
+        "type": "hasDifficulty",
+        "difficulty": "medium",
+        "perHero": 1,
+        "value": 3,
+        "label": "3 del grupo completan 1 desafío medio"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "event04",
+      "kind": "event",
+      "title": "Evento 4",
+      "image": "assets/eventos/relampago.png",
+      "lockedImage": "assets/eventos/relampago_locked.png",
+      "unlock": {
+        "scope": "count",
+        "type": "anyStatAtLeast",
+        "threshold": 10,
+        "value": 5,
+        "label": "5 del grupo llegan a 10 en una stat"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "event05",
+      "kind": "event",
+      "title": "Evento 5",
+      "image": "assets/eventos/relampago.png",
+      "lockedImage": "assets/eventos/relampago_locked.png",
+      "unlock": {
+        "scope": "count",
+        "type": "hasDifficulty",
         "difficulty": "hard",
-        "count": 1
+        "perHero": 1,
+        "value": 2,
+        "label": "2 del grupo completan 1 desafío difícil"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "event06",
+      "kind": "event",
+      "title": "Evento 6",
+      "image": "assets/eventos/relampago.png",
+      "lockedImage": "assets/eventos/relampago_locked.png",
+      "unlock": {
+        "scope": "percent",
+        "type": "minChallenges",
+        "perHero": 2,
+        "value": 70,
+        "label": "70% del grupo completa 2 desafíos"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "event07",
+      "kind": "event",
+      "title": "Evento 7",
+      "image": "assets/eventos/relampago.png",
+      "lockedImage": "assets/eventos/relampago_locked.png",
+      "unlock": {
+        "scope": "count",
+        "type": "anyStatAtLeast",
+        "threshold": 15,
+        "value": 4,
+        "label": "4 del grupo llegan a 15 en una stat"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
+      }
+    },
+    {
+      "id": "event08",
+      "kind": "event",
+      "title": "Evento 8",
+      "image": "assets/eventos/relampago.png",
+      "lockedImage": "assets/eventos/relampago_locked.png",
+      "unlock": {
+        "scope": "percent",
+        "type": "hasDifficulty",
+        "difficulty": "medium",
+        "perHero": 1,
+        "value": 80,
+        "label": "80% del grupo completa 1 desafío medio"
+      },
+      "eligibility": {
+        "type": "level",
+        "min": 1,
+        "label": "Ser nivel 1 o más"
       }
     }
   ]
