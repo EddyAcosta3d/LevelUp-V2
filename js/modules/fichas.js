@@ -26,7 +26,7 @@
 
       btn.innerHTML = `
         <div class="heroCard__row">
-          ${thumbSrc ? `<div class="heroCard__thumb" style="background-image:url('${thumbSrc}')"></div>` : `<div class="heroCard__thumbEmpty"></div>`}
+          ${thumbSrc ? `<div class="heroCard__thumb" data-src="${thumbSrc}" data-hero-name="${String(hero.name||'').replace(/"/g,'&quot;')}"></div>` : `<div class="heroCard__thumb" data-src="" data-hero-name="${String(hero.name||'').replace(/"/g,'&quot;')}"></div>`}
           <div class="heroCard__info">
             <div class="heroCard__name">${escapeHtml(hero.name || 'Nuevo héroe')}</div>
             <div class="heroCard__meta">${escapeHtml(heroLabel(hero))}</div>
@@ -133,13 +133,91 @@
 
     box.appendChild(row);
   });
+
+    // Aplicar fallback de siluetas si no existen las imágenes del nombre
+    applyThumbFallbacks(list);
 }
 
   function stripDiacritics(str){
     try{ return String(str).normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }catch(_){ return String(str); }
   }
 
-  function buildAssetCandidates(heroName){
+  
+  // --- Fallbacks de siluetas (cuando NO existe imagen para el nombre del héroe) ---
+  const SILUETA_M = 'assets/parallax/silueta_01.webp'; // masculino
+  const SILUETA_F = 'assets/parallax/silueta_02.webp'; // femenino
+
+  const FEMALE_NAME_SET = new Set([
+    // Lista base + nombres presentes en tu data.json
+    'maia','alexa','majo','arely','jannya','ana','brenda','lizeth','thaily','ximena',
+    'melinna','zoe','leslye','julissa',
+    // Comunes
+    'ana','mariana','maria','guadalupe','luisa','paola','sofia','valeria','daniela',
+    'fernanda','camila','carla','andrea','ximena','ximena','lucia','karla','alejandra',
+    'isabella','gabriela','fatima','renata','emilia','mia','regina','jimena','ximena'
+  ]);
+
+  function heroFirstName(heroName){
+    const base = String(heroName || '').trim();
+    if (!base) return '';
+    const token = base.split(/\s+/)[0] || '';
+    return stripDiacritics(token).toLowerCase();
+  }
+
+  function isFemaleHeroName(heroName){
+    const n = heroFirstName(heroName);
+    if (!n) return false;
+    if (FEMALE_NAME_SET.has(n)) return true;
+    // Heurística suave (por si hay nombres que no estén en la lista)
+    if (n.endsWith('a') && !['jesus','josue','natanael','santiago','tadeo','luis','juan','carlos','david','eric','ernesto','alexis'].includes(n)) {
+      return true;
+    }
+    return false;
+  }
+
+  function fallbackSiluetaFor(heroName){
+    return isFemaleHeroName(heroName) ? SILUETA_F : SILUETA_M;
+  }
+
+  function preloadImage(url){
+    return new Promise((resolve, reject)=>{
+      const img = new Image();
+      img.onload = ()=>resolve(url);
+      img.onerror = ()=>reject(new Error('image-not-found'));
+      img.src = url;
+    });
+  }
+
+  function applyThumbFallbacks(rootEl){
+    if (!rootEl) return;
+    const thumbs = rootEl.querySelectorAll('.heroCard__thumb[data-src]');
+    thumbs.forEach((el)=>{
+      const src = el.getAttribute('data-src') || '';
+      const heroName = el.getAttribute('data-hero-name') || '';
+      if (!src){
+        el.style.backgroundImage = `url('${fallbackSiluetaFor(heroName)}')`;
+        return;
+      }
+      preloadImage(src)
+        .then(()=>{ el.style.backgroundImage = `url('${src}')`; })
+        .catch(()=>{ el.style.backgroundImage = `url('${fallbackSiluetaFor(heroName)}')`; });
+    });
+  }
+
+  function showFallbackAvatar(heroName){
+    const box = document.getElementById('avatarBox');
+    if (!box) return;
+    box.replaceChildren();
+    box.classList.remove('is-empty');
+    box.removeAttribute('aria-hidden');
+    const img = document.createElement('img');
+    img.src = fallbackSiluetaFor(heroName);
+    img.alt = heroName ? `Silueta de ${heroName}` : 'Silueta del héroe';
+    img.loading = 'lazy';
+    box.appendChild(img);
+  }
+
+function buildAssetCandidates(heroName){
     const base = String(heroName || '').trim();
     if (!base) return [];
 
@@ -230,6 +308,29 @@ function renderHeroAvatar(hero){
       }
     } else {
       scene.dataset.parallax = '0';
+    }
+
+    // Si se esperaba parallax pero la imagen no existe (GitHub Pages es sensible a mayúsculas),
+    // caemos a una silueta por género.
+    if (scene.dataset.parallax === '1' && fg){
+      preloadImage(fg).then(()=>{
+        const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
+        scene.style.setProperty('--heroLayerBg', bg ? `url("${abs(bg)}")` : 'none');
+        scene.style.setProperty('--heroLayerMid', mid ? `url("${abs(mid)}")` : 'none');
+        scene.style.setProperty('--heroLayerFg', fg ? `url("${abs(fg)}")` : 'none');
+      }).catch(()=>{
+        scene.dataset.parallax = '0';
+        bg = mid = fg = '';
+        // Mostrar silueta como avatar, porque NO se encontró imagen para el nombre del héroe
+        showFallbackAvatar(heroName);
+        scene.style.setProperty('--heroLayerBg', 'none');
+        scene.style.setProperty('--heroLayerMid', 'none');
+        scene.style.setProperty('--heroLayerFg', 'none');
+      });
+
+      // No continuar: las variables se aplican async cuando cargue/falle
+      ensureHeroNotesToggle(scene);
+      return;
     }
 
     const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
