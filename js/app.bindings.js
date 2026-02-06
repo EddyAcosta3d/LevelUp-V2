@@ -681,8 +681,7 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
     $('#levelUpBackdrop')?.addEventListener('click', closeLevelUpModal);
     $('#btnLevelUpClose')?.addEventListener('click', closeLevelUpModal);
 
-    // Photo / Confirm modals backdrops
-    $('#photoBackdrop')?.addEventListener('click', closePhotoModal);
+    // Confirm modal backdrop
     $('#confirmBackdrop')?.addEventListener('click', ()=>{ const b=$('#btnConfirmCancel'); if(b) b.click(); });
 
     // XP demo
@@ -729,7 +728,6 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
         closeDrawer();
         closeDatos();
         closeRoleModal();
-        closePhotoModal();
         const cancel = $('#btnConfirmCancel');
         if (cancel) cancel.click();
       }

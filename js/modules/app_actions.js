@@ -281,8 +281,6 @@ function setRole(nextRole){
         .replace(/^_+|_+$/g,'');
     }catch(e){
       return String(str||'').trim().toLowerCase().replace(/\s+/g,'_');
-      try{ if (typeof renderAll==='function') renderAll(); }catch(e){}
-
     }
   }
 

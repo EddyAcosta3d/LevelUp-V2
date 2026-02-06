@@ -328,7 +328,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   window.uiLock = uiLock;
 
   // Modal helper (evita que un modal quede debajo de otro)
-  const MODAL_IDS = ['roleModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal'];
+  const MODAL_IDS = ['roleModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal', 'historyModal', 'storeItemModal'];
   const getModal = (id) => document.getElementById(id);
   function closeAllModals(exceptId=null){
     MODAL_IDS.forEach(id=>{
@@ -468,22 +468,6 @@ function _activeGroup(){
   }catch(e){ return '2D'; }
 }
 
-function completedCountForHero(hero){
-  const c = (hero && hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
-  return Object.keys(c).length;
-}
-
-function completedForHeroByDifficulty(hero, diff){
-  const want = String(diff||'').toLowerCase();
-  const c = (hero && hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
-  const ids = Object.keys(c);
-  if (!ids.length) return 0;
-  const map = new Map((state.data?.challenges||[]).map(ch=>[String(ch.id), String(ch.difficulty||'').toLowerCase()]));
-  let n=0;
-  ids.forEach(id=>{ if (map.get(String(id))===want) n++; });
-  return n;
-}
-
 function heroMaxStat(hero){
   const s = (hero && hero.stats && typeof hero.stats==='object') ? hero.stats : {};
   let m = 0;
@@ -498,7 +482,7 @@ function _rulePassesForHero(hero, u){
   const type = String(u.type||'').trim();
   if (type==='minChallenges'){
     const need = Number(u.perHero ?? u.count ?? u.value ?? 0);
-    return completedCountForHero(hero) >= need;
+    return countCompletedForHero(hero) >= need;
   }
   if (type==='anyStatAtLeast'){
     const th = Number(u.threshold ?? u.min ?? u.value ?? 0);
@@ -507,7 +491,7 @@ function _rulePassesForHero(hero, u){
   if (type==='hasDifficulty'){
     const diff = String(u.difficulty||'').toLowerCase();
     const need = Number(u.perHero ?? 1);
-    return completedForHeroByDifficulty(hero, diff) >= need;
+    return countCompletedForHeroByDifficulty(hero, diff) >= need;
   }
 
   // Compat: reglas antiguas
@@ -570,7 +554,7 @@ function getEventUnlockProgress(ev){
     const type = String(u.type||'').trim();
     if (type==='minChallenges'){
       const need = Number(u.perHero ?? 0);
-      const cur = heroes.reduce((m,h)=>Math.max(m, completedCountForHero(h)), 0);
+      const cur = heroes.reduce((m,h)=>Math.max(m, countCompletedForHero(h)), 0);
       const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
       return { text:`Mejor del grupo: ${cur} / ${need} desafíos`, pct, cur, need, scope, group };
     }
@@ -583,7 +567,7 @@ function getEventUnlockProgress(ev){
     if (type==='hasDifficulty'){
       const diff = String(u.difficulty||'').toLowerCase();
       const need = Number(u.perHero ?? 1);
-      const cur = heroes.reduce((m,h)=>Math.max(m, completedForHeroByDifficulty(h, diff)), 0);
+      const cur = heroes.reduce((m,h)=>Math.max(m, countCompletedForHeroByDifficulty(h, diff)), 0);
       const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
       const tag = diff==='hard' ? 'difíciles' : (diff==='medium' ? 'medios' : diff);
       return { text:`Mejor del grupo: ${cur} / ${need} desafíos ${tag}`, pct, cur, need, scope, group };
