@@ -361,7 +361,25 @@ body{
     rgba(0,210,255,0.08);
   box-shadow: 0 0 0 1px rgba(0,210,255,0.12) inset, var(--glow);
 }
-.heroCard__row{ display:flex; align-items:flex-start; justify-content:space-between; gap: 10px; }
+.heroCard__row{ display:flex; align-items:center; gap: 10px; }
+.heroCard__thumb{
+  width: 40px; height: 40px; min-width: 40px;
+  border-radius: 50%;
+  background-size: cover; background-position: center top;
+  border: 2px solid rgba(0,210,255,0.25);
+  box-shadow: 0 0 8px rgba(0,210,255,0.10);
+}
+.heroCard.is-active .heroCard__thumb{
+  border-color: rgba(0,210,255,0.50);
+  box-shadow: 0 0 12px rgba(0,210,255,0.20);
+}
+.heroCard__thumbEmpty{
+  width: 40px; height: 40px; min-width: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(0,210,255,0.12);
+}
+.heroCard__info{ flex:1; min-width:0; }
 .heroCard__name{ font-size: 14px; font-weight: 700; }
 .heroCard__meta{ font-size: 12px; opacity:.72; margin-top:3px; }
 .heroCard__badge{

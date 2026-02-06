@@ -18,9 +18,16 @@
       const xp = Number(hero.xp ?? 0);
       const xpMax = Number(hero.xpMax ?? 100);
       const pct = xpMax > 0 ? Math.max(0, Math.min(100, (xp / xpMax) * 100)) : 0;
+
+      // Build parallax thumbnail path
+      const heroClean = stripDiacritics(String(hero.name || '').trim())
+        .toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+      const thumbSrc = heroClean ? `assets/parallax/${heroClean}_fg.webp` : '';
+
       btn.innerHTML = `
         <div class="heroCard__row">
-          <div>
+          ${thumbSrc ? `<div class="heroCard__thumb" style="background-image:url('${thumbSrc}')"></div>` : `<div class="heroCard__thumbEmpty"></div>`}
+          <div class="heroCard__info">
             <div class="heroCard__name">${escapeHtml(hero.name || 'Nuevo héroe')}</div>
             <div class="heroCard__meta">${escapeHtml(heroLabel(hero))}</div>
           </div>
@@ -205,10 +212,10 @@ function renderHeroAvatar(hero){
         .replace(/^_+|_+$/g, '');     // Quitar _ del inicio y final
       
       if (cleanName) {
-        // Construir rutas de imágenes
-        bg = `assets/parallax/${cleanName}_bg.png`;
-        mid = `assets/parallax/${cleanName}_mid.png`;  // Opcional
-        fg = `assets/parallax/${cleanName}_fg.png`;
+        // Construir rutas de imágenes (.webp preferido, .png fallback)
+        bg = `assets/parallax/${cleanName}_bg.webp`;
+        mid = `assets/parallax/${cleanName}_mid.webp`;  // Opcional
+        fg = `assets/parallax/${cleanName}_fg.webp`;
         
         // Activar parallax para este héroe
         scene.dataset.parallax = '1';
