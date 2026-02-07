@@ -16,6 +16,8 @@
     // Folder swaps
     if (src.includes('/eventos/')) add(src.replace('/eventos/', '/jefes/'));
     if (src.includes('/jefes/')) add(src.replace('/jefes/', '/eventos/'));
+    if (src.includes('/bosses/')) add(src.replace('/bosses/', '/jefes/'));
+    if (src.includes('/jefes/')) add(src.replace('/jefes/', '/bosses/'));
 
     // Combine folder+ext swaps
     out.slice().forEach(s => {
