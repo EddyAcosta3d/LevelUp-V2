@@ -318,10 +318,18 @@
     if (title) title.textContent = `¡Un nuevo ${kind.toLowerCase()} apareció!`;
     if (sub) sub.textContent = t;
 
-    // Use unlocked image if available; fallback to lockedImage
-    const src = (ev && ev.image) ? ev.image : (ev && ev.lockedImage ? ev.lockedImage : '');
-    if (img){
-      img.style.backgroundImage = src ? `url(${src})` : '';
+    // Si estamos usando la variante por imagen completa (arte ya con texto),
+    // NO sobreescribimos el background-image definido en CSS.
+    const useFullImage = ov.classList && ov.classList.contains('bossUnlock--img');
+    if (!useFullImage){
+      // Use unlocked image if available; fallback to lockedImage
+      const src = (ev && ev.image) ? ev.image : (ev && ev.lockedImage ? ev.lockedImage : '');
+      if (img){
+        img.style.backgroundImage = src ? `url(${src})` : '';
+      }
+    } else {
+      // Limpieza por si alguna vez se asignó inline en otra variante
+      if (img) img.style.backgroundImage = '';
     }
 
     // Show

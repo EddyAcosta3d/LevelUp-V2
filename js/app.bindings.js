@@ -178,6 +178,8 @@ $('#btnChallengeComplete')?.addEventListener('click', ()=>{
     renderHeroDetail();
     try{ renderChallenges(); }catch(e){}
     try{ renderChallengeDetail(); }catch(e){}
+    try{ renderEvents(); }catch(e){}
+    try{ if (typeof checkBossUnlockOverlay === 'function') checkBossUnlockOverlay(); }catch(e){}
   };
 
   if (hero.challengeCompletions[key]){

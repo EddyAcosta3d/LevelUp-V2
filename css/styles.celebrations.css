@@ -461,6 +461,50 @@ html.is-boss-unlock, html.is-boss-unlock body {
   cursor: pointer;
 }
 
+/* Variante por imagen completa (cuando ya traes el arte con texto) */
+.bossUnlock.bossUnlock--img .bossUnlock__frame{
+  width: min(1280px, 98vw);
+  height: min(720px, 92vh);
+  background: transparent;
+  border: none;
+}
+
+.bossUnlock.bossUnlock--img .bossUnlock__frame::before{
+  display: none;
+}
+
+.bossUnlock.bossUnlock--img .bossUnlock__title,
+.bossUnlock.bossUnlock--img .bossUnlock__sub,
+.bossUnlock.bossUnlock--img .bossUnlock__hint,
+.bossUnlock.bossUnlock--img .bossUnlock__btn{
+  display: none !important;
+}
+
+.bossUnlock.bossUnlock--img .bossUnlock__card{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  right: auto;
+  top: auto;
+  transform: none;
+  background: none;
+  border: none;
+  box-shadow: 0 24px 90px rgba(0,0,0,0.65);
+}
+
+.bossUnlock.bossUnlock--img .bossUnlock__img{
+  background-image: url("../assets/celebrations/loquito_challenger.webp");
+  background-size: cover;
+  background-position: center;
+  filter: none;
+}
+
+.bossUnlock.bossUnlock--img .bossUnlock__close{
+  z-index: 2;
+}
+
 @media (max-width: 700px) {
   .bossUnlock__frame {
     height: min(560px, 88vh);

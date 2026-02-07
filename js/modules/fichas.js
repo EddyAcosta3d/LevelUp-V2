@@ -148,8 +148,8 @@
 
   
   // --- Fallbacks de siluetas (cuando NO existe imagen para el nombre del héroe) ---
-  const SILUETA_M = 'assets/parallax/silueta_01.webp'; // masculino
-  const SILUETA_F = 'assets/parallax/silueta_02.webp'; // femenino
+  const SILUETA_M = './assets/parallax/silueta_01.webp'; // masculino
+  const SILUETA_F = './assets/parallax/silueta_02.webp'; // femenino
 
   const FEMALE_NAME_SET = new Set([
     // Lista base + nombres presentes en tu data.json
@@ -282,12 +282,18 @@ function renderHeroAvatar(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
 
+    // Reset silhouette mode (if previously applied)
+    try{ scene.classList.remove('is-silhouette'); }catch(_e){}
+
     let bg = '', mid = '', fg = '';
+
+    // Keep heroName available for async fallbacks (avoid ReferenceError)
+    let heroName = '';
 
     // Cargar imágenes parallax para TODOS los héroes (no solo Eddy)
     if (hero && hero.name) {
       // Normalizar nombre: minúsculas, sin acentos, sin espacios
-      const heroName = String(hero.name).trim();
+      heroName = String(hero.name).trim();
       const cleanName = stripDiacritics(heroName)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '_')  // Reemplazar espacios y caracteres especiales con _
@@ -325,11 +331,18 @@ function renderHeroAvatar(hero){
       }).catch(()=>{
         scene.dataset.parallax = '0';
         bg = mid = fg = '';
-        // Mostrar silueta como avatar, porque NO se encontró imagen para el nombre del héroe
-        showFallbackAvatar(heroName);
-        scene.style.setProperty('--heroLayerBg', 'none');
+
+        // Fallback PRINCIPAL: usar silueta como "BG" para cubrir todo el contenedor.
+        // (En lugar de dejar solo el gradiente por defecto.)
+        const sil = fallbackSiluetaFor(heroName);
+        const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
+        try{ scene.classList.add('is-silhouette'); }catch(_e){}
+        scene.style.setProperty('--heroLayerBg', sil ? `url("${abs(sil)}")` : 'none');
         scene.style.setProperty('--heroLayerMid', 'none');
         scene.style.setProperty('--heroLayerFg', 'none');
+
+        // (Opcional) También reflejarlo en el avatar pequeño si existiera.
+        try{ showFallbackAvatar(heroName); }catch(_e){}
       });
 
       // No continuar: las variables se aplican async cuando cargue/falle
@@ -893,4 +906,3 @@ function toggleSubjectDropdown(){
     console.warn('hero scene parallax init error', e);
   }
 })();
-

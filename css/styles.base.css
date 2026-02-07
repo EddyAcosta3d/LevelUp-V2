@@ -1182,6 +1182,19 @@ body::-webkit-scrollbar,
   filter: drop-shadow(0 16px 28px rgba(0,0,0,.35));
 }
 
+/* Fallback: cuando no existe imagen del héroe, usar silueta como fondo que cubre todo */
+.heroScene.is-silhouette .heroSceneLayer--bg{
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: none;
+}
+
+.heroScene.is-silhouette .heroSceneLayer--mid,
+.heroScene.is-silhouette .heroSceneLayer--fg{
+  display: none !important;
+}
+
 
 /* Foto (si existe) ocupa TODO el panel; si no, se oculta y se ven las capas */
 .heroPhotoFill{
