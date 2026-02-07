@@ -1063,147 +1063,186 @@
     {
       "id": "boss01",
       "kind": "boss",
-      "title": "Jefe 1",
+      "title": "El Loquito del Centro",
       "image": "assets/jefes/Boss_loquito_unlocked.png",
       "lockedImage": "assets/jefes/Boss_loquito_locked.png",
       "unlock": {
         "scope": "any",
         "type": "minChallenges",
-        "perHero": 3,
+        "value": 3,
         "label": "Completar 3 desafíos"
       },
       "eligibility": {
-        "type": "level",
-        "min": 1,
-        "label": "Ser nivel 1 o más"
+        "type": "completions_hero",
+        "count": 3,
+        "label": "Completar 3 desafíos"
       }
     },
     {
       "id": "boss02",
       "kind": "boss",
-      "title": "Jefe 2",
-      "image": "assets/jefes/Boss_loquito_unlocked.png",
-      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "title": "El Garbanzo Coqueto",
+      "image": "assets/bosses/garbanzo__unlocked__modal.png",
+      "lockedImage": "assets/bosses/garbanzo__locked__modal.png",
       "unlock": {
         "scope": "any",
         "type": "anyStatAtLeast",
-        "threshold": 10,
-        "label": "Llegar a 10 en una stat"
+        "value": 10,
+        "label": "Tener 10 en una stat"
       },
       "eligibility": {
-        "type": "level",
-        "min": 1,
-        "label": "Ser nivel 1 o más"
+        "type": "allOf",
+        "rules": [
+          {
+            "type": "anyStatAtLeast",
+            "min": 10,
+            "label": "Tener 10 en una stat"
+          },
+          {
+            "type": "statAtLeast",
+            "stat": "car",
+            "min": 6,
+            "label": "Carisma ≥ 6"
+          }
+        ],
+        "label": "10 en una stat + Carisma ≥ 6"
       }
     },
     {
       "id": "boss03",
       "kind": "boss",
-      "title": "Jefe 3",
-      "image": "assets/jefes/Boss_loquito_unlocked.png",
-      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "title": "La Guardia de la Puerta",
+      "image": "assets/bosses/guardia__unlocked__modal.png",
+      "lockedImage": "assets/bosses/guardia__locked__modal.png",
       "unlock": {
         "scope": "any",
-        "type": "hasDifficulty",
-        "difficulty": "medium",
-        "perHero": 1,
-        "label": "Completar 1 desafío medio"
+        "type": "groupChallengesAtLeast",
+        "value": 8,
+        "label": "Como grupo: 8 desafíos completados"
       },
       "eligibility": {
-        "type": "level",
-        "min": 1,
-        "label": "Ser nivel 1 o más"
+        "type": "statAtLeast",
+        "stat": "res",
+        "min": 6,
+        "label": "Responsabilidad ≥ 6"
       }
     },
     {
       "id": "boss04",
       "kind": "boss",
-      "title": "Jefe 4",
-      "image": "assets/jefes/Boss_loquito_unlocked.png",
-      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
-      "unlock": {
-        "scope": "any",
-        "type": "anyStatAtLeast",
-        "threshold": 15,
-        "label": "Llegar a 15 en una stat"
-      },
-      "eligibility": {
-        "type": "level",
-        "min": 1,
-        "label": "Ser nivel 1 o más"
-      }
-    },
-    {
-      "id": "boss05",
-      "kind": "boss",
-      "title": "Jefe 5",
+      "title": "El Prefecto de Malas",
       "image": "assets/jefes/Boss_loquito_unlocked.png",
       "lockedImage": "assets/jefes/Boss_loquito_locked.png",
       "unlock": {
         "scope": "any",
         "type": "hasDifficulty",
-        "difficulty": "hard",
-        "perHero": 1,
-        "label": "Completar 1 desafío difícil"
+        "difficulty": "dificil",
+        "perHero": 3,
+        "label": "Completar 3 desafíos difíciles"
       },
       "eligibility": {
-        "type": "level",
-        "min": 1,
-        "label": "Ser nivel 1 o más"
+        "type": "anyOf",
+        "rules": [
+          {
+            "type": "statAtLeast",
+            "stat": "car",
+            "min": 7,
+            "label": "Carisma ≥ 7"
+          },
+          {
+            "type": "statAtLeast",
+            "stat": "res",
+            "min": 7,
+            "label": "Responsabilidad ≥ 7"
+          }
+        ],
+        "label": "Carisma ≥ 7 o Responsabilidad ≥ 7"
+      }
+    },
+    {
+      "id": "boss05",
+      "kind": "boss",
+      "title": "El Compañero Molesto",
+      "image": "assets/jefes/Boss_loquito_unlocked.png",
+      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "unlock": {
+        "scope": "any",
+        "type": "groupChallengesAtLeast",
+        "value": 12,
+        "label": "Como grupo: 12 desafíos completados"
+      },
+      "eligibility": {
+        "type": "statAtLeast",
+        "stat": "sab",
+        "min": 7,
+        "label": "Sabiduría ≥ 7"
       }
     },
     {
       "id": "boss06",
       "kind": "boss",
-      "title": "Jefe 6",
+      "title": "La Maestra Estricta",
       "image": "assets/jefes/Boss_loquito_unlocked.png",
       "lockedImage": "assets/jefes/Boss_loquito_locked.png",
       "unlock": {
         "scope": "any",
-        "type": "anyStatAtLeast",
-        "threshold": 20,
-        "label": "Llegar a 20 en una stat"
+        "type": "groupChallengesAtLeast",
+        "value": 14,
+        "label": "Como grupo: 14 desafíos completados"
       },
       "eligibility": {
-        "type": "level",
-        "min": 1,
-        "label": "Ser nivel 1 o más"
+        "type": "statAtLeast",
+        "stat": "res",
+        "min": 7,
+        "label": "Responsabilidad ≥ 7"
       }
     },
     {
       "id": "boss07",
       "kind": "boss",
-      "title": "Jefe 7",
+      "title": "El Director",
       "image": "assets/jefes/Boss_loquito_unlocked.png",
       "lockedImage": "assets/jefes/Boss_loquito_locked.png",
       "unlock": {
         "scope": "any",
-        "type": "minChallenges",
-        "perHero": 8,
-        "label": "Completar 8 desafíos"
+        "type": "level_any",
+        "min": 12,
+        "label": "Alguien del grupo llega a nivel 12"
       },
       "eligibility": {
-        "type": "level",
-        "min": 1,
-        "label": "Ser nivel 1 o más"
+        "type": "minStatsAtLeast",
+        "count": 3,
+        "min": 6,
+        "label": "Tener 3 stats en 6+"
       }
     },
     {
       "id": "boss08",
       "kind": "boss",
-      "title": "Jefe 8",
+      "title": "El Profe Eduardo",
       "image": "assets/jefes/Boss_loquito_unlocked.png",
       "lockedImage": "assets/jefes/Boss_loquito_locked.png",
       "unlock": {
         "scope": "any",
-        "type": "anyStatAtLeast",
-        "threshold": 25,
-        "label": "Llegar a 25 en una stat"
+        "type": "level_any",
+        "min": 18,
+        "label": "Alguien del grupo llega a nivel 18"
       },
       "eligibility": {
-        "type": "level",
-        "min": 1,
-        "label": "Ser nivel 1 o más"
+        "type": "allOf",
+        "rules": [
+          {
+            "type": "completions_hero",
+            "count": 15,
+            "label": "Completar 15 desafíos"
+          },
+          {
+            "type": "anyStatAtLeast",
+            "min": 10,
+            "label": "Tener 10 en una stat"
+          }
+        ],
+        "label": "15 desafíos + 10 en una stat"
       }
     },
     {

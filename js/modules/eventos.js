@@ -308,6 +308,15 @@
     if (!ov) return;
     _ensureBossUnlockOverlayBindings();
 
+    // Si hay una celebración (desafío completado) encima, la cerramos para que el jefe se vea.
+    try{
+      const big = document.getElementById('bigRewardOverlay');
+      if (big){
+        big.classList.remove('is-visible');
+        big.style.display = 'none';
+      }
+    }catch(_e){}
+
     // Fill UI
     const title = ov.querySelector('[data-boss-unlock-title]');
     const sub = ov.querySelector('[data-boss-unlock-sub]');
@@ -331,6 +340,18 @@
       // Limpieza por si alguna vez se asignó inline en otra variante
       if (img) img.style.backgroundImage = '';
     }
+
+
+    // Play SFX (may be blocked until user gesture; we attempt to unlock on first gesture)
+    try{
+      const a = window.__bossUnlockSfx ? window.__bossUnlockSfx : (typeof Audio !== 'undefined' ? new Audio('assets/sfx/challenger_approaching.mp3') : null);
+      if (a){
+        window.__bossUnlockSfx = a;
+        try{ a.pause(); a.currentTime = 0; }catch(_e){}
+        const p = a.play();
+        if (p && typeof p.catch === 'function') p.catch(()=>{});
+      }
+    }catch(_e){}
 
     // Show
     try{ ov.hidden = false; document.documentElement.classList.add('is-boss-unlock'); }catch(_e){}
@@ -373,6 +394,47 @@
       }
     }catch(_e){}
   }
+
+
+  // ------------------------------------------------------------
+  // Boss unlock sound (pre-unlocked on first user gesture)
+  // ------------------------------------------------------------
+  (function(){
+    const SFX_SRC = 'assets/sfx/challenger_approaching.mp3';
+    function ensureBossSfx(){
+      try{
+        if (window.__bossUnlockSfx) return window.__bossUnlockSfx;
+        const a = new Audio(SFX_SRC);
+        a.preload = 'auto';
+        a.volume = 0.9;
+        window.__bossUnlockSfx = a;
+        return a;
+      }catch(_e){ return null; }
+    }
+
+    // Try to "unlock" audio playback on mobile browsers
+    function unlockAudioOnce(){
+      try{
+        const a = ensureBossSfx();
+        if (!a) return;
+        // tiny play/pause to satisfy gesture requirement
+        const p = a.play();
+        if (p && typeof p.then === 'function'){
+          p.then(()=>{ try{ a.pause(); a.currentTime = 0; }catch(_e){} }).catch(()=>{});
+        } else {
+          try{ a.pause(); a.currentTime = 0; }catch(_e){}
+        }
+      }catch(_e){}
+    }
+
+    if (!window.__bossUnlockSfxBound){
+      window.__bossUnlockSfxBound = true;
+      document.addEventListener('pointerdown', unlockAudioOnce, { once: true, passive: true });
+      document.addEventListener('touchstart', unlockAudioOnce, { once: true, passive: true });
+      document.addEventListener('keydown', unlockAudioOnce, { once: true });
+    }
+  })();
+
 
   // Expose helpers (called from app_actions.js)
   try{ window.checkBossUnlockOverlay = checkBossUnlockOverlay; }catch(_e){}

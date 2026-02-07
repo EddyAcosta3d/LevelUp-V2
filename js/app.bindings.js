@@ -220,7 +220,10 @@ $('#btnChallengeComplete')?.addEventListener('click', ()=>{
     if (String(ch.difficulty||'').toLowerCase() === 'hard') {
       hero.medals = (Number(hero.medals) || 0) + 1;
     }
-    bumpHeroXp(awarded, { source: 'challenge' }); // ✅ Agregar source para activar celebraciones
+    bumpHeroXp(awarded, { source: 'challenge' });
+    try{ renderEvents(); }catch(e){}
+    try{ if (typeof checkBossUnlockOverlay === 'function') checkBossUnlockOverlay(); }catch(e){}
+ // ✅ Agregar source para activar celebraciones
     toast(mult > 1 ? 'Desafío completado (x2 XP)' : 'Desafío completado');
   }
 

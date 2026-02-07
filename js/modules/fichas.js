@@ -282,6 +282,9 @@ function renderHeroAvatar(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
 
+    // Token anti-carreras: evita que un preload viejo pise al héroe actual
+    const __reqId = (scene.__reqId = (scene.__reqId || 0) + 1);
+
     // Reset silhouette mode (if previously applied)
     try{ scene.classList.remove('is-silhouette'); }catch(_e){}
 
@@ -323,12 +326,12 @@ function renderHeroAvatar(hero){
     // Si se esperaba parallax pero la imagen no existe (GitHub Pages es sensible a mayúsculas),
     // caemos a una silueta por género.
     if (scene.dataset.parallax === '1' && fg){
-      preloadImage(fg).then(()=>{
+      preloadImage(fg).then(()=>{ if (scene.__reqId !== __reqId) return;
         const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
         scene.style.setProperty('--heroLayerBg', bg ? `url("${abs(bg)}")` : 'none');
         scene.style.setProperty('--heroLayerMid', mid ? `url("${abs(mid)}")` : 'none');
         scene.style.setProperty('--heroLayerFg', fg ? `url("${abs(fg)}")` : 'none');
-      }).catch(()=>{
+      }).catch(()=>{ if (scene.__reqId !== __reqId) return;
         scene.dataset.parallax = '0';
         bg = mid = fg = '';
 

@@ -478,6 +478,88 @@ function heroMaxStat(hero){
   return m;
 }
 
+function _getStatValue(hero, key){
+  if (!hero) return 0;
+  const stats = hero.stats || {};
+  if (!key) return 0;
+  const k = String(key).trim();
+  // try exact, lower, upper 3-letter
+  if (stats[k] != null) return Number(stats[k]||0);
+  const kl = k.toLowerCase();
+  if (stats[kl] != null) return Number(stats[kl]||0);
+  const ku = k.toUpperCase();
+  if (stats[ku] != null) return Number(stats[ku]||0);
+  // map common names
+  const map = { carisma:['car','CAR'], responsabilidad:['res','RES'], sabiduria:['sab','SAB'], inteligencia:['int','INT'], creatividad:['cre','CRE'] };
+  const hit = map[kl];
+  if (hit){
+    for (const kk of hit){
+      if (stats[kk] != null) return Number(stats[kk]||0);
+      const kkl = String(kk).toLowerCase();
+      if (stats[kkl] != null) return Number(stats[kkl]||0);
+    }
+  }
+  return 0;
+}
+
+function _eligPass(hero, rule){
+  if (!hero || !rule) return false;
+  const type = String(rule.type||'').trim();
+
+  if (type==='allOf'){
+    const rules = Array.isArray(rule.rules) ? rule.rules : [];
+    return rules.every(r=>_eligPass(hero, r));
+  }
+  if (type==='anyOf'){
+    const rules = Array.isArray(rule.rules) ? rule.rules : [];
+    return rules.some(r=>_eligPass(hero, r));
+  }
+
+  if (type==='level' || type==='minLevel'){
+    const min = Number(rule.min ?? rule.level ?? 1);
+    return Number(hero.level||1) >= min;
+  }
+
+  if (type==='completions_hero' || type==='challengesCompletedHero'){
+    return countCompletedForHero(hero) >= Number(rule.count||0);
+  }
+
+  if (type==='difficultyCompleted'){
+    const need = Number(rule.count||1);
+    const diff = normalizeDifficulty(rule.difficulty);
+    return countCompletedForHeroByDifficulty(hero, diff) >= need;
+  }
+
+  if (type==='anyStatAtLeast'){
+    const th = Number(rule.threshold ?? rule.min ?? rule.value ?? 0);
+    return heroMaxStat(hero) >= th;
+  }
+
+  if (type==='statAtLeast'){
+    const th = Number(rule.threshold ?? rule.min ?? rule.value ?? 0);
+    const key = rule.stat || rule.key;
+    return _getStatValue(hero, key) >= th;
+  }
+
+  if (type==='minStatsAtLeast'){
+    const needCount = Number(rule.count||0);
+    const th = Number(rule.min ?? rule.threshold ?? 0);
+    const stats = hero.stats || {};
+    const keys = ['int','sab','car','res','cre','INT','SAB','CAR','RES','CRE'];
+    const seen = new Set();
+    let c = 0;
+    for (const k of keys){
+      if (seen.has(k.toLowerCase())) continue;
+      seen.add(k.toLowerCase());
+      const v = _getStatValue(hero, k);
+      if (v >= th) c++;
+    }
+    return c >= needCount;
+  }
+
+  return true;
+}
+
 function _rulePassesForHero(hero, u){
   const type = String(u.type||'').trim();
   if (type==='minChallenges'){
@@ -516,6 +598,13 @@ function isEventUnlocked(ev){
   const heroes = heroesAll.filter(h=>String(h.group||'')===group);
 
   if (!heroes.length) return false;
+
+  // Group total unlock: sum of completed challenges within this group
+  if (String(u.type||'').trim()==='groupChallengesAtLeast'){
+    const need = Number(u.value ?? u.count ?? 0);
+    const cur = heroes.reduce((acc,h)=>acc + countCompletedForHero(h), 0);
+    return cur >= need;
+  }
 
   if (scope==='any'){
     return heroes.some(h=>_rulePassesForHero(h, u));
@@ -597,6 +686,11 @@ function getEventUnlockProgress(ev){
 function isHeroEligibleForEvent(hero, ev){
   if (!hero || !ev) return false;
   const r = ev.eligibility || {};
+  // New flexible evaluator
+  if (r && (r.type==='allOf' || r.type==='anyOf' || r.type==='statAtLeast' || r.type==='anyStatAtLeast' || r.type==='minStatsAtLeast')){
+    return _eligPass(hero, r);
+  }
+  // Back-compat simple types
   const type = String(r.type||'').trim();
 
   if (type==='level' || type==='minLevel'){
