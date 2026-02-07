@@ -354,7 +354,7 @@
     if (sub) sub.textContent = t;
 
     // Si estamos usando la variante por imagen completa (arte ya con texto),
-    // NO sobreescribimos el background-image definido en CSS.
+    // usamos celebrationImage del evento si existe; si no, fallback al image normal.
     const useFullImage = ov.classList && ov.classList.contains('bossUnlock--img');
     if (!useFullImage){
       // Use unlocked image if available; fallback to lockedImage
@@ -363,8 +363,12 @@
         img.style.backgroundImage = src ? `url(${src})` : '';
       }
     } else {
-      // Limpieza por si alguna vez se asignó inline en otra variante
-      if (img) img.style.backgroundImage = '';
+      // Full-image variant: usar celebrationImage si existe, sino image normal
+      const src = (ev && ev.celebrationImage) ? ev.celebrationImage
+                : (ev && ev.image) ? ev.image : '';
+      if (img){
+        img.style.backgroundImage = src ? `url(${src})` : '';
+      }
     }
 
 
