@@ -1,0 +1,1320 @@
+/* Desafíos: pesos visuales */
+.challengeName{ font-weight: 900; letter-spacing: .2px; }
+.challengeItem{ position:relative; overflow:hidden; }
+.challengeItem::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background: rgba(220,220,230,0.08); }
+.challengeItem[data-diff="easy"]::before{ background: rgba(0,210,255,0.75); box-shadow: 0 0 14px rgba(0,210,255,0.22); }
+.challengeItem[data-diff="medium"]::before{ background: rgba(114,26,255,0.80); box-shadow: 0 0 14px rgba(114,26,255,0.22); }
+.challengeItem[data-diff="hard"]::before{ background: rgba(255,90,90,0.80); box-shadow: 0 0 14px rgba(255,90,90,0.18); }
+
+.challengeBody{ min-height: 220px; font-size: 15px; line-height: 1.35; color: rgba(220,220,230,0.94); white-space: pre-wrap; }
+
+/* ===== Desafíos: hacer la vista más "game-like" y evitar redundancias ===== */
+/* Header del listado: que el bloque de progreso no se encime con el título */
+.cardHead--ch{ align-items:flex-start; }
+.cardHead--ch > div:first-child{ min-width:0; }
+.chProgressChips{
+  max-width: 290px;
+  display:grid;
+  gap: 6px;
+  justify-items:end;
+}
+
+.chProgItem{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.chProgItem b{ color: var(--text); font-weight: 900; }
+.chProgIcon{ width: 18px; text-align:center; opacity: .95; }
+@media (max-width: 540px){
+  .chProgressChips{ max-width: none; display:flex; justify-content:flex-start; }
+}
+
+/* Tarjetas: un poco más de contraste y brillo sutil */
+.cards2--ch .card{
+  background: rgba(13,16,22,0.88);
+  border-color: var(--borderSoft);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+}
+.cards2--ch .card:hover{ border-color: rgba(34,211,238,0.28); }
+
+/* XP como "recompensa" (dorado) solo en Desafíos */
+.page[data-page="desafios"] .badge--pts{
+  border-color: rgba(251,191,36,0.34);
+  background: rgba(251,191,36,0.10);
+}
+
+/* Pendiente: que destaque sin duplicar información */
+.badge--pending{
+  border-color: rgba(251,191,36,0.22);
+  background: rgba(251,191,36,0.06);
+  color: rgba(240,235,220,0.92);
+}
+
+/* Lista: selección más clara y estilo de "misión" */
+.challengeItem{ background: rgba(0,0,0,0.16); }
+.challengeItem:hover{ transform: translateY(-1px); border-color: rgba(0,210,255,0.22); box-shadow: 0 12px 26px rgba(0,0,0,0.28); }
+.challengeItem.is-selected{ border-color: rgba(0,210,255,0.42); box-shadow: 0 0 0 2px rgba(0,210,255,0.12) inset, 0 20px 50px rgba(0,0,0,0.35); }
+.challengeItem.is-done{ opacity: .78; }
+
+/* Detalle: badges solo en header (evitar duplicados en el cuerpo) */
+.challengeDetailMeta{ padding-top: 2px; }
+
+/* Pills de dificultad: colorear el activo */
+.diffPills .pill{ border-color: rgba(220,220,230,0.14); }
+.diffPills .pill.is-active{ border-color: rgba(0,210,255,0.40); background: rgba(0,210,255,0.10); }
+.diffPills .pill.is-active[data-diff="easy"]{ border-color: rgba(0,210,255,0.55); background: rgba(0,210,255,0.12); }
+.diffPills .pill.is-active[data-diff="medium"]{ border-color: rgba(114,26,255,0.55); background: rgba(114,26,255,0.12); }
+.diffPills .pill.is-active[data-diff="hard"]{ border-color: rgba(255,90,90,0.55); background: rgba(255,90,90,0.12); }
+
+/* Acciones por-item (editar / borrar) viven en la tarjeta del listado */
+.chItemActions{
+  position:absolute;
+  top: 10px;
+  right: 10px;
+  display:flex;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  transition: opacity .16s ease, transform .16s ease;
+  z-index: 30;
+}
+html.is-edit .chItemActions{
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.chIconBtn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.22);
+  color: var(--text, #dcdce6);
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+.chIconBtn:hover{ border-color: rgba(0,210,255,0.32); background: rgba(0,210,255,0.08); }
+.chIconBtn--danger:hover{ border-color: rgba(255,90,90,0.45); background: rgba(255,90,90,0.10); }
+
+/* Materias modal */
+.subjectsList{ display:grid; gap: 10px; }
+.subjectRow{ display:flex; align-items:center; justify-content:space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--borderSoft); background: rgba(0,0,0,0.18); }
+.subjectRow__name{ font-weight: 800; }
+.subjectRow__actions{ display:flex; gap: 8px; flex-wrap:wrap; }
+.ddItem{width:100%;text-align:left;padding:10px 10px;border:0;background:transparent;color:var(--text,#dcdce6);cursor:pointer}
+.ddItem:hover{background:rgba(0,210,255,0.08)}
+
+.ghostBox{
+  margin-top: 10px; border-radius: 14px; height: 110px;
+  border: 1px dashed rgba(0,210,255,0.18); background: rgba(255,255,255,0.02);
+  display:flex; align-items:center; justify-content:center;
+  color: rgba(255,255,255,0.35);
+}
+
+.modal{
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display:grid;
+  place-items:center;
+  padding: 20px;
+}
+
+/* Ensure confirmation modal always appears on top of other open modals */
+#confirmModal{ z-index: 110000; }
+.modal[hidden]{ display:none; }
+/* When a modal is open, force header dropdowns behind the overlay */
+body.is-modal-open .dropdown,
+body.is-modal-open .dropdown__menu{
+  z-index: 1 !important;
+}
+.modal__backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,0.74);
+  backdrop-filter: none;
+}
+.modal__card{
+  position:relative;
+  width: min(720px, 96vw);
+  max-height: min(78vh, 760px);
+  overflow:auto;
+  border-radius: var(--radius);
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--borderSoft);
+  box-shadow: 0 22px 80px rgba(0,0,0,0.70);
+}
+.modal__header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--borderSoft);
+}
+.roleList{ display:grid; gap: 10px; }
+.roleItem{
+  text-align:left;
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--borderSoft);
+  background: rgba(0,0,0,0.18);
+  cursor:pointer;
+  display:grid;
+  gap: 4px;
+}
+.roleItem:hover{ border-color: rgba(0,210,255,0.32); background: rgba(0,210,255,0.08); }
+.roleItem__name{ font-weight: 800; letter-spacing: .4px; }
+.roleItem__desc{ font-size: 13px; color: var(--muted); }
+
+.gridCards{ display:grid; grid-template-columns: repeat(4, minmax(190px, 1fr)); gap: var(--gap); padding-bottom: 14px; }
+.tile{ border-radius: 18px; border: 1px solid rgba(0,210,255,0.14); background: rgba(0,0,0,0.18); padding: 12px; display:flex; flex-direction:column; gap: 10px; }
+.tile__img{ height: 180px; border-radius: 14px; border: 1px solid rgba(0,210,255,0.10); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.22)); position:relative; overflow:hidden; }
+.tile.locked .tile__img::after{ content:""; position:absolute; inset:0; background: radial-gradient(200px 200px at 50% 40%, rgba(0,0,0,0.20), rgba(0,0,0,0.75)); }
+.tile__img--unlocked{ background: linear-gradient(180deg, rgba(120,255,180,0.10), rgba(0,0,0,0.22)); }
+.tile__name{ font-weight: 900; letter-spacing: 1px; }
+.tile.locked .tile__name{ letter-spacing: 3px; opacity:.7; }
+.tile__req{ opacity:.65; font-size: 12px; }
+
+.table{ border-radius: 14px; overflow:hidden; border: 1px solid rgba(0,210,255,0.10); }
+.tr{ display:grid; grid-template-columns: 1fr 80px 120px 120px; gap: 10px; padding: 10px 12px; background: rgba(0,0,0,0.18); }
+.tr:nth-child(even){ background: rgba(0,0,0,0.10); }
+.th{ font-weight: 800; background: rgba(0,210,255,0.06); }
+
+.kv{ display:grid; grid-template-columns: 90px 1fr; gap: 8px 10px; font-size: 13px; }
+.k{ opacity:.7; }
+.v{ opacity:.9; font-weight: 650; }
+
+.overlay{
+  position:absolute; inset:0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+  z-index: 20;
+}
+.overlay[hidden]{ display:none !important; pointer-events: none !important; }
+
+/* --- Desafíos (nuevo header + detalle) --- */
+.challengeTop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+.challengeTop .dropdown{position:relative}
+#subjectMenu{min-width:220px}
+.diffPills{display:flex;gap:8px;flex-wrap:wrap}
+.challengeDetailHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 10px}
+.challengeDetailActions{display:flex;gap:8px;flex-wrap:wrap}
+.challengeDetailMeta{
+  color:var(--text, #dcdce6);
+  opacity:.95;
+  display:flex;
+  flex-wrap:wrap;
+  column-gap:10px;
+  row-gap:10px;
+  align-items:center;
+}
+.challengeBody{min-height:140px;white-space:pre-wrap;border:1px solid var(--borderSoft);background:rgba(0,0,0,0.22);border-radius:16px;padding:12px;color:var(--text, #dcdce6)}
+@media (max-width:640px){
+  .challengeBody{min-height:180px}
+}
+
+
+
+/* ===== LevelUP_V2_00.029 — Ajustes Desafíos (legibilidad y chips) ===== */
+/* Evita encimado de badges (ej. "Tecnología" + "Difícil") en el encabezado de detalle */
+.challengeDetailMeta{ align-items:flex-start; }
+
+.challengeHintBadges{
+  display:flex !important;
+  flex-wrap:wrap;
+  gap:10px !important;
+  align-items:center;
+  margin-top:6px;
+}
+
+.challengeHintBadges .badge{
+  margin:0 !important;
+  white-space:nowrap;
+}
+
+/* Respaldo extra: aunque el layout falle, que nunca se encimen */
+.challengeHintBadges .badge + .badge{ margin-left: 0 !important; }
+
+/* Lista: un poco más de aire entre título y chips */
+.challengeRow{ gap:10px; }
+.challengeMetaRow{ gap:8px; }
+
+/* Detail: que el bloque de badges no se comprima raro */
+.challengeDetailMeta > .challengeHintBadges{ min-width: 0; }
+
+/* =============================
+   LevelUP_V2_00.030 overrides
+   ============================= */
+
+/* Evita que los paneles flex se "aplasten" por alturas implícitas */
+.main,
+.mainContent,
+.page,
+.card,
+.cardBody{ min-height: 0; }
+
+/* Desafíos: cuerpo con un poquito más de aire en escritorio */
+.challengeBody{ min-height: 180px; }
+@media (max-width: 768px){
+  .challengeBody{ min-height: 150px; }
+}
+
+/* Badges: separación y lectura consistente */
+.challengeHintBadges{ gap:10px !important; flex-wrap:wrap; }
+.challengeHintBadges .badge{ padding:6px 10px; border-radius: 999px; }
+
+/* Modales: z-index claro para que confirmación siempre esté arriba */
+.modal{ z-index: 30000; }
+#confirmModal{ z-index: 30000; }
+
+/* Splash: logo más grande + brillo menos invasivo (evita barra blanca) */
+.splash__inner{ max-width: 560px; }
+.splash__logo{ width: clamp(320px, 50vw, 620px); }
+.splash__shine{
+  opacity: 0.25;
+  filter: blur(1.2px);
+  mix-blend-mode: soft-light;
+}
+
+
+/* Hide edit-only controls in Solo ver */
+html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
+
+
+/* Themed selects (modals) */
+.modal select, .panel select{
+  appearance:none;
+  -webkit-appearance:none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(220,220,230,.85) 50%),
+                    linear-gradient(135deg, rgba(220,220,230,.85) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 34px;
+}
+
+
+/* Difficulty buttons (modal) */
+.diffButtons{ display:flex; gap:10px; }
+.diffButtons .pill{ flex:1; }
+.pill{ border:1px solid rgba(0,210,255,.18); background: rgba(0,0,0,.18); color: rgba(220,220,230,.92); padding:10px 12px; border-radius:999px; cursor:pointer; }
+.pill.is-active{ border-color: rgba(0,210,255,.55); box-shadow: 0 0 0 2px rgba(0,210,255,.10) inset, 0 0 18px rgba(0,210,255,.12); }
+.pill--easy.is-active{ border-color: rgba(0,210,255,.65); }
+.pill--medium.is-active{ border-color: rgba(114,26,255,.55); }
+.pill--hard.is-active{ border-color: rgba(255,90,90,.55); }
+
+
+/* Events / Bosses — redesigned layout (V2.068) */
+/* Goals:
+   - Clean, ordered hierarchy
+   - Card looks intentional (title integrated with artwork)
+   - Locked state feels like silhouette / mystery
+   - Single requirement line visible (unlock OR eligibility)
+   - Modal feels premium + readable on all resolutions
+*/
+
+:root{
+  --evCardBg: rgba(0,0,0,.22);
+  --evCardBorder: rgba(0,210,255,.16);
+  --evCardBorderHover: rgba(0,210,255,.32);
+  --evInk: rgba(240,245,255,.94);
+  --evMuted: rgba(220,220,230,.72);
+}
+
+.gridCards--events{
+  align-items: stretch;
+}
+
+/* ===== Cards ===== */
+.evCard{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  text-align:left;
+  padding:12px;
+  border-radius:20px;
+  border:1px solid var(--evCardBorder);
+  background: var(--evCardBg);
+  box-shadow: 0 18px 50px rgba(0,0,0,.38);
+  cursor:pointer;
+  gap:10px;
+  min-height: 0;
+  transition: transform .08s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.evCard:hover{
+  border-color: var(--evCardBorderHover);
+  box-shadow: 0 18px 55px rgba(0,0,0,.42);
+}
+.evCard:active{ transform: translateY(1px); }
+.evCard:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,210,255,.22), 0 18px 55px rgba(0,0,0,.42);
+}
+
+/* Artwork area */
+.evCard__media{
+  position:relative;
+  width:100%;
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.26);
+}
+.evCard__img{
+  width:100%;
+  aspect-ratio: 3/4;
+  background:
+    radial-gradient(260px 220px at 40% 28%, rgba(0,210,255,.12), rgba(0,0,0,0) 60%),
+    rgba(0,0,0,.22);
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.02);
+}
+
+/* Overlay and title integrated on artwork */
+.evCard__overlay{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,.35) 55%, rgba(0,0,0,.10));
+}
+.evCard__titleOnArt{
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:12px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  pointer-events:none;
+}
+.evCard__title{
+  font-weight: 950;
+  letter-spacing:.3px;
+  color: var(--evInk);
+  line-height:1.05;
+  text-shadow: 0 12px 30px rgba(0,0,0,.55);
+  max-width: 80%;
+}
+.evCard__chev{
+  width:30px;
+  height:30px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(0,210,255,.18);
+  background: rgba(0,0,0,.20);
+  color: rgba(240,245,255,.90);
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+}
+
+/* Pills */
+.evCard__pills{
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  pointer-events:none;
+}
+.evPill{
+  display:inline-flex;
+  align-items:center;
+  height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  border:1px solid rgba(0,210,255,.22);
+  background: rgba(0,0,0,.30);
+  color: rgba(240,245,255,.92);
+  backdrop-filter: blur(8px);
+}
+.evPill--kind{ border-color: rgba(255,215,120,.22); }
+.evCard.is-locked .evPill--state{ border-color: rgba(255,90,90,.20); }
+.evCard.is-unlocked .evPill--state{ border-color: rgba(120,255,180,.18); }
+.evCard.is-eligible .evPill--state{ box-shadow: 0 0 0 2px rgba(255,200,80,.10) inset; }
+
+/* Requirement line */
+.evCard__req{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:2px 2px 0;
+  min-height: 0;
+}
+.evReqIcon{
+  width:26px;
+  height:26px;
+  flex:0 0 auto;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(0,210,255,.14);
+  background: rgba(0,0,0,.18);
+  color: rgba(240,245,255,.82);
+}
+.evReqText{
+  color: var(--evMuted);
+  font-size: 13px;
+  line-height: 1.25;
+  margin-top: 3px;
+}
+
+/* Locked “mystery” treatment */
+.evCard.is-locked .evCard__img{
+  filter: grayscale(1) contrast(1.22) brightness(.62);
+}
+.evCard.is-locked .evCard__overlay{
+  background:
+    radial-gradient(260px 200px at 50% 30%, rgba(0,0,0,0), rgba(0,0,0,.55)),
+    linear-gradient(to top, rgba(0,0,0,.92), rgba(0,0,0,.50) 55%, rgba(0,0,0,.20));
+}
+.evCard.is-locked .evCard__title{
+  letter-spacing: 2.6px;
+  opacity: .78;
+}
+
+/* ===== Modal (premium + ordered) ===== */
+.modal__card--event{
+  max-width: 1040px;
+  width: min(1040px, calc(100vw - 24px));
+  max-height: min(92vh, 860px);
+  overflow: hidden;
+}
+
+/* Header */
+.evModalHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  background:
+    radial-gradient(900px 260px at 20% -30%, rgba(0,210,255,.12), transparent 55%),
+    rgba(10,12,18,.88);
+  backdrop-filter: blur(10px);
+}
+.evModalHead__left{ min-width: 0; display:flex; flex-direction:column; gap:8px; }
+.evModalKickerRow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+.evTag{
+  display:inline-flex;
+  align-items:center;
+  height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  letter-spacing:.9px;
+  text-transform:uppercase;
+  border:1px solid rgba(255,215,120,.22);
+  background: rgba(0,0,0,.24);
+  color: rgba(240,245,255,.92);
+}
+.evChip{
+  display:inline-flex;
+  align-items:center;
+  height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  letter-spacing:.9px;
+  text-transform:uppercase;
+  border:1px solid rgba(0,210,255,.22);
+  background: rgba(0,0,0,.24);
+  color: rgba(240,245,255,.92);
+}
+.evChip--state{ opacity:.95; }
+.evChip--elig{ border-color: rgba(255,200,80,.18); }
+
+#eventModalTitle{
+  margin:0;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: .2px;
+}
+.evModalSubtitle{
+  color: rgba(220,220,230,.70);
+  font-size: 13px;
+  line-height: 1.25;
+  max-width: 70ch;
+}
+
+/* Close button */
+#btnEventClose.iconBtn{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border:1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.24);
+  color: rgba(240,245,255,.92);
+}
+#btnEventClose.iconBtn:hover{ border-color: rgba(0,210,255,.28); }
+
+/* Body grid */
+.eventModalGrid{
+  display:grid;
+  grid-template-columns: minmax(300px, 380px) 1fr;
+  gap: 18px;
+  padding: 16px 18px 18px;
+  align-items: stretch;
+}
+
+/* Artwork */
+.eventModalImgWrap{
+  position:relative;
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.07);
+  overflow:hidden;
+  background: rgba(0,0,0,.28);
+  min-height: 360px;
+}
+.eventModalImg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  transform: scale(1.03);
+}
+.eventModalImg.is-locked{ filter: grayscale(1) contrast(1.15) brightness(.70); }
+
+.eventModalImgShade{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(80% 70% at 50% 28%, rgba(0,210,255,.12), transparent 55%),
+    linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,.30) 55%, rgba(0,0,0,.10));
+}
+.eventModalImgStamp{
+  position:absolute;
+  left:14px;
+  bottom:14px;
+  padding:10px 12px;
+  border-radius:16px;
+  border:1px solid rgba(0,210,255,.16);
+  background: rgba(0,0,0,.30);
+  font-weight: 950;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(240,245,255,.92);
+  backdrop-filter: blur(10px);
+}
+
+/* Right panel */
+.eventModalInfo{
+  min-width: 0;
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+.eventModalReqGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.eventModalReqBox{
+  border:1px solid rgba(255,255,255,.07);
+  background: rgba(0,0,0,.18);
+  border-radius:18px;
+  padding: 14px;
+}
+.eventModalReqTitle{
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: rgba(240,245,255,.90);
+}
+.eventModalReqText{
+  margin-top: 8px;
+  color: rgba(220,220,230,.78);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.eventModalMini{
+  margin-top:10px;
+  font-size:12px;
+  color: rgba(220,220,230,.64);
+}
+.miniMeter{
+  margin-top:10px;
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid rgba(0,210,255,.14);
+  background: rgba(0,0,0,.22);
+}
+.miniMeter__fill{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, rgba(0,210,255,.85), rgba(255,255,255,.35));
+}
+
+/* Actions */
+.eventModalActions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  padding-top: 2px;
+}
+.eventModalActions .btn{
+  border-radius: 14px;
+}
+.eventModalActions .btnPrimary{
+  min-width: 180px;
+}
+.eventModalFoot{
+  margin-top:auto;
+  color: rgba(220,220,230,.58);
+  font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 920px){
+  .eventModalGrid{ grid-template-columns: 1fr; }
+  .eventModalImgWrap{ min-height: 260px; }
+  .eventModalReqGrid{ grid-template-columns: 1fr; }
+  .evModalSubtitle{ max-width: 100%; }
+}
+@media (max-width: 560px){
+  .modal__card--event{
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .evModalHead{
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+  .eventModalActions{
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    padding: 10px 0 8px;
+    background: linear-gradient(to top, rgba(10,12,18,.94), rgba(10,12,18,.62), transparent);
+    backdrop-filter: blur(10px);
+  }
+}
+@media (max-width: 420px){
+  .evCard{ padding:10px; border-radius:18px; }
+  .evCard__media{ border-radius:14px; }
+  .evPill, .evTag, .evChip{ height:26px; padding:0 10px; font-size:11px; }
+  #eventModalTitle{ font-size: 24px; }
+}
+
+/* --- V2.00.031 additions --- */
+html:not(.is-edit) [data-edit-only="1"]{
+  display:none !important;
+}
+
+.input--select{
+  -webkit-appearance:none;
+  appearance:none;
+  padding-right:34px;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(0,210,255,.9) 50%),
+                    linear-gradient(135deg, rgba(0,210,255,.9) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 13px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat:no-repeat;
+  background-color: #121724;
+}
+
+.diffPick{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.diffPick .pill{
+  flex:1;
+  justify-content:center;
+  border-color: var(--borderSoft);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+}
+.diffPick .pill.is-active{
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
+}
+.diffPick .pill[data-diff="easy"].is-active{
+  border-color: var(--accent);
+  background: rgba(34,211,238,0.22);
+  color: rgba(232,236,244,0.96);
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.18), 0 0 18px rgba(34,211,238,0.18);
+}
+.diffPick .pill[data-diff="medium"].is-active{
+  border-color: rgba(251,191,36,0.80);
+  background: rgba(251,191,36,0.22);
+  color: rgba(232,236,244,0.96);
+  box-shadow: 0 0 0 2px rgba(251,191,36,0.14), 0 0 18px rgba(251,191,36,0.18);
+}
+.diffPick .pill[data-diff="hard"].is-active{
+  border-color: var(--danger);
+  background: rgba(248,113,113,0.22);
+  color: rgba(232,236,244,0.96);
+  box-shadow: 0 0 0 2px rgba(248,113,113,0.14), 0 0 18px rgba(248,113,113,0.14);
+}
+
+/* Asegura contraste en el modal (evita texto oscuro al activar dificultad) */
+#challengeModal .diffPick .pill.is-active{ color: rgba(232,236,244,0.96) !important; }
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+
+
+/* --- V2_00.032 fixes: Challenges readability + chips spacing --- */
+.challengeItem .chips, .challengeItem .challengeChips, .challengeMeta, .challengeDetailMeta{
+  display:flex !important;
+  flex-wrap:wrap;
+  gap:8px !important;
+  align-items:center;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:4px 10px;
+  min-height:26px;
+  line-height:1;
+  border-radius:999px;
+  white-space:nowrap;
+}
+/* modal selects */
+.input--select, select.input{
+  -webkit-appearance:none;
+  appearance:none;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgb(232,236,244);
+  border-radius: 12px;
+  padding-right: 34px;
+}
+.selectWrap{ position:relative; }
+.selectWrap::after{
+  content:"▾";
+  position:absolute;
+  right:12px; top:50%;
+  transform: translateY(-50%);
+  color: rgba(0,210,255,.8);
+  pointer-events:none;
+}
+
+
+
+
+/* =============================
+   v23 — Detalle de desafío más claro y atractivo
+   ============================= */
+
+/* Caja de estado (derecha) en el encabezado */
+/* Caja de estado (derecha) en el encabezado: más compacta (sin ocupar media tarjeta) */
+#challengeDetailBadges{ display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+
+
+/* Pills del detalle (más "tarjeta", menos elipse) */
+
+/* Pills dentro de la tarjeta de desafío (columna central) */
+.challengeMetaRow{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.challengeMetaRow .chPill{ padding:6px 9px; border-radius: 13px; font-size: 12px; }
+.challengeItem.is-selected .challengeMetaRow .chPill{ filter: brightness(1.08); }
+
+.chPill{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  font-size: 12.5px;
+  line-height: 1;
+  font-weight: 900;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  color: var(--text, #e8ecf4);
+  white-space: nowrap;
+}
+.chPill .i{ width: 18px; text-align:center; opacity: .95; }
+.chPill--easy{ border-color: rgba(34,211,238,0.55); background: rgba(34,211,238,0.12); }
+.chPill--medium{ border-color: rgba(114,26,255,0.55); background: rgba(114,26,255,0.12); }
+.chPill--hard{ border-color: rgba(255,90,90,0.55); background: rgba(255,90,90,0.12); }
+.chPill--xp{ border-color: rgba(251,191,36,0.42); background: rgba(251,191,36,0.14); }
+.chPill--status{ border-color: rgba(255,255,255,0.10); background: rgba(255,255,255,0.03); }
+.chPill--status.is-done{ border-color: rgba(34,211,238,0.40); background: rgba(34,211,238,0.10); }
+
+/* Botón de estado (Pendiente / Completado) — solo edición */
+.pill--status{ border-color: rgba(255,255,255,0.10) !important; background: rgba(255,255,255,0.03) !important; }
+.pill--status.is-done,
+.pill--status.is-active{ border-color: rgba(34,211,238,0.42) !important; background: rgba(34,211,238,0.12) !important; }
+
+/* Acciones por desafío en la lista (editar/borrar), sin robar espacio al detalle */
+.chItemActions{
+  position:absolute;
+  top: 10px;
+  right: 10px;
+  display:flex;
+  gap: 8px;
+  z-index: 30;
+  opacity: 0;
+  pointer-events:none;
+  transform: translateY(-2px);
+  transition: opacity .14s ease, transform .14s ease;
+}
+html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: translateY(0); }
+
+.chIconBtn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.22);
+  color: rgba(232,236,244,0.92);
+  cursor:pointer;
+}
+.chIconBtn:hover{ border-color: rgba(34,211,238,0.35); background: rgba(34,211,238,0.08); }
+.chIconBtn--danger:hover{ border-color: rgba(255,90,90,0.45); background: rgba(255,90,90,0.10); }
+
+/* Modal: formulario de desafío sin encimados */
+.challengeFormGrid{
+  display:grid;
+  grid-template-columns: 220px 1fr 150px;
+  gap: 12px;
+  align-items:end;
+}
+
+/* Modal: materia dropdown like main */
+.challengeFormGrid #chModalSubjectDropdown{ width:100%; }
+.challengeFormGrid #btnChModalSubject{ width:100%; justify-content:space-between; }
+.challengeFormGrid #chModalSubjectMenu{ left:0; right:auto; width:100%; min-width:unset; max-height:260px; overflow:auto; }
+
+@media (max-width: 720px){
+  .challengeFormGrid{ grid-template-columns: 1fr; }
+  .challengeFormGrid .field--diff .diffPick{ width:100%; }
+}
+
+.challengeFormGrid__diff{ grid-column: 1 / -1; }
+@media (max-width: 640px){
+  .challengeFormGrid{ grid-template-columns: 1fr; }
+  .challengeFormGrid__diff{ grid-column: 1; }
+}
+
+/* Instrucciones: más legibles y con acento lateral */
+.page[data-page="desafios"] .challengeBody{
+  position: relative;
+  background: rgba(0,0,0,0.34);
+  border-color: rgba(255,255,255,0.10);
+  padding: 16px 16px 16px 18px;
+  font-size: 16px;
+  line-height: 1.5;
+  box-shadow: 0 14px 44px rgba(0,0,0,0.50);
+}
+.page[data-page="desafios"] .challengeBody::before{
+  content:"";
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width: 4px;
+  border-radius: 16px 0 0 16px;
+  background: rgba(34,211,238,0.65);
+  box-shadow: 0 0 18px rgba(34,211,238,0.18);
+}
+.chInstrLabel{
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(232,236,244,0.62);
+  margin-bottom: 10px;
+}
+.chBodyP{ margin: 0 0 10px; }
+.chBodyList{ margin: 0 0 10px 18px; }
+
+
+/* ===== Modal (Nuevo/Editar desafío) — look like Desafíos cards ===== */
+#challengeModal .modal__card{
+  background: rgba(13,16,22,0.96);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 28px 90px rgba(0,0,0,0.70);
+}
+#challengeModal .modal__header .cardTitle{ font-weight: 900; letter-spacing: .4px; }
+#challengeModal .field{ display:grid; gap: 6px; }
+#challengeModal .label{ color: rgba(232,236,244,0.72); font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; }
+#challengeModal .input, #challengeModal .textarea, #challengeModal select.input, #challengeModal .input--select{
+  background: rgba(0,0,0,0.26);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(232,236,244,0.94);
+}
+#challengeModal .input:focus, #challengeModal .textarea:focus, #challengeModal select:focus{
+  outline: none;
+  border-color: rgba(34,211,238,0.42);
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.12);
+}
+#challengeModal .diffPick .pill{ border-color: rgba(255,255,255,0.14); background: rgba(0,0,0,0.16); }
+#challengeModal .diffPick .pill.is-active{
+  font-weight: 700;
+  /* El color final lo define el data-diff (easy/medium/hard) más abajo */
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
+}
+
+/* Evita que el dropdown de materias quede visible mientras hay un modal */
+.is-modal-open #subjectDropdown .dropdown__menu{ display:none !important; }
+
+/* Modal fields: match page look */
+.modal .input,
+.modal .textarea,
+.modal select.input{
+  background: #121724;
+  border: 1px solid #1B2333;
+  color: var(--text);
+}
+
+/* Fuerza tema oscuro también en dropdowns nativos (cuando el navegador lo soporta) */
+.modal{ color-scheme: dark; }
+.modal select.input{ color-scheme: dark; }
+.modal select.input option{
+  background: #0D1016;
+  color: rgb(232,236,244);
+}
+.modal select.input option:checked{
+  background: rgba(34,211,238,0.18);
+  color: rgb(232,236,244);
+}
+.modal .input:focus,
+.modal .textarea:focus,
+.modal select.input:focus{
+  outline: none;
+  border-color: rgba(34,211,238,0.55);
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.12);
+}
+.modal .formCard{
+  background: #121724;
+  border: 1px solid #1B2333;
+}
+.modal__header{ background: #0D1016; }
+
+/* Difficulty picker coloring */
+.field--diff .diffPick{ width:100%; }
+.field--diff .diffPick .pill{ flex:1; justify-content:center; }
+.field--diff .diffPick .pill.is-active{
+  font-weight: 700;
+  color: rgb(232,236,244);
+  border-color: rgba(255,255,255,0.12);
+}
+.field--diff .diffPick .pill.is-active[data-diff="easy"]{
+  background: rgba(34,211,238,0.18);
+  border-color: rgba(34,211,238,0.55);
+}
+.field--diff .diffPick .pill.is-active[data-diff="medium"]{
+  background: rgba(251,191,36,0.18);
+  border-color: rgba(251,191,36,0.55);
+}
+.field--diff .diffPick .pill.is-active[data-diff="hard"]{
+  background: rgba(248,113,113,0.18);
+  border-color: rgba(248,113,113,0.55);
+}
+
+/* --- Modal: dificultad (más notorio + resiliente) --- */
+#challengeModal .field--diff .diffPick{
+  /* JS: data-active="easy|medium|hard" */
+  --diff-bg: rgba(255,255,255,0.06);
+  --diff-bd: rgba(255,255,255,0.14);
+  --diff-tx: rgba(240,244,252,0.95);
+}
+#challengeModal .field--diff .diffPick .pill{
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+#challengeModal .field--diff .diffPick .pill.is-active,
+#challengeModal .field--diff .diffPick[data-active="easy"] .pill[data-diff="easy"],
+#challengeModal .field--diff .diffPick[data-active="medium"] .pill[data-diff="medium"],
+#challengeModal .field--diff .diffPick[data-active="hard"] .pill[data-diff="hard"]{
+  color: var(--diff-tx) !important;
+  background: var(--diff-bg) !important;
+  border-color: var(--diff-bd) !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 10px 28px rgba(0,0,0,0.35);
+}
+#challengeModal .field--diff .diffPick[data-active="easy"]{
+  --diff-bg: rgba(34,211,238,0.22);
+  --diff-bd: rgba(34,211,238,0.65);
+}
+#challengeModal .field--diff .diffPick[data-active="medium"]{
+  --diff-bg: rgba(251,191,36,0.22);
+  --diff-bd: rgba(251,191,36,0.65);
+}
+#challengeModal .field--diff .diffPick[data-active="hard"]{
+  --diff-bg: rgba(248,113,113,0.22);
+  --diff-bd: rgba(248,113,113,0.68);
+}
+
+
+/* Eventos/Jefes: resalta cuando el héroe actual ya puede retar */
+.evCard.is-eligible .evCard__media{
+  box-shadow: 0 0 0 2px rgba(255,200,80,.18), 0 18px 50px rgba(0,0,0,.45);
+  border-color: rgba(255,200,80,.22);
+}
+
+/* Level-up medal hint (shown near end of level) */
+.medalGateHint{
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.92);
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 10px 0 10px 0;
+}
+.medalGateHint b{ color: rgba(255,255,255,0.98); }
+.medalGateHint .ok{ color: rgba(180,255,200,0.98); }
+.medalGateHint .warn{ color: rgba(255,220,150,0.98); }
+
+
+
+/* === Boss/Event modal overrides (full-bleed, no top bar, brighter art) === */
+.modal__card--event{ padding:0 !important; overflow:hidden; }
+.evModalHead{
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+.evModalHead__left{ display:none !important; }
+#eventModalTitle, #eventModalSubtitle{ display:none !important; }
+
+#btnEventClose.iconBtn{
+  position:absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  background: rgba(10,12,16,.35);
+  border: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(10px);
+}
+
+.eventModalGrid{
+  position:relative;
+  padding:0 !important;
+  min-height: min(78vh, 720px);
+}
+.eventModalImgWrap{
+  position:absolute;
+  inset:0;
+  border-radius: 24px;
+  overflow:hidden;
+}
+.eventModalImg{
+  position:absolute;
+  inset:0;
+  background-size: cover;
+  background-position: center;
+  /* brighten unlocked art */
+  filter: brightness(1.20) contrast(1.06) saturate(1.06);
+}
+.eventModalImg.is-locked{
+  filter: grayscale(1) contrast(1.12) brightness(.72);
+}
+.eventModalImgShade{
+  position:absolute;
+  inset:0;
+  /* much lighter on top; readability only at bottom */
+  background: linear-gradient(to bottom,
+    rgba(0,0,0,0.00) 0%,
+    rgba(0,0,0,0.10) 55%,
+    rgba(0,0,0,0.48) 100%);
+  pointer-events:none;
+}
+.eventModalInfo{
+  position:absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 6;
+}
+.eventModalReqGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.eventModalReqBox{
+  background: rgba(10,12,16,.52) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  backdrop-filter: blur(14px);
+}
+@media (max-width: 820px){
+  .eventModalReqGrid{ grid-template-columns: 1fr; }
+  .eventModalGrid{ min-height: min(80vh, 760px); }
+
+  /* Event cards: ajustar tamaño de título en arte */
+  .evCard__title{ font-size: clamp(14px, 3.5vw, 18px); }
+}
+
+/* --- iPad mini y tablets pequeñas (≤ 768px) --- */
+@media (max-width: 768px){
+  /* Modal de evento: fullscreen para mejor aprovechamiento */
+  .modal__card--event{
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .eventModalImgWrap{
+    border-radius: 0;
+  }
+  .eventModalGrid{
+    min-height: 100vh;
+  }
+
+  /* Close button con espacio para safe-area */
+  #btnEventClose.iconBtn{
+    top: max(14px, env(safe-area-inset-top, 14px));
+    right: max(14px, env(safe-area-inset-right, 14px));
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Info panel en la parte inferior */
+  .eventModalInfo{
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  }
+
+  /* Req boxes más compactos */
+  .eventModalReqBox{
+    padding: 10px !important;
+    border-radius: 14px;
+  }
+  .eventModalReqTitle{ font-size: 11px; }
+  .eventModalReqText{ font-size: 12px; margin-top: 6px; }
+  .eventModalMini{ font-size: 11px; margin-top: 6px; }
+  .miniMeter{ margin-top: 6px; height: 8px; }
+
+  /* Actions más compactas */
+  .eventModalActions{
+    gap: 8px;
+    padding-top: 8px;
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
+  }
+  .eventModalActions .btnPrimary{
+    min-width: 140px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* Shade más oscuro en la parte inferior para legibilidad */
+  .eventModalImgShade{
+    background: linear-gradient(to bottom,
+      rgba(0,0,0,0.00) 0%,
+      rgba(0,0,0,0.08) 40%,
+      rgba(0,0,0,0.55) 75%,
+      rgba(0,0,0,0.78) 100%);
+  }
+}
+
+/* --- Teléfonos (≤ 560px) --- */
+@media (max-width: 560px){
+  /* evModalPills: solo mostrar los que quepan */
+  .evModalPills{
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .evModalPills .pill--mini{
+    font-size: 10px;
+    padding: 4px 8px;
+    min-height: 24px;
+  }
+
+  /* Event cards: imagen con aspect-ratio más cuadrado en pantallas pequeñas */
+  .evCard__img{
+    aspect-ratio: 4/5;
+  }
+
+  /* Req grid: 1 columna, más compacto */
+  .eventModalReqGrid{
+    gap: 8px;
+  }
+
+  /* Modal actions: usar toda la anchura */
+  .eventModalActions{
+    justify-content: stretch;
+  }
+  .eventModalActions .btn{
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* --- Teléfonos muy pequeños (≤ 380px) --- */
+@media (max-width: 380px){
+  .evCard{ padding: 8px; gap: 8px; }
+  .evCard__media{ border-radius: 12px; }
+  .evCard__titleOnArt{
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
+  .evCard__title{ font-size: 13px; }
+  .evCard__chev{ width: 24px; height: 24px; font-size: 14px; }
+  .evReqText{ font-size: 12px; }
+  .evReqIcon{ width: 22px; height: 22px; font-size: 11px; }
+
+  /* Modal info: más compacto */
+  .eventModalInfo{
+    left: 8px;
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom, 8px));
+  }
+  .eventModalReqBox{
+    padding: 8px !important;
+    border-radius: 12px;
+  }
+}
+
+/* --- Landscape en móvil para el modal --- */
+@media (max-height: 500px) and (orientation: landscape){
+  .eventModalGrid{
+    min-height: 100vh;
+  }
+  .eventModalInfo{
+    bottom: 8px;
+  }
+  .eventModalReqGrid{
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .eventModalReqBox{
+    padding: 8px !important;
+  }
+  .eventModalActions .btnPrimary{
+    min-width: 120px;
+    padding: 8px 12px;
+  }
+}
