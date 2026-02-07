@@ -1064,8 +1064,9 @@
       "id": "boss01",
       "kind": "boss",
       "title": "El Loquito del Centro",
-      "image": "assets/jefes/Boss_loquito_unlocked.png",
-      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "image": "assets/jefes/Boss_loquito_unlocked_modal.webp",
+      "lockedImage": "assets/jefes/Boss_loquito_locked_modal.webp",
+      "celebrationImage": "assets/celebrations/loquito_challenger.webp",
       "unlock": {
         "scope": "any",
         "type": "minChallenges",
@@ -1084,6 +1085,7 @@
       "title": "El Garbanzo Coqueto",
       "image": "assets/jefes/garbanzo__unlocked__modal.webp",
       "lockedImage": "assets/jefes/garbanzo__locked__modal.webp",
+      "celebrationImage": "assets/celebrations/garbanzo_challenger.webp",
       "unlock": {
         "scope": "any",
         "type": "anyStatAtLeast",
@@ -1114,6 +1116,7 @@
       "title": "La Guardia de la Puerta",
       "image": "assets/jefes/guardia__unlocked__modal.webp",
       "lockedImage": "assets/jefes/guardia__locked__modal.webp",
+      "celebrationImage": "assets/celebrations/guardia_challenger.webp",
       "unlock": {
         "scope": "any",
         "type": "groupChallengesAtLeast",
@@ -1131,8 +1134,9 @@
       "id": "boss04",
       "kind": "boss",
       "title": "El Prefecto de Malas",
-      "image": "assets/jefes/Boss_loquito_unlocked.png",
-      "lockedImage": "assets/jefes/Boss_loquito_locked.png",
+      "image": "assets/jefes/prefecto_unlocked_modal.webp",
+      "lockedImage": "assets/jefes/prefecto_locked_modal.webp",
+      "celebrationImage": "assets/celebrations/prefecto_challenger.webp",
       "unlock": {
         "scope": "any",
         "type": "hasDifficulty",

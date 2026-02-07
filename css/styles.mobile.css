@@ -94,6 +94,13 @@
       max-height: none !important;
       border-radius: 0 !important;
     }
+    /* Event modal: el grid ocupa todo el alto */
+    .modal__card--event .eventModalGrid{
+      min-height: 100vh;
+    }
+    .modal__card--event .eventModalImgWrap{
+      border-radius: 0;
+    }
   }
   
   /* STATS - Indicadores más grandes */
