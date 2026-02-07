@@ -443,16 +443,20 @@
     }
 
     // Try to "unlock" audio playback on mobile browsers
+    // Use volume=0 so the unlock gesture never produces audible sound
+    // (on iOS, touchstart fires before scroll is detected, causing the sfx to play)
     function unlockAudioOnce(){
       try{
         const a = ensureBossSfx();
         if (!a) return;
-        // tiny play/pause to satisfy gesture requirement
-        const p = a.play();
+        var origVol = a.volume;
+        a.volume = 0;
+        var p = a.play();
         if (p && typeof p.then === 'function'){
-          p.then(()=>{ try{ a.pause(); a.currentTime = 0; }catch(_e){} }).catch(()=>{});
+          p.then(function(){ try{ a.pause(); a.currentTime = 0; a.volume = origVol; }catch(_e){} })
+           .catch(function(){ try{ a.volume = origVol; }catch(_e){} });
         } else {
-          try{ a.pause(); a.currentTime = 0; }catch(_e){}
+          try{ a.pause(); a.currentTime = 0; a.volume = origVol; }catch(_e){}
         }
       }catch(_e){}
     }
