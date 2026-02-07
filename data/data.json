@@ -1082,8 +1082,8 @@
       "id": "boss02",
       "kind": "boss",
       "title": "El Garbanzo Coqueto",
-      "image": "assets/bosses/garbanzo__unlocked__modal.png",
-      "lockedImage": "assets/bosses/garbanzo__locked__modal.png",
+      "image": "assets/jefes/garbanzo__unlocked__modal.webp",
+      "lockedImage": "assets/jefes/garbanzo__locked__modal.webp",
       "unlock": {
         "scope": "any",
         "type": "anyStatAtLeast",
@@ -1112,8 +1112,8 @@
       "id": "boss03",
       "kind": "boss",
       "title": "La Guardia de la Puerta",
-      "image": "assets/bosses/guardia__unlocked__modal.png",
-      "lockedImage": "assets/bosses/guardia__locked__modal.png",
+      "image": "assets/jefes/guardia__unlocked__modal.webp",
+      "lockedImage": "assets/jefes/guardia__locked__modal.webp",
       "unlock": {
         "scope": "any",
         "type": "groupChallengesAtLeast",

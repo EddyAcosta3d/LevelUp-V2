@@ -326,6 +326,12 @@ function renderHeroAvatar(hero){
     // Si se esperaba parallax pero la imagen no existe (GitHub Pages es sensible a mayúsculas),
     // caemos a una silueta por género.
     if (scene.dataset.parallax === '1' && fg){
+      // Limpiar las capas inmediatamente para evitar que la imagen del héroe anterior
+      // se quede visible mientras se carga/falla la nueva imagen.
+      scene.style.setProperty('--heroLayerBg', 'none');
+      scene.style.setProperty('--heroLayerMid', 'none');
+      scene.style.setProperty('--heroLayerFg', 'none');
+
       preloadImage(fg).then(()=>{ if (scene.__reqId !== __reqId) return;
         const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
         scene.style.setProperty('--heroLayerBg', bg ? `url("${abs(bg)}")` : 'none');
