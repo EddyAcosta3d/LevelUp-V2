@@ -659,15 +659,18 @@ function _heroArtCandidates(hero){
         if (o.id === 'xp+30'){
           const xpMax = Number(hero.xpMax ?? 100);
           const cur = Number(hero.xp ?? 0);
+          // Allow at least 5 XP even near level-up (capped at xpMax - 1 to prevent accidental level-up)
           const safeCap = Math.max(0, xpMax - 1);
-          const add = Math.max(0, Math.min(30, safeCap - cur));
-          if (add > 0){
-            hero.xp = cur + add;
-            hero.totalXp = Number(hero.totalXp ?? 0) + add;
+          const add = Math.max(5, Math.min(30, safeCap - cur));
+          // If hero is so close that even 5 XP would level up, clamp to safeCap - cur (min 1)
+          const finalAdd = Math.max(1, Math.min(add, safeCap - cur));
+          if (finalAdd > 0){
+            hero.xp = cur + finalAdd;
+            hero.totalXp = Number(hero.totalXp ?? 0) + finalAdd;
             saveData();
             renderAll();
           }
-          claimPendingReward({ rewardId:'xp+30', title:`+${add} XP`, badge:'+XP' });
+          claimPendingReward({ rewardId:'xp+30', title:`+${finalAdd} XP`, badge:'+XP' });
           return;
         }
 

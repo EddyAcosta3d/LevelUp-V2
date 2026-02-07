@@ -135,14 +135,16 @@ function renderTienda(){
 function bindTiendaEvents(){
   const container = $('#tiendaContainer');
   if (!container) return;
-  
+
   // Add item button
   const btnAdd = container.querySelector('#btnAddStoreItem');
   if (btnAdd) {
     btnAdd.addEventListener('click', () => openStoreItemModal('create'));
   }
-  
-  // Item actions (event delegation)
+
+  // Item actions (event delegation) — avoid duplicate listeners on the persistent container
+  if (container.__tiendaBound) return;
+  container.__tiendaBound = true;
   container.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
@@ -250,10 +252,11 @@ async function deleteStoreItem(itemId){
 }
 
 function openStoreItemModal(mode, item = null){
-  const modal = $('#storeItemModal');
+  let modal = $('#storeItemModal');
   if (!modal) {
     createStoreItemModal();
-    return openStoreItemModal(mode, item);
+    modal = $('#storeItemModal');
+    if (!modal) return; // guard against creation failure
   }
   
   const title = modal.querySelector('#storeItemModalTitle');

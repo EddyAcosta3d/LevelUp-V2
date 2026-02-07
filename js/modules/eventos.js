@@ -5,9 +5,13 @@
     const add = (s) => { if (s && !out.includes(s)) out.push(s); };
     add(src);
 
-    // Extension swaps
-    if (/\.jpg$/i.test(src)) add(src.replace(/\.jpg$/i, '.png'));
-    if (/\.png$/i.test(src)) add(src.replace(/\.png$/i, '.jpg'));
+    // Extension swaps (including .webp)
+    const extSwaps = [
+      [/\.jpg$/i, '.png'], [/\.jpg$/i, '.webp'],
+      [/\.png$/i, '.jpg'], [/\.png$/i, '.webp'],
+      [/\.webp$/i, '.png'], [/\.webp$/i, '.jpg']
+    ];
+    extSwaps.forEach(([re, rep]) => { if (re.test(src)) add(src.replace(re, rep)); });
 
     // Folder swaps
     if (src.includes('/eventos/')) add(src.replace('/eventos/', '/jefes/'));
@@ -15,8 +19,7 @@
 
     // Combine folder+ext swaps
     out.slice().forEach(s => {
-      if (/\.jpg$/i.test(s)) add(s.replace(/\.jpg$/i, '.png'));
-      if (/\.png$/i.test(s)) add(s.replace(/\.png$/i, '.jpg'));
+      extSwaps.forEach(([re, rep]) => { if (re.test(s)) add(s.replace(re, rep)); });
     });
 
     return out;
@@ -174,6 +177,27 @@
       btnToggleUnlock.disabled = false;
       btnToggleUnlock.textContent = unlocked ? 'Bloquear' : 'Desbloquear';
       btnToggleUnlock.dataset.eventId = eventId;
+    }
+
+    // Bind fight button (one-time per modal open)
+    if (btnFight){
+      btnFight.onclick = ()=>{
+        if (!(unlocked && eligible)) return;
+        toast(`⚔️ ${hero?.name || 'Héroe'} reta a ${ev.title || 'este jefe'}!`);
+        modal.hidden = true;
+      };
+    }
+
+    // Bind toggle-unlock button (teacher only)
+    if (btnToggleUnlock){
+      btnToggleUnlock.onclick = ()=>{
+        ev.unlocked = !isEventUnlocked(ev);
+        saveLocal(state.data);
+        if (state.dataSource === 'remote') state.dataSource = 'local';
+        renderEvents();
+        openEventModal(eventId);
+        toast(ev.unlocked ? 'Evento desbloqueado' : 'Evento bloqueado');
+      };
     }
 
     modal.hidden = false;

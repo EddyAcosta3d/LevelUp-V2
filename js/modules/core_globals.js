@@ -139,13 +139,20 @@ function makeBlankHero(group){
     xpMax: 100,
     weekXp: 0,
     weekXpMax: DEFAULT_WEEK_XP_MAX,
-    stats: { int: 0, sab: 0, car: 0, res: 0, cre: 0 },
+    stats: { int: 0, sab: 0, car: 0, res: 0, cre: 0, INT: 0, SAB: 0, CAR: 0, RES: 0, CRE: 0 },
     desc: '',
     goal: '',
+    goodAt: '',
+    improve: '',
     photo: '',
-    // Ruta a la imagen dentro del proyecto (por ejemplo: assets/personajes/eddy.png)
-    // Se gestiona fuera de la app (carpetas/GitHub/JSON).
-    photoSrc: ''
+    photoSrc: '',
+    medals: 0,
+    tokens: 0,
+    storeClaims: [],
+    rewardsHistory: [],
+    challengeCompletions: {},
+    challengeHistory: [],
+    pendingRewards: []
   };
 }
 
@@ -361,10 +368,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
         { id:'c1', title:'Desafío 1: Lectura breve', status:'locked', body:'(contenido teacher) ...' },
         { id:'c2', title:'Desafío 2: Escritura libre', status:'available', body:'(contenido teacher) ...' }
       ],
-      events: [
-        { id:'e1', title:'?????', locked:true, req:'Requisito: Completa 1 desafío' },
-        { id:'e2', title:'Evento: Bonus XP', locked:false, req:'Siguiente: Completa 2 desafíos' }
-      ]
+      events: []
     };
   }
 
