@@ -121,6 +121,7 @@ function saveData(){
   try{
     // state is defined in core_globals.js (same global scope)
     saveLocal(state.data);
+    if (state.dataSource === 'remote') state.dataSource = 'local';
   }catch(err){
     console.warn('saveData() wrapper failed', err);
   }

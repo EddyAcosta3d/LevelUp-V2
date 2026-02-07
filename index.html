@@ -559,8 +559,13 @@
         <div class="evModalHead__left">
           <h3 id="eventModalTitle">Evento</h3>
           <div class="evModalSubtitle" id="eventModalSubtitle">—</div>
+          <div class="evModalPills">
+            <span class="pill pill--mini" id="eventModalKind">EVENTO</span>
+            <span class="pill pill--mini" id="eventModalState">—</span>
+            <span class="pill pill--mini" id="eventModalElig">—</span>
+          </div>
         </div>
-
+        <div class="evModalStamp" id="eventModalStamp" aria-hidden="true">?????</div>
         <button class="iconBtn" id="btnEventClose" title="Cerrar" aria-label="Cerrar">✕</button>
       </div>
 
@@ -590,6 +595,7 @@
 
             <div class="eventModalActions">
               <button class="btn btnPrimary" id="btnEventFight">⚔️ Retar</button>
+              <button class="pill pill--small pill--ghost" id="btnEventToggleUnlock" type="button" data-edit-only="1">Desbloquear</button>
             </div>
           </div>
         </div>
