@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <!-- iOS: evita zoom raro al rotar y mantiene el layout estable -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <!-- LevelUp STABLE_RESET_v15_CLEAN -->
+<title>LevelUp</title>
+  <!-- Icono de la pestaña (pon tu archivo en assets/logo.png o cambia la ruta) -->
+  <link rel="icon" href="assets/logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.levelup.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.tienda.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.celebrations.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.mobile.css?v=LevelUP_V2_00.069" />
+</head>
+<body>
+  <!-- Splash: cambia la variante con la clase:
+       splash--free (default), splash--orb, splash--curtain -->
+  <div class="splash splash--free" id="splash" aria-label="LevelUp" role="status">
+    <div class="splash__inner">
+      <img class="splash__logo" src="assets/logo.png" alt="LevelUp" />
+      <div class="splash__glow" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <!-- Boss unlock celebration (full-screen) -->
+  <div class="bossUnlock bossUnlock--img" id="bossUnlockOverlay" hidden>
+    <div class="bossUnlock__frame" role="dialog" aria-modal="true">
+      <div class="bossUnlock__title" data-boss-unlock-title>¡Un nuevo jefe apareció!</div>
+      <div class="bossUnlock__sub" data-boss-unlock-sub>?????</div>
+
+      <div class="bossUnlock__card">
+        <div class="bossUnlock__img" data-boss-unlock-img aria-hidden="true"></div>
+      </div>
+
+      <div class="bossUnlock__hint">Toca para ir a <b>Jefes</b></div>
+
+      <button class="bossUnlock__btn" type="button" data-boss-unlock-go>VER JEFES</button>
+      <button class="bossUnlock__close" type="button" aria-label="Cerrar" data-boss-unlock-close>✕</button>
+    </div>
+  </div>
+  <!--
+    LevelUp Hybrid Skeleton (Base responsive + datos híbridos)
+    - Desktop / iPad / iPhone
+    - Híbrido de datos:
+        1) Intenta cargar ./data/data.json (GitHub Pages) si hay internet
+        2) Si falla, usa la última copia guardada en localStorage
+        3) Siempre puedes importar JSON manual (ideal para iPad offline) y se guarda localmente
+    - Sin PIN por ahora (se agrega después sin reestructurar)
+  -->
+
+  <div class="app" id="app">
+    <header class="topbar" id="topbar">
+      <div class="topbar__left">
+        <button class="iconbtn topbar__menu" id="btnMenu" aria-label="Abrir menú lateral" title="Menú">☰</button>
+
+        <!-- Mobile: acceso directo a Recompensas (trofeo). Más simple y confiable en iOS. -->
+        <button class="iconbtn topbar__trophyBtn" id="btnMobileRewards" aria-label="Recompensas" title="Recompensas">
+          <svg class="trophyIcon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <path d="M22 12h20v6c0 8-5 14-10 14s-10-6-10-14v-6z" fill="rgba(114,26,255,.18)" stroke="rgba(0,210,255,.55)" stroke-width="2"/>
+            <path d="M18 14h-6c0 12 6 18 14 20" fill="none" stroke="rgba(0,210,255,.55)" stroke-width="2"/>
+            <path d="M46 14h6c0 12-6 18-14 20" fill="none" stroke="rgba(0,210,255,.55)" stroke-width="2"/>
+            <path d="M28 36h8v6h-8z" fill="rgba(25,42,86,.85)" stroke="rgba(0,210,255,.45)" stroke-width="2"/>
+            <path d="M22 42h20v8H22z" fill="rgba(25,42,86,.85)" stroke="rgba(0,210,255,.45)" stroke-width="2"/>
+            <path d="M18 50h28" stroke="rgba(0,210,255,.25)" stroke-width="2"/>
+          </svg>
+        </button>
+
+        <div class="brand" aria-label="LevelUp">
+          <div class="brand__logo" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="34" height="34" role="img" aria-label="LU">
+              <path d="M32 4l25 14v28L32 60 7 46V18L32 4z" fill="rgba(255,215,120,.12)" stroke="rgba(255,215,120,.55)" stroke-width="2"/>
+              <path d="M22 22h20v6H28v14h-6V22zm14 0h6v26h-6V22z" fill="rgba(255,255,255,.85)"/>
+            </svg>
+          </div>
+          <div class="brand__text">
+            <div class="brand__title">MISIONES · RETOS · RECOMPENSAS</div>
+            <div class="brand__subtitle" id="brandSubtitle">LevelUp</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="topnav" aria-label="Navegación principal">
+        <button class="pill is-active" data-route="fichas">Fichas</button>
+        <button class="pill" data-route="desafios">Desafíos</button>
+        <button class="pill" data-route="eventos">Eventos</button>
+        <button class="pill" data-route="tienda">Tienda</button>
+      </nav>
+
+      <div class="topbar__right">
+        <!-- Reemplaza "Presentación" por acceso directo a Recompensas (pantalla separada por ahora) -->
+        <button class="pill pill--ghost" id="btnRecompensas" data-route="recompensas">🏆 Recompensas</button>
+        <button class="pill pill--ghost" id="btnDebugPanel" aria-pressed="false">🧪 Estado</button>
+
+        <div class="dropdown">
+          <button class="pill pill--ghost" id="btnDatos" aria-haspopup="menu" aria-expanded="false">💾 Datos ▾</button>
+          <div class="dropdown__menu" role="menu" aria-label="Datos" id="menuDatos">
+            <button class="menuitem" role="menuitem" id="btnReloadRemote">Recargar desde GitHub</button>
+            <button class="menuitem" role="menuitem" id="btnImportJson">Importar JSON…</button>
+            <button class="menuitem" role="menuitem" id="btnExportJson">Exportar JSON</button>
+            <div class="menudivider"></div>
+            <button class="menuitem" role="menuitem" id="btnResetLocal">Borrar copia local</button>
+          </div>
+        </div>
+
+        <button class="pill pill--danger" id="btnEdicion">🔒 Edición</button>
+      </div>
+    </header>
+
+    <main class="shell" id="shell">
+      <div class="overlay" id="overlay" hidden></div>
+
+      <aside class="sidebar" id="sidebar" aria-label="Panel de personajes">
+        <div class="panelHeader panelHeader--compact">
+          <div class="segmented segmented--compact" role="tablist" aria-label="Grupos">
+            <button class="segmented__btn is-active" role="tab" aria-selected="true" data-group="2D">2D</button>
+            <button class="segmented__btn" role="tab" aria-selected="false" data-group="3D">3D</button>
+          </div>
+          <button class="pill pill--small" id="btnNuevoHeroe" data-edit-only="1">+ Nuevo</button>
+        </div>
+
+        <div class="list" id="heroList"></div>
+      </aside>
+
+      <section class="content" id="content" aria-label="Contenido principal">
+        <div class="pages">
+          <article class="page is-active" data-page="fichas">
+            <div class="cardGrid">
+              <div class="card card--center card--avatar">
+                <!-- ESCENA grande (sin marco): 3 capas para parallax en móvil -->
+                <div class="heroScene" id="heroScene" aria-label="Imagen del héroe">
+                  <div class="heroSceneLayer heroSceneLayer--bg" data-speed="0.18" aria-hidden="true"></div>
+                  <div class="heroSceneLayer heroSceneLayer--mid" data-speed="0.32" aria-hidden="true"></div>
+                  <div class="heroSceneLayer heroSceneLayer--fg" data-speed="0.48" aria-hidden="true"></div>
+                  <!-- Foto del heroe (si existe) ocupa toda el area; si no, se oculta y se ven las capas de prueba -->
+                  <div class="heroPhotoFill is-empty" id="avatarBox" aria-label="Foto del héroe"></div>
+                  <div class="heroSceneShade" aria-hidden="true"></div>
+
+                  <!-- Botones flotantes (no ocupan espacio y no "encuadran" la imagen) -->
+                  <button class="iconBtn iconBtn--danger heroDeleteBtn" id="btnEliminar" data-edit-only="1" title="Eliminar héroe" aria-label="Eliminar héroe">🗑</button>
+                  <!-- Botón de editar imagen removido: la foto se gestiona directo en GitHub/JSON -->
+
+                  <!-- Nombre encima de la imagen -->
+                  <div class="heroName heroName--overlay" id="heroName">NUEVO HÉROE</div>
+
+                  <!-- Notas como overlay (para que la imagen abarque TODO el bloque) -->
+                  <div class="heroNotesOverlay" id="heroNotesOverlay">
+                    <div class="noteGrid noteGrid--overlay">
+                      <div class="noteCol">
+                        <div class="noteTitleRow noteTitleRow--desc">
+                          <div class="noteTitle">Descripción rápida</div>
+                          <div class="noteTitleTools"></div>
+                        </div>
+                        <textarea class="textarea textarea--short" id="txtDesc"></textarea>
+                      </div>
+                      <div class="noteCol">
+                        <div class="noteTitle">Meta del trimestre</div>
+                        <textarea class="textarea textarea--short" id="txtMeta"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="fields3">
+                  <div class="field">
+                    <div class="labelSmall">Nombre</div>
+                    <input class="input" id="inNombre" value="Nuevo héroe" />
+                  </div>
+                  <div class="field field--small">
+                    <div class="labelSmall">Edad</div>
+                    <input class="input" id="inEdad" value="13" />
+                  </div>
+                  <div class="field">
+                    <div class="labelSmall">Rol</div>
+                    <input class="input input--select" id="inRol" value='Selecciona un rol' readonly aria-haspopup="dialog" aria-controls="roleModal" />
+                  </div>
+                  <div class="field field--medals">
+                    <div class="labelSmall">Medallas</div>
+
+                    <!-- Re-usa el estilo de la tienda: logo SVG + contador en una sola pastilla -->
+                    <div class="medalBadgeSmall" id="heroMedalsPill" aria-label="Medallas del héroe">
+                      <svg viewBox="0 0 24 24" class="medalSvg" aria-hidden="true">
+                        <path d="M7 2h4l1 5-3 2-2-7zM13 2h4l-2 7-3-2 1-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <circle cx="12" cy="16" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 13v6M9 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      <span class="medalCount" id="heroMedalsCount">0</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stats" id="statsBox"></div>
+
+                <div class="xpCard">
+                  <div class="xpHeader">
+                    <div class="xpLevel" id="xpLevel">Lvl 1</div>
+                    <div class="xpText" id="xpText">· XP 0/100</div>
+
+                    <!-- Solo aparece si el héroe tiene recompensas pendientes -->
+                    <button id="btnClaimPendingInline" class="notifBtn notifBtn--compact" type="button" hidden>
+                      🎁 Reclamar
+                      <span id="pendingRewardCountInline" class="notifBadge" hidden>1</span>
+                    </button>
+                    <div class="xpBtns">
+                      <button class="pill pill--small pill--ghost" id="btnXpM5" data-edit-only="1">-5 XP</button>
+                      <button class="pill pill--small pill--ghost" id="btnXpM1" data-edit-only="1">-1 XP</button>
+                      <button class="pill pill--small pill--ghost" id="btnXpP1" data-edit-only="1">+1 XP</button>
+                      <button class="pill pill--small pill--ghost" id="btnXpP5" data-edit-only="1">+5 XP</button>
+                    </div>
+                  </div>
+                  <div class="xpBar"><div class="xpFill" id="xpFill" style="width:0%"></div></div>
+
+                  <div class="xpFooter">
+                    <div class="subCard">
+                      <div class="chipRow" id="actChips">
+                        <button class="pill pill--small" data-xp="2">+2 Participación</button>
+                        <button class="pill pill--small" data-xp="5">+5 Trabajos</button>
+                        <button class="pill pill--small" data-xp="10">+10 Tareas</button>
+                      </div>
+                    </div>
+                    <div class="subCard subCard--week">
+                      <div class="subCard__title subCard__titleRow">
+                        <span>Esta semana:</span>
+                      </div>
+                      <div class="subCard__valRow">
+                        <div class="subCard__val" id="weekXp">0/40 XP</div>
+                        <button class="iconBtn iconBtn--tiny" id="btnWeekReset" data-edit-only="1" title="Reiniciar XP semanal" aria-label="Reiniciar XP semanal">↺</button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </article>
+
+        <article class="page" data-page="recompensas">
+          <div class="rewardsGrid">
+            <section class="card" aria-label="Historial de recompensas">
+              <div class="cardHead">
+                <h3 class="h3">Historial</h3>
+                <div class="muted small" id="rewardsHistorySubtitle">Selecciona un personaje para ver su historial.</div>
+              </div>
+              <div class="cardBody">
+                <div id="rewardsHistoryList" class="rewardsList"></div>
+                <div id="rewardsHistoryEmpty" class="muted" style="padding:8px;">Aún no hay recompensas reclamadas.</div>
+              </div>
+            </section>
+
+            <section class="card" aria-label="Recompensas generales">
+              <div class="cardHead">
+                <h3 class="h3">Recompensas generales</h3>
+                <div class="muted small">Lo que pueden ganar al subir de nivel.</div>
+              </div>
+              <div class="cardBody">
+                <div id="rewardsGeneralList" class="rewardsList"></div>
+              </div>
+            </section>
+          </div>
+        </article>
+
+          <article class="page" data-page="desafios">
+            <div class="challengeTop">
+              <div class="dropdown" id="subjectDropdown">
+                <button class="pill" id="btnSubject" type="button">Materia ▾</button>
+                <div class="dropdown__menu" id="subjectMenu" role="menu" aria-label="Materias"></div>
+              </div>
+
+              <div class="diffPills" id="diffPills" role="group" aria-label="Dificultad">
+                <button class="pill pill--ghost" id="btnDiffEasy" type="button" data-diff="easy">Fácil</button>
+                <button class="pill pill--ghost" id="btnDiffMed" type="button" data-diff="medium">Medio</button>
+                <button class="pill pill--ghost" id="btnDiffHard" type="button" data-diff="hard">Difícil</button>
+              </div>
+
+              <button class="pill" id="btnAddChallenge" type="button" data-edit-only="1">+ Desafío</button>
+              <button class="pill pill--ghost" id="btnManageSubjects" type="button" data-edit-only="1">✎ Materias</button>
+              <button class="pill pill--ghost" id="btnHistory" type="button">📜 Historial</button>
+            </div>
+
+            
+
+<div class="cards2 cards2--ch">
+              <div class="card">
+                <div class="cardHead cardHead--ch">
+                  <div>
+                    <h3 class="h3">Desafíos</h3>
+                    <div class="muted small" id="chSubtitle">Elige un reto y gana XP.</div>
+                  </div>
+                  <div class="chProgressChips" id="chProgressChips" aria-label="Progreso de desafíos"></div>
+                </div>
+
+                <div class="chProgressBar" aria-hidden="true">
+                  <div class="chProgressFill" id="chProgressFill" style="width:0%"></div>
+                </div>
+                <div class="muted small" id="chProgressText" style="margin:6px 0 10px 0;">—</div>
+
+                <div class="medalGateHint" id="medalGateHint" hidden></div>
+
+                <div class="challengeList" id="challengeList"></div>
+              </div>
+
+              <div class="card">
+                <div class="cardHead cardHead--chDetail">
+                  <div>
+                    <h3 class="h3" id="challengeDetailTitle">Detalle</h3>
+                    <div class="muted small" id="challengeDetailSub">Selecciona un desafío para ver instrucciones.</div>
+                  </div>
+                  <div class="chDetailBadges" id="challengeDetailBadges" aria-label="Etiquetas"></div>
+                </div>
+
+                <div class="challengeDetailHead">
+                  <div class="challengeDetailMeta" id="challengeHint">Selecciona un desafío.</div>
+                  <div class="challengeDetailActions">
+                    <!-- El profe puede alternar Pendiente/Completado. Alumnos no ven este control. -->
+                    <button class="pill pill--small pill--status" id="btnChallengeComplete" type="button" data-edit-only="1">⏳ Pendiente</button>
+                  </div>
+                </div>
+                <div class="challengeBody" id="challengeBody"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="page" data-page="eventos">
+            <!-- Nota: header simplificado (sin título/subtítulo). Solo tabs centrados. -->
+            <div class="pageIntro pageIntro--events">
+              <div class="pageIntro__row">
+                <div class="eventTabs" id="eventTabs" role="tablist" aria-label="Jefes y eventos">
+                  <button class="pill pill--ghost is-active" type="button" data-event-tab="boss">Jefes</button>
+                  <button class="pill pill--ghost" type="button" data-event-tab="event">Eventos</button>
+                </div>
+              </div>
+            </div>
+            <div class="gridCards gridCards--events" id="eventGrid"></div>
+          </article>
+
+          <article class="page" data-page="tienda">
+            <div class="pageIntro">
+              <h2 class="h2">Tienda</h2>
+              <p class="muted">Canjea tus medallas por recompensas especiales</p>
+            </div>
+
+            <div id="tiendaContainer"></div>
+          </article>
+        </div>
+      </section>
+
+      <aside class="details" id="details" aria-label="Panel derecho">
+        <div class="card">
+          <div class="cardTitle">Estado</div>
+          <div class="kv">
+            <div class="k">Dispositivo</div><div class="v" id="dbgDevice">—</div>
+            <div class="k">Ruta</div><div class="v" id="dbgRoute">fichas</div>
+            <div class="k">Rol</div><div class="v" id="dbgRole">viewer</div>
+            <div class="k">Datos</div><div class="v" id="dbgDataSrc">—</div>
+            <div class="k">Update</div><div class="v" id="dbgUpdated">—</div>
+            <div class="k">Build</div><div class="v" id="dbgBuild">—</div>
+            <div class="k">Materias</div><div class="v" id="dbgSubCount">—</div>
+            <div class="k">Desafíos</div><div class="v" id="dbgChCount">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="cardTitle">Notas</div>
+          <div class="muted">
+            Híbrido: GitHub cuando hay internet, localStorage cuando no, e importación manual para iPad offline.
+          </div>
+          <div class="ghostBox">PIN se agrega en fase siguiente</div>
+        </div>
+      </aside>
+      <!-- Las fotos de los héroes se gestionan en la carpeta /assets (no se suben desde la app). -->
+    </main>
+
+    <nav class="bottomNav" id="bottomNav" aria-label="Navegación inferior">
+      <button class="bottomNav__btn is-active" data-route="fichas">Fichas</button>
+      <button class="bottomNav__btn" data-route="desafios">Desafíos</button>
+      <button class="bottomNav__btn" data-route="eventos">Eventos</button>
+      <button class="bottomNav__btn" data-route="tienda">Tienda</button>
+    </nav>
+
+    <div class="modal" id="roleModal" hidden>
+      <div class="modal__backdrop" data-close-role-modal></div>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="roleModalTitle">
+        <div class="modal__header">
+          <div class="cardTitle" id="roleModalTitle">Selecciona un rol</div>
+          <button class="pill pill--small pill--ghost" id="btnCloseRoleModal" type="button">Cerrar</button>
+        </div>
+        <div class="modal__body">
+          <div class="roleList" id="roleList"></div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- Modal: Subir de nivel + elegir recompensa -->
+    <div class="modal luModal" id="levelUpModal" hidden>
+      <div class="modal__backdrop" id="levelUpBackdrop"></div>
+
+      <div class="modal__card luCard" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
+        <!-- STAGE -->
+        <div class="luStage" id="levelUpStage">
+          <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
+          <div class="luStageShade" aria-hidden="true"></div>
+
+          <div class="luStageText">
+            <div class="luKicker" id="levelUpTitle">¡Desbloqueaste un nuevo nivel!</div>
+          </div>
+
+          <div class="luBadgeWrap" aria-hidden="false">
+            <div class="luBadge">
+              <div class="luNum" id="levelUpNum">1</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="luBody" id="levelUpScrollArea">
+          <div class="luPickTitle">ELIGE TU RECOMPENSA</div>
+          <div class="luNote" id="levelUpNote" hidden></div>
+          <div class="luChoices" id="levelUpChoices"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Confirmación (sin alerts del navegador) -->
+    <div class="modal" id="confirmModal" hidden>
+      <div class="modal__backdrop" id="confirmBackdrop"></div>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="modal__header">
+          <div class="cardTitle" id="confirmTitle">Confirmar</div>
+        </div>
+        <div class="modal__body">
+          <div class="confirmMsg" id="confirmMessage">¿Seguro?</div>
+          <div style="height:14px"></div>
+          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+            <button class="pill pill--small pill--ghost" id="btnConfirmCancel" type="button">Cancelar</button>
+            <button class="pill pill--small pill--danger" id="btnConfirmOk" type="button">Aceptar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Materias (CRUD) -->
+    <div class="modal" id="subjectsModal" hidden>
+      <div class="modal__backdrop" id="subjectsBackdrop"></div>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="subjectsTitle">
+        <div class="modal__header">
+          <div class="cardTitle" id="subjectsTitle">Materias</div>
+          <button class="pill pill--small pill--ghost" id="btnCloseSubjects" type="button">✕</button>
+        </div>
+        <div class="modal__body">
+          <div class="formCard">
+            <label class="label">Nueva materia</label>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input class="input" id="inNewSubject" placeholder="Ej: Ciencias" />
+              <button class="pill pill--small" id="btnAddSubject" type="button">Agregar</button>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="cardTitle" style="margin:6px 0 10px;">Lista</div>
+          <div class="subjectsList" id="subjectsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Crear / Editar desafío -->
+    <div class="modal" id="challengeModal" hidden>
+      <div class="modal__backdrop" id="challengeBackdrop"></div>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="challengeModalTitle">
+        <div class="modal__header">
+          <div class="cardTitle" id="challengeModalTitle">Desafío</div>
+          <button class="pill pill--small pill--ghost" id="btnCloseChallengeModal" type="button">✕</button>
+        </div>
+        <div class="modal__body">
+          <div class="challengeFormGrid">
+            <div class="field">
+              <label class="label">Materia</label>
+              <input type="hidden" id="inChSubject" value="" />
+              <div class="dropdown" id="chModalSubjectDropdown">
+                <button class="pill" id="btnChModalSubject" type="button">Materia ▾</button>
+                <div class="dropdown__menu" id="chModalSubjectMenu" role="menu" aria-label="Materias"></div>
+              </div>
+            </div>
+
+            <div class="field field--diff">
+              <label class="label">Dificultad</label>
+              <input type="hidden" id="inChDiff" value="easy" />
+              <div class="diffPick" id="inChDiffPick" role="group" aria-label="Dificultad">
+                <button type="button" class="pill pill--small" data-diff="easy">Fácil</button>
+                <button type="button" class="pill pill--small" data-diff="medium">Medio</button>
+                <button type="button" class="pill pill--small" data-diff="hard">Difícil</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Puntos</label>
+              <input class="input" id="inChPoints" inputmode="numeric" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Título</label>
+            <input class="input" id="inChTitle" placeholder="Ej: Problemas de fracciones" />
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="field">
+            <label class="label">Instrucciones</label>
+            <textarea class="textarea" id="inChBody" placeholder="Escribe instrucciones simples..."></textarea>
+          </div>
+
+          <div style="height:14px"></div>
+          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+            <button class="pill pill--small pill--ghost" id="btnCancelChallenge" type="button">Cancelar</button>
+            <button class="pill pill--small" id="btnSaveChallenge" type="button">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de desafíos completados -->
+    <div class="modal" id="historyModal" hidden>
+      <div class="modal__backdrop" id="historyBackdrop"></div>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+        <div class="modal__header">
+          <div class="cardTitle" id="historyModalTitle">Historial de desafíos</div>
+          <button class="pill pill--small pill--ghost" id="btnCloseHistoryModal" type="button">✕</button>
+        </div>
+        <div class="modal__body">
+          <div class="muted" style="margin-bottom:10px;">Materia · Dificultad · Nombre · Fecha</div>
+          <div id="historyList" class="historyList"></div>
+          <div id="historyEmpty" class="muted" style="padding:8px;">No hay desafíos completados.</div>
+        </div>
+      </div>
+    </div>
+
+
+    <input type="file" id="fileJson" accept="application/json" hidden />
+  </div>
+
+  <!-- Cache-bust version -->
+  
+
+  <!-- Eventos: modal de detalle -->
+  <div class="modal" id="eventModal" hidden>
+    <div class="modal__backdrop" data-close="eventModal"></div>
+
+    <div class="modal__card modal__card--event" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
+      <div class="modal__head evModalHead">
+        <div class="evModalHead__left">
+          <h3 id="eventModalTitle">Evento</h3>
+          <div class="evModalSubtitle" id="eventModalSubtitle">—</div>
+          <div class="evModalPills">
+            <span class="pill pill--mini" id="eventModalKind">EVENTO</span>
+            <span class="pill pill--mini" id="eventModalState">—</span>
+            <span class="pill pill--mini" id="eventModalElig">—</span>
+          </div>
+        </div>
+        <div class="evModalStamp" id="eventModalStamp" aria-hidden="true">?????</div>
+        <button class="iconBtn" id="btnEventClose" title="Cerrar" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="modal__body">
+        <div class="eventModalGrid">
+          <div class="eventModalImgWrap">
+            <div class="eventModalImg" id="eventModalImg" aria-hidden="true"></div>
+            <div class="eventModalImgShade" aria-hidden="true"></div>
+          </div>
+
+          <div class="eventModalInfo">
+            <div class="eventModalReqGrid">
+              <div class="eventModalReqBox" id="eventModalUnlockBox">
+                <div class="eventModalReqTitle">Para desbloquear</div>
+                <div class="eventModalReqText" id="eventModalUnlockText">—</div>
+                <div class="eventModalMini" id="eventModalUnlockMini"></div>
+                <div class="miniMeter" aria-hidden="true"><div class="miniMeter__fill" id="eventModalUnlockMeter"></div></div>
+              </div>
+
+              <div class="eventModalReqBox" id="eventModalEligBox">
+                <div class="eventModalReqTitle">Para retar</div>
+                <div class="eventModalReqText" id="eventModalReq">—</div>
+                <div class="eventModalMini" id="eventModalEligMini"></div>
+                <div class="miniMeter" aria-hidden="true"><div class="miniMeter__fill" id="eventModalEligMeter"></div></div>
+              </div>
+            </div>
+
+            <div class="eventModalActions">
+              <button class="btn btnPrimary" id="btnEventFight">⚔️ Retar</button>
+              <button class="pill pill--small pill--ghost" id="btnEventToggleUnlock" type="button" data-edit-only="1">Desbloquear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script src="js/splash.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/store.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/parallax_manifest.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/fichas.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/desafios.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/eventos.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/tienda.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/celebrations.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/app.bindings.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/app.main.js?v=LevelUP_V2_00.069" defer></script>
+  <script src="js/app.js?v=LevelUP_V2_00.069" defer></script>
+</body>
+</html>
