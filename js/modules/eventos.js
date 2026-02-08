@@ -398,6 +398,14 @@
       for (const ev of list){
         if (!ev || ev.kind !== 'boss') continue;
         const id = String(ev.id);
+
+        // If this boss wasn't tracked yet (e.g. data loaded after init),
+        // just record its current state — don't treat it as "newly unlocked".
+        if (!(id in window.__bossUnlockPrev)){
+          window.__bossUnlockPrev[id] = !!isEventUnlocked(ev);
+          continue;
+        }
+
         const prev = !!window.__bossUnlockPrev[id];
         const now = !!isEventUnlocked(ev);
         if (!prev && now){
