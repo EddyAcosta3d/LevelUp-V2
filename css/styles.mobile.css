@@ -824,10 +824,10 @@
   }
 
   .modal__card--event {
-    width: 100vw !important;
-    height: 100dvh !important;
-    max-width: 100vw !important;
-    max-height: 100dvh !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
     border-radius: 0 !important;
   }
 
@@ -836,7 +836,7 @@
   }
 
   .eventModalGrid {
-    min-height: 100dvh !important;
+    min-height: 100% !important;
   }
 
   #btnEventClose.iconBtn {
@@ -905,6 +905,10 @@
 
   .pages {
     padding-bottom: 78px !important;
+    /* Reset desktop scrollbar compensation — mobile scrollbars overlay, no gutter needed */
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+    scrollbar-gutter: auto !important;
   }
 }
 
@@ -914,7 +918,6 @@
   /* Prevent any horizontal overflow from leaking past the app shell */
   html, body, .app, .shell {
     overflow-x: hidden !important;
-    max-width: 100vw !important;
   }
 
   .page {
