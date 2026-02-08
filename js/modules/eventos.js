@@ -427,30 +427,18 @@
       }catch(_e){ return null; }
     }
 
-    // Try to "unlock" audio playback on mobile browsers
-    // Use volume=0 so the unlock gesture never produces audible sound
-    // (on iOS, touchstart fires before scroll is detected, causing the sfx to play)
-    function unlockAudioOnce(){
-      try{
-        const a = ensureBossSfx();
-        if (!a) return;
-        var origVol = a.volume;
-        a.volume = 0;
-        var p = a.play();
-        if (p && typeof p.then === 'function'){
-          p.then(function(){ try{ a.pause(); a.currentTime = 0; a.volume = origVol; }catch(_e){} })
-           .catch(function(){ try{ a.volume = origVol; }catch(_e){} });
-        } else {
-          try{ a.pause(); a.currentTime = 0; a.volume = origVol; }catch(_e){}
-        }
-      }catch(_e){}
+    // Pre-create the Audio element on first user gesture so it's ready
+    // when showBossUnlockOverlay actually needs to play it.
+    // NOTE: We intentionally do NOT call .play() here — doing so caused
+    // audible sound on some iOS devices despite setting volume to 0.
+    function preloadAudioOnce(){
+      try{ ensureBossSfx(); }catch(_e){}
     }
 
     if (!window.__bossUnlockSfxBound){
       window.__bossUnlockSfxBound = true;
-      document.addEventListener('pointerdown', unlockAudioOnce, { once: true, passive: true });
-      document.addEventListener('touchstart', unlockAudioOnce, { once: true, passive: true });
-      document.addEventListener('keydown', unlockAudioOnce, { once: true });
+      document.addEventListener('pointerdown', preloadAudioOnce, { once: true, passive: true });
+      document.addEventListener('touchstart', preloadAudioOnce, { once: true, passive: true });
     }
   })();
 

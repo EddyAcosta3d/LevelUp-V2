@@ -440,6 +440,11 @@
     margin-bottom: 6px !important;
   }
 
+  /* Override 640px rule so Medallas shares the row with Rol (2×2 grid) */
+  .fields3 .field:last-child {
+    grid-column: auto !important;
+  }
+
   .field {
     margin-bottom: 10px !important;
   }
@@ -806,6 +811,11 @@
 
 /* --- EVENTOS MODAL: fullscreen --- */
 @media (max-width: 430px) {
+  /* Remove parent padding so the fullscreen card reaches the viewport edges */
+  #eventModal {
+    padding: 0 !important;
+  }
+
   .modal__card--event {
     width: 100vw !important;
     height: 100dvh !important;
