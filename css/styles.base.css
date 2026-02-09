@@ -424,7 +424,12 @@ body{
 .page{ display:none; }
 .page.is-active{ display:block; }
 
-.cardGrid{ display:grid; grid-template-columns: 370px minmax(0, 1fr); gap: var(--gap); padding-bottom: 14px; }
+.cardGrid{
+  display:grid;
+  grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
+  gap: var(--gap);
+  padding-bottom: 14px;
+}
 
 .card{
   border-radius: var(--radius);
@@ -976,7 +981,7 @@ body{
   }
   .details{ display:none; }
   .gridCards{ grid-template-columns: repeat(3, minmax(180px, 1fr)); }
-  .cardGrid{ grid-template-columns: 350px 1fr; }
+  .cardGrid{ grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); }
 }
 
 /* Drawer layouts */
@@ -1000,7 +1005,7 @@ body{
   .shell{ grid-template-columns: 1fr; grid-template-areas: "content"; }
   .details{ display:none; }
   .gridCards{ grid-template-columns: repeat(3, minmax(180px, 1fr)); }
-  .cardGrid{ grid-template-columns: minmax(0, clamp(300px, 60vw, 380px)) minmax(0, 1fr); }
+  .cardGrid{ grid-template-columns: minmax(220px, 45vw) minmax(0, 1fr); }
   .sidebar{
     position:absolute;
     left: 0; top: 0; height: 100%;
@@ -1140,12 +1145,21 @@ body::-webkit-scrollbar,
 .heroScene{
   position: relative;
   width: 100%;
-  min-height: 560px;
+  min-height: clamp(320px, 52vh, 560px);
+  height: auto;
+  max-height: 70vh;
   border-radius: calc(var(--radius) - 4px);
   overflow-x: hidden;
   overflow-y: hidden;
   background: radial-gradient(1200px 700px at 50% 30%, rgba(255,255,255,0.10), rgba(0,0,0,0) 60%),
               linear-gradient(180deg, rgba(9,14,22,0.92), rgba(6,10,18,0.92));
+}
+
+@media (max-height: 760px){
+  .heroScene{
+    min-height: clamp(260px, 48vh, 480px);
+    max-height: 62vh;
+  }
 }
 
 .heroSceneLayer{
