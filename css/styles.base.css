@@ -543,9 +543,9 @@ body{
   }
 
   .heroSceneLayer--fg{
-    inset: -6%;
-    background-size: contain;
-    background-position: 52% 96%;
+    inset: -4%;
+    background-size: cover;
+    background-position: 50% 100%;
     filter: drop-shadow(0 14px 24px rgba(0,0,0,.32));
   }
 

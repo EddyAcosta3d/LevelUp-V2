@@ -1,7 +1,7 @@
 'use strict';
 
 
-const BUILD_ID = 'LevelUP_V2_00.069';
+const BUILD_ID = 'LevelUP_V2_00.070';
 window.LEVELUP_BUILD = BUILD_ID;
 
 // CLEAN PASS v29: stability + small UI tweaks
