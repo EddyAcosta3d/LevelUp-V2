@@ -823,12 +823,14 @@
     padding: 0 !important;
   }
 
-  .modal__card--event {
+  /* Use ID selector to override the generic .modal__card rule that appears later */
+  #eventModal .modal__card--event {
     width: 100% !important;
     height: 100% !important;
     max-width: none !important;
     max-height: none !important;
     border-radius: 0 !important;
+    padding: 0 !important;
   }
 
   .eventModalImgWrap {
