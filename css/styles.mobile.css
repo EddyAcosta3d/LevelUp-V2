@@ -404,10 +404,10 @@
     height: 42svh !important;
   }
 
-  /* FG layer: keep inside the container so image is fully visible */
+  /* FG layer: cover fills the container (no floating character) */
   .heroSceneLayer--fg {
-    background-size: contain !important;
-    background-position: 50% 100% !important;
+    background-size: cover !important;
+    background-position: 50% 20% !important;
     inset: 0 !important;
   }
 
@@ -433,7 +433,14 @@
   }
 
   .content {
-    padding: 8px !important;
+    padding: 6px !important;
+  }
+
+  /* Avatar card: remove padding so heroScene fills the card edge-to-edge */
+  .card--avatar {
+    padding: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
   }
 
   /* Card del formulario: compacta */
@@ -464,11 +471,11 @@
     padding: 6px 12px !important;
   }
 
-  /* Stats: que no se corte el valor numérico a la derecha */
+  /* Stats: contained within parent — visible stat values use the 30px grid column */
   .stats {
     margin-bottom: 6px !important;
     padding: 8px !important;
-    overflow: visible !important;
+    overflow: hidden !important;
   }
 
   .stat {
@@ -917,6 +924,12 @@
 
 /* --- GENERAL: overflow + resets para teléfono --- */
 @media (max-width: 430px) {
+  /* Tighter app padding so content fills more of the screen */
+  .app {
+    padding-left: calc(4px + var(--safe-left)) !important;
+    padding-right: calc(4px + var(--safe-right)) !important;
+  }
+
   /* Prevent any horizontal overflow from leaking past the app shell */
   html, body, .app, .shell {
     overflow-x: hidden !important;
