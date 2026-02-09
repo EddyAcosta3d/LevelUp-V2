@@ -397,25 +397,25 @@
 
 /* --- FICHAS: Hero scene + formulario --- */
 @media (max-width: 430px) {
-  /* Hero scene: más alto para que la imagen llene bien */
+  /* Hero scene: prominent viewport-based height */
   .heroScene {
-    min-height: 280px !important;
-    max-height: 54svh !important;
-    height: 54svh !important;
+    height: max(340px, 52svh);
+    min-height: 0;
+    max-height: 66svh;
   }
 
-  /* FG layer: contain para NO recortar, pegado al borde inferior */
+  /* FG layer: contain to show full character, anchored at bottom-center */
   .heroSceneLayer--fg {
-    background-size: contain !important;
-    background-position: 50% 100% !important;
-    inset: 0 !important;
+    inset: 0;
+    background-size: contain;
+    background-position: 50% 100%;
   }
 
-  /* BG layer: contain within bounds (overrides base -28%) */
+  /* BG layer: cover the whole scene area */
   .heroSceneLayer--bg {
-    inset: 0 !important;
-    background-size: cover !important;
-    background-position: center !important;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
   }
 
   /* Nombre overlay: compacto */
