@@ -397,17 +397,17 @@
 
 /* --- FICHAS: Hero scene + formulario --- */
 @media (max-width: 430px) {
-  /* Hero scene: reducido para que Nombre/Edad/Rol/Stats sean visibles */
+  /* Hero scene: más alto para que la imagen llene bien */
   .heroScene {
     min-height: 280px !important;
-    max-height: 42svh !important;
-    height: 42svh !important;
+    max-height: 54svh !important;
+    height: 54svh !important;
   }
 
-  /* FG layer: cover fills the container (no floating character) */
+  /* FG layer: contain para NO recortar, pegado al borde inferior */
   .heroSceneLayer--fg {
-    background-size: cover !important;
-    background-position: 50% 20% !important;
+    background-size: contain !important;
+    background-position: 50% 100% !important;
     inset: 0 !important;
   }
 
