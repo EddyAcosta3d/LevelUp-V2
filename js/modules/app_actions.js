@@ -447,7 +447,7 @@ function _heroArtCandidates(hero){
     state.ui.levelUpOpen = true;
 
     // Persona-like entrance animation (re-trigger every time)
-    const card = modal.querySelector('.modal__card--levelup');
+    const card = modal.querySelector('.luCard');
     if (card){
       card.classList.remove('lvlAnim');
       void card.offsetWidth; // force reflow
@@ -482,7 +482,7 @@ function _heroArtCandidates(hero){
       const hasPending = !!(hero && Array.isArray(hero.pendingRewards) && hero.pendingRewards.length);
       if (hasPending && !force && !state.ui.claimingReward){
         // shake feedback
-        const card = modal.querySelector('.modal__card--levelup');
+        const card = modal.querySelector('.luCard');
         if (card){
           card.classList.remove('lvlShake');
           void card.offsetWidth;
