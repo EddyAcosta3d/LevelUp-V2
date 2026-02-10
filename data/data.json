@@ -1003,6 +1003,10 @@
     {
       "id": "sub-his",
       "name": "Historia"
+    },
+    {
+      "id": "sub-tech",
+      "name": "Tecnología"
     }
   ],
   "challenges": [
@@ -1195,6 +1199,54 @@
       "title": "Historia · Difícil 2: Ensayo corto",
       "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nRedacta un ensayo de 180-220 palabras sobre:\n“Cambios y continuidades en México entre 1876 y 1920”.\nDebe incluir introducción, desarrollo y cierre.\n\nEvalúa: organización de ideas y manejo de procesos históricos.",
       "subjectId": "sub-his",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-tech-01",
+      "title": "Ejercicio 1 – ¿Tecnología o no?",
+      "body": "Dificultad: Fácil\n\nConsigna:\nObserva la lista y responde:\n\n- celular\n- presa\n- cuaderno\n- antena\n- martillo\n\n1) ¿Cuáles sí son tecnología?\n2) Explica por qué al menos uno que no parezca tecnología sí lo es.\n\nIncluye: tecnología + energía + infraestructura\nEvalúa: comprensión básica, romper la idea “solo lo electrónico”.\n",
+      "subjectId": "sub-tech",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-tech-02",
+      "title": "Ejercicio 2 – ¿Seguro o no seguro?",
+      "body": "Dificultad: Fácil\n\nConsigna:\nMarca si la acción es segura o no segura y explica por qué:\n\n- conectarte a un WiFi público sin contraseña\n- compartir una foto donde aparece tu escuela\n- reenviar un mensaje sin leerlo\n\nIncluye: internet + seguridad\nEvalúa: criterio básico, sentido común digital.\n",
+      "subjectId": "sub-tech",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-tech-03",
+      "title": "Ejercicio 3 – El camino de la energía",
+      "body": "Dificultad: Media\n\nConsigna:\nExplica cómo llega la energía eléctrica desde una presa hasta tu casa.\n\nIncluye al menos:\n- la presa\n- el generador\n- los cables\n- tu casa\n\nEvalúa: comprensión de energía, procesos técnicos, orden lógico.\n",
+      "subjectId": "sub-tech",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-tech-04",
+      "title": "Ejercicio 4 – Internet como sistema técnico",
+      "body": "Dificultad: Media\n\nConsigna:\nExplica cómo funciona el siguiente sistema técnico:\n\nMandar un mensaje por WhatsApp a un amigo.\n\nIncluye:\n- dispositivo\n- señal (WiFi o datos)\n- antena o cable\n- servidor\n\nDespués responde:\n¿Qué podría fallar en este sistema?\n\nEvalúa: concepto de sistema técnico, relación entre partes.\n",
+      "subjectId": "sub-tech",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-tech-05",
+      "title": "Ejercicio 5 – Exposición: Riesgos y seguridad en Internet",
+      "body": "Dificultad: Difícil\n\nModalidad: Exposición individual o en equipo\n\nTema:\nUn riesgo del internet (a elegir):\n- cuentas falsas\n- pérdida de privacidad\n- ciberacoso\n- información falsa\n\nDebe incluir:\n- explicación del riesgo\n- ejemplo real o posible\n- recomendaciones de seguridad\n\nConexión directa: Manual de Seguridad en Internet\nEvalúa: análisis, claridad, expresión oral.\n",
+      "subjectId": "sub-tech",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-tech-06",
+      "title": "Ejercicio 6 – Exposición: Energía y tecnología en la vida diaria",
+      "body": "Dificultad: Difícil\n\nModalidad: Exposición en equipo\n\nTema:\nCómo un tipo de energía permite que funcione una tecnología.\n\nEjemplos:\n- energía eléctrica → internet\n- energía hidráulica → presas\n- energía eléctrica → celulares\n\nDebe incluir:\n- de dónde viene la energía\n- cómo se transforma\n- por qué es importante\n\nEvalúa: relación energía–tecnología, explicación clara, trabajo en equipo.\n",
+      "subjectId": "sub-tech",
       "difficulty": "hard",
       "points": 40
     }
