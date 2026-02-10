@@ -989,72 +989,212 @@
   ],
   "subjects": [
     {
-      "id": "sub-tech",
-      "name": "Tecnología"
+      "id": "sub-fis",
+      "name": "Física"
     },
     {
       "id": "sub-eng",
       "name": "Inglés"
     },
     {
-      "id": "sub-esp",
-      "name": "Español"
-    },
-    {
       "id": "sub-mat",
       "name": "Matemáticas"
     },
     {
-      "id": "sub-tut",
-      "name": "Tutoría"
+      "id": "sub-his",
+      "name": "Historia"
     }
   ],
   "challenges": [
     {
-      "id": "ch-tech-01",
-      "title": "Ejercicio 1 – ¿Tecnología o no?",
-      "body": "Dificultad: Fácil\n\nConsigna:\nObserva la lista y responde:\n\n- celular\n- presa\n- cuaderno\n- antena\n- martillo\n\n1) ¿Cuáles sí son tecnología?\n2) Explica por qué al menos uno que no parezca tecnología sí lo es.\n\nIncluye: tecnología + energía + infraestructura\nEvalúa: comprensión básica, romper la idea “solo lo electrónico”.\n",
-      "subjectId": "sub-tech",
+      "id": "ch-fis-01",
+      "title": "Física · Fácil 1: Velocidad en bicicleta",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nUn alumno recorre 120 metros en 30 segundos.\n1) Calcula su velocidad promedio.\n2) Escribe la fórmula que usaste.\n3) Explica en una oración qué significa el resultado.\n\nEvalúa: uso de fórmula v=d/t e interpretación básica.",
+      "subjectId": "sub-fis",
       "difficulty": "easy",
       "points": 10
     },
     {
-      "id": "ch-tech-02",
-      "title": "Ejercicio 2 – ¿Seguro o no seguro?",
-      "body": "Dificultad: Fácil\n\nConsigna:\nMarca si la acción es segura o no segura y explica por qué:\n\n- conectarte a un WiFi público sin contraseña\n- compartir una foto donde aparece tu escuela\n- reenviar un mensaje sin leerlo\n\nIncluye: internet + seguridad\nEvalúa: criterio básico, sentido común digital.\n",
-      "subjectId": "sub-tech",
+      "id": "ch-fis-02",
+      "title": "Física · Fácil 2: Identifica fuerzas cotidianas",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nLee las situaciones y escribe qué fuerza predomina (gravedad, fricción o empuje):\n- Un libro cae de la mesa.\n- Frenas una bicicleta.\n- Empujas una caja para moverla.\n\nDespués explica por qué en cada caso.\n\nEvalúa: reconocimiento de fuerzas en contextos cotidianos.",
+      "subjectId": "sub-fis",
       "difficulty": "easy",
       "points": 10
     },
     {
-      "id": "ch-tech-03",
-      "title": "Ejercicio 3 – El camino de la energía",
-      "body": "Dificultad: Media\n\nConsigna:\nExplica cómo llega la energía eléctrica desde una presa hasta tu casa.\n\nIncluye al menos:\n- la presa\n- el generador\n- los cables\n- tu casa\n\nEvalúa: comprensión de energía, procesos técnicos, orden lógico.\n",
-      "subjectId": "sub-tech",
+      "id": "ch-fis-03",
+      "title": "Física · Media 1: Densidad de materiales",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nCalcula la densidad de un objeto que tiene masa de 200 g y volumen de 50 cm³.\n1) Aplica la fórmula d=m/v.\n2) Compara con el agua (1 g/cm³) y concluye si flotaría o se hundiría.\n\nEvalúa: cálculo y análisis de resultado.",
+      "subjectId": "sub-fis",
       "difficulty": "medium",
       "points": 20
     },
     {
-      "id": "ch-tech-04",
-      "title": "Ejercicio 4 – Internet como sistema técnico",
-      "body": "Dificultad: Media\n\nConsigna:\nExplica cómo funciona el siguiente sistema técnico:\n\nMandar un mensaje por WhatsApp a un amigo.\n\nIncluye:\n- dispositivo\n- señal (WiFi o datos)\n- antena o cable\n- servidor\n\nDespués responde:\n¿Qué podría fallar en este sistema?\n\nEvalúa: concepto de sistema técnico, relación entre partes.\n",
-      "subjectId": "sub-tech",
+      "id": "ch-fis-04",
+      "title": "Física · Media 2: Energía y transformación",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nExplica qué transformaciones de energía ocurren cuando:\n1) Enciendes una lámpara.\n2) Usas un ventilador.\n3) Cargas un celular.\n\nIncluye al menos una transformación por ejemplo y un diagrama simple de flechas.\n\nEvalúa: comprensión de transformaciones de energía.",
+      "subjectId": "sub-fis",
       "difficulty": "medium",
       "points": 20
     },
     {
-      "id": "ch-tech-05",
-      "title": "Ejercicio 5 – Exposición: Riesgos y seguridad en Internet",
-      "body": "Dificultad: Difícil\n\nModalidad: Exposición individual o en equipo\n\nTema:\nUn riesgo del internet (a elegir):\n- cuentas falsas\n- pérdida de privacidad\n- ciberacoso\n- información falsa\n\nDebe incluir:\n- explicación del riesgo\n- ejemplo real o posible\n- recomendaciones de seguridad\n\nConexión directa: Manual de Seguridad en Internet\nEvalúa: análisis, claridad, expresión oral.\n",
-      "subjectId": "sub-tech",
+      "id": "ch-fis-05",
+      "title": "Física · Difícil 1: Aceleración en un trayecto",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nUna patineta pasa de 2 m/s a 8 m/s en 3 segundos.\n1) Calcula la aceleración promedio.\n2) Explica si el movimiento es uniformemente acelerado.\n3) Propón una situación real donde ocurra algo parecido.\n\nEvalúa: razonamiento con a=(vf-vi)/t y argumentación.",
+      "subjectId": "sub-fis",
       "difficulty": "hard",
       "points": 40
     },
     {
-      "id": "ch-tech-06",
-      "title": "Ejercicio 6 – Exposición: Energía y tecnología en la vida diaria",
-      "body": "Dificultad: Difícil\n\nModalidad: Exposición en equipo\n\nTema:\nCómo un tipo de energía permite que funcione una tecnología.\n\nEjemplos:\n- energía eléctrica → internet\n- energía hidráulica → presas\n- energía eléctrica → celulares\n\nDebe incluir:\n- de dónde viene la energía\n- cómo se transforma\n- por qué es importante\n\nEvalúa: relación energía–tecnología, explicación clara, trabajo en equipo.\n",
-      "subjectId": "sub-tech",
+      "id": "ch-fis-06",
+      "title": "Física · Difícil 2: Mini experimento de caída",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nDiseña un mini experimento para comparar la caída de dos objetos de distinta forma (misma masa aproximada).\nIncluye:\n- hipótesis\n- materiales\n- procedimiento\n- conclusión esperada\n\nEvalúa: método científico aplicado a conceptos de resistencia del aire.",
+      "subjectId": "sub-fis",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-eng-01",
+      "title": "Inglés · Fácil 1: Rutina diaria en presente simple",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nEscribe 8 oraciones en presente simple sobre tu rutina diaria.\nIncluye al menos 3 verbos diferentes y conectores (and, then, after).\n\nEvalúa: estructura sujeto + verbo y vocabulario básico.",
+      "subjectId": "sub-eng",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-eng-02",
+      "title": "Inglés · Fácil 2: Preguntas y respuestas cortas",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nEscribe 6 preguntas con Do/Does y responde en forma corta (Yes, I do / No, she doesn’t).\nTemas sugeridos: hobbies, school, sports.\n\nEvalúa: uso correcto de auxiliares.",
+      "subjectId": "sub-eng",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-eng-03",
+      "title": "Inglés · Media 1: Reading comprehension",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nLee un texto corto (8-10 líneas) sobre un estudiante y responde:\n1) Who is the main character?\n2) What does he/she do after school?\n3) Mention two details from the text.\n\nEvalúa: comprensión lectora y extracción de información.",
+      "subjectId": "sub-eng",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-eng-04",
+      "title": "Inglés · Media 2: Comparatives",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nEscribe 10 oraciones comparando personas, materias o deportes usando comparative adjectives (taller, more interesting, etc.).\nIncluye al menos 3 adjetivos largos con “more”.\n\nEvalúa: gramática de comparativos.",
+      "subjectId": "sub-eng",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-eng-05",
+      "title": "Inglés · Difícil 1: Short dialogue at school",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nCrea un diálogo de 14 a 16 líneas entre dos estudiantes que organizan un proyecto escolar.\nDebe incluir:\n- preguntas en presente\n- sugerencias (Let’s..., Why don’t we...?)\n- acuerdos y desacuerdos\n\nEvalúa: producción escrita y coherencia.",
+      "subjectId": "sub-eng",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-eng-06",
+      "title": "Inglés · Difícil 2: Opinion paragraph",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nEscribe un párrafo de 120-140 palabras: “Why learning English is useful for teenagers”.\nIncluye introducción, 2 ideas principales y cierre.\n\nEvalúa: organización textual, conectores y vocabulario.",
+      "subjectId": "sub-eng",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-mat-01",
+      "title": "Matemáticas · Fácil 1: Operaciones con enteros",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nResuelve:\n- (-8) + 15\n- 27 - 34\n- (-6) × (-4)\n- 45 ÷ (-9)\n\nExplica la regla de signos que usaste en dos ejercicios.\n\nEvalúa: operaciones básicas con enteros.",
+      "subjectId": "sub-mat",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-mat-02",
+      "title": "Matemáticas · Fácil 2: Fracciones equivalentes",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\n1) Simplifica: 18/24, 21/49 y 30/45.\n2) Escribe una fracción equivalente para cada una.\n3) Ordena de menor a mayor las fracciones simplificadas.\n\nEvalúa: simplificación y comparación de fracciones.",
+      "subjectId": "sub-mat",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-mat-03",
+      "title": "Matemáticas · Media 1: Ecuaciones lineales",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nResuelve y comprueba:\n1) 3x + 7 = 25\n2) 5(x - 2) = 20\n3) 2x + 3 = x + 11\n\nEvalúa: despeje y verificación de resultados.",
+      "subjectId": "sub-mat",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-mat-04",
+      "title": "Matemáticas · Media 2: Proporcionalidad",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nEn una receta para 4 personas se usan 300 g de pasta.\n1) ¿Cuánta pasta se necesita para 10 personas?\n2) Resuelve usando regla de tres.\n3) Explica por qué es proporcionalidad directa.\n\nEvalúa: modelación y resolución de problemas.",
+      "subjectId": "sub-mat",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-mat-05",
+      "title": "Matemáticas · Difícil 1: Sistema de ecuaciones",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nResuelve por sustitución o igualación:\n- x + y = 18\n- 2x - y = 3\n\nLuego interpreta el resultado en un contexto inventado (por ejemplo, boletos o edades).\n\nEvalúa: procedimientos algebraicos y interpretación.",
+      "subjectId": "sub-mat",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-mat-06",
+      "title": "Matemáticas · Difícil 2: Área compuesta",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nUn patio tiene forma de rectángulo de 12 m × 8 m con un semicírculo adosado en uno de los lados de 8 m.\n1) Calcula el área total (usa π=3.14).\n2) Muestra procedimiento completo.\n\nEvalúa: descomposición de figuras y cálculo geométrico.",
+      "subjectId": "sub-mat",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-his-01",
+      "title": "Historia · Fácil 1: Línea del tiempo básica",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nOrdena cronológicamente estos procesos y agrega una fecha aproximada:\n- Independencia de México\n- Revolución Mexicana\n- Porfiriato\n- Constitución de 1917\n\nEvalúa: ubicación temporal de procesos históricos.",
+      "subjectId": "sub-his",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-his-02",
+      "title": "Historia · Fácil 2: Causa y consecuencia",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nElige un hecho histórico de México visto en clase y escribe:\n1) Dos causas.\n2) Dos consecuencias.\n3) Una reflexión de 3 líneas sobre su impacto actual.\n\nEvalúa: pensamiento causal básico.",
+      "subjectId": "sub-his",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-his-03",
+      "title": "Historia · Media 1: Compara dos periodos",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nCompara el Porfiriato y la Revolución Mexicana en una tabla de 3 criterios:\n- economía\n- política\n- vida social\n\nCierra con una conclusión de 5 líneas.\n\nEvalúa: análisis comparativo.",
+      "subjectId": "sub-his",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-his-04",
+      "title": "Historia · Media 2: Fuentes históricas",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nBusca una imagen histórica y un texto breve sobre un mismo hecho.\nExplica:\n1) Qué información aporta cada fuente.\n2) Qué limitaciones tiene cada una.\n\nEvalúa: uso crítico de fuentes.",
+      "subjectId": "sub-his",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-his-05",
+      "title": "Historia · Difícil 1: Debate histórico",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nPrepara argumentos a favor y en contra de la afirmación:\n“La Revolución Mexicana mejoró inmediatamente la vida de toda la población”.\n\nIncluye mínimo 3 argumentos por postura y una conclusión personal.\n\nEvalúa: argumentación con base histórica.",
+      "subjectId": "sub-his",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-his-06",
+      "title": "Historia · Difícil 2: Ensayo corto",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nRedacta un ensayo de 180-220 palabras sobre:\n“Cambios y continuidades en México entre 1876 y 1920”.\nDebe incluir introducción, desarrollo y cierre.\n\nEvalúa: organización de ideas y manejo de procesos históricos.",
+      "subjectId": "sub-his",
       "difficulty": "hard",
       "points": 40
     }
