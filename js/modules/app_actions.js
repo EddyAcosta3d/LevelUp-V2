@@ -403,11 +403,6 @@ function _heroArtCandidates(hero){
     setBgWithFallback(heroArt, artUrls);
   }
 
-  const heroNameEl = $('#levelUpHeroName');
-  if (heroNameEl){
-    heroNameEl.textContent = String(hero?.name || 'HÉROE');
-  }
-
   const numEl = $('#levelUpNum');
     if (numEl){
       // Animate number
