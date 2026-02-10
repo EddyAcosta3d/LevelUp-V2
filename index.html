@@ -403,27 +403,24 @@
       <div class="modal__backdrop" id="levelUpBackdrop"></div>
 
       <div class="modal__card luCard" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
-        <!-- STAGE -->
-        <div class="luStage" id="levelUpStage">
-          <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
-          <div class="luStageShade" aria-hidden="true"></div>
+        <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
+        <div class="luStageShade" aria-hidden="true"></div>
 
-          <div class="luStageText">
-            <div class="luKicker" id="levelUpTitle">¡Desbloqueaste un nuevo nivel!</div>
-          </div>
-
-          <div class="luBadgeWrap" aria-hidden="false">
-            <div class="luBadge">
-              <div class="luNum" id="levelUpNum">1</div>
+        <div class="luLayout">
+          <section class="luLeft" aria-label="Resumen de nivel">
+            <div class="luHeroArt" id="levelUpHeroArt" aria-hidden="true"></div>
+            <div class="luLeftMeta">
+              <div class="luLevelText"><span class="luLevelText__label">LV</span> <span class="luNum" id="levelUpNum">1</span></div>
+              <div class="luHeroName" id="levelUpHeroName">HÉROE</div>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <!-- BODY -->
-        <div class="luBody" id="levelUpScrollArea">
-          <div class="luPickTitle">ELIGE TU RECOMPENSA</div>
-          <div class="luNote" id="levelUpNote" hidden></div>
-          <div class="luChoices" id="levelUpChoices"></div>
+          <section class="luRight" aria-label="Panel de stats (siguiente paso)">
+            <div class="luKicker" id="levelUpTitle">¡Subiste de nivel!</div>
+            <div class="luRightPlaceholder">Elige una stat para subir +1.</div>
+            <div class="luChoices" id="levelUpChoices"></div>
+            <div class="luNote" id="levelUpNote" hidden></div>
+          </section>
         </div>
       </div>
     </div>
