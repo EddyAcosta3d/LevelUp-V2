@@ -379,6 +379,7 @@ function _heroArtCandidates(hero){
 
   // Background (parallax BG solamente).
   const stageBg = $('#levelUpStageBg');
+  const heroArt = $('#levelUpHeroArt');
   if (stageBg){
     const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
     const slug = key.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
@@ -388,6 +389,23 @@ function _heroArtCandidates(hero){
       bgUrls.push(`assets/parallax/${slug}_bg.${ext}`);
     }
     setBgWithFallback(stageBg, bgUrls);
+  }
+
+  if (heroArt){
+    const artUrls = _uniqueUrls([
+      hero.photo,
+      hero.img,
+      hero.image,
+      hero.photoSrc,
+      ...resolveHeroArtUrls(hero).filter(u=> /_fg\./i.test(String(u))),
+      ...resolveHeroArtUrls(hero)
+    ]);
+    setBgWithFallback(heroArt, artUrls);
+  }
+
+  const heroNameEl = $('#levelUpHeroName');
+  if (heroNameEl){
+    heroNameEl.textContent = String(hero?.name || 'HÉROE');
   }
 
   const numEl = $('#levelUpNum');
@@ -416,6 +434,7 @@ function _heroArtCandidates(hero){
     renderLevelUpChoices('main');
     modal.hidden = false;
     modal.classList.add('is-open');
+    try{ document.body.classList.add('levelup-priority'); }catch(_e){}
 
     // Reveal rewards after the cinematic beat
     state.ui.levelUpCineT = setTimeout(()=>{
@@ -481,6 +500,7 @@ function _heroArtCandidates(hero){
 
     try{ modal.style.pointerEvents = 'none'; }catch(_e){}
     modal.classList.remove('is-open');
+    try{ document.body.classList.remove('levelup-priority'); }catch(_e){}
     state.ui.levelUpOpen = false;
     // Wait for exit transition/animation so clicks can't slip through.
     setTimeout(()=>{
@@ -548,24 +568,22 @@ function _heroArtCandidates(hero){
       }
 
       const wrap = document.createElement('div');
-      wrap.className = 'luChoicesGrid luChoicesGrid--stats';
+      wrap.className = 'luChoicesGrid luChoicesGrid--stats levelUpStatsList';
       grid.appendChild(wrap);
 
       statOptions.forEach((k, idx)=>{
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'rewardPick rewardPick--card rewardPick--stat';
-        btn.style.animationDelay = `${idx * 60}ms`;
-        const iconSvg = statIconSvg(k);
-        btn.innerHTML = `
-          <div class="rewardPick__iconBig">${iconSvg}</div>
-          <div class="rewardPick__titleSmall">${k} <span class="rewardPick__plus">+1</span></div>
-          <div class="rewardPick__metaLine">Actual: <span class="badge badge--mini">${curVal}</span></div>
+        const row = document.createElement('div');
+        row.className = 'levelUpStatRow';
+        row.style.animationDelay = `${idx * 60}ms`;
+        row.innerHTML = `
+          <div class="levelUpStatRow__name">${k}</div>
+          <div class="levelUpStatRow__value">${curVal}</div>
+          <button type="button" class="levelUpStatRow__plus" aria-label="Subir ${k}">+</button>
         `;
-        btn.addEventListener('click', ()=>{
-          const r = incStat(k, 1);
+        row.querySelector('.levelUpStatRow__plus')?.addEventListener('click', ()=>{
+          incStat(k, 1);
           pending.autoStat.applied = true;
           pending.autoStat.chosen = k;
           saveData();
@@ -573,7 +591,7 @@ function _heroArtCandidates(hero){
           toast(`+1 ${k} (del nivel)`);
           renderLevelUpChoices('main');
         });
-        wrap.appendChild(btn);
+        wrap.appendChild(row);
       });
       return;
     }
@@ -589,23 +607,21 @@ function _heroArtCandidates(hero){
       head.querySelector('#btnLevelUpBack')?.addEventListener('click', ()=> renderLevelUpChoices('main'));
 
       const wrap2 = document.createElement('div');
-      wrap2.className = 'luChoicesGrid luChoicesGrid--stats';
+      wrap2.className = 'luChoicesGrid luChoicesGrid--stats levelUpStatsList';
       grid.appendChild(wrap2);
 
       statKeysAll.forEach((k, idx)=>{
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'rewardPick rewardPick--card rewardPick--stat';
-        btn.style.animationDelay = `${idx * 60}ms`;
-        const iconSvg = statIconSvg(k);
-        btn.innerHTML = `
-          <div class="rewardPick__iconBig">${iconSvg}</div>
-          <div class="rewardPick__titleSmall">${k} <span class="rewardPick__plus">+1</span></div>
-          <div class="rewardPick__metaLine">Actual: <span class="badge badge--mini">${curVal}</span></div>
+        const row = document.createElement('div');
+        row.className = 'levelUpStatRow';
+        row.style.animationDelay = `${idx * 60}ms`;
+        row.innerHTML = `
+          <div class="levelUpStatRow__name">${k}</div>
+          <div class="levelUpStatRow__value">${curVal}</div>
+          <button type="button" class="levelUpStatRow__plus" aria-label="Subir ${k}">+</button>
         `;
-        btn.addEventListener('click', ()=>{
+        row.querySelector('.levelUpStatRow__plus')?.addEventListener('click', ()=>{
           incStat(k, 1);
           claimPendingReward({
             rewardId: 'stat+1',
@@ -613,7 +629,7 @@ function _heroArtCandidates(hero){
             badge: '+1 stat'
           });
         });
-        wrap2.appendChild(btn);
+        wrap2.appendChild(row);
       });
       return;
     }
@@ -807,4 +823,3 @@ function _heroArtCandidates(hero){
     };
     return icons[key] || `<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M12 3l7 4v10l-7 4-7-4V7l7-4z' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round'/><path d='M12 8v8M8 12h8' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg>`;
   }
-
