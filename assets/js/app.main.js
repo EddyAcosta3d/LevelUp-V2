@@ -58,12 +58,15 @@ async function init(){
 	    const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && 'ontouchend' in document);
 	    if (!isIOS) return;
 
-	    // Prevent double-tap zoom
+	    // Prevent double-tap zoom, but allow rapid taps on buttons/links
+	    // so the bottom nav and other interactive elements stay responsive.
 	    let lastTouchEnd = 0;
 	    document.addEventListener('touchend', (e)=>{
 	      const now = Date.now();
 	      if (now - lastTouchEnd <= 300){
-	        e.preventDefault();
+	        const t = e.target;
+	        const isInteractive = t && t.closest && t.closest('button, a, [data-route], .bottomNav__btn, .pill, input, textarea, select');
+	        if (!isInteractive) e.preventDefault();
 	      }
 	      lastTouchEnd = now;
 	    }, { passive: false });

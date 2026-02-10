@@ -424,7 +424,12 @@ body{
 .page{ display:none; }
 .page.is-active{ display:block; }
 
-.cardGrid{ display:grid; grid-template-columns: 370px minmax(0, 1fr); gap: var(--gap); padding-bottom: 14px; }
+.cardGrid{
+  display:grid;
+  grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
+  gap: var(--gap);
+  padding-bottom: 14px;
+}
 
 .card{
   border-radius: var(--radius);
@@ -531,13 +536,16 @@ body{
 
 
 @media (min-width: 981px){
-  /* Desktop: más aire sobre la cabeza (similar a móvil) */
-  .heroScene{ min-height: 620px; }
+  /* Desktop: two-column layout — scene can be tall */
+  .heroScene{
+    min-height: 580px;
+    max-height: 82vh;
+  }
 
-  .heroSceneLayer--fg{
-    inset: -6%;
-    background-position: 52% 98%;
-    filter: drop-shadow(0 14px 24px rgba(0,0,0,.32));
+  /* Photo: fill entire container, anchor character at bottom */
+  .heroPhotoFill img{
+    object-fit: cover;
+    object-position: 50% 100%;
   }
 
   /* Nombre fuera de la cara (también en escritorio) */
@@ -976,7 +984,7 @@ body{
   }
   .details{ display:none; }
   .gridCards{ grid-template-columns: repeat(3, minmax(180px, 1fr)); }
-  .cardGrid{ grid-template-columns: 350px 1fr; }
+  .cardGrid{ grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); }
 }
 
 /* Drawer layouts */
@@ -986,21 +994,14 @@ body{
 
   .bottomNav{ display:flex; }
   .pages{ padding-bottom: 96px; }
-  .topbar__right{ overflow-x:auto; -webkit-overflow-scrolling: touch; scrollbar-width:none; }
-  .topbar__right::-webkit-scrollbar{ display:none; }
-
-  .bottomNav{ display:flex; }
   .topbar__right{ gap: 8px; overflow-x:auto; -webkit-overflow-scrolling: touch; scrollbar-width:none; }
   .topbar__right::-webkit-scrollbar{ display:none; }
   .topbar__right .pill, .topbar__right .dropdown__btn{ padding: 10px 12px; font-size: 12px; border-radius: 16px; }
-  .pages{ padding-bottom: 96px; }
-  .topbar__right{ overflow-x:auto; -webkit-overflow-scrolling: touch; scrollbar-width:none; }
-  .topbar__right::-webkit-scrollbar{ display:none; }
   .topbar__menu{ display:inline-grid; place-items:center; }
   .shell{ grid-template-columns: 1fr; grid-template-areas: "content"; }
   .details{ display:none; }
   .gridCards{ grid-template-columns: repeat(3, minmax(180px, 1fr)); }
-  .cardGrid{ grid-template-columns: minmax(0, clamp(300px, 60vw, 380px)) minmax(0, 1fr); }
+  .cardGrid{ grid-template-columns: minmax(220px, 45vw) minmax(0, 1fr); }
   .sidebar{
     position:absolute;
     left: 0; top: 0; height: 100%;
@@ -1010,21 +1011,6 @@ body{
     transition: transform .18s ease;
   }
   .shell.is-drawer-open .sidebar{ transform: translateX(0); }
-}
-
-/* Drawer layouts */
-@media (max-width: 980px){
-  .brand__title{ display:none; }
-  .topnav{ display:none; }
-
-  .bottomNav{ display:flex; }
-  .pages{ padding-bottom: 96px; }
-  .topbar__right{ overflow-x:auto; -webkit-overflow-scrolling: touch; scrollbar-width:none; }
-  .topbar__right::-webkit-scrollbar{ display:none; }
-  .topbar__menu{ display:inline-grid; place-items:center; }
-  .shell{ grid-template-columns: 1fr; grid-template-areas: "content"; }
-  .details{ display:none; }
-
 }
 
 /* Mobile */
@@ -1140,12 +1126,23 @@ body::-webkit-scrollbar,
 .heroScene{
   position: relative;
   width: 100%;
-  min-height: 560px;
+  /* Use aspect-ratio as intrinsic sizing hint, min/max-height as guardrails */
+  aspect-ratio: 3 / 4;
+  min-height: 360px;
+  max-height: 78vh;
   border-radius: calc(var(--radius) - 4px);
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
   background: radial-gradient(1200px 700px at 50% 30%, rgba(255,255,255,0.10), rgba(0,0,0,0) 60%),
               linear-gradient(180deg, rgba(9,14,22,0.92), rgba(6,10,18,0.92));
+}
+
+/* Short viewports (landscape or small laptops): cap the scene */
+@media (max-height: 700px){
+  .heroScene{
+    aspect-ratio: auto;
+    min-height: 320px;
+    max-height: 58vh;
+  }
 }
 
 .heroSceneLayer{
@@ -1175,10 +1172,9 @@ body::-webkit-scrollbar,
 .heroSceneLayer--fg{
   background-image: var(--heroLayerFg);
   opacity: .98;
-  /* Para que se vea casi completa y no se recorte tanto */
-  inset: -10%;
-  background-size: contain;
-  background-position: 52% 92%;
+  inset: -4%;
+  background-size: cover;
+  background-position: 50% 100%;
   filter: drop-shadow(0 16px 28px rgba(0,0,0,.35));
 }
 
@@ -1332,12 +1328,18 @@ body::-webkit-scrollbar,
 
 
 @media (max-width: 980px){
-  .heroScene{ min-height: 72svh; }
+  .heroScene{
+    /* Full-width layout: use generous viewport-based height */
+    aspect-ratio: auto;
+    min-height: max(60svh, 460px);
+    max-height: 76vh;
+  }
 
-  /* En móvil: que se vea más "cuerpo" (menos cara gigante) */
+  /* Show more body, less cropping on head */
   .heroSceneLayer--fg{
-    inset: -6%;
-    background-position: 52% 96%;
+    inset: -4%;
+    background-size: contain;
+    background-position: 50% 100%;
     filter: drop-shadow(0 14px 24px rgba(0,0,0,.32));
   }
 
@@ -2112,11 +2114,6 @@ body.is-view-locked #btnEliminar,
 }
 
 @media (min-width: 981px){
-  /* En escritorio: un poco menos de zoom y encuadre más agradable */
-  .heroSceneLayer--fg{
-    inset: -12%;
-    background-position: 54% 92%;
-  }
   .heroNotesOverlay .noteGrid--overlay{ max-width: 520px; }
 }
 
@@ -2536,14 +2533,7 @@ body.is-view-locked #btnEliminar,
    ========================================================= */
 
 @media (max-width: 560px){
-  /* --- Fichas: escena parallax --- */
-  .heroScene{ min-height: 520px; }
-  .heroSceneLayer--fg{
-    inset: 0;                 /* evita que la capa se “despegue” y se recorte abajo */
-    background-size: contain;
-    background-position: 50% 100%;
-  }
-  .heroSceneLayer--mid{ background-position: 50% 72%; }
+  /* (heroScene rules consolidated — see "Responsive hero scene" section below) */
 
   /* --- LevelUp: móvil compacto (sin arte) --- */
   #levelUpModal .lvlStage{
@@ -2740,11 +2730,7 @@ body.is-view-locked #btnEliminar,
 
 /* --- Mobile framing fixes (iPhone): keep FG aligned to bottom --- */
 @media (max-width: 560px){
-  /* Fichas: capa FG del héroe (parallax/scene) */
-  .heroSceneLayer--fg{
-    background-position: 50% 104% !important; /* push down */
-    inset: -8% -10% -2% -10% !important;      /* more room at bottom */
-  }
+  /* (heroScene FG rules consolidated — see "Responsive hero scene" section below) */
   /* LevelUp modal: ensure FG is visible + bottom-aligned */
   #levelUpModal .lvlHeroFg{
     background-position: 50% 100% !important;
@@ -2777,12 +2763,7 @@ body.is-view-locked #btnEliminar,
    MOBILE HOTFIX (iPhone): Hero FG bottom + LevelUp compact
    ========================================================= */
 @media (max-width: 560px){
-  /* --- Fichas: anclar FG al piso en iPhone --- */
-  .heroSceneLayer--fg{
-    inset: 0 !important;
-    background-size: cover !important;
-    background-position: 50% 100% !important;
-  }
+  /* (heroScene FG rules consolidated — see "Responsive hero scene" section below) */
 
   /* --- Level Up modal: modo compacto (sin fotos) --- */
   #levelUpModal .lvlStage{
@@ -2813,16 +2794,7 @@ body.is-view-locked #btnEliminar,
    FINAL iPhone tuning (v50.10): hero card framing + LevelUp centering
    ========================================================= */
 @media (max-width: 560px){
-  /* Fichas: reduce alto del contenedor y baja el FG para que no se note el corte inferior */
-  .heroScene{ min-height: 470px !important; }
-
-  .heroSceneLayer--fg{
-    background-size: contain !important;
-    /* empuja hacia abajo para “pisar” el borde inferior */
-    background-position: 50% 114% !important;
-    /* da espacio extra abajo fuera del contenedor (sin subir el rostro) */
-    inset: -2% -6% -16% -6% !important;
-  }
+  /* (heroScene rules consolidated — see "Responsive hero scene" section below) */
 
   /* Modal Level Up: centrar mejor el header */
   #levelUpModal .lvlHeader{
@@ -3026,15 +2998,40 @@ body.is-view-locked #btnEliminar,
   100%{ transform: translateX(80%) rotate(25deg); opacity:0; }
 }
 
-/* Mobile: adjust hero parallax framing */
+/* =========================================================
+   RESPONSIVE HERO SCENE (consolidated)
+   Replaces the old scattered hotfix blocks.
+   Cascade: base → ≥981 (desktop) → ≤980 (tablet) → ≤640 (mobile) → ≤430 (phone, in styles.mobile.css)
+   ========================================================= */
+
+/* Mobile (≤640px): single column, use explicit height for predictable sizing */
 @media (max-width: 640px){
   .heroScene{
-    height: 60vh;
-    max-height: 520px;
+    height: max(380px, 58vh);
+    min-height: 0;            /* let height control */
+    max-height: 74vh;
   }
+
+  /* FG: contain to show full character, anchored at bottom */
   .heroSceneLayer--fg{
+    inset: 0;
     background-size: contain;
-    background-position: center 118%;
+    background-position: 50% 100%;
+  }
+
+  /* BG: cover the full scene */
+  .heroSceneLayer--bg{
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+}
+
+/* Small phones (≤560px) */
+@media (max-width: 560px){
+  .heroScene{
+    height: max(360px, 55vh);
+    max-height: 70vh;
   }
 }
 

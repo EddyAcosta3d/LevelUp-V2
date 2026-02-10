@@ -2,6 +2,7 @@
   function saveLocal(data){
     try{
       const payload = (data !== undefined) ? data : state.data;
+      if (payload && payload.meta) payload.meta.updatedAt = new Date().toISOString();
       localStorage.setItem(CONFIG.storageKey, JSON.stringify(payload));
       state.hasLocalChanges = true;
       return true;
