@@ -1136,6 +1136,24 @@ body::-webkit-scrollbar,
               linear-gradient(180deg, rgba(9,14,22,0.92), rgba(6,10,18,0.92));
 }
 
+/* Fichas (desktop): estirar la imagen para alinear la base con la tarjeta de la derecha */
+@media (min-width: 981px){
+  .page[data-page="fichas"] .cardGrid{
+    align-items: stretch;
+  }
+
+  .page[data-page="fichas"] .card--avatar{
+    height: 100%;
+  }
+
+  .page[data-page="fichas"] .card--avatar .heroScene{
+    height: 100%;
+    min-height: 100%;
+    max-height: none;
+    aspect-ratio: auto;
+  }
+}
+
 /* Short viewports (landscape or small laptops): cap the scene */
 @media (max-height: 700px){
   .heroScene{
