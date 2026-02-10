@@ -514,22 +514,16 @@ function _heroArtCandidates(hero){
     if (!grid) return;
 
     grid.innerHTML = '';
+    if (!pending) return;
 
-    if (!pending){
-      return;
-    }
-
-    // Mandatory base stat (+1) for this level
     const auto = pending.autoStat;
-    const needsAuto = !!(auto && auto.required && !auto.applied);
-
-    if (needsAuto && mode !== 'autoStat'){
-      mode = 'autoStat';
-    }
-
     const statKeysAll = ['INT','SAB','CAR','RES','CRE'];
     const statOptions = Array.isArray(auto?.options) && auto.options.length
       ? auto.options.map(x=>String(x).toUpperCase()).filter(x=>statKeysAll.includes(x))
+      : statKeysAll;
+
+    const allowedStats = (auto && auto.required && !auto.applied)
+      ? statOptions
       : statKeysAll;
 
     const incStat = (k, amount)=>{
@@ -543,24 +537,16 @@ function _heroArtCandidates(hero){
       return {cur, nxt};
     };
 
-    if (mode === 'autoStat'){
-      // Header
-      const head = document.createElement('div');
-      head.className = 'levelUpStatHead';
-      head.innerHTML = `
-        <div class="levelUpStatHead__title">Elige tu stat del nivel <span class="badge badge--mini">+1</span></div>
+    allowedStats.forEach((k)=>{
+      const lowKey = k.toLowerCase();
+      const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
+      const row = document.createElement('div');
+      row.className = 'levelUpStatRow';
+      row.innerHTML = `
+        <div class="levelUpStatRow__name">${k}</div>
+        <div class="levelUpStatRow__value">${curVal}</div>
+        <button type="button" class="levelUpStatRow__plus" aria-label="Subir ${k}">+</button>
       `;
-      grid.appendChild(head);
-
-      // Helper line about bonus medal
-      if (typeof pending.bonusMedal === 'boolean'){
-        const note = document.createElement('div');
-        note.className = 'muted small';
-        note.style.margin = '2px 0 10px 0';
-        note.textContent = pending.bonusMedal ? '🏅 Ganaste 1 medalla extra por completar al menos 3 desafíos con 1 Medio y 1 Difícil en este nivel.'
-                                            : '🏅 Para ganar medalla extra al subir de nivel: completa al menos 3 desafíos en este nivel, incluyendo 1 Medio y 1 Difícil.';
-        grid.appendChild(note);
-      }
 
       const wrap = document.createElement('div');
       wrap.className = 'luChoicesGrid luChoicesGrid--stats levelUpStatsList';
@@ -700,9 +686,16 @@ function _heroArtCandidates(hero){
           claimPendingReward({ rewardId:'doubleNext', title:'Doble XP (siguiente desafío)', badge:'x2 XP' });
           return;
         }
+        saveData();
+        renderAll();
+        claimPendingReward({
+          rewardId: 'stat+1',
+          title: `+1 ${k}`,
+          badge: '+1 stat'
+        });
       });
 
-      wrap.appendChild(div);
+      grid.appendChild(row);
     });
 }
 
