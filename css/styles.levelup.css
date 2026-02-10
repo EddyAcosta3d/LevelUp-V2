@@ -1,11 +1,11 @@
 /* ============================================
-   LEVEL UP MODAL - BASE FROM SCRATCH (LEFT SIDE FIRST)
+   LEVEL UP MODAL - OVERLAY PRIORITARIO
    ============================================ */
 
 .luModal {
-  --paper: #d8c8a9;
-  --ink: #0f2028;
-  --ink-soft: rgba(15, 32, 40, 0.6);
+  --lu-gold: #f8d36a;
+  --lu-bg-deep: #060812;
+  --lu-panel: rgba(8, 12, 24, 0.72);
 }
 
 body.levelup-priority .topbar,
@@ -16,178 +16,321 @@ body.levelup-priority .bottomNav {
 #levelUpModal {
   position: fixed;
   inset: 0;
-  width: 100vw !important;
-  height: 100vh !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  place-items: stretch !important;
+  padding: 0;
+  place-items: stretch;
   z-index: 50000;
 }
 
-#levelUpModal:not([hidden]) {
-  display: grid !important;
-}
-
-#levelUpModal[hidden] { display: none !important; }
-
 .luModal .modal__backdrop {
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.84);
+  backdrop-filter: blur(6px);
 }
 
 .luCard {
-  position: absolute;
-  inset: 0;
+  position: relative;
   width: 100vw !important;
-  height: 100vh !important;
+  height: 100vh;
   max-width: none !important;
   max-height: none !important;
-  margin: 0 !important;
+  border-radius: 0;
   border: 0;
-  border-radius: 0 !important;
   overflow: hidden;
-
-  /* Fondo inspirado en la imagen de referencia (papel + tinta) */
-  background:
-    radial-gradient(70% 100% at 78% 22%, rgba(9, 25, 32, 0.93) 0%, rgba(13, 34, 42, 0.9) 33%, rgba(33, 55, 60, 0.72) 57%, rgba(216, 200, 169, 0) 75%),
-    radial-gradient(40% 55% at 75% 85%, rgba(10, 23, 29, 0.9) 0%, rgba(18, 37, 43, 0.75) 48%, rgba(216, 200, 169, 0) 72%),
-    radial-gradient(38% 48% at 59% 50%, rgba(86, 95, 87, 0.45) 0%, rgba(216, 200, 169, 0) 75%),
-    linear-gradient(120deg, #e3d2b2 0%, #dbc9a8 45%, #d2bf9a 100%);
+  box-shadow: none;
+  background: var(--lu-bg-deep);
 }
 
-#levelUpModal .modal__card.luCard {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100dvh !important;
-  max-width: none !important;
-  max-height: none !important;
-  border-radius: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  transform: none !important;
-}
-
-.luCard::before {
-  content: '';
+.luStageBg,
+.luStageShade {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: url('../assets/noise_dither.png');
-  opacity: 0.18;
-  mix-blend-mode: multiply;
+}
+
+.luStageBg {
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.46) saturate(1.05);
+}
+
+.luStageShade {
+  background:
+    linear-gradient(90deg, rgba(4, 8, 16, 0.86) 0%, rgba(4, 8, 16, 0.68) 38%, rgba(5, 10, 20, 0.52) 62%, rgba(5, 10, 20, 0.75) 100%),
+    radial-gradient(circle at 18% 45%, rgba(248, 211, 106, 0.20), transparent 54%);
 }
 
 .luLayout {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   width: 100%;
   height: 100%;
 }
 
-/* IZQUIERDA: imagen + nivel + nombre */
-.luLeft {
-  position: relative;
-  min-width: 0;
-  overflow: hidden;
+.luVisualCol {
+  position: absolute;
+  inset: 0;
 }
 
 .luHeroArt {
   position: absolute;
   inset: 0;
+  background-size: contain;
+  background-position: left bottom;
   background-repeat: no-repeat;
-  /* Zoom protagonista sin cortar la parte superior del rostro */
-  background-size: auto clamp(112%, 128%, 138%);
-  background-position: 22% 100%;
-  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.72));
+  opacity: 0.98;
 }
 
-.luLeftMeta {
+.luLevelOverlay {
   position: absolute;
-  left: clamp(14px, 2.2vw, 30px);
-  bottom: clamp(12px, 2.4vh, 26px);
-  color: #f5f2e9;
-  background: transparent !important;
-  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.82), 0 1px 0 rgba(0, 0, 0, 0.9);
-  z-index: 2;
-}
-
-.luLevelText {
+  left: clamp(16px, 3vw, 40px);
+  bottom: clamp(14px, 3.2vh, 34px);
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  line-height: 0.88;
+  color: #f4f1e8;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
 }
 
-.luLevelText__label {
-  font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+.luLevelLabel {
+  font-size: clamp(1rem, 2.1vw, 1.4rem);
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   margin-bottom: 10px;
 }
 
 .luNum {
-  font-size: clamp(3.6rem, 9.8vw, 8.8rem);
+  color: #f8f6ef;
+  font-size: clamp(3rem, 9vw, 7.5rem);
   font-weight: 900;
-  line-height: 0.88;
+  line-height: 0.9;
 }
 
-.luHeroName {
-  margin-top: 2px;
-  font-size: clamp(1.4rem, 2.8vw, 2.4rem);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-/* DERECHA: placeholder temporal (stats después) */
-.luRight {
-  position: relative;
+.luBody {
+  position: absolute;
+  left: clamp(16px, 3vw, 42px);
+  top: clamp(16px, 3vw, 36px);
+  width: min(100%, 460px);
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 14px;
-  padding: clamp(18px, 3.5vw, 42px);
-  color: #ecf0f2;
+  gap: 12px;
+  border-radius: 14px;
+  background: var(--lu-panel);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+  max-height: calc(100vh - 36px);
+}
+
+.luHead {
+  display: block;
 }
 
 .luKicker {
   margin: 0;
-  font-size: clamp(1.1rem, 2.3vw, 1.9rem);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
   font-weight: 900;
-  color: #eef2f4;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #f6f7fc;
 }
 
-.luRightPlaceholder {
-  font-size: 1rem;
-  color: rgba(240, 244, 247, 0.86);
-  border-left: 3px solid rgba(240, 244, 247, 0.34);
-  padding-left: 10px;
+.luPickTitle {
+  margin-top: 0;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: rgba(238, 242, 255, 0.8);
 }
 
-/* Por ahora ocultamos contenido viejo de recompensas para construir de cero */
-.luChoices,
-.luNote { display: none !important; }
+.luNote {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: #e8eeff;
+}
+
+.luChoices {
+  width: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+}
+
+.luChoicesGrid {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.luChoicesGrid--rewards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.luChoicesGrid--stats {
+  grid-template-columns: 1fr;
+}
+
+.levelUpStatHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.levelUpStatHead__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f2f4ff;
+}
+
+.badge--mini {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 211, 106, 0.7);
+  background: rgba(248, 211, 106, 0.2);
+  color: var(--lu-gold);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+/* Lista simple en columna (sin tarjetas) */
+.levelUpStatsList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.levelUpStatRow {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.levelUpStatRow__name {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #f4f7ff;
+}
+
+.levelUpStatRow__value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #e9edff;
+  letter-spacing: 0.02em;
+  text-align: right;
+}
+
+.levelUpStatRow__plus {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(248, 211, 106, 0.85);
+  background: rgba(248, 211, 106, 0.16);
+  color: var(--lu-gold);
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.levelUpStatRow__plus:hover {
+  background: rgba(248, 211, 106, 0.28);
+}
+
+.rewardPick {
+  position: relative;
+  background: rgba(16, 24, 44, 0.85);
+  border: 1px solid rgba(155, 176, 226, 0.24);
+  border-radius: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  color: #eef2ff;
+  min-height: 98px;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rewardPick:hover {
+  transform: translateY(-2px);
+  border-color: rgba(248, 211, 106, 0.65);
+  background: rgba(21, 30, 52, 0.95);
+}
+
+.rewardPick__iconBig {
+  width: 36px;
+  height: 36px;
+  color: var(--lu-gold);
+}
+
+.luNum {
+  font-size: clamp(2.8rem, 8.2vw, 7.2rem);
+  font-weight: 900;
+  line-height: 0.88;
+}
+
+.rewardPick__titleSmall {
+  font-size: 0.87rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.rewardPick__plus {
+  color: var(--lu-gold);
+}
+
+.rewardPick__metaLine {
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.rewardPick.lvlRewardIn {
+  animation: luRewardFade 0.26s ease both;
+}
+
+@keyframes luRewardFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 @media (max-width: 920px) {
-  .luLayout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 62% 38%;
-  }
-
-  .luRight {
-    padding-top: 10px;
-    background: linear-gradient(to top, rgba(5, 14, 18, 0.48), rgba(5, 14, 18, 0));
-  }
-
   .luHeroArt {
-    background-size: auto 110%;
-    background-position: 36% 100%;
-    opacity: 0.84;
+    opacity: 0.44;
+    background-size: cover;
+    background-position: center bottom;
+  }
+
+  .luBody {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    top: 10px;
+    max-height: calc(100vh - 20px);
+  }
+
+  .luChoicesGrid--rewards {
+    grid-template-columns: 1fr;
+  }
+
+  .luLevelOverlay {
+    left: 12px;
+    bottom: 10px;
+  }
+
+  .luNum {
+    font-size: clamp(2.8rem, 18vw, 5.2rem);
   }
 }
