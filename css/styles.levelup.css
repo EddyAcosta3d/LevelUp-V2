@@ -276,9 +276,10 @@ body.levelup-priority .bottomNav {
   color: var(--lu-gold);
 }
 
-.rewardPick__iconBig svg {
-  width: 100%;
-  height: 100%;
+.luNum {
+  font-size: clamp(2.8rem, 8.2vw, 7.2rem);
+  font-weight: 900;
+  line-height: 0.88;
 }
 
 .rewardPick__titleSmall {
