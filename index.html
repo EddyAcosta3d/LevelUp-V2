@@ -403,27 +403,27 @@
       <div class="modal__backdrop" id="levelUpBackdrop"></div>
 
       <div class="modal__card luCard" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
-        <!-- STAGE -->
-        <div class="luStage" id="levelUpStage">
-          <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
-          <div class="luStageShade" aria-hidden="true"></div>
+        <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
+        <div class="luStageShade" aria-hidden="true"></div>
 
-          <div class="luStageText">
-            <div class="luKicker" id="levelUpTitle">¡Desbloqueaste un nuevo nivel!</div>
-          </div>
-
-          <div class="luBadgeWrap" aria-hidden="false">
-            <div class="luBadge">
+        <div class="luLayout">
+          <div class="luVisualCol">
+            <div class="luHeroArt" id="levelUpHeroArt" aria-hidden="true"></div>
+            <div class="luLevelOverlay" aria-hidden="false">
+              <div class="luLevelLabel">LV.</div>
               <div class="luNum" id="levelUpNum">1</div>
             </div>
           </div>
-        </div>
 
-        <!-- BODY -->
-        <div class="luBody" id="levelUpScrollArea">
-          <div class="luPickTitle">ELIGE TU RECOMPENSA</div>
-          <div class="luNote" id="levelUpNote" hidden></div>
-          <div class="luChoices" id="levelUpChoices"></div>
+          <div class="luBody" id="levelUpScrollArea">
+            <div class="luHead">
+              <div class="luKicker" id="levelUpTitle">¡Subiste de nivel!</div>
+            </div>
+
+            <div class="luPickTitle" id="levelUpPickTitle">ELIGE TU RECOMPENSA</div>
+            <div class="luNote" id="levelUpNote" hidden></div>
+            <div class="luChoices" id="levelUpChoices"></div>
+          </div>
         </div>
       </div>
     </div>
