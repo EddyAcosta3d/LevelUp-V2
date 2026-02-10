@@ -517,13 +517,15 @@ function _heroArtCandidates(hero){
     if (!pending) return;
 
     const auto = pending.autoStat;
+    const needsAuto = !!(auto && auto.required && !auto.applied);
+
+    if (needsAuto && mode !== 'autoStat'){
+      mode = 'autoStat';
+    }
+
     const statKeysAll = ['INT','SAB','CAR','RES','CRE'];
     const statOptions = Array.isArray(auto?.options) && auto.options.length
       ? auto.options.map(x=>String(x).toUpperCase()).filter(x=>statKeysAll.includes(x))
-      : statKeysAll;
-
-    const allowedStats = (auto && auto.required && !auto.applied)
-      ? statOptions
       : statKeysAll;
 
     const incStat = (k, amount)=>{
@@ -537,17 +539,7 @@ function _heroArtCandidates(hero){
       return {cur, nxt};
     };
 
-    allowedStats.forEach((k)=>{
-      const lowKey = k.toLowerCase();
-      const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
-      const row = document.createElement('div');
-      row.className = 'levelUpStatRow';
-      row.innerHTML = `
-        <div class="levelUpStatRow__name">${k}</div>
-        <div class="levelUpStatRow__value">${curVal}</div>
-        <button type="button" class="levelUpStatRow__plus" aria-label="Subir ${k}">+</button>
-      `;
-
+    if (mode === 'autoStat'){
       const wrap = document.createElement('div');
       wrap.className = 'luChoicesGrid luChoicesGrid--stats levelUpStatsList';
       grid.appendChild(wrap);
