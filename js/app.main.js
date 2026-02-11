@@ -51,8 +51,8 @@ async function init(){
   }
   (async()=>{ try{ await init(); } finally { hideSplash(); } })();
 
-	  // iOS Safari: prevent accidental double-tap zoom inside the app UI.
-	  // Note: This also disables pinch-to-zoom while the app is open.
+	  // iOS Safari: reduce accidental double-tap zoom in non-interactive areas,
+	  // while keeping native pinch-to-zoom available for accessibility.
 	  function preventIOSDoubleTapZoom(){
 	    const ua = navigator.userAgent || '';
 	    const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && 'ontouchend' in document);
@@ -62,6 +62,7 @@ async function init(){
 	    // so the bottom nav and other interactive elements stay responsive.
 	    let lastTouchEnd = 0;
 	    document.addEventListener('touchend', (e)=>{
+	      if (e.touches && e.touches.length > 1) return;
 	      const now = Date.now();
 	      if (now - lastTouchEnd <= 300){
 	        const t = e.target;
