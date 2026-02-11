@@ -398,7 +398,11 @@ function _heroArtCandidates(hero){
 
     closeAllModals('levelUpModal');
 
-    // (sin nombre del personaje en el modal)
+    // Nombre del personaje debajo del nivel
+    const heroNameEl = $('#levelUpHeroName');
+    if (heroNameEl){
+      heroNameEl.textContent = String(hero.name || hero.nombre || 'Héroe');
+    }
 
   // Background (parallax BG solamente).
   const stageBg = $('#levelUpStageBg');
@@ -600,7 +604,7 @@ function _heroArtCandidates(hero){
 
         const meter = document.createElement('div');
         meter.className = 'levelUpStatRow__meter';
-        meter.innerHTML = `<span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="width:${pct}%"></span></span>`;
+        meter.innerHTML = `<span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span>`;
 
         const valueWrap = document.createElement('div');
         valueWrap.className = 'levelUpStatRow__right';
@@ -624,35 +628,49 @@ function _heroArtCandidates(hero){
         row.appendChild(valueWrap);
         wrap.appendChild(row);
       });
+      requestAnimationFrame(()=>{
+        wrap.querySelectorAll('.levelUpStatRow__fill').forEach((fill)=>{
+          const target = Number(fill.dataset.fillTarget || 0);
+          fill.style.setProperty('--fill-width', `${Math.max(0, Math.min(100, target))}%`);
+        });
+      });
       return;
     }
 
     if (mode === 'statExtra'){
       const header = document.createElement('div');
-      header.style.display = 'flex';
-      header.style.gap = '10px';
-      header.style.alignItems = 'center';
-      header.style.justifyContent = 'space-between';
-      header.innerHTML = '<div class="small muted">Elige una stat extra</div>';
+      header.className = 'levelUpStatHead';
+      header.innerHTML = '<div class="levelUpStatHead__title">Elige una stat extra</div>';
       const backBtn = document.createElement('button');
       backBtn.type = 'button';
-      backBtn.className = 'pill pill--small pill--ghost';
+      backBtn.className = 'luBackBtn';
       backBtn.textContent = '← Volver';
       backBtn.addEventListener('click', ()=> renderLevelUpChoices('main'));
       header.appendChild(backBtn);
       grid.appendChild(header);
 
       const wrap2 = document.createElement('div');
-      wrap2.className = 'levelupChoicesSimple';
+      wrap2.className = 'levelUpStatsList';
       grid.appendChild(wrap2);
 
       statKeysAll.forEach((k)=>{
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
+        const pct = Math.max(0, Math.min(100, (curVal / 20) * 100));
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'pill';
-        btn.textContent = `${k} +1 (Actual: ${curVal})`;
+        btn.className = 'levelUpStatRow';
+        btn.setAttribute('aria-label', `Subir ${k} de ${curVal} a ${Math.min(20, curVal + 1)}`);
+
+        btn.innerHTML = `
+          <span class="levelUpStatRow__name">${k}</span>
+          <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
+          <span class="levelUpStatRow__right">
+            <span class="levelUpStatRow__value">${curVal}</span>
+            <span class="levelUpStatRow__gain">+1</span>
+          </span>
+        `;
+
         btn.addEventListener('click', ()=>{
           incStat(k, 1);
           claimPendingReward({
@@ -663,8 +681,15 @@ function _heroArtCandidates(hero){
         });
         wrap2.appendChild(btn);
       });
+      requestAnimationFrame(()=>{
+        wrap2.querySelectorAll('.levelUpStatRow__fill').forEach((fill)=>{
+          const target = Number(fill.dataset.fillTarget || 0);
+          fill.style.setProperty('--fill-width', `${Math.max(0, Math.min(100, target))}%`);
+        });
+      });
       return;
     }
+
 
     
     // --- main rewards ---

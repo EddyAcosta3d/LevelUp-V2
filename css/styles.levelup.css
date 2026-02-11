@@ -1,11 +1,14 @@
 /* ============================================
-   LEVEL UP MODAL - OVERLAY PRIORITARIO
+   LEVEL UP MODAL - JRPG HUD
    ============================================ */
 
 .luModal {
   --lu-gold: #f8d36a;
-  --lu-bg-deep: #060812;
-  --lu-panel: rgba(8, 12, 24, 0.72);
+  --lu-bg-deep: #04070f;
+  --hud-line: rgba(224, 232, 255, 0.42);
+  --hud-bg: rgba(10, 16, 31, 0.64);
+  --hud-text: #f4f7ff;
+  --hud-blue: #2fbbff;
 }
 
 body.levelup-priority .topbar,
@@ -22,7 +25,7 @@ body.levelup-priority .bottomNav {
 }
 
 .luModal .modal__backdrop {
-  background: rgba(0, 0, 0, 0.84);
+  background: rgba(0, 0, 0, 0.86);
   backdrop-filter: blur(6px);
 }
 
@@ -49,13 +52,13 @@ body.levelup-priority .bottomNav {
 .luStageBg {
   background-size: cover;
   background-position: center;
-  filter: brightness(0.46) saturate(1.05);
+  filter: brightness(0.44) saturate(1.04);
 }
 
 .luStageShade {
   background:
-    linear-gradient(90deg, rgba(4, 8, 16, 0.86) 0%, rgba(4, 8, 16, 0.68) 38%, rgba(5, 10, 20, 0.52) 62%, rgba(5, 10, 20, 0.75) 100%),
-    radial-gradient(circle at 18% 45%, rgba(248, 211, 106, 0.20), transparent 54%);
+    linear-gradient(92deg, rgba(4, 8, 16, 0.84) 0%, rgba(4, 8, 16, 0.58) 43%, rgba(5, 10, 20, 0.72) 100%),
+    radial-gradient(circle at 20% 50%, rgba(248, 211, 106, 0.18), transparent 56%);
 }
 
 .luLayout {
@@ -63,11 +66,14 @@ body.levelup-priority .bottomNav {
   z-index: 1;
   width: 100%;
   height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) 1px minmax(300px, 0.85fr);
+  align-items: stretch;
 }
 
 .luVisualCol {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  min-width: 0;
 }
 
 .luHeroArt {
@@ -76,110 +82,131 @@ body.levelup-priority .bottomNav {
   background-size: contain;
   background-position: left bottom;
   background-repeat: no-repeat;
-  filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.72));
+  filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.76));
   opacity: 0.98;
+}
+
+.luDivider {
+  position: relative;
+  align-self: stretch;
+  background: linear-gradient(180deg, transparent 0%, var(--hud-line) 16%, var(--hud-line) 84%, transparent 100%);
+  opacity: 0.75;
+}
+
+.luDivider::before {
+  content: "";
+  position: absolute;
+  inset: 14% -4px;
+  background: linear-gradient(180deg, transparent 0%, rgba(99, 202, 255, 0.22) 50%, transparent 100%);
+  filter: blur(2px);
 }
 
 .luLevelOverlay {
   position: absolute;
-  left: clamp(16px, 3vw, 40px);
-  bottom: clamp(14px, 3.2vh, 34px);
-  z-index: 3;
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
+  left: clamp(18px, 3vw, 40px);
+  bottom: clamp(18px, 3.3vh, 36px);
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: end;
+  column-gap: 10px;
   color: #f4f1e8;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.74);
 }
 
 .luLevelLabel {
-  font-size: clamp(1rem, 2.1vw, 1.4rem);
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  margin-bottom: 10px;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  margin-bottom: clamp(12px, 1.7vw, 18px);
 }
 
 .luNum {
   color: #f8f6ef;
-  font-size: clamp(3rem, 9vw, 7.5rem);
+  font-size: clamp(4rem, 10.8vw, 9rem);
   font-weight: 900;
-  line-height: 0.9;
+  line-height: 0.82;
+  letter-spacing: -0.02em;
 }
 
+
+.luHeroName {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  width: min(280px, 72vw);
+  border-top: 1px solid rgba(241, 245, 255, 0.85);
+  padding-top: 2px;
+  font-family: "Cinzel", "Trajan Pro", "Times New Roman", serif;
+  font-size: clamp(1rem, 1.7vw, 1.45rem);
+  letter-spacing: 0.04em;
+  color: #f6f3ea;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.62);
+}
+
+
 .luBody {
-  position: absolute;
-  left: clamp(16px, 3vw, 42px);
-  top: clamp(16px, 3vw, 36px);
-  width: min(100%, 460px);
-  padding: 14px;
+  position: relative;
+  align-self: center;
+  justify-self: end;
+  width: min(100%, 520px);
+  padding: clamp(14px, 1.7vw, 18px) clamp(14px, 1.8vw, 22px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  border-radius: 14px;
-  background: var(--lu-panel);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(4px);
+  gap: 10px;
+  max-height: calc(100vh - 56px);
   overflow-y: auto;
-  max-height: calc(100vh - 36px);
+  border: 1px solid rgba(226, 236, 255, 0.24);
+  border-radius: 0;
+  background: transparent;
+  transform: translateX(16px);
+  opacity: 0;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+#levelUpModal.is-open .luBody {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.luBody::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--hud-bg);
+  opacity: 0.34;
+  filter: blur(1.5px);
+  pointer-events: none;
+}
+
+.luBody > * {
+  position: relative;
+  z-index: 1;
+}
+
+.luBody--statPick {
+  justify-self: end;
 }
 
 .luHead {
   display: block;
+  margin-bottom: 2px;
 }
-
-
-.luBody--statPick {
-  left: auto;
-  right: clamp(16px, 3vw, 42px);
-}
-
 
 .luKicker {
   margin: 0;
-  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
-  font-weight: 900;
-  letter-spacing: 0.03em;
+  font-size: clamp(0.72rem, 1.35vw, 0.9rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #f6f7fc;
-}
-
-.luPickTitle {
-  margin-top: 0;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  color: rgba(238, 242, 255, 0.8);
-}
-
-.luNote {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  padding: 8px 10px;
-  color: #e8eeff;
+  color: rgba(237, 242, 255, 0.88);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.62);
 }
 
 .luChoices {
   width: 100%;
   padding: 0;
-  border-radius: 0;
   background: transparent;
   border: 0;
-  backdrop-filter: none;
-}
-
-.luChoicesGrid {
-  display: grid;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.luChoicesGrid--rewards {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.luChoicesGrid--stats {
-  grid-template-columns: 1fr;
 }
 
 .levelUpStatHead {
@@ -187,65 +214,64 @@ body.levelup-priority .bottomNav {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
 .levelUpStatHead__title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #f2f4ff;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(226, 236, 255, 0.9);
 }
 
-.badge--mini {
-  display: inline-block;
-  padding: 1px 7px;
-  border-radius: 999px;
-  border: 1px solid rgba(248, 211, 106, 0.7);
-  background: rgba(248, 211, 106, 0.2);
-  color: var(--lu-gold);
-  font-size: 0.68rem;
-  font-weight: 800;
-}
-
-/* Lista simple en columna (sin tarjetas) */
 .levelUpStatsList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
+  border-top: 1px solid rgba(209, 222, 255, 0.2);
 }
 
 .levelUpStatsList--rewards {
-  gap: 10px;
+  gap: 0;
 }
 
 .levelUpStatRow {
+  position: relative;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
+  grid-template-columns: 44px minmax(0, 1fr) minmax(86px, auto);
   align-items: center;
   gap: 10px;
-  padding: 7px 6px;
-  border: 1px solid rgba(208, 218, 255, 0.3);
-  background: linear-gradient(180deg, rgba(8, 16, 33, 0.8), rgba(5, 11, 25, 0.88));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
+  min-height: 52px;
+  width: 100%;
+  padding: 8px 4px;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid rgba(209, 222, 255, 0.22);
+  background: transparent;
+  color: var(--hud-text);
   cursor: pointer;
-  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+  transition: background-color 140ms ease, transform 140ms ease;
 }
 
 .levelUpStatRow:hover {
-  transform: translateX(2px);
-  border-color: rgba(138, 219, 255, 0.9);
-  background: linear-gradient(180deg, rgba(10, 20, 40, 0.94), rgba(8, 16, 35, 0.95));
+  background: rgba(102, 164, 216, 0.14);
+}
+
+.levelUpStatRow:focus-visible {
+  outline: 2px solid rgba(146, 212, 255, 0.9);
+  outline-offset: 2px;
+  background: rgba(97, 149, 190, 0.2);
 }
 
 .levelUpStatRow__name {
   font-family: "Cinzel", "Trajan Pro", "Times New Roman", serif;
-  font-size: 1.06rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: #f8f4e8;
   letter-spacing: 0.04em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.58);
 }
+
 
 .levelUpStatRow__meter {
   width: 100%;
@@ -255,50 +281,71 @@ body.levelup-priority .bottomNav {
   display: block;
   position: relative;
   width: 100%;
-  height: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  background: rgba(1, 6, 16, 0.9);
+  height: 8px;
+  border: 1px solid rgba(228, 239, 255, 0.8);
+  background: rgba(1, 6, 16, 0.92);
   overflow: hidden;
 }
 
 .levelUpStatRow__fill {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, rgba(14, 61, 88, 0.85), rgba(43, 191, 255, 0.9));
+  width: var(--fill-width, 0%);
+  background: linear-gradient(90deg, rgba(12, 65, 98, 0.92), rgba(48, 188, 255, 0.96));
+  transition: width 260ms ease;
 }
 
 .levelUpStatRow__right {
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 88px;
-  justify-content: flex-end;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 86px;
+  justify-content: center;
 }
 
 .levelUpStatRow__value {
-  font-size: 1.9rem;
+  font-size: clamp(1.8rem, 2.8vw, 2.3rem);
   font-weight: 900;
-  line-height: 1;
-  color: #f7f9ff;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+  line-height: 0.9;
+  color: #f6f9ff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.56);
+  min-width: 2ch;
+  text-align: right;
+}
+
+.levelUpStatRow__gain,
+.levelUpRewardRow__value {
+  position: relative;
+  display: inline-block;
+  min-width: 50px;
+  padding: 1px 8px;
+  color: #e9f8ff;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-align: center;
+  z-index: 0;
+}
+
+.levelUpStatRow__gain::before,
+.levelUpRewardRow__value::before {
+  content: "";
+  position: absolute;
+  inset: -2px -4px;
+  background: linear-gradient(90deg, rgba(41, 165, 234, 0.96), rgba(20, 132, 212, 0.96));
+  clip-path: polygon(4% 21%, 11% 4%, 27% 10%, 48% 2%, 70% 8%, 91% 0%, 98% 31%, 95% 56%, 100% 77%, 86% 94%, 60% 89%, 42% 98%, 20% 87%, 3% 93%, 0% 64%, 5% 45%);
+  box-shadow: 0 0 0 1px rgba(183, 233, 255, 0.62) inset;
+  z-index: -1;
 }
 
 .levelUpStatRow__gain {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: linear-gradient(180deg, rgba(36, 164, 230, 0.97), rgba(19, 124, 196, 0.96));
-  color: #f3fbff;
-  font-size: 0.82rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  box-shadow: 0 0 0 1px rgba(163, 231, 255, 0.9) inset;
+  animation: luChipPop 170ms ease;
 }
 
 .levelUpRewardRow {
-  grid-template-columns: 54px minmax(0, 1fr) auto;
-  padding: 10px 8px;
-  text-align: left;
+  grid-template-columns: 52px minmax(0, 1fr) minmax(78px, auto);
+  min-height: 58px;
 }
 
 .levelUpRewardRow__titleWrap {
@@ -309,212 +356,175 @@ body.levelup-priority .bottomNav {
 }
 
 .levelUpRewardRow__title {
-  font-size: 0.96rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #f2f6ff;
   line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.58);
 }
+
 
 .levelUpRewardRow__detail {
   font-size: 0.72rem;
-  letter-spacing: 0.03em;
-  color: rgba(210, 222, 255, 0.86);
+  letter-spacing: 0.04em;
+  color: rgba(210, 222, 255, 0.82);
 }
 
 .levelUpRewardRow__right {
   display: inline-flex;
   justify-content: flex-end;
-  min-width: 62px;
+  min-width: 64px;
 }
 
 .levelUpRewardRow__value {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  color: #f3fbff;
-  background: linear-gradient(180deg, rgba(36, 164, 230, 0.97), rgba(19, 124, 196, 0.96));
-  box-shadow: 0 0 0 1px rgba(163, 231, 255, 0.9) inset;
+  min-width: 56px;
 }
 
-.rewardPick {
-  position: relative;
-  background: rgba(16, 24, 44, 0.85);
-  border: 1px solid rgba(155, 176, 226, 0.24);
-  border-radius: 10px;
-  padding: 10px 8px;
+.luBackBtn {
+  appearance: none;
+  border: 1px solid rgba(215, 231, 255, 0.42);
+  background: rgba(8, 16, 32, 0.66);
+  color: #eaf4ff;
+  font-size: 0.75rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 7px 11px;
+  border-radius: 0;
   cursor: pointer;
-  color: #eef2ff;
-  min-height: 98px;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  min-height: 38px;
 }
 
-.rewardPick:hover {
-  transform: translateY(-2px);
-  border-color: rgba(248, 211, 106, 0.65);
-  background: rgba(21, 30, 52, 0.95);
+.luBackBtn:hover {
+  background: rgba(55, 99, 140, 0.3);
 }
 
-.rewardPick__iconBig {
-  width: 36px;
-  height: 36px;
-  color: var(--lu-gold);
+.luBackBtn:focus-visible {
+  outline: 2px solid rgba(146, 212, 255, 0.9);
+  outline-offset: 2px;
 }
 
-.luNum {
-  font-size: clamp(2.8rem, 8.2vw, 7.2rem);
-  font-weight: 900;
-  line-height: 0.88;
+@keyframes luChipPop {
+  from { transform: scale(0.95); opacity: 0.75; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.rewardPick__titleSmall {
-  font-size: 0.87rem;
-  font-weight: 700;
-  text-align: center;
-}
-
-.rewardPick__plus {
-  color: var(--lu-gold);
-}
-
-.rewardPick__metaLine {
-  font-size: 0.72rem;
-  opacity: 0.85;
-}
-
-.rewardPick.lvlRewardIn {
-  animation: luRewardFade 0.26s ease both;
-}
-
-@keyframes luRewardFade {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 920px) {
-  .luStageBg {
-    filter: brightness(0.4) saturate(1.06);
+@media (max-width: 980px) {
+  .luLayout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
-  .luStageShade {
-    background:
-      linear-gradient(180deg, rgba(4, 8, 16, 0.22) 0%, rgba(4, 8, 16, 0.58) 46%, rgba(5, 8, 16, 0.94) 100%),
-      radial-gradient(circle at 30% 28%, rgba(248, 211, 106, 0.14), transparent 46%);
+  .luVisualCol {
+    transform: translateY(-24px);
+  }
+
+  .luDivider {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 73%;
+    width: auto;
+    height: 2px;
+    transform: none;
+    opacity: 0.92;
+    pointer-events: none;
+    z-index: 4;
+    background: linear-gradient(90deg, transparent 0%, rgba(236, 244, 255, 0.95) 16%, rgba(236, 244, 255, 0.95) 84%, transparent 100%);
+    box-shadow: 0 0 0 1px rgba(146, 213, 255, 0.3), 0 0 12px rgba(93, 192, 246, 0.42);
+  }
+
+  .luDivider::before {
+    content: "";
+    position: absolute;
+    inset: -5px 10%;
+    background: linear-gradient(90deg, transparent 0%, rgba(99, 202, 255, 0.35) 50%, transparent 100%);
+    filter: blur(2px);
+  }
+
+  .luDivider::after {
+    content: "";
+    position: absolute;
+    left: 11%;
+    right: 11%;
+    top: -8px;
+    height: 14px;
+    border-top: 1px solid rgba(167, 224, 255, 0.35);
+    opacity: 0.75;
   }
 
   .luHeroArt {
-    inset: 0 0 38% 0;
-    opacity: 0.9;
+    inset: 0 0 28% 0;
     background-size: cover;
     background-position: center top;
-    filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.58));
+    opacity: 0.94;
   }
 
   .luLevelOverlay {
     left: 14px;
-    right: 14px;
-    bottom: calc(38% + 8px);
-    justify-content: flex-start;
-    gap: 8px;
-    padding: 8px 10px;
-    border-radius: 10px;
-    background: linear-gradient(180deg, rgba(8, 12, 22, 0.9), rgba(7, 12, 20, 0.76));
-    border: 1px solid rgba(255, 255, 255, 0.22);
+    bottom: calc(28% + 4px);
+    column-gap: 8px;
   }
 
   .luLevelLabel {
-    margin-bottom: 4px;
-    font-size: 0.9rem;
-    letter-spacing: 0.12em;
+    font-size: clamp(1.15rem, 6vw, 1.55rem);
+    margin-bottom: 8px;
+  }
+
+  .luHeroName {
+    font-size: 0.95rem;
+    width: min(230px, 82vw);
   }
 
   .luNum {
-    font-size: clamp(2.2rem, 14vw, 4.2rem);
+    font-size: clamp(3rem, 15vw, 4.9rem);
   }
 
-  .luBody {
-    left: 10px;
-    right: 10px;
-    top: auto;
-    bottom: 10px;
-    width: auto;
-    max-height: 36vh;
-    padding: 12px;
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(11, 16, 28, 0.94), rgba(6, 10, 20, 0.9));
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(3px);
-    box-shadow: 0 -16px 26px rgba(0, 0, 0, 0.38);
-  }
-
+  .luBody,
   .luBody--statPick {
-    left: 10px;
-    right: 10px;
+    justify-self: stretch;
+    align-self: end;
+    width: auto;
+    margin: -40px 10px 8px;
+    max-height: 54vh;
+    padding: 8px 12px 14px;
+    transform: translateX(0);
+    border: 0;
+    background: transparent;
+  }
+
+  .luHead {
+    margin-top: 0;
+    margin-bottom: 4px;
   }
 
   .luKicker {
-    font-size: 1rem;
-    letter-spacing: 0.06em;
+    transform: none;
   }
 
-  .levelUpStatHead {
-    margin-bottom: 6px;
+  .luBody::before {
+    display: none;
   }
 
-  .levelUpStatHead__title {
-    width: 100%;
-    text-align: center;
-    font-size: 0.94rem;
-    letter-spacing: 0.04em;
-  }
-
-  .levelUpStatsList,
-  .levelUpStatsList--rewards {
-    gap: 7px;
+  .luKicker {
+    font-size: 0.72rem;
   }
 
   .levelUpStatRow {
-    grid-template-columns: 30px minmax(0, 1fr) auto;
+    grid-template-columns: 36px minmax(0, 1fr) minmax(74px, auto);
+    min-height: 50px;
     gap: 8px;
-    padding: 7px 6px;
-    border-radius: 6px;
   }
 
-  .levelUpRewardRow {
-    grid-template-columns: 44px minmax(0, 1fr) auto;
-  }
-
-  .levelUpRewardRow__title {
-    font-size: 0.89rem;
-  }
-
-  .levelUpRewardRow__value {
-    font-size: 0.68rem;
-    padding: 3px 6px;
+  .levelUpStatRow__name {
+    font-size: 0.9rem;
   }
 
   .levelUpStatRow__value {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
   }
 
-  .levelUpStatRow__right {
-    min-width: 68px;
-    gap: 4px;
-  }
-
-  .levelUpStatRow__gain {
-    font-size: 0.7rem;
-    padding: 2px 6px;
-  }
-
-  .luChoicesGrid--rewards {
-    grid-template-columns: 1fr;
+  .levelUpRewardRow {
+    grid-template-columns: 42px minmax(0, 1fr) minmax(72px, auto);
   }
 }
