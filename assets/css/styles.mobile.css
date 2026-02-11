@@ -56,9 +56,9 @@
     padding: 6px 10px !important;
   }
 
-  /* MEDALLAS - Muy visible */
+  /* Medallas: mantener escala consistente con el resto del formulario */
   #heroMedalsCount {
-    font-size: 32px !important;
+    font-size: 15px !important;
     font-weight: 900;
   }
 
@@ -388,14 +388,9 @@
     border-radius: 16px !important;
   }
 
-  .brand__logo {
-    width: 34px !important;
-    height: 34px !important;
-  }
-
-  .brand__logo svg {
-    width: 22px !important;
-    height: 22px !important;
+  .brand__logoImg {
+    width: 42px !important;
+    height: 42px !important;
   }
 }
 

@@ -72,12 +72,7 @@
         </button>
 
         <div class="brand" aria-label="LevelUp">
-          <div class="brand__logo" aria-hidden="true">
-            <svg viewBox="0 0 64 64" width="34" height="34" role="img" aria-label="LU">
-              <path d="M32 4l25 14v28L32 60 7 46V18L32 4z" fill="rgba(255,215,120,.12)" stroke="rgba(255,215,120,.55)" stroke-width="2"/>
-              <path d="M22 22h20v6H28v14h-6V22zm14 0h6v26h-6V22z" fill="rgba(255,255,255,.85)"/>
-            </svg>
-          </div>
+          <img class="brand__logoImg" src="assets/logo.png" alt="LevelUp" />
           <div class="brand__text">
             <div class="brand__title">MISIONES · RETOS · RECOMPENSAS</div>
             <div class="brand__subtitle" id="brandSubtitle">LevelUp</div>
@@ -404,18 +399,30 @@
         <div class="luLayout">
           <div class="luVisualCol">
             <div class="luHeroArt" id="levelUpHeroArt" aria-hidden="true"></div>
-            <div class="luLevelOverlay" aria-hidden="false">
-              <div class="luLevelLabel">LV.</div>
-              <div class="luNum" id="levelUpNum">1</div>
+            <div class="luTopMeta" aria-hidden="false">
+              <div class="luHeroName" id="levelUpHeroName">Héroe</div>
+              <div class="luLevelCompact">
+                <span class="luLevelLabel">LV</span>
+                <span class="luNum" id="levelUpNum">1</span>
+              </div>
             </div>
           </div>
 
           <div class="luBody" id="levelUpScrollArea">
-            <div class="luHead">
-              <div class="luKicker" id="levelUpTitle">¡Subiste de nivel!</div>
-            </div>
+            <div class="levelup-panel" id="levelUpPanel">
+              <div class="luHead">
+                <div class="luKicker">Recompensa desbloqueada</div>
+                <div class="luTitleGlow" aria-hidden="true"></div>
+                <h2 class="luTitle" id="levelUpTitle">¡SUBISTE DE NIVEL!</h2>
+                <div class="luSubtitle">Elige una mejora para continuar</div>
+              </div>
 
-            <div class="luChoices" id="levelUpChoices"></div>
+              <div class="luChoices" id="levelUpChoices"></div>
+
+              <div class="luConfirmWrap">
+                <button type="button" class="confirm-btn" id="levelUpConfirmBtn" disabled>CONFIRMAR</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

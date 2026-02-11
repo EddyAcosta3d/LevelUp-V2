@@ -184,23 +184,15 @@ body{
 .topMoreMenu__item .emoji{ width: 18px; display:inline-block; opacity: .70; }
 
 .brand{ display:flex; align-items:center; gap: 12px; }
-.brand__logo{
-  width: 44px; height: 44px;
-  display:grid; place-items:center;
-  border-radius: 14px;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid var(--borderSoft);
-  box-shadow: var(--glow);
-}
 .brand__title{ font-size: 12px; letter-spacing: 2.6px; opacity:.85; text-transform:uppercase; }
 .brand__subtitle{ font-size: 12px; opacity:.55; margin-top: 3px; }
 
 .brand__logoImg{
-  width: 30px;
-  height: 30px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
   display:block;
-  filter: drop-shadow(0 0 10px rgba(0,210,255,.28));
+  filter: drop-shadow(0 0 14px rgba(0,210,255,.3));
 }
 
 /* Pills */
@@ -1055,9 +1047,7 @@ body{
     align-self:center;
   }
   .trophyIcon{ width:22px; height:22px; }
-  /* Slightly smaller logo to keep header compact */
-  .brand__logo{ width:40px; height:40px; border-radius: 12px; }
-  .brand__logo svg{ width:28px !important; height:28px !important; }
+  .brand__logoImg{ width: 46px; height: 46px; }
   .topbar__right .pill, .topbar__right .dropdown{ padding: 10px 10px; font-size: 12px; border-radius: 16px; }
   .brand__subtitle{ display:none; }
   .brand__text{ display:none; }
@@ -2140,9 +2130,8 @@ body.is-view-locked #btnEliminar,
   }
   .trophyIcon{ width: 20px !important; height: 20px !important; }
 
-  /* Smaller logo so it doesn't inflate perceived header height */
-  .brand__logo{ width: 36px !important; height: 36px !important; border-radius: 12px !important; }
-  .brand__logo svg{ width: 26px !important; height: 26px !important; }
+  /* Logo más visible, sin marco/figura alrededor */
+  .brand__logoImg{ width: 44px !important; height: 44px !important; }
 }
 
 @media (min-width: 981px){
