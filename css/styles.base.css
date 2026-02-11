@@ -195,6 +195,14 @@ body{
 .brand__title{ font-size: 12px; letter-spacing: 2.6px; opacity:.85; text-transform:uppercase; }
 .brand__subtitle{ font-size: 12px; opacity:.55; margin-top: 3px; }
 
+.brand__logoImg{
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display:block;
+  filter: drop-shadow(0 0 10px rgba(0,210,255,.28));
+}
+
 /* Pills */
 .pill{
   border: 1px solid var(--borderSoft);

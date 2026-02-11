@@ -84,6 +84,7 @@ body.levelup-priority .bottomNav {
   position: absolute;
   left: clamp(16px, 3vw, 40px);
   bottom: clamp(14px, 3.2vh, 34px);
+  z-index: 3;
   display: flex;
   align-items: flex-end;
   gap: 10px;
@@ -419,7 +420,7 @@ body.levelup-priority .bottomNav {
   .luLevelOverlay {
     left: 14px;
     right: 14px;
-    bottom: calc(38% - 26px);
+    bottom: calc(38% + 8px);
     justify-content: flex-start;
     gap: 8px;
     padding: 8px 10px;
