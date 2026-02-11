@@ -303,19 +303,34 @@ function setRole(nextRole){
     return out;
   }
 
+  const LU_HERO_FG_PLACEHOLDER = 'assets/placeholders/placeholder_unlocked_3x4.webp';
+  const LU_HERO_BG_PLACEHOLDER = 'assets/placeholders/placeholder_unlocked_16x9.webp';
+
+  function _manifestHeroAssets(hero){
+    const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
+    if (!key || !window.__PARALLAX_MANIFEST__) return null;
+    const slug = _slugify(key);
+    if (!slug) return null;
+    return window.__PARALLAX_MANIFEST__[slug] || null;
+  }
+
   function resolveHeroArtUrls(hero){
-// Parallax-only art resolver (bg/mid/fg). We no longer use assets/personajes.
-const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
-const slug = key.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
-const exts = ['png','PNG','jpg','JPG','jpeg','JPEG','webp','WEBP'];
-const urls = [];
-for (const ext of exts){
-  urls.push(`assets/parallax/${slug}_bg.${ext}`);
-  urls.push(`assets/parallax/${slug}_mid.${ext}`);
-  urls.push(`assets/parallax/${slug}_fg.${ext}`);
-}
-return _uniqueUrls(urls);
-}
+    // Parallax-only art resolver (bg/mid/fg).
+    // Preferimos el manifest para evitar 404 masivos por rutas inventadas.
+    const manifestAssets = _manifestHeroAssets(hero);
+    if (manifestAssets){
+      return _uniqueUrls([manifestAssets.fg, manifestAssets.mid, manifestAssets.bg]);
+    }
+
+    const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
+    const slug = key.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
+    if (!slug) return [];
+    return _uniqueUrls([
+      `assets/parallax/${slug}_fg.webp`,
+      `assets/parallax/${slug}_mid.webp`,
+      `assets/parallax/${slug}_bg.webp`
+    ]);
+  }
 
 
 // Back-compat helper: some parts of the app still call this name.
@@ -389,24 +404,24 @@ function _heroArtCandidates(hero){
   const stageBg = $('#levelUpStageBg');
   const heroArt = $('#levelUpHeroArt');
   if (stageBg){
-    const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
-    const slug = key.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
-    const exts = ['png','PNG','jpg','JPG','jpeg','JPEG','webp','WEBP'];
-    const bgUrls = [];
-    for (const ext of exts){
-      bgUrls.push(`assets/parallax/${slug}_bg.${ext}`);
-    }
+    const manifestAssets = _manifestHeroAssets(hero);
+    const bgUrls = manifestAssets?.bg ? [manifestAssets.bg] : [
+      ...resolveHeroArtUrls(hero).filter(u=> /_bg\./i.test(String(u))),
+      LU_HERO_BG_PLACEHOLDER
+    ];
     setBgWithFallback(stageBg, bgUrls);
   }
 
   if (heroArt){
+    const resolvedArt = resolveHeroArtUrls(hero);
     const artUrls = _uniqueUrls([
       hero.photo,
       hero.img,
       hero.image,
       hero.photoSrc,
-      ...resolveHeroArtUrls(hero).filter(u=> /_fg\./i.test(String(u))),
-      ...resolveHeroArtUrls(hero)
+      ...resolvedArt.filter(u=> /_fg\./i.test(String(u))),
+      ...resolvedArt,
+      LU_HERO_FG_PLACEHOLDER
     ]);
     setBgWithFallback(heroArt, artUrls);
   }
