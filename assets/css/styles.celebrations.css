@@ -501,6 +501,13 @@ html.is-boss-unlock, html.is-boss-unlock body {
   filter: none;
 }
 
+.bossUnlock.bossUnlock--img.bossUnlock--portraitArt .bossUnlock__img{
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #000;
+}
+
 .bossUnlock.bossUnlock--img .bossUnlock__close{
   z-index: 2;
 }

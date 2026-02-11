@@ -1,14 +1,14 @@
 /* ============================================
-   LEVEL UP MODAL - JRPG HUD
+   LEVEL UP MODAL - JRPG HUD (V2 polish)
    ============================================ */
 
 .luModal {
-  --lu-gold: #f8d36a;
   --lu-bg-deep: #04070f;
-  --hud-line: rgba(224, 232, 255, 0.42);
-  --hud-bg: rgba(10, 16, 31, 0.64);
+  --hud-line: rgba(224, 232, 255, 0.28);
   --hud-text: #f4f7ff;
   --hud-blue: #2fbbff;
+  --hud-blue-soft: #97deff;
+  --card-bg: rgba(9, 16, 30, 0.62);
 }
 
 body.levelup-priority .topbar,
@@ -19,8 +19,7 @@ body.levelup-priority .bottomNav {
 #levelUpModal {
   position: fixed;
   inset: 0;
-  padding: 0;
-  place-items: stretch;
+  padding-top: max(0px, env(safe-area-inset-top));
   z-index: 50000;
 }
 
@@ -52,229 +51,235 @@ body.levelup-priority .bottomNav {
 .luStageBg {
   background-size: cover;
   background-position: center;
-  filter: brightness(0.44) saturate(1.04);
+  filter: brightness(0.34) saturate(1.08);
 }
 
 .luStageShade {
   background:
-    linear-gradient(92deg, rgba(4, 8, 16, 0.84) 0%, rgba(4, 8, 16, 0.58) 43%, rgba(5, 10, 20, 0.72) 100%),
-    radial-gradient(circle at 20% 50%, rgba(248, 211, 106, 0.18), transparent 56%);
+    linear-gradient(180deg, rgba(4, 8, 16, 0.3) 0%, rgba(4, 8, 16, 0.62) 35%, rgba(5, 10, 20, 0.9) 100%),
+    radial-gradient(circle at 50% 82%, rgba(47, 187, 255, 0.2), transparent 56%);
 }
 
 .luLayout {
   position: relative;
   z-index: 1;
-  width: 100%;
+  width: min(1020px, 100%);
   height: 100%;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) 1px minmax(300px, 0.85fr);
-  align-items: stretch;
+  grid-template-rows: minmax(220px, 42vh) minmax(0, 1fr);
 }
 
 .luVisualCol {
   position: relative;
-  min-width: 0;
+  overflow: hidden;
 }
 
 .luHeroArt {
   position: absolute;
   inset: 0;
   background-size: contain;
-  background-position: left bottom;
+  background-position: center bottom;
   background-repeat: no-repeat;
   filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.76));
   opacity: 0.98;
 }
 
-.luDivider {
-  position: relative;
-  align-self: stretch;
-  background: linear-gradient(180deg, transparent 0%, var(--hud-line) 16%, var(--hud-line) 84%, transparent 100%);
-  opacity: 0.75;
-}
-
-.luDivider::before {
-  content: "";
+.luTopMeta {
   position: absolute;
-  inset: 14% -4px;
-  background: linear-gradient(180deg, transparent 0%, rgba(99, 202, 255, 0.22) 50%, transparent 100%);
-  filter: blur(2px);
-}
-
-.luLevelOverlay {
-  position: absolute;
-  left: clamp(18px, 3vw, 40px);
-  bottom: clamp(18px, 3.3vh, 36px);
+  left: clamp(14px, 2.6vw, 24px);
+  right: clamp(14px, 2.6vw, 24px);
+  bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
   z-index: 2;
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: end;
-  column-gap: 10px;
-  color: #f4f1e8;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.74);
 }
-
-.luLevelLabel {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  margin-bottom: clamp(12px, 1.7vw, 18px);
-}
-
-.luNum {
-  color: #f8f6ef;
-  font-size: clamp(4rem, 10.8vw, 9rem);
-  font-weight: 900;
-  line-height: 0.82;
-  letter-spacing: -0.02em;
-}
-
 
 .luHeroName {
-  grid-column: 1 / -1;
-  margin-top: 2px;
-  width: min(280px, 72vw);
-  border-top: 1px solid rgba(241, 245, 255, 0.85);
-  padding-top: 2px;
   font-family: "Cinzel", "Trajan Pro", "Times New Roman", serif;
-  font-size: clamp(1rem, 1.7vw, 1.45rem);
-  letter-spacing: 0.04em;
+  font-size: clamp(1rem, 2.4vw, 1.3rem);
+  letter-spacing: 0.05em;
   color: #f6f3ea;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.62);
 }
 
+.luLevelCompact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  border: 1px solid rgba(220, 234, 255, 0.34);
+  background: linear-gradient(180deg, rgba(7, 14, 28, 0.9), rgba(8, 16, 30, 0.6));
+  border-radius: 12px;
+  padding: 4px 10px 5px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.36);
+}
+
+.luLevelLabel {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(217, 235, 255, 0.9);
+}
+
+.luNum {
+  color: #f8f6ef;
+  font-size: clamp(1.6rem, 4.3vw, 2.3rem);
+  font-weight: 900;
+  line-height: 0.9;
+}
 
 .luBody {
   position: relative;
-  align-self: center;
-  justify-self: end;
-  width: min(100%, 520px);
-  padding: clamp(14px, 1.7vw, 18px) clamp(14px, 1.8vw, 22px);
+  min-height: 0;
+  padding: 0 clamp(10px, 2.2vw, 18px) max(8px, env(safe-area-inset-bottom));
+}
+
+.levelup-panel {
+  position: relative;
+  height: 100%;
+  max-height: calc(100vh - 180px);
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: calc(100vh - 56px);
-  overflow-y: auto;
-  border: 1px solid rgba(226, 236, 255, 0.24);
-  border-radius: 0;
-  background: transparent;
-  transform: translateX(16px);
-  opacity: 0;
-  transition: transform 160ms ease, opacity 160ms ease;
+  border: 1px solid var(--hud-line);
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(180deg, rgba(13, 22, 40, 0.82), rgba(9, 16, 31, 0.76));
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.38);
+  overflow: hidden;
 }
 
-#levelUpModal.is-open .luBody {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.luBody::before {
+.levelup-panel::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--hud-bg);
-  opacity: 0.34;
-  filter: blur(1.5px);
+  background-image: radial-gradient(rgba(237, 246, 255, 0.12) 0.6px, transparent 0.6px);
+  background-size: 3px 3px;
+  opacity: 0.22;
   pointer-events: none;
 }
 
-.luBody > * {
-  position: relative;
-  z-index: 1;
-}
-
-.luBody--statPick {
-  justify-self: end;
+.levelup-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(142, 214, 255, 0.1), transparent 40%);
+  pointer-events: none;
 }
 
 .luHead {
-  display: block;
-  margin-bottom: 2px;
+  position: relative;
+  padding: 14px 14px 8px;
 }
 
 .luKicker {
   margin: 0;
-  font-size: clamp(0.72rem, 1.35vw, 0.9rem);
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(237, 242, 255, 0.88);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.62);
+  color: rgba(208, 228, 255, 0.84);
+}
+
+.luTitleGlow {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 18px;
+  height: 54px;
+  filter: blur(18px);
+  background: radial-gradient(circle, rgba(60, 193, 255, 0.24), transparent 70%);
+  pointer-events: none;
+}
+
+.luTitle {
+  position: relative;
+  z-index: 1;
+  margin: 3px 0 2px;
+  font-size: clamp(1.34rem, 4.8vw, 2.05rem);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #eef8ff;
+}
+
+.luSubtitle {
+  font-size: 0.82rem;
+  color: rgba(210, 226, 248, 0.86);
 }
 
 .luChoices {
+  position: relative;
+  z-index: 2;
   width: 100%;
-  padding: 0;
-  background: transparent;
-  border: 0;
+  padding: 0 10px;
+  overflow-y: auto;
 }
 
 .levelUpStatHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 8px;
-  gap: 8px;
 }
 
 .levelUpStatHead__title {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: rgba(226, 236, 255, 0.9);
+  letter-spacing: 0.15em;
+  color: rgba(220, 233, 255, 0.9);
 }
 
 .levelUpStatsList {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  border-top: 1px solid rgba(209, 222, 255, 0.2);
+  gap: 8px;
+  padding-bottom: 10px;
 }
 
-.levelUpStatsList--rewards {
-  gap: 0;
-}
-
+.stat-row,
 .levelUpStatRow {
   position: relative;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) minmax(86px, auto);
+  grid-template-columns: 42px minmax(0, 1fr) minmax(74px, auto);
   align-items: center;
   gap: 10px;
-  min-height: 52px;
+  min-height: 58px;
   width: 100%;
-  padding: 8px 4px;
-  text-align: left;
-  border: 0;
-  border-bottom: 1px solid rgba(209, 222, 255, 0.22);
-  background: transparent;
+  padding: 8px 10px;
+  border: 1px solid rgba(185, 214, 246, 0.24);
+  border-radius: 12px;
+  background: rgba(12, 20, 36, 0.66);
   color: var(--hud-text);
   cursor: pointer;
-  transition: background-color 140ms ease, transform 140ms ease;
+  transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
 }
 
+.stat-row:hover,
 .levelUpStatRow:hover {
-  background: rgba(102, 164, 216, 0.14);
+  transform: translateY(-1px);
+  background: rgba(19, 34, 59, 0.92);
+  border-color: rgba(151, 222, 255, 0.62);
 }
 
+.stat-row:focus-visible,
 .levelUpStatRow:focus-visible {
   outline: 2px solid rgba(146, 212, 255, 0.9);
-  outline-offset: 2px;
-  background: rgba(97, 149, 190, 0.2);
+  outline-offset: 1px;
+}
+
+.stat-row--selected,
+.levelUpStatRow.is-selected {
+  border-color: rgba(120, 214, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(120, 214, 255, 0.64) inset, 0 0 18px rgba(47, 187, 255, 0.28);
+  background: linear-gradient(180deg, rgba(22, 45, 76, 0.96), rgba(17, 33, 56, 0.96));
 }
 
 .levelUpStatRow__name {
   font-family: "Cinzel", "Trajan Pro", "Times New Roman", serif;
-  font-size: 1.02rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #f8f4e8;
-  letter-spacing: 0.04em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.58);
-}
-
-
-.levelUpStatRow__meter {
-  width: 100%;
 }
 
 .levelUpStatRow__track {
@@ -282,7 +287,8 @@ body.levelup-priority .bottomNav {
   position: relative;
   width: 100%;
   height: 8px;
-  border: 1px solid rgba(228, 239, 255, 0.8);
+  border: 1px solid rgba(228, 239, 255, 0.5);
+  border-radius: 999px;
   background: rgba(1, 6, 16, 0.92);
   overflow: hidden;
 }
@@ -295,93 +301,70 @@ body.levelup-priority .bottomNav {
   transition: width 260ms ease;
 }
 
-.levelUpStatRow__right {
-  display: inline-flex;
-  align-items: flex-end;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 86px;
-  justify-content: center;
+.levelUpStatRow__right { display: inline-flex; flex-direction: column; align-items: flex-end; }
+.levelUpStatRow__value {
+  font-size: clamp(1.4rem, 4vw, 1.8rem);
+  font-weight: 900;
+  line-height: 0.95;
+  min-width: 2ch;
 }
 
-.levelUpStatRow__value {
-  font-size: clamp(1.8rem, 2.8vw, 2.3rem);
-  font-weight: 900;
-  line-height: 0.9;
-  color: #f6f9ff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.56);
-  min-width: 2ch;
-  text-align: right;
+.levelUpStatRow__value.is-pop {
+  animation: luValuePop 300ms ease;
+  text-shadow: 0 0 12px rgba(151, 222, 255, 0.86);
 }
 
 .levelUpStatRow__gain,
 .levelUpRewardRow__value {
-  position: relative;
   display: inline-block;
-  min-width: 50px;
-  padding: 1px 8px;
+  min-width: 48px;
+  padding: 2px 8px;
   color: #e9f8ff;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-align: center;
-  z-index: 0;
-}
-
-.levelUpStatRow__gain::before,
-.levelUpRewardRow__value::before {
-  content: "";
-  position: absolute;
-  inset: -2px -4px;
+  border-radius: 999px;
   background: linear-gradient(90deg, rgba(41, 165, 234, 0.96), rgba(20, 132, 212, 0.96));
-  clip-path: polygon(4% 21%, 11% 4%, 27% 10%, 48% 2%, 70% 8%, 91% 0%, 98% 31%, 95% 56%, 100% 77%, 86% 94%, 60% 89%, 42% 98%, 20% 87%, 3% 93%, 0% 64%, 5% 45%);
-  box-shadow: 0 0 0 1px rgba(183, 233, 255, 0.62) inset;
-  z-index: -1;
-}
-
-.levelUpStatRow__gain {
-  animation: luChipPop 170ms ease;
 }
 
 .levelUpRewardRow {
-  grid-template-columns: 52px minmax(0, 1fr) minmax(78px, auto);
-  min-height: 58px;
+  grid-template-columns: 48px minmax(0, 1fr) minmax(70px, auto);
 }
 
-.levelUpRewardRow__titleWrap {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  align-items: flex-start;
+.levelUpRewardRow__titleWrap { display: flex; flex-direction: column; gap: 1px; }
+.levelUpRewardRow__title { font-size: 0.9rem; font-weight: 800; }
+.levelUpRewardRow__detail { font-size: 0.72rem; color: rgba(210, 222, 255, 0.82); }
+
+.luConfirmWrap {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  padding: 10px;
+  background: linear-gradient(180deg, rgba(8, 14, 28, 0), rgba(8, 14, 28, 0.92) 35%);
 }
 
-.levelUpRewardRow__title {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #f2f6ff;
-  line-height: 1.2;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.58);
+.confirm-btn {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid rgba(175, 218, 247, 0.48);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #1f8ed0, #1c76b5);
+  color: #eff8ff;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  cursor: pointer;
+  transition: transform 130ms ease, filter 130ms ease, opacity 130ms ease;
 }
 
-
-.levelUpRewardRow__detail {
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  color: rgba(210, 222, 255, 0.82);
-}
-
-.levelUpRewardRow__right {
-  display: inline-flex;
-  justify-content: flex-end;
-  min-width: 64px;
-}
-
-.levelUpRewardRow__value {
-  min-width: 56px;
+.confirm-btn:hover:enabled { transform: translateY(-1px); filter: brightness(1.08); }
+.confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: saturate(0.3);
 }
 
 .luBackBtn {
-  appearance: none;
   border: 1px solid rgba(215, 231, 255, 0.42);
   background: rgba(8, 16, 32, 0.66);
   color: #eaf4ff;
@@ -389,142 +372,41 @@ body.levelup-priority .bottomNav {
   letter-spacing: 0.09em;
   text-transform: uppercase;
   padding: 7px 11px;
-  border-radius: 0;
+  border-radius: 10px;
   cursor: pointer;
-  min-height: 38px;
 }
 
-.luBackBtn:hover {
-  background: rgba(55, 99, 140, 0.3);
+#levelUpModal.is-cine .luTopMeta { animation: luEntranceMain 460ms ease both; }
+#levelUpModal.is-cine .luTitle,
+#levelUpModal.is-cine .luSubtitle,
+#levelUpModal.is-cine .luKicker { animation: luEntranceMain 460ms ease both; }
+#levelUpModal.is-cine .levelup-panel { opacity: 0; transform: translateY(14px); }
+#levelUpModal.is-cine.cine-done .levelup-panel { animation: luPanelIn 360ms ease forwards; }
+
+@keyframes luEntranceMain {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes luPanelIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes luValuePop {
+  0% { transform: scale(0.92); }
+  65% { transform: scale(1.16); }
+  100% { transform: scale(1); }
 }
 
-.luBackBtn:focus-visible {
-  outline: 2px solid rgba(146, 212, 255, 0.9);
-  outline-offset: 2px;
+@media (min-width: 760px) {
+  .luLayout { grid-template-rows: minmax(250px, 46vh) minmax(0, 1fr); }
+  .luTopMeta { left: 24px; right: 24px; }
+  .luBody { padding-inline: 20px; }
+  .levelup-panel { border-radius: 20px 20px 0 0; }
 }
 
-@keyframes luChipPop {
-  from { transform: scale(0.95); opacity: 0.75; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@media (max-width: 980px) {
-  .luLayout {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto;
-  }
-
-  .luVisualCol {
-    transform: translateY(-24px);
-  }
-
-  .luDivider {
-    display: block;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 73%;
-    width: auto;
-    height: 2px;
-    transform: none;
-    opacity: 0.92;
-    pointer-events: none;
-    z-index: 4;
-    background: linear-gradient(90deg, transparent 0%, rgba(236, 244, 255, 0.95) 16%, rgba(236, 244, 255, 0.95) 84%, transparent 100%);
-    box-shadow: 0 0 0 1px rgba(146, 213, 255, 0.3), 0 0 12px rgba(93, 192, 246, 0.42);
-  }
-
-  .luDivider::before {
-    content: "";
-    position: absolute;
-    inset: -5px 10%;
-    background: linear-gradient(90deg, transparent 0%, rgba(99, 202, 255, 0.35) 50%, transparent 100%);
-    filter: blur(2px);
-  }
-
-  .luDivider::after {
-    content: "";
-    position: absolute;
-    left: 11%;
-    right: 11%;
-    top: -8px;
-    height: 14px;
-    border-top: 1px solid rgba(167, 224, 255, 0.35);
-    opacity: 0.75;
-  }
-
-  .luHeroArt {
-    inset: 0 0 28% 0;
-    background-size: cover;
-    background-position: center top;
-    opacity: 0.94;
-  }
-
-  .luLevelOverlay {
-    left: 14px;
-    bottom: calc(28% + 4px);
-    column-gap: 8px;
-  }
-
-  .luLevelLabel {
-    font-size: clamp(1.15rem, 6vw, 1.55rem);
-    margin-bottom: 8px;
-  }
-
-  .luHeroName {
-    font-size: 0.95rem;
-    width: min(230px, 82vw);
-  }
-
-  .luNum {
-    font-size: clamp(3rem, 15vw, 4.9rem);
-  }
-
-  .luBody,
-  .luBody--statPick {
-    justify-self: stretch;
-    align-self: end;
-    width: auto;
-    margin: -40px 10px 8px;
-    max-height: 54vh;
-    padding: 8px 12px 14px;
-    transform: translateX(0);
-    border: 0;
-    background: transparent;
-  }
-
-  .luHead {
-    margin-top: 0;
-    margin-bottom: 4px;
-  }
-
-  .luKicker {
-    transform: none;
-  }
-
-  .luBody::before {
-    display: none;
-  }
-
-  .luKicker {
-    font-size: 0.72rem;
-  }
-
-  .levelUpStatRow {
-    grid-template-columns: 36px minmax(0, 1fr) minmax(74px, auto);
-    min-height: 50px;
-    gap: 8px;
-  }
-
-  .levelUpStatRow__name {
-    font-size: 0.9rem;
-  }
-
-  .levelUpStatRow__value {
-    font-size: 1.5rem;
-  }
-
-  .levelUpRewardRow {
-    grid-template-columns: 42px minmax(0, 1fr) minmax(72px, auto);
-  }
+@media (max-width: 420px) {
+  .luLayout { grid-template-rows: minmax(200px, 38vh) minmax(0, 1fr); }
+  .luHead { padding: 12px 10px 6px; }
+  .luChoices { padding-inline: 8px; }
+  .levelUpStatRow { min-height: 54px; }
 }

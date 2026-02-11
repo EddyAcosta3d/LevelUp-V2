@@ -383,6 +383,11 @@ function _heroArtCandidates(hero){
 
     closeAllModals('levelUpModal');
 
+    const heroNameEl = $('#levelUpHeroName');
+    if (heroNameEl){
+      heroNameEl.textContent = String(hero.name || hero.nombre || 'Héroe');
+    }
+
     // (sin nombre del personaje en el modal)
 
   // Background (parallax BG solamente).
@@ -439,10 +444,17 @@ function _heroArtCandidates(hero){
     modal.classList.add('is-open');
     try{ document.body.classList.add('levelup-priority'); }catch(_e){}
 
+    state.ui.levelUpPick = null;
+    const luConfirmBtn = $('#levelUpConfirmBtn');
+    if (luConfirmBtn){
+      luConfirmBtn.disabled = true;
+      luConfirmBtn.onclick = null;
+    }
+
     // Reveal rewards after the cinematic beat
     state.ui.levelUpCineT = setTimeout(()=>{
       try{ modal.classList.add('cine-done'); }catch(_e){}
-    }, 1600);
+    }, 560);
     // Mobile: always start at the top of the modal (iOS Safari may keep scroll position)
     try{
       const body = modal.querySelector('#levelUpScrollArea');
@@ -521,7 +533,7 @@ function _heroArtCandidates(hero){
     if (!hero) return;
     const pending = getNextPendingReward(hero);
     const grid = $('#levelUpChoices');
-    const scrollArea = $('#levelUpScrollArea');
+    const confirmBtn = $('#levelUpConfirmBtn');
     if (!grid) return;
 
     grid.innerHTML = '';
@@ -529,17 +541,16 @@ function _heroArtCandidates(hero){
 
     const auto = pending.autoStat;
     const needsAuto = !!(auto && auto.required && !auto.applied);
-
-    if (needsAuto && mode !== 'autoStat'){
-      mode = 'autoStat';
-    }
-
-    if (scrollArea){
-      const rightSideModes = ['autoStat', 'main', 'statExtra'];
-      scrollArea.classList.toggle('luBody--statPick', rightSideModes.includes(mode));
-    }
+    if (needsAuto && mode !== 'autoStat') mode = 'autoStat';
 
     grid.dataset.mode = mode;
+    state.ui.levelUpPick = null;
+
+    if (confirmBtn){
+      confirmBtn.disabled = true;
+      confirmBtn.onclick = null;
+      confirmBtn.textContent = mode === 'autoStat' ? 'APLICAR STAT' : 'CONFIRMAR';
+    }
 
     const statKeysAll = ['INT','SAB','CAR','RES','CRE'];
     const statOptions = Array.isArray(auto?.options) && auto.options.length
@@ -557,12 +568,34 @@ function _heroArtCandidates(hero){
       return {cur, nxt};
     };
 
+    const setSelected = (btn, payload)=>{
+      Array.from(grid.querySelectorAll('.levelUpStatRow')).forEach((n)=> n.classList.remove('is-selected', 'stat-row--selected'));
+      btn.classList.add('is-selected', 'stat-row--selected');
+      state.ui.levelUpPick = payload;
+      if (confirmBtn) confirmBtn.disabled = false;
+    };
+
+    const popValue = (btn)=>{
+      const valueEl = btn.querySelector('.levelUpStatRow__value');
+      if (!valueEl) return;
+      valueEl.classList.remove('is-pop');
+      void valueEl.offsetWidth;
+      valueEl.classList.add('is-pop');
+    };
+
+    const bindConfirm = (fn)=>{
+      if (!confirmBtn) return;
+      confirmBtn.onclick = ()=>{
+        if (confirmBtn.disabled || state.ui.claimingReward) return;
+        confirmBtn.disabled = true;
+        fn();
+      };
+    };
+
     if (mode === 'autoStat'){
       const head = document.createElement('div');
       head.className = 'levelUpStatHead';
-      head.innerHTML = `
-        <div class="levelUpStatHead__title">Elige una stat para subir +1</div>
-      `;
+      head.innerHTML = '<div class="levelUpStatHead__title">Elige una stat para subir +1</div>';
       grid.appendChild(head);
 
       const wrap = document.createElement('div');
@@ -573,86 +606,87 @@ function _heroArtCandidates(hero){
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
         const pct = Math.max(0, Math.min(100, (curVal / 20) * 100));
-
         const row = document.createElement('button');
         row.type = 'button';
-        row.className = 'levelUpStatRow';
-        row.setAttribute('aria-label', `Subir ${k} de ${curVal} a ${Math.min(20, curVal + 1)}`);
-
-        const name = document.createElement('div');
-        name.className = 'levelUpStatRow__name';
-        name.textContent = k;
-
-        const meter = document.createElement('div');
-        meter.className = 'levelUpStatRow__meter';
-        meter.innerHTML = `<span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="width:${pct}%"></span></span>`;
-
-        const valueWrap = document.createElement('div');
-        valueWrap.className = 'levelUpStatRow__right';
-        valueWrap.innerHTML = `
-          <span class="levelUpStatRow__value">${curVal}</span>
-          <span class="levelUpStatRow__gain">+1</span>
+        row.className = 'levelUpStatRow stat-row';
+        row.innerHTML = `
+          <span class="levelUpStatRow__name">${k}</span>
+          <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
+          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain">+1</span></span>
         `;
-
-        row.addEventListener('click', ()=>{
-          incStat(k, 1);
-          pending.autoStat.applied = true;
-          pending.autoStat.chosen = k;
-          saveData();
-          renderAll();
-          toast(`+1 ${k} aplicado. Ahora elige tu recompensa`);
-          renderLevelUpChoices('main');
-        });
-
-        row.appendChild(name);
-        row.appendChild(meter);
-        row.appendChild(valueWrap);
+        row.addEventListener('click', ()=>{ setSelected(row, {kind:'autoStat', stat:k}); popValue(row); });
         wrap.appendChild(row);
+      });
+
+      requestAnimationFrame(()=>{
+        wrap.querySelectorAll('.levelUpStatRow__fill').forEach((fill)=>{
+          const target = Number(fill.dataset.fillTarget || 0);
+          fill.style.setProperty('--fill-width', `${Math.max(0, Math.min(100, target))}%`);
+        });
+      });
+
+      bindConfirm(()=>{
+        const pick = state.ui.levelUpPick;
+        if (!pick || pick.kind !== 'autoStat') return;
+        incStat(pick.stat, 1);
+        pending.autoStat.applied = true;
+        pending.autoStat.chosen = pick.stat;
+        saveData();
+        renderAll();
+        toast(`+1 ${pick.stat} aplicado. Ahora elige tu recompensa`);
+        renderLevelUpChoices('main');
       });
       return;
     }
 
     if (mode === 'statExtra'){
       const header = document.createElement('div');
-      header.style.display = 'flex';
-      header.style.gap = '10px';
-      header.style.alignItems = 'center';
-      header.style.justifyContent = 'space-between';
-      header.innerHTML = '<div class="small muted">Elige una stat extra</div>';
+      header.className = 'levelUpStatHead';
+      header.innerHTML = '<div class="levelUpStatHead__title">Elige una stat extra</div>';
       const backBtn = document.createElement('button');
       backBtn.type = 'button';
-      backBtn.className = 'pill pill--small pill--ghost';
+      backBtn.className = 'luBackBtn';
       backBtn.textContent = '← Volver';
       backBtn.addEventListener('click', ()=> renderLevelUpChoices('main'));
       header.appendChild(backBtn);
       grid.appendChild(header);
 
       const wrap2 = document.createElement('div');
-      wrap2.className = 'levelupChoicesSimple';
+      wrap2.className = 'levelUpStatsList';
       grid.appendChild(wrap2);
 
       statKeysAll.forEach((k)=>{
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
+        const pct = Math.max(0, Math.min(100, (curVal / 20) * 100));
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'pill';
-        btn.textContent = `${k} +1 (Actual: ${curVal})`;
-        btn.addEventListener('click', ()=>{
-          incStat(k, 1);
-          claimPendingReward({
-            rewardId: 'stat+1',
-            title: `+1 ${k}`,
-            badge: '+1 stat'
-          });
-        });
+        btn.className = 'levelUpStatRow stat-row';
+        btn.innerHTML = `
+          <span class="levelUpStatRow__name">${k}</span>
+          <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
+          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain">+1</span></span>
+        `;
+        btn.addEventListener('click', ()=>{ setSelected(btn, {kind:'statExtra', stat:k}); popValue(btn); });
         wrap2.appendChild(btn);
+      });
+
+      requestAnimationFrame(()=>{
+        wrap2.querySelectorAll('.levelUpStatRow__fill').forEach((fill)=>{
+          const target = Number(fill.dataset.fillTarget || 0);
+          fill.style.setProperty('--fill-width', `${Math.max(0, Math.min(100, target))}%`);
+        });
+      });
+
+      bindConfirm(()=>{
+        const pick = state.ui.levelUpPick;
+        if (!pick || pick.kind !== 'statExtra') return;
+        incStat(pick.stat, 1);
+        claimPendingReward({ rewardId: 'stat+1', title: `+1 ${pick.stat}`, badge: '+1 stat' });
       });
       return;
     }
 
-    
-    // --- main rewards ---
     const rewardsHead = document.createElement('div');
     rewardsHead.className = 'levelUpStatHead';
     rewardsHead.innerHTML = '<div class="levelUpStatHead__title">Elige tu recompensa</div>';
@@ -672,7 +706,7 @@ function _heroArtCandidates(hero){
     opts.forEach((o)=>{
       const div = document.createElement('button');
       div.type = 'button';
-      div.className = 'levelUpStatRow levelUpRewardRow';
+      div.className = 'levelUpStatRow levelUpRewardRow stat-row';
       const rewardMeta = {
         'stat+1': { label: 'STAT', value: '+1', detail: 'Mejora extra' },
         'xp+30': { label: 'XP', value: '+30', detail: 'Sin subir de nivel' },
@@ -682,59 +716,54 @@ function _heroArtCandidates(hero){
 
       div.innerHTML = `
         <span class="levelUpStatRow__name">${rewardMeta.label}</span>
-        <span class="levelUpRewardRow__titleWrap">
-          <span class="levelUpRewardRow__title">${o.title}</span>
-          <span class="levelUpRewardRow__detail">${rewardMeta.detail}</span>
-        </span>
-        <span class="levelUpRewardRow__right">
-          <span class="levelUpRewardRow__value">${rewardMeta.value}</span>
-        </span>
+        <span class="levelUpRewardRow__titleWrap"><span class="levelUpRewardRow__title">${o.title}</span><span class="levelUpRewardRow__detail">${rewardMeta.detail}</span></span>
+        <span class="levelUpRewardRow__right"><span class="levelUpRewardRow__value">${rewardMeta.value}</span></span>
       `;
 
-      div.addEventListener('click', ()=>{
-        if (o.id === 'stat+1'){
-          renderLevelUpChoices('statExtra');
-          return;
-        }
-
-        if (o.id === 'xp+30'){
-          const xpMax = Number(hero.xpMax ?? 100);
-          const cur = Number(hero.xp ?? 0);
-          // Allow at least 5 XP even near level-up (capped at xpMax - 1 to prevent accidental level-up)
-          const safeCap = Math.max(0, xpMax - 1);
-          const add = Math.max(5, Math.min(30, safeCap - cur));
-          // If hero is so close that even 5 XP would level up, clamp to safeCap - cur (min 1)
-          const finalAdd = Math.max(1, Math.min(add, safeCap - cur));
-          if (finalAdd > 0){
-            hero.xp = cur + finalAdd;
-            hero.totalXp = Number(hero.totalXp ?? 0) + finalAdd;
-            saveData();
-            renderAll();
-          }
-          claimPendingReward({ rewardId:'xp+30', title:`+${finalAdd} XP`, badge:'+XP' });
-          return;
-        }
-
-        if (o.id === 'medal+1'){
-          hero.medals = Number(hero.medals ?? 0) + 1;
-          saveData();
-          renderAll();
-          claimPendingReward({ rewardId:'medal+1', title:'+1 medalla', badge:'+Medalla' });
-          return;
-        }
-
-        if (o.id === 'doubleNext'){
-          hero.nextChallengeMultiplier = 2;
-          saveData();
-          renderAll();
-          claimPendingReward({ rewardId:'doubleNext', title:'Doble XP (siguiente desafío)', badge:'x2 XP' });
-          return;
-        }
-      });
-
+      div.addEventListener('click', ()=> setSelected(div, {kind:'reward', reward:o.id}));
       wrap.appendChild(div);
     });
-}
+
+    bindConfirm(()=>{
+      const pick = state.ui.levelUpPick;
+      if (!pick || pick.kind !== 'reward') return;
+      if (pick.reward === 'stat+1'){
+        renderLevelUpChoices('statExtra');
+        return;
+      }
+
+      if (pick.reward === 'xp+30'){
+        const xpMax = Number(hero.xpMax ?? 100);
+        const cur = Number(hero.xp ?? 0);
+        const safeCap = Math.max(0, xpMax - 1);
+        const add = Math.max(5, Math.min(30, safeCap - cur));
+        const finalAdd = Math.max(1, Math.min(add, safeCap - cur));
+        if (finalAdd > 0){
+          hero.xp = cur + finalAdd;
+          hero.totalXp = Number(hero.totalXp ?? 0) + finalAdd;
+          saveData();
+          renderAll();
+        }
+        claimPendingReward({ rewardId:'xp+30', title:`+${finalAdd} XP`, badge:'+XP' });
+        return;
+      }
+
+      if (pick.reward === 'medal+1'){
+        hero.medals = Number(hero.medals ?? 0) + 1;
+        saveData();
+        renderAll();
+        claimPendingReward({ rewardId:'medal+1', title:'+1 medalla', badge:'+Medalla' });
+        return;
+      }
+
+      if (pick.reward === 'doubleNext'){
+        hero.nextChallengeMultiplier = 2;
+        saveData();
+        renderAll();
+        claimPendingReward({ rewardId:'doubleNext', title:'Doble XP (siguiente desafío)', badge:'x2 XP' });
+      }
+    });
+  }
 
   function claimPendingReward({rewardId, title, badge}){
     const hero = currentHero();

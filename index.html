@@ -72,9 +72,7 @@
         </button>
 
         <div class="brand" aria-label="LevelUp">
-          <div class="brand__logo" aria-hidden="true">
-            <img class="brand__logoImg" src="assets/logo.png" alt="" />
-          </div>
+          <img class="brand__logoImg" src="assets/logo.png" alt="LevelUp" />
           <div class="brand__text">
             <div class="brand__title">MISIONES · RETOS · RECOMPENSAS</div>
             <div class="brand__subtitle" id="brandSubtitle">LevelUp</div>
@@ -401,21 +399,30 @@
         <div class="luLayout">
           <div class="luVisualCol">
             <div class="luHeroArt" id="levelUpHeroArt" aria-hidden="true"></div>
-            <div class="luLevelOverlay" aria-hidden="false">
-              <div class="luLevelLabel">LV.</div>
-              <div class="luNum" id="levelUpNum">1</div>
+            <div class="luTopMeta" aria-hidden="false">
               <div class="luHeroName" id="levelUpHeroName">Héroe</div>
+              <div class="luLevelCompact">
+                <span class="luLevelLabel">LV</span>
+                <span class="luNum" id="levelUpNum">1</span>
+              </div>
             </div>
           </div>
 
-          <div class="luDivider" aria-hidden="true"></div>
-
           <div class="luBody" id="levelUpScrollArea">
-            <div class="luHead">
-              <div class="luKicker" id="levelUpTitle">¡Subiste de nivel!</div>
-            </div>
+            <div class="levelup-panel" id="levelUpPanel">
+              <div class="luHead">
+                <div class="luKicker">Recompensa desbloqueada</div>
+                <div class="luTitleGlow" aria-hidden="true"></div>
+                <h2 class="luTitle" id="levelUpTitle">¡SUBISTE DE NIVEL!</h2>
+                <div class="luSubtitle">Elige una mejora para continuar</div>
+              </div>
 
-            <div class="luChoices" id="levelUpChoices"></div>
+              <div class="luChoices" id="levelUpChoices"></div>
+
+              <div class="luConfirmWrap">
+                <button type="button" class="confirm-btn" id="levelUpConfirmBtn" disabled>CONFIRMAR</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

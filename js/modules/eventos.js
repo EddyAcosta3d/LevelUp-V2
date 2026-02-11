@@ -338,8 +338,34 @@
     if (title) title.textContent = `¡Un nuevo ${kind.toLowerCase()} apareció!`;
     if (sub) sub.textContent = t;
 
-    // Si estamos usando la variante por imagen completa (arte ya con texto),
-    // usamos celebrationImage del evento si existe; si no, fallback al image normal.
+    const isPortraitViewport = (()=>{
+      // Forzamos criterio por aspecto real del viewport para evitar falsos negativos
+      // de matchMedia en algunos webviews/navegadores embebidos.
+      try{
+        const vw = Number(window.visualViewport?.width || window.innerWidth || 0);
+        const vh = Number(window.visualViewport?.height || window.innerHeight || 0);
+        return vh >= vw;
+      }catch(_e){}
+      return false;
+    })();
+
+    const resolveVerticalCelebrationSrc = ()=>{
+      const direct = (ev && ev.celebrationImage) ? String(ev.celebrationImage) : '';
+      if (direct) return direct;
+
+      const id = String(ev?.id || '').toLowerCase();
+      const title = String(ev?.title || '').toLowerCase();
+      const key = [id, title].join(' ');
+      if (/loquito/.test(key)) return 'assets/celebrations/loquito_challenger.webp';
+      if (/garbanzo/.test(key)) return 'assets/celebrations/garbanzo_challenger.webp';
+      if (/guardia/.test(key)) return 'assets/celebrations/guardia_challenger.webp';
+      if (/prefecto/.test(key)) return 'assets/celebrations/prefecto_challenger.webp';
+      return '';
+    };
+
+    // Si estamos usando la variante por imagen completa (arte ya con texto):
+    // - vertical: prioriza celebrationImage (arte vertical challenger)
+    // - horizontal: prioriza image (arte modal horizontal)
     const useFullImage = ov.classList && ov.classList.contains('bossUnlock--img');
     if (!useFullImage){
       // Use unlocked image if available; fallback to lockedImage
@@ -348,12 +374,19 @@
         img.style.backgroundImage = src ? `url(${src})` : '';
       }
     } else {
-      // Full-image variant: usar celebrationImage si existe, sino image normal
-      const src = (ev && ev.celebrationImage) ? ev.celebrationImage
-                : (ev && ev.image) ? ev.image : '';
+      const verticalSrc = resolveVerticalCelebrationSrc();
+      const src = isPortraitViewport
+        ? (verticalSrc || (ev && ev.image ? ev.image : ''))
+        : ((ev && ev.image) ? ev.image : verticalSrc);
       if (img){
         img.style.backgroundImage = src ? `url(${src})` : '';
+        if (src && /\/assets\/celebrations\//.test(src)){
+          img.setAttribute('data-boss-art', 'vertical');
+        } else {
+          img.setAttribute('data-boss-art', 'default');
+        }
       }
+      try{ ov.classList.toggle('bossUnlock--portraitArt', !!isPortraitViewport); }catch(_e){}
     }
 
 
