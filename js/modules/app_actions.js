@@ -513,6 +513,7 @@ function _heroArtCandidates(hero){
     if (!hero) return;
     const pending = getNextPendingReward(hero);
     const grid = $('#levelUpChoices');
+    const scrollArea = $('#levelUpScrollArea');
     if (!grid) return;
 
     grid.innerHTML = '';
@@ -523,6 +524,10 @@ function _heroArtCandidates(hero){
 
     if (needsAuto && mode !== 'autoStat'){
       mode = 'autoStat';
+    }
+
+    if (scrollArea){
+      scrollArea.classList.toggle('luBody--statPick', mode === 'autoStat');
     }
 
     grid.dataset.mode = mode;
@@ -544,32 +549,57 @@ function _heroArtCandidates(hero){
     };
 
     if (mode === 'autoStat'){
-      const title = document.createElement('p');
-      title.className = 'small muted';
-      title.textContent = 'Elige la stat base del nivel (+1)';
-      grid.appendChild(title);
+      const head = document.createElement('div');
+      head.className = 'levelUpStatHead';
+      head.innerHTML = `
+        <div class="levelUpStatHead__title">Elige una stat para subir +1</div>
+        <span class="badge badge--mini">Paso 1 de 2</span>
+      `;
+      grid.appendChild(head);
 
       const wrap = document.createElement('div');
-      wrap.className = 'levelupChoicesSimple';
+      wrap.className = 'levelUpStatsList';
       grid.appendChild(wrap);
 
       statOptions.forEach((k)=>{
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'pill';
-        btn.textContent = `${k} +1 (Actual: ${curVal})`;
-        btn.addEventListener('click', ()=>{
+        const pct = Math.max(0, Math.min(100, (curVal / 20) * 100));
+
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'levelUpStatRow';
+        row.setAttribute('aria-label', `Subir ${k} de ${curVal} a ${Math.min(20, curVal + 1)}`);
+
+        const name = document.createElement('div');
+        name.className = 'levelUpStatRow__name';
+        name.textContent = k;
+
+        const meter = document.createElement('div');
+        meter.className = 'levelUpStatRow__meter';
+        meter.innerHTML = `<span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="width:${pct}%"></span></span>`;
+
+        const valueWrap = document.createElement('div');
+        valueWrap.className = 'levelUpStatRow__right';
+        valueWrap.innerHTML = `
+          <span class="levelUpStatRow__value">${curVal}</span>
+          <span class="levelUpStatRow__gain">+1</span>
+        `;
+
+        row.addEventListener('click', ()=>{
           incStat(k, 1);
           pending.autoStat.applied = true;
           pending.autoStat.chosen = k;
           saveData();
           renderAll();
-          toast(`+1 ${k} (del nivel)`);
+          toast(`+1 ${k} aplicado. Ahora elige tu recompensa`);
           renderLevelUpChoices('main');
         });
-        wrap.appendChild(btn);
+
+        row.appendChild(name);
+        row.appendChild(meter);
+        row.appendChild(valueWrap);
+        wrap.appendChild(row);
       });
       return;
     }
@@ -615,6 +645,11 @@ function _heroArtCandidates(hero){
 
     
     // --- main rewards ---
+    const rewardsHead = document.createElement('div');
+    rewardsHead.className = 'levelUpStatHead';
+    rewardsHead.innerHTML = '<div class="levelUpStatHead__title">Elige tu recompensa</div><span class="badge badge--mini">Paso 2 de 2</span>';
+    grid.appendChild(rewardsHead);
+
     const opts = [
       { id:'stat+1', kind:'stat', title:'+1 stat extra' },
       { id:'xp+30', kind:'xp', title:'+30 XP' },
