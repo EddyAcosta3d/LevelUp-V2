@@ -327,9 +327,12 @@ function _heroArtCandidates(hero){
   function setBgWithFallback(el, urls){
     if (!el) return;
     const list = _uniqueUrls(urls);
+    const reqId = String(Date.now()) + Math.random().toString(16).slice(2);
+    el.dataset.luBgReq = reqId;
+    // Clear old art immediately so we never flash the previous hero while loading.
+    el.style.backgroundImage = '';
+    el.classList.remove('has-art');
     if (!list.length){
-      el.style.backgroundImage = '';
-      el.classList.remove('has-art');
       return;
     }
     let i = 0;
@@ -342,10 +345,15 @@ function _heroArtCandidates(hero){
       const url = list[i];
       const img = new Image();
       img.onload = ()=>{
+        if (el.dataset.luBgReq !== reqId) return;
         el.style.backgroundImage = `url('${url}')`;
         el.classList.add('has-art');
       };
-      img.onerror = ()=>{ i++; tryLoad(); };
+      img.onerror = ()=>{
+        if (el.dataset.luBgReq !== reqId) return;
+        i++;
+        tryLoad();
+      };
       img.src = url;
     };
     tryLoad();
@@ -527,7 +535,8 @@ function _heroArtCandidates(hero){
     }
 
     if (scrollArea){
-      scrollArea.classList.toggle('luBody--statPick', mode === 'autoStat');
+      const rightSideModes = ['autoStat', 'main', 'statExtra'];
+      scrollArea.classList.toggle('luBody--statPick', rightSideModes.includes(mode));
     }
 
     grid.dataset.mode = mode;
@@ -553,7 +562,6 @@ function _heroArtCandidates(hero){
       head.className = 'levelUpStatHead';
       head.innerHTML = `
         <div class="levelUpStatHead__title">Elige una stat para subir +1</div>
-        <span class="badge badge--mini">Paso 1 de 2</span>
       `;
       grid.appendChild(head);
 
@@ -647,7 +655,7 @@ function _heroArtCandidates(hero){
     // --- main rewards ---
     const rewardsHead = document.createElement('div');
     rewardsHead.className = 'levelUpStatHead';
-    rewardsHead.innerHTML = '<div class="levelUpStatHead__title">Elige tu recompensa</div><span class="badge badge--mini">Paso 2 de 2</span>';
+    rewardsHead.innerHTML = '<div class="levelUpStatHead__title">Elige tu recompensa</div>';
     grid.appendChild(rewardsHead);
 
     const opts = [
@@ -658,14 +666,30 @@ function _heroArtCandidates(hero){
     ];
 
     const wrap = document.createElement('div');
-    wrap.className = 'levelupChoicesSimple';
+    wrap.className = 'levelUpStatsList levelUpStatsList--rewards';
     grid.appendChild(wrap);
 
     opts.forEach((o)=>{
       const div = document.createElement('button');
       div.type = 'button';
-      div.className = 'pill';
-      div.textContent = o.title;
+      div.className = 'levelUpStatRow levelUpRewardRow';
+      const rewardMeta = {
+        'stat+1': { label: 'STAT', value: '+1', detail: 'Mejora extra' },
+        'xp+30': { label: 'XP', value: '+30', detail: 'Sin subir de nivel' },
+        'medal+1': { label: 'MED', value: '+1', detail: 'Medalla instantánea' },
+        'doubleNext': { label: 'x2', value: 'NEXT', detail: 'Próximo desafío' }
+      }[o.id] || { label: 'BONUS', value: '+', detail: '' };
+
+      div.innerHTML = `
+        <span class="levelUpStatRow__name">${rewardMeta.label}</span>
+        <span class="levelUpRewardRow__titleWrap">
+          <span class="levelUpRewardRow__title">${o.title}</span>
+          <span class="levelUpRewardRow__detail">${rewardMeta.detail}</span>
+        </span>
+        <span class="levelUpRewardRow__right">
+          <span class="levelUpRewardRow__value">${rewardMeta.value}</span>
+        </span>
+      `;
 
       div.addEventListener('click', ()=>{
         if (o.id === 'stat+1'){

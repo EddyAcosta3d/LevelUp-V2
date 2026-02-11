@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <!-- iOS: evita zoom raro al rotar y mantiene el layout estable -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
   <!-- LevelUp STABLE_RESET_v15_CLEAN -->
 <title>LevelUp</title>
@@ -398,25 +398,25 @@
       <div class="modal__backdrop" id="levelUpBackdrop"></div>
 
       <div class="modal__card luCard" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
-        <!-- STAGE -->
-        <div class="luStage" id="levelUpStage">
-          <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
-          <div class="luStageShade" aria-hidden="true"></div>
+        <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
+        <div class="luStageShade" aria-hidden="true"></div>
 
-          <div class="luStageText">
-            <div class="luKicker" id="levelUpTitle">¡Desbloqueaste un nuevo nivel!</div>
-          </div>
-
-          <div class="luBadgeWrap" aria-hidden="false">
-            <div class="luBadge">
+        <div class="luLayout">
+          <div class="luVisualCol">
+            <div class="luHeroArt" id="levelUpHeroArt" aria-hidden="true"></div>
+            <div class="luLevelOverlay" aria-hidden="false">
+              <div class="luLevelLabel">LV.</div>
               <div class="luNum" id="levelUpNum">1</div>
             </div>
           </div>
-        </div>
 
-        <!-- BODY -->
-        <div class="luBody" id="levelUpScrollArea">
-          <div class="luChoices" id="levelUpChoices"></div>
+          <div class="luBody" id="levelUpScrollArea">
+            <div class="luHead">
+              <div class="luKicker" id="levelUpTitle">¡Subiste de nivel!</div>
+            </div>
+
+            <div class="luChoices" id="levelUpChoices"></div>
+          </div>
         </div>
       </div>
     </div>

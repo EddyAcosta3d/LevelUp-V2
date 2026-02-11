@@ -214,6 +214,10 @@ body.levelup-priority .bottomNav {
   gap: 8px;
 }
 
+.levelUpStatsList--rewards {
+  gap: 10px;
+}
+
 .levelUpStatRow {
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr) auto;
@@ -290,6 +294,50 @@ body.levelup-priority .bottomNav {
   box-shadow: 0 0 0 1px rgba(163, 231, 255, 0.9) inset;
 }
 
+.levelUpRewardRow {
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  padding: 10px 8px;
+  text-align: left;
+}
+
+.levelUpRewardRow__titleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.levelUpRewardRow__title {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #f2f6ff;
+  line-height: 1.2;
+}
+
+.levelUpRewardRow__detail {
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: rgba(210, 222, 255, 0.86);
+}
+
+.levelUpRewardRow__right {
+  display: inline-flex;
+  justify-content: flex-end;
+  min-width: 62px;
+}
+
+.levelUpRewardRow__value {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #f3fbff;
+  background: linear-gradient(180deg, rgba(36, 164, 230, 0.97), rgba(19, 124, 196, 0.96));
+  box-shadow: 0 0 0 1px rgba(163, 231, 255, 0.9) inset;
+}
+
 .rewardPick {
   position: relative;
   background: rgba(16, 24, 44, 0.85);
@@ -350,18 +398,59 @@ body.levelup-priority .bottomNav {
 }
 
 @media (max-width: 920px) {
+  .luStageBg {
+    filter: brightness(0.4) saturate(1.06);
+  }
+
+  .luStageShade {
+    background:
+      linear-gradient(180deg, rgba(4, 8, 16, 0.22) 0%, rgba(4, 8, 16, 0.58) 46%, rgba(5, 8, 16, 0.94) 100%),
+      radial-gradient(circle at 30% 28%, rgba(248, 211, 106, 0.14), transparent 46%);
+  }
+
   .luHeroArt {
-    opacity: 0.44;
+    inset: 0 0 38% 0;
+    opacity: 0.9;
     background-size: cover;
-    background-position: center bottom;
+    background-position: center top;
+    filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.58));
+  }
+
+  .luLevelOverlay {
+    left: 14px;
+    right: 14px;
+    bottom: calc(38% - 26px);
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(8, 12, 22, 0.9), rgba(7, 12, 20, 0.76));
+    border: 1px solid rgba(255, 255, 255, 0.22);
+  }
+
+  .luLevelLabel {
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+  }
+
+  .luNum {
+    font-size: clamp(2.2rem, 14vw, 4.2rem);
   }
 
   .luBody {
     left: 10px;
     right: 10px;
+    top: auto;
+    bottom: 10px;
     width: auto;
-    top: 10px;
-    max-height: calc(100vh - 20px);
+    max-height: 36vh;
+    padding: 12px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(11, 16, 28, 0.94), rgba(6, 10, 20, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(3px);
+    box-shadow: 0 -16px 26px rgba(0, 0, 0, 0.38);
   }
 
   .luBody--statPick {
@@ -369,36 +458,62 @@ body.levelup-priority .bottomNav {
     right: 10px;
   }
 
+  .luKicker {
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+  }
+
+  .levelUpStatHead {
+    margin-bottom: 6px;
+  }
+
+  .levelUpStatHead__title {
+    width: 100%;
+    text-align: center;
+    font-size: 0.94rem;
+    letter-spacing: 0.04em;
+  }
+
+  .levelUpStatsList,
+  .levelUpStatsList--rewards {
+    gap: 7px;
+  }
+
   .levelUpStatRow {
     grid-template-columns: 30px minmax(0, 1fr) auto;
     gap: 8px;
-    padding: 6px 4px;
+    padding: 7px 6px;
+    border-radius: 6px;
+  }
+
+  .levelUpRewardRow {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+  }
+
+  .levelUpRewardRow__title {
+    font-size: 0.89rem;
+  }
+
+  .levelUpRewardRow__value {
+    font-size: 0.68rem;
+    padding: 3px 6px;
   }
 
   .levelUpStatRow__value {
-    font-size: 1.45rem;
+    font-size: 1.35rem;
   }
 
   .levelUpStatRow__right {
-    min-width: 70px;
+    min-width: 68px;
     gap: 4px;
   }
 
   .levelUpStatRow__gain {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     padding: 2px 6px;
   }
 
   .luChoicesGrid--rewards {
     grid-template-columns: 1fr;
-  }
-
-  .luLevelOverlay {
-    left: 12px;
-    bottom: 10px;
-  }
-
-  .luNum {
-    font-size: clamp(2.8rem, 18vw, 5.2rem);
   }
 }
