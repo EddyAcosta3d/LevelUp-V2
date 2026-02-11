@@ -814,7 +814,15 @@ function toggleSubjectDropdown(){
       layers.forEach(layer => {
         const speed = parseFloat(layer.getAttribute('data-speed') || '0.2');
         // Efecto más fuerte (se nota más en celular al hacer scroll)
-        const y = (p - 0.5) * 380 * speed;
+        let y = (p - 0.5) * 380 * speed;
+
+        // Prioridad móvil: mantener FG anclada al borde inferior de la escena.
+        // Evitamos desplazamiento hacia arriba (y negativo) para que no "flote"
+        // separado del piso visual del background.
+        if (layer.classList && layer.classList.contains('heroSceneLayer--fg')){
+          y = Math.max(0, y);
+        }
+
         layer.style.transform = `translate3d(0, ${y}px, 0)`;
       });
     }
