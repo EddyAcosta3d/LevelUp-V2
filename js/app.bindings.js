@@ -684,7 +684,6 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
 
     // Level Up modal backdrop
     $('#levelUpBackdrop')?.addEventListener('click', closeLevelUpModal);
-    $('#btnLevelUpClose')?.addEventListener('click', closeLevelUpModal);
 
     // Confirm modal backdrop
     $('#confirmBackdrop')?.addEventListener('click', ()=>{ const b=$('#btnConfirmCancel'); if(b) b.click(); });

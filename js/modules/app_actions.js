@@ -437,14 +437,15 @@ function _heroArtCandidates(hero){
     }, 1600);
     // Mobile: always start at the top of the modal (iOS Safari may keep scroll position)
     try{
-      const body = modal.querySelector('.modal__body--levelup');
+      const body = modal.querySelector('#levelUpScrollArea');
       if (body) body.scrollTop = 0;
-      const card = modal.querySelector('.modal__card');
+      const card = modal.querySelector('.luCard');
       if (card){ card.setAttribute('tabindex','-1'); card.focus({preventScroll:true}); }
     }catch(_e){}
 
     try{ modal.style.pointerEvents = 'auto'; }catch(_e){}
     state.ui.levelUpOpen = true;
+    try{ document.body.classList.add('is-levelup-open'); }catch(_e){}
 
     // Persona-like entrance animation (re-trigger every time)
     const card = modal.querySelector('.luCard');
@@ -455,7 +456,7 @@ function _heroArtCandidates(hero){
     }
 
     // Stagger reward cards (more "Persona" motion).
-    const picks = Array.from(modal.querySelectorAll('.rewardPick'));
+    const picks = Array.from(modal.querySelectorAll('.levelupChoicesSimple .pill'));
     if (picks.length){
       picks.forEach((el, i)=>{
         el.classList.remove('lvlRewardIn');
@@ -496,6 +497,7 @@ function _heroArtCandidates(hero){
     try{ modal.style.pointerEvents = 'none'; }catch(_e){}
     modal.classList.remove('is-open');
     try{ document.body.classList.remove('levelup-priority'); }catch(_e){}
+    try{ document.body.classList.remove('is-levelup-open'); }catch(_e){}
     state.ui.levelUpOpen = false;
     // Wait for exit transition/animation so clicks can't slip through.
     setTimeout(()=>{
@@ -523,6 +525,8 @@ function _heroArtCandidates(hero){
       mode = 'autoStat';
     }
 
+    grid.dataset.mode = mode;
+
     const statKeysAll = ['INT','SAB','CAR','RES','CRE'];
     const statOptions = Array.isArray(auto?.options) && auto.options.length
       ? auto.options.map(x=>String(x).toUpperCase()).filter(x=>statKeysAll.includes(x))
@@ -540,22 +544,23 @@ function _heroArtCandidates(hero){
     };
 
     if (mode === 'autoStat'){
+      const title = document.createElement('p');
+      title.className = 'small muted';
+      title.textContent = 'Elige la stat base del nivel (+1)';
+      grid.appendChild(title);
+
       const wrap = document.createElement('div');
-      wrap.className = 'luChoicesGrid luChoicesGrid--stats levelUpStatsList';
+      wrap.className = 'levelupChoicesSimple';
       grid.appendChild(wrap);
 
-      statOptions.forEach((k, idx)=>{
+      statOptions.forEach((k)=>{
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
-        const row = document.createElement('div');
-        row.className = 'levelUpStatRow';
-        row.style.animationDelay = `${idx * 60}ms`;
-        row.innerHTML = `
-          <div class="levelUpStatRow__name">${k}</div>
-          <div class="levelUpStatRow__value">${curVal}</div>
-          <button type="button" class="levelUpStatRow__plus" aria-label="Subir ${k}">+</button>
-        `;
-        row.querySelector('.levelUpStatRow__plus')?.addEventListener('click', ()=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pill';
+        btn.textContent = `${k} +1 (Actual: ${curVal})`;
+        btn.addEventListener('click', ()=>{
           incStat(k, 1);
           pending.autoStat.applied = true;
           pending.autoStat.chosen = k;
@@ -564,37 +569,38 @@ function _heroArtCandidates(hero){
           toast(`+1 ${k} (del nivel)`);
           renderLevelUpChoices('main');
         });
-        wrap.appendChild(row);
+        wrap.appendChild(btn);
       });
       return;
     }
 
     if (mode === 'statExtra'){
-      const head = document.createElement('div');
-      head.className = 'levelUpStatHead';
-      head.innerHTML = `
-        <div class="levelUpStatHead__title">Elige una stat extra</div>
-        <button class="pill pill--small pill--ghost" type="button" id="btnLevelUpBack">← Volver</button>
-      `;
-      grid.appendChild(head);
-      head.querySelector('#btnLevelUpBack')?.addEventListener('click', ()=> renderLevelUpChoices('main'));
+      const header = document.createElement('div');
+      header.style.display = 'flex';
+      header.style.gap = '10px';
+      header.style.alignItems = 'center';
+      header.style.justifyContent = 'space-between';
+      header.innerHTML = '<div class="small muted">Elige una stat extra</div>';
+      const backBtn = document.createElement('button');
+      backBtn.type = 'button';
+      backBtn.className = 'pill pill--small pill--ghost';
+      backBtn.textContent = '← Volver';
+      backBtn.addEventListener('click', ()=> renderLevelUpChoices('main'));
+      header.appendChild(backBtn);
+      grid.appendChild(header);
 
       const wrap2 = document.createElement('div');
-      wrap2.className = 'luChoicesGrid luChoicesGrid--stats levelUpStatsList';
+      wrap2.className = 'levelupChoicesSimple';
       grid.appendChild(wrap2);
 
-      statKeysAll.forEach((k, idx)=>{
+      statKeysAll.forEach((k)=>{
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
-        const row = document.createElement('div');
-        row.className = 'levelUpStatRow';
-        row.style.animationDelay = `${idx * 60}ms`;
-        row.innerHTML = `
-          <div class="levelUpStatRow__name">${k}</div>
-          <div class="levelUpStatRow__value">${curVal}</div>
-          <button type="button" class="levelUpStatRow__plus" aria-label="Subir ${k}">+</button>
-        `;
-        row.querySelector('.levelUpStatRow__plus')?.addEventListener('click', ()=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pill';
+        btn.textContent = `${k} +1 (Actual: ${curVal})`;
+        btn.addEventListener('click', ()=>{
           incStat(k, 1);
           claimPendingReward({
             rewardId: 'stat+1',
@@ -602,7 +608,7 @@ function _heroArtCandidates(hero){
             badge: '+1 stat'
           });
         });
-        wrap2.appendChild(row);
+        wrap2.appendChild(btn);
       });
       return;
     }
@@ -616,28 +622,15 @@ function _heroArtCandidates(hero){
       { id:'doubleNext', kind:'x2', title:'Doble XP' }
     ];
 
-    // Title
-    const t = document.getElementById('levelUpPickTitle');
-    if (t) t.textContent = 'Elige tu recompensa';
-
-    // Grid wrapper (2 columnas, también en móvil por ahora)
     const wrap = document.createElement('div');
-    wrap.className = 'luChoicesGrid luChoicesGrid--rewards';
+    wrap.className = 'levelupChoicesSimple';
     grid.appendChild(wrap);
 
-    opts.forEach((o, idx)=>{
+    opts.forEach((o)=>{
       const div = document.createElement('button');
       div.type = 'button';
-      div.className = 'rewardPick rewardPick--card rewardPick--' + o.kind;
-      div.style.animationDelay = `${0.05 + idx * 0.06}s`;
-      const iconSvg = (o.kind === 'stat') ? `<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M12 3l7 4v10l-7 4-7-4V7l7-4z' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round'/><path d='M12 8v8M8 12h8' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg>`
-                    : (o.kind === 'xp') ? `<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M13 2L3 14h7l-1 8 12-14h-7l-1-6z' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round'/></svg>`
-                    : (o.kind === 'medal') ? `<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M7 2h4l1 5-3 2-2-7zM13 2h4l-2 7-3-2 1-5z' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round'/><circle cx='12' cy='16' r='5' fill='none' stroke='currentColor' stroke-width='2'/><path d='M12 13v6M9 16h6' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg>`
-                    : `<div style="font-size:48px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">⚡×2</div>`;
-      div.innerHTML = `
-        <div class="rewardPick__iconBig">${iconSvg}</div>
-        <div class="rewardPick__titleSmall">${escapeHtml(o.title)}</div>
-      `;
+      div.className = 'pill';
+      div.textContent = o.title;
 
       div.addEventListener('click', ()=>{
         if (o.id === 'stat+1'){
@@ -678,16 +671,9 @@ function _heroArtCandidates(hero){
           claimPendingReward({ rewardId:'doubleNext', title:'Doble XP (siguiente desafío)', badge:'x2 XP' });
           return;
         }
-        saveData();
-        renderAll();
-        claimPendingReward({
-          rewardId: 'stat+1',
-          title: `+1 ${k}`,
-          badge: '+1 stat'
-        });
       });
 
-      grid.appendChild(row);
+      wrap.appendChild(div);
     });
 }
 
@@ -790,16 +776,4 @@ function _heroArtCandidates(hero){
       modal.hidden = false;
       try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
     });
-  }
-
-  function statIconSvg(k){
-    const key = String(k||'').toUpperCase();
-    const icons = {
-      INT: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4c-2 0-3 2-3 4v2c0 2 1 4 3 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15 4c2 0 3 2 3 4v2c0 2-1 4-3 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 16c0 2 1 4 3 4s3-2 3-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 9h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
-      SAB: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>`,
-      CAR: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v10H8l-4 4V5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`,
-      RES: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 4v6c0 6-4 9-8 10-4-1-8-4-8-10V6l8-4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`,
-      CRE: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 6l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`
-    };
-    return icons[key] || `<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M12 3l7 4v10l-7 4-7-4V7l7-4z' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round'/><path d='M12 8v8M8 12h8' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg>`;
   }
