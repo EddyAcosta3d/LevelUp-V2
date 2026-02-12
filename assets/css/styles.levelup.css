@@ -84,14 +84,15 @@ body.levelup-priority .bottomNav {
 .luStageBg {
   background-image: var(--levelup-bg-image, none);
   background-size: cover;
-  background-position: center;
-  filter: brightness(0.22) saturate(1.05);
+  background-position: 72% center;
+  filter: brightness(0.42) saturate(1.12);
 }
 
 .luStageShade {
   background:
-    linear-gradient(180deg, rgba(4, 8, 16, 0.3) 0%, rgba(4, 8, 16, 0.62) 35%, rgba(5, 10, 20, 0.9) 100%),
-    radial-gradient(circle at 50% 82%, rgba(47, 187, 255, 0.2), transparent 56%);
+    linear-gradient(90deg, rgba(3, 7, 14, 0.96) 0%, rgba(3, 7, 14, 0.86) 32%, rgba(3, 7, 14, 0.52) 56%, rgba(3, 7, 14, 0.14) 76%, rgba(3, 7, 14, 0.00) 100%),
+    linear-gradient(180deg, rgba(4, 8, 16, 0.08) 0%, rgba(4, 8, 16, 0.2) 34%, rgba(5, 10, 20, 0.36) 100%),
+    radial-gradient(circle at 70% 74%, rgba(47, 187, 255, 0.20), transparent 58%);
 }
 
 .luLayout {
@@ -119,24 +120,64 @@ body.levelup-priority .bottomNav {
   opacity: 0.98;
 }
 
+
+.luLevelReadout {
+  order: 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #f5f0df;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.68);
+}
+
+.luLevelReadout::before {
+  content: "Lv";
+  font-family: "Cinzel", "Trajan Pro", "Times New Roman", serif;
+  font-size: clamp(2rem, 3.2vw, 3.1rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: none;
+  opacity: 0.98;
+}
+
+.luLevelReadout .luNum {
+  font-family: "Cinzel", "Trajan Pro", "Times New Roman", serif;
+  font-size: clamp(6.4rem, 12vw, 12rem);
+  line-height: 0.8;
+  font-weight: 900;
+}
+
 .luTopMeta {
   position: absolute;
   left: clamp(14px, 2.6vw, 24px);
   right: clamp(14px, 2.6vw, 24px);
   bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: end;
+  gap: 4px;
   z-index: 2;
 }
 
 .luHeroName {
+  order: 2;
   font-family: "Cinzel", "Trajan Pro", "Times New Roman", serif;
-  font-size: clamp(1.14rem, 2.7vw, 1.58rem);
-  letter-spacing: 0.05em;
-  color: #f6f3ea;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.62);
+  font-size: clamp(2rem, 4.4vw, 3.6rem);
+  letter-spacing: 0.04em;
+  color: #151515;
+  text-shadow: none;
+  width: fit-content;
+  min-width: min(560px, 92vw);
+  padding: 2px 14px 4px;
+  background: linear-gradient(180deg, rgba(242, 236, 220, 0.95), rgba(224, 216, 196, 0.9));
+  border-top: 1px solid rgba(80, 70, 48, 0.35);
+  border-bottom: 1px solid rgba(80, 70, 48, 0.35);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.14);
 }
 
 .luLevelCompact {
@@ -169,6 +210,20 @@ body.levelup-priority .bottomNav {
   position: relative;
   min-height: 0;
   padding: 0 clamp(10px, 2.2vw, 18px) max(8px, env(safe-area-inset-bottom));
+}
+
+.luBody::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(3,7,14,0.78) 0%, rgba(3,7,14,0.62) 55%, rgba(3,7,14,0.18) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.luBody > * {
+  position: relative;
+  z-index: 1;
 }
 
 .levelup-panel {
@@ -390,6 +445,13 @@ body.levelup-priority .bottomNav {
   filter: brightness(1.14);
 }
 
+.levelUpPlusBtn{
+  min-width: 42px;
+  min-height: 28px;
+  padding: 4px 10px;
+  font-weight: 900;
+}
+
 .levelUpRewardRow {
   grid-template-columns: 48px minmax(0, 1fr) minmax(70px, auto);
 }
@@ -494,31 +556,22 @@ body.levelup-priority .bottomNav {
     left: clamp(10px, 1.2vw, 18px);
     right: auto;
     bottom: clamp(14px, 2vh, 24px);
-    width: min(460px, 92%);
-    display: grid;
-    grid-template-columns: auto auto;
-    align-items: end;
-    justify-content: space-between;
-    gap: 16px;
+    width: min(620px, 94%);
+    gap: 6px;
   }
 
   .luHeroName {
-    font-size: clamp(1.72rem, 2.8vw, 2.62rem);
-    letter-spacing: 0.07em;
+    font-size: clamp(2.4rem, 4.4vw, 4.1rem);
+    letter-spacing: 0.06em;
+    min-width: min(600px, 94vw);
   }
 
-  .luLevelCompact {
-    padding: 10px 16px 12px;
-    border-radius: 16px;
+  .luLevelReadout::before {
+    font-size: clamp(2.2rem, 2.6vw, 3.3rem);
   }
 
-  .luLevelLabel {
-    font-size: 0.98rem;
-    letter-spacing: 0.16em;
-  }
-
-  .luNum {
-    font-size: clamp(2.9rem, 4.8vw, 4.1rem);
+  .luLevelReadout .luNum {
+    font-size: clamp(7.2rem, 12vw, 13.8rem);
   }
 
   .luBody {
