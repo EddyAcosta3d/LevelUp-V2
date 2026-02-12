@@ -303,19 +303,34 @@ function setRole(nextRole){
     return out;
   }
 
+  const LU_HERO_FG_PLACEHOLDER = 'assets/placeholders/placeholder_unlocked_3x4.webp';
+  const LU_HERO_BG_PLACEHOLDER = 'assets/placeholders/placeholder_unlocked_16x9.webp';
+
+  function _manifestHeroAssets(hero){
+    const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
+    if (!key || !window.__PARALLAX_MANIFEST__) return null;
+    const slug = _slugify(key);
+    if (!slug) return null;
+    return window.__PARALLAX_MANIFEST__[slug] || null;
+  }
+
   function resolveHeroArtUrls(hero){
-// Parallax-only art resolver (bg/mid/fg). We no longer use assets/personajes.
-const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
-const slug = key.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
-const exts = ['png','PNG','jpg','JPG','jpeg','JPEG','webp','WEBP'];
-const urls = [];
-for (const ext of exts){
-  urls.push(`assets/parallax/${slug}_bg.${ext}`);
-  urls.push(`assets/parallax/${slug}_mid.${ext}`);
-  urls.push(`assets/parallax/${slug}_fg.${ext}`);
-}
-return _uniqueUrls(urls);
-}
+    // Parallax-only art resolver (bg/mid/fg).
+    // Preferimos el manifest para evitar 404 masivos por rutas inventadas.
+    const manifestAssets = _manifestHeroAssets(hero);
+    if (manifestAssets){
+      return _uniqueUrls([manifestAssets.fg, manifestAssets.mid, manifestAssets.bg]);
+    }
+
+    const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
+    const slug = key.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
+    if (!slug) return [];
+    return _uniqueUrls([
+      `assets/parallax/${slug}_fg.webp`,
+      `assets/parallax/${slug}_mid.webp`,
+      `assets/parallax/${slug}_bg.webp`
+    ]);
+  }
 
 
 // Back-compat helper: some parts of the app still call this name.
@@ -383,35 +398,34 @@ function _heroArtCandidates(hero){
 
     closeAllModals('levelUpModal');
 
+    // Nombre del personaje debajo del nivel
     const heroNameEl = $('#levelUpHeroName');
     if (heroNameEl){
       heroNameEl.textContent = String(hero.name || hero.nombre || 'Héroe');
     }
 
-    // (sin nombre del personaje en el modal)
-
   // Background (parallax BG solamente).
   const stageBg = $('#levelUpStageBg');
   const heroArt = $('#levelUpHeroArt');
   if (stageBg){
-    const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';
-    const slug = key.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
-    const exts = ['png','PNG','jpg','JPG','jpeg','JPEG','webp','WEBP'];
-    const bgUrls = [];
-    for (const ext of exts){
-      bgUrls.push(`assets/parallax/${slug}_bg.${ext}`);
-    }
+    const manifestAssets = _manifestHeroAssets(hero);
+    const bgUrls = manifestAssets?.bg ? [manifestAssets.bg] : [
+      ...resolveHeroArtUrls(hero).filter(u=> /_bg\./i.test(String(u))),
+      LU_HERO_BG_PLACEHOLDER
+    ];
     setBgWithFallback(stageBg, bgUrls);
   }
 
   if (heroArt){
+    const resolvedArt = resolveHeroArtUrls(hero);
     const artUrls = _uniqueUrls([
       hero.photo,
       hero.img,
       hero.image,
       hero.photoSrc,
-      ...resolveHeroArtUrls(hero).filter(u=> /_fg\./i.test(String(u))),
-      ...resolveHeroArtUrls(hero)
+      ...resolvedArt.filter(u=> /_fg\./i.test(String(u))),
+      ...resolvedArt,
+      LU_HERO_FG_PLACEHOLDER
     ]);
     setBgWithFallback(heroArt, artUrls);
   }
@@ -445,11 +459,6 @@ function _heroArtCandidates(hero){
     try{ document.body.classList.add('levelup-priority'); }catch(_e){}
 
     state.ui.levelUpPick = null;
-    const luConfirmBtn = $('#levelUpConfirmBtn');
-    if (luConfirmBtn){
-      luConfirmBtn.disabled = true;
-      luConfirmBtn.onclick = null;
-    }
 
     // Reveal rewards after the cinematic beat
     state.ui.levelUpCineT = setTimeout(()=>{
@@ -533,7 +542,6 @@ function _heroArtCandidates(hero){
     if (!hero) return;
     const pending = getNextPendingReward(hero);
     const grid = $('#levelUpChoices');
-    const confirmBtn = $('#levelUpConfirmBtn');
     if (!grid) return;
 
     grid.innerHTML = '';
@@ -545,12 +553,6 @@ function _heroArtCandidates(hero){
 
     grid.dataset.mode = mode;
     state.ui.levelUpPick = null;
-
-    if (confirmBtn){
-      confirmBtn.disabled = true;
-      confirmBtn.onclick = null;
-      confirmBtn.textContent = mode === 'autoStat' ? 'APLICAR STAT' : 'CONFIRMAR';
-    }
 
     const statKeysAll = ['INT','SAB','CAR','RES','CRE'];
     const statOptions = Array.isArray(auto?.options) && auto.options.length
@@ -572,7 +574,6 @@ function _heroArtCandidates(hero){
       Array.from(grid.querySelectorAll('.levelUpStatRow')).forEach((n)=> n.classList.remove('is-selected', 'stat-row--selected'));
       btn.classList.add('is-selected', 'stat-row--selected');
       state.ui.levelUpPick = payload;
-      if (confirmBtn) confirmBtn.disabled = false;
     };
 
     const popValue = (btn)=>{
@@ -581,15 +582,6 @@ function _heroArtCandidates(hero){
       valueEl.classList.remove('is-pop');
       void valueEl.offsetWidth;
       valueEl.classList.add('is-pop');
-    };
-
-    const bindConfirm = (fn)=>{
-      if (!confirmBtn) return;
-      confirmBtn.onclick = ()=>{
-        if (confirmBtn.disabled || state.ui.claimingReward) return;
-        confirmBtn.disabled = true;
-        fn();
-      };
     };
 
     if (mode === 'autoStat'){
@@ -606,15 +598,29 @@ function _heroArtCandidates(hero){
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
         const pct = Math.max(0, Math.min(100, (curVal / 20) * 100));
-        const row = document.createElement('button');
-        row.type = 'button';
+        const row = document.createElement('div');
         row.className = 'levelUpStatRow stat-row';
         row.innerHTML = `
           <span class="levelUpStatRow__name">${k}</span>
           <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
-          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain">+1</span></span>
+          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain"><button type="button" class="pill pill--small levelUpPlusBtn">+1</button></span></span>
         `;
-        row.addEventListener('click', ()=>{ setSelected(row, {kind:'autoStat', stat:k}); popValue(row); });
+        const plusBtn = row.querySelector('.levelUpPlusBtn');
+        if (plusBtn){
+          plusBtn.addEventListener('click', (ev)=>{
+            ev.preventDefault();
+            ev.stopPropagation();
+            setSelected(row, {kind:'autoStat', stat:k});
+            popValue(row);
+            incStat(k, 1);
+            pending.autoStat.applied = true;
+            pending.autoStat.chosen = k;
+            saveData();
+            // Mantener el modal abierto y pasar directo a recompensas.
+            renderLevelUpChoices('main');
+            toast(`+1 ${k} aplicado. Ahora elige tu recompensa`);
+          });
+        }
         wrap.appendChild(row);
       });
 
@@ -625,17 +631,6 @@ function _heroArtCandidates(hero){
         });
       });
 
-      bindConfirm(()=>{
-        const pick = state.ui.levelUpPick;
-        if (!pick || pick.kind !== 'autoStat') return;
-        incStat(pick.stat, 1);
-        pending.autoStat.applied = true;
-        pending.autoStat.chosen = pick.stat;
-        saveData();
-        renderAll();
-        toast(`+1 ${pick.stat} aplicado. Ahora elige tu recompensa`);
-        renderLevelUpChoices('main');
-      });
       return;
     }
 
@@ -659,15 +654,24 @@ function _heroArtCandidates(hero){
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
         const pct = Math.max(0, Math.min(100, (curVal / 20) * 100));
-        const btn = document.createElement('button');
-        btn.type = 'button';
+        const btn = document.createElement('div');
         btn.className = 'levelUpStatRow stat-row';
         btn.innerHTML = `
           <span class="levelUpStatRow__name">${k}</span>
           <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
-          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain">+1</span></span>
+          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain"><button type="button" class="pill pill--small levelUpPlusBtn">+1</button></span></span>
         `;
-        btn.addEventListener('click', ()=>{ setSelected(btn, {kind:'statExtra', stat:k}); popValue(btn); });
+        const plusBtn = btn.querySelector('.levelUpPlusBtn');
+        if (plusBtn){
+          plusBtn.addEventListener('click', (ev)=>{
+            ev.preventDefault();
+            ev.stopPropagation();
+            setSelected(btn, {kind:'statExtra', stat:k});
+            popValue(btn);
+            incStat(k, 1);
+            claimPendingReward({ rewardId: 'stat+1', title: `+1 ${k}`, badge: '+1 stat' });
+          });
+        }
         wrap2.appendChild(btn);
       });
 
@@ -678,12 +682,6 @@ function _heroArtCandidates(hero){
         });
       });
 
-      bindConfirm(()=>{
-        const pick = state.ui.levelUpPick;
-        if (!pick || pick.kind !== 'statExtra') return;
-        incStat(pick.stat, 1);
-        claimPendingReward({ rewardId: 'stat+1', title: `+1 ${pick.stat}`, badge: '+1 stat' });
-      });
       return;
     }
 
@@ -720,48 +718,47 @@ function _heroArtCandidates(hero){
         <span class="levelUpRewardRow__right"><span class="levelUpRewardRow__value">${rewardMeta.value}</span></span>
       `;
 
-      div.addEventListener('click', ()=> setSelected(div, {kind:'reward', reward:o.id}));
-      wrap.appendChild(div);
-    });
+      div.addEventListener('click', ()=>{
+        if (state.ui.claimingReward) return;
+        setSelected(div, {kind:'reward', reward:o.id});
 
-    bindConfirm(()=>{
-      const pick = state.ui.levelUpPick;
-      if (!pick || pick.kind !== 'reward') return;
-      if (pick.reward === 'stat+1'){
-        renderLevelUpChoices('statExtra');
-        return;
-      }
+        if (o.id === 'stat+1'){
+          renderLevelUpChoices('statExtra');
+          return;
+        }
 
-      if (pick.reward === 'xp+30'){
-        const xpMax = Number(hero.xpMax ?? 100);
-        const cur = Number(hero.xp ?? 0);
-        const safeCap = Math.max(0, xpMax - 1);
-        const add = Math.max(5, Math.min(30, safeCap - cur));
-        const finalAdd = Math.max(1, Math.min(add, safeCap - cur));
-        if (finalAdd > 0){
-          hero.xp = cur + finalAdd;
-          hero.totalXp = Number(hero.totalXp ?? 0) + finalAdd;
+        if (o.id === 'xp+30'){
+          const xpMax = Number(hero.xpMax ?? 100);
+          const cur = Number(hero.xp ?? 0);
+          const safeCap = Math.max(0, xpMax - 1);
+          const add = Math.max(5, Math.min(30, safeCap - cur));
+          const finalAdd = Math.max(1, Math.min(add, safeCap - cur));
+          if (finalAdd > 0){
+            hero.xp = cur + finalAdd;
+            hero.totalXp = Number(hero.totalXp ?? 0) + finalAdd;
+            saveData();
+            renderAll();
+          }
+          claimPendingReward({ rewardId:'xp+30', title:`+${finalAdd} XP`, badge:'+XP' });
+          return;
+        }
+
+        if (o.id === 'medal+1'){
+          hero.medals = Number(hero.medals ?? 0) + 1;
           saveData();
           renderAll();
+          claimPendingReward({ rewardId:'medal+1', title:'+1 medalla', badge:'+Medalla' });
+          return;
         }
-        claimPendingReward({ rewardId:'xp+30', title:`+${finalAdd} XP`, badge:'+XP' });
-        return;
-      }
 
-      if (pick.reward === 'medal+1'){
-        hero.medals = Number(hero.medals ?? 0) + 1;
-        saveData();
-        renderAll();
-        claimPendingReward({ rewardId:'medal+1', title:'+1 medalla', badge:'+Medalla' });
-        return;
-      }
-
-      if (pick.reward === 'doubleNext'){
-        hero.nextChallengeMultiplier = 2;
-        saveData();
-        renderAll();
-        claimPendingReward({ rewardId:'doubleNext', title:'Doble XP (siguiente desafío)', badge:'x2 XP' });
-      }
+        if (o.id === 'doubleNext'){
+          hero.nextChallengeMultiplier = 2;
+          saveData();
+          renderAll();
+          claimPendingReward({ rewardId:'doubleNext', title:'Doble XP (siguiente desafío)', badge:'x2 XP' });
+        }
+      });
+      wrap.appendChild(div);
     });
   }
 
