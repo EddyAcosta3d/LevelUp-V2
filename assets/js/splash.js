@@ -1,6 +1,12 @@
 (()=>{
+  const SPLASH_ENABLED = false;
   const el = document.getElementById('splash');
   if (!el) return;
+
+  if (!SPLASH_ENABLED){
+    try { el.remove(); } catch (_e) {}
+    return;
+  }
 
   const MIN_MS = 2000;
   const start = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
