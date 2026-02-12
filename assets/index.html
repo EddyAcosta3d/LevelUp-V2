@@ -21,7 +21,7 @@
 <body>
   <!-- Splash: cambia la variante con la clase:
        splash--free (default), splash--orb, splash--curtain -->
-  <div class="splash splash--free" id="splash" aria-label="LevelUp" role="status">
+  <div class="splash splash--free" id="splash" aria-label="LevelUp" role="status" hidden data-splash-paused="1">
     <div class="splash__inner">
       <img class="splash__logo" src="assets/logo.png" alt="LevelUp" />
       <div class="splash__glow" aria-hidden="true"></div>
@@ -391,6 +391,7 @@
     <!-- Modal: Subir de nivel + elegir recompensa -->
     <div class="modal luModal" id="levelUpModal" hidden>
       <div class="modal__backdrop" id="levelUpBackdrop"></div>
+      <div class="levelup-bg" aria-hidden="true"></div>
 
       <div class="modal__card luCard" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
         <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
@@ -411,10 +412,10 @@
           <div class="luBody" id="levelUpScrollArea">
             <div class="levelup-panel" id="levelUpPanel">
               <div class="luHead">
-                <div class="luKicker">Recompensa desbloqueada</div>
+                <div class="luKicker">Stats increased</div>
                 <div class="luTitleGlow" aria-hidden="true"></div>
                 <h2 class="luTitle" id="levelUpTitle">¡SUBISTE DE NIVEL!</h2>
-                <div class="luSubtitle">Elige una mejora para continuar</div>
+                <div class="luSubtitle">¡Subiste de nivel!</div>
               </div>
 
               <div class="luChoices" id="levelUpChoices"></div>
