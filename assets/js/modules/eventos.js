@@ -356,10 +356,10 @@
       const id = String(ev?.id || '').toLowerCase();
       const title = String(ev?.title || '').toLowerCase();
       const key = [id, title].join(' ');
-      if (/loquito/.test(key)) return 'assets/celebrations/loquito_challenger.webp';
-      if (/garbanzo/.test(key)) return 'assets/celebrations/garbanzo_challenger.webp';
-      if (/guardia/.test(key)) return 'assets/celebrations/guardia_challenger.webp';
-      if (/prefecto/.test(key)) return 'assets/celebrations/prefecto_challenger.webp';
+      if (/loquito/.test(key)) return 'assets/celebrations/loquito_challenger_vertical.png';
+      if (/garbanzo/.test(key)) return 'assets/celebrations/garbanzo_challenger_vertical.png';
+      if (/guardia/.test(key)) return 'assets/celebrations/guardia_challenger_vertical.png';
+      if (/prefecto/.test(key)) return 'assets/celebrations/prefecto_challenger_vertical.png';
       return '';
     };
 
