@@ -363,6 +363,26 @@
       return '';
     };
 
+    const resolveHorizontalCelebrationSrc = ()=>{
+      const direct = (ev && ev.celebrationImageHorizontal) ? String(ev.celebrationImageHorizontal) : '';
+      if (direct) return direct;
+
+      const vertical = resolveVerticalCelebrationSrc();
+      if (vertical){
+        const derived = vertical.replace(/_vertical\.png$/i, '.webp');
+        if (derived !== vertical) return derived;
+      }
+
+      const id = String(ev?.id || '').toLowerCase();
+      const title = String(ev?.title || '').toLowerCase();
+      const key = [id, title].join(' ');
+      if (/loquito/.test(key)) return 'assets/celebrations/loquito_challenger.webp';
+      if (/garbanzo/.test(key)) return 'assets/celebrations/garbanzo_challenger.webp';
+      if (/guardia/.test(key)) return 'assets/celebrations/guardia_challenger.webp';
+      if (/prefecto/.test(key)) return 'assets/celebrations/prefecto_challenger.webp';
+      return '';
+    };
+
     // Si estamos usando la variante por imagen completa (arte ya con texto):
     // - vertical: prioriza celebrationImage (arte vertical challenger)
     // - horizontal: prioriza image (arte modal horizontal)
@@ -375,9 +395,10 @@
       }
     } else {
       const verticalSrc = resolveVerticalCelebrationSrc();
+      const horizontalSrc = resolveHorizontalCelebrationSrc();
       const src = isPortraitViewport
-        ? (verticalSrc || (ev && ev.image ? ev.image : ''))
-        : ((ev && ev.image) ? ev.image : verticalSrc);
+        ? (verticalSrc || horizontalSrc || (ev && ev.image ? ev.image : ''))
+        : (horizontalSrc || verticalSrc || (ev && ev.image ? ev.image : ''));
       if (img){
         img.style.backgroundImage = src ? `url(${src})` : '';
         if (src && /\/assets\/celebrations\//.test(src)){
