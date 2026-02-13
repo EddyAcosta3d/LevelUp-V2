@@ -2,7 +2,7 @@
   "meta": {
     "app": "LevelUp",
     "version": "LevelUP_V2_00.033",
-    "updatedAt": "2026-02-06T03:48:51.915326Z",
+    "updatedAt": "2026-02-13T19:29:08.168Z",
     "build": "LevelUP_V2_00.050"
   },
   "heroes": [
@@ -39,7 +39,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_2",
@@ -74,7 +77,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_3",
@@ -109,7 +115,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_4",
@@ -144,7 +153,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_5",
@@ -179,7 +191,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_6",
@@ -214,7 +229,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_7",
@@ -249,7 +267,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_8",
@@ -284,7 +305,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_9",
@@ -319,7 +343,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_10",
@@ -354,7 +381,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_11",
@@ -389,7 +419,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_12",
@@ -424,7 +457,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_13",
@@ -459,7 +495,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_14",
@@ -494,7 +533,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_1",
@@ -529,7 +571,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_2",
@@ -543,15 +588,15 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 6,
-        "SAB": 7,
-        "CAR": 7,
-        "RES": 3,
+        "INT": 4,
+        "SAB": 5,
+        "CAR": 6,
+        "RES": 6,
         "CRE": 4,
-        "int": 6,
-        "sab": 7,
-        "car": 7,
-        "res": 3,
+        "int": 4,
+        "sab": 5,
+        "car": 6,
+        "res": 6,
         "cre": 4
       },
       "desc": "",
@@ -564,7 +609,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_3",
@@ -578,16 +626,16 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 2,
+        "INT": 8,
         "SAB": 2,
-        "CAR": 2,
-        "RES": 0,
-        "CRE": 1,
-        "int": 2,
+        "CAR": 1,
+        "RES": 4,
+        "CRE": 2,
+        "int": 8,
         "sab": 2,
-        "car": 2,
-        "res": 0,
-        "cre": 1
+        "car": 1,
+        "res": 4,
+        "cre": 2
       },
       "desc": "",
       "goal": "",
@@ -599,7 +647,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_4",
@@ -634,7 +685,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_5",
@@ -648,16 +702,16 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 5,
+        "INT": 4,
         "SAB": 7,
-        "CAR": 2,
-        "RES": 0,
-        "CRE": 7,
-        "int": 5,
+        "CAR": 5,
+        "RES": 6,
+        "CRE": 3,
+        "int": 4,
         "sab": 7,
-        "car": 2,
-        "res": 0,
-        "cre": 7
+        "car": 5,
+        "res": 6,
+        "cre": 3
       },
       "desc": "",
       "goal": "",
@@ -669,7 +723,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_6",
@@ -683,16 +740,16 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 4,
-        "SAB": 3,
-        "CAR": 6,
+        "INT": 8,
+        "SAB": 7,
+        "CAR": 8,
         "RES": 8,
-        "CRE": 6,
-        "int": 4,
-        "sab": 3,
-        "car": 6,
+        "CRE": 8,
+        "int": 8,
+        "sab": 7,
+        "car": 8,
         "res": 8,
-        "cre": 6
+        "cre": 8
       },
       "desc": "",
       "goal": "",
@@ -704,7 +761,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_7",
@@ -739,7 +799,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_8",
@@ -774,7 +837,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_9",
@@ -809,7 +875,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_10",
@@ -844,7 +913,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_11",
@@ -859,15 +931,15 @@
       "weekXpMax": 40,
       "stats": {
         "INT": 7,
-        "SAB": 4,
-        "CAR": 2,
-        "RES": 8,
-        "CRE": 7,
+        "SAB": 6,
+        "CAR": 8,
+        "RES": 7,
+        "CRE": 6,
         "int": 7,
-        "sab": 4,
-        "car": 2,
-        "res": 8,
-        "cre": 7
+        "sab": 6,
+        "car": 8,
+        "res": 7,
+        "cre": 6
       },
       "desc": "",
       "goal": "",
@@ -879,7 +951,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_12",
@@ -914,7 +989,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_13",
@@ -930,12 +1008,12 @@
       "stats": {
         "INT": 5,
         "SAB": 6,
-        "CAR": 0,
+        "CAR": 8,
         "RES": 2,
         "CRE": 4,
         "int": 5,
         "sab": 6,
-        "car": 0,
+        "car": 8,
         "res": 2,
         "cre": 4
       },
@@ -949,7 +1027,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_14",
@@ -963,16 +1044,16 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 8,
-        "SAB": 4,
-        "CAR": 1,
-        "RES": 1,
-        "CRE": 1,
-        "int": 8,
-        "sab": 4,
-        "car": 1,
-        "res": 1,
-        "cre": 1
+        "INT": 3,
+        "SAB": 2,
+        "CAR": 7,
+        "RES": 4,
+        "CRE": 6,
+        "int": 3,
+        "sab": 2,
+        "car": 7,
+        "res": 4,
+        "cre": 6
       },
       "desc": "",
       "goal": "",
@@ -984,7 +1065,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     }
   ],
   "subjects": [
@@ -1596,5 +1680,45 @@
         "label": "Ser nivel 1 o más"
       }
     }
-  ]
+  ],
+  "store": {
+    "items": [
+      {
+        "id": "store_demo_1",
+        "name": "Clase con juegos de mesa",
+        "description": "Una clase completa jugando juegos de mesa educativos",
+        "icon": "🎲",
+        "cost": 6,
+        "stock": 1,
+        "available": true
+      },
+      {
+        "id": "store_demo_2",
+        "name": "Quitar 1 pregunta del examen",
+        "description": "Elimina una pregunta de tu próximo examen",
+        "icon": "📝",
+        "cost": 4,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_demo_3",
+        "name": "Elegir tema de exposición",
+        "description": "Escoge el tema que quieras para tu exposición",
+        "icon": "🎤",
+        "cost": 3,
+        "stock": 5,
+        "available": true
+      },
+      {
+        "id": "store_demo_4",
+        "name": "Día libre de tarea",
+        "description": "Un día sin tarea (aplica una vez)",
+        "icon": "🎉",
+        "cost": 5,
+        "stock": 3,
+        "available": true
+      }
+    ]
+  }
 }
