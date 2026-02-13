@@ -706,15 +706,14 @@ function _heroArtCandidates(hero){
       div.type = 'button';
       div.className = 'levelUpStatRow levelUpRewardRow stat-row';
       const rewardMeta = {
-        'stat+1': { label: 'STAT', value: '+1', detail: 'Mejora extra' },
-        'xp+30': { label: 'XP', value: '+30', detail: 'Sin subir de nivel' },
-        'medal+1': { label: 'MED', value: '+1', detail: 'Medalla instantánea' },
-        'doubleNext': { label: 'x2', value: 'NEXT', detail: 'Próximo desafío' }
-      }[o.id] || { label: 'BONUS', value: '+', detail: '' };
+        'stat+1': { value: '+1' },
+        'xp+30': { value: '+30' },
+        'medal+1': { value: '+1' },
+        'doubleNext': { value: 'NEXT' }
+      }[o.id] || { value: '+' };
 
       div.innerHTML = `
-        <span class="levelUpStatRow__name">${rewardMeta.label}</span>
-        <span class="levelUpRewardRow__titleWrap"><span class="levelUpRewardRow__title">${o.title}</span><span class="levelUpRewardRow__detail">${rewardMeta.detail}</span></span>
+        <span class="levelUpRewardRow__titleWrap"><span class="levelUpRewardRow__title">${o.title}</span></span>
         <span class="levelUpRewardRow__right"><span class="levelUpRewardRow__value">${rewardMeta.value}</span></span>
       `;
 
