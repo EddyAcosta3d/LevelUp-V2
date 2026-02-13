@@ -43,5 +43,10 @@ window.__PARALLAX_MANIFEST__ = {
     "fg": "assets/parallax/thaily_fg.webp",
     "bg": "assets/parallax/thaily_bg.webp",
     "mid": ""
+  },
+  "lizeth": {
+    "fg": "assets/parallax/lizeth_fg.webp",
+    "bg": "assets/parallax/lizeth_bg.webp",
+    "mid": ""
   }
 };
