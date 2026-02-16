@@ -501,6 +501,13 @@ html.is-boss-unlock, html.is-boss-unlock body {
   filter: none;
 }
 
+.bossUnlock.bossUnlock--img.bossUnlock--portraitArt .bossUnlock__img{
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #000;
+}
+
 .bossUnlock.bossUnlock--img .bossUnlock__close{
   z-index: 2;
 }
@@ -545,10 +552,10 @@ html.is-boss-unlock, html.is-boss-unlock body {
 
   /* --img variant: casi fullscreen en celular */
   .bossUnlock.bossUnlock--img .bossUnlock__frame{
-    width: 100vw;
-    height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
     border-radius: 0;
   }
   .bossUnlock.bossUnlock--img .bossUnlock__card{
@@ -568,8 +575,8 @@ html.is-boss-unlock, html.is-boss-unlock body {
 /* --- Teléfonos pequeños (≤ 480px) --- */
 @media (max-width: 480px) {
   .bossUnlock__frame {
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     border-radius: 0;
   }
   .bossUnlock__title {
@@ -584,8 +591,8 @@ html.is-boss-unlock, html.is-boss-unlock body {
 /* --- Landscape en móvil --- */
 @media (max-width: 900px) and (orientation: landscape) {
   .bossUnlock.bossUnlock--img .bossUnlock__frame{
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     border-radius: 0;
   }
   .bossUnlock.bossUnlock--img .bossUnlock__img{

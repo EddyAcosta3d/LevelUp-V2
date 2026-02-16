@@ -699,9 +699,11 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 }
 @media (max-width: 560px){
   .modal__card--event{
-    width: 100vw;
+    width: 100%;
     height: 100vh;
+    height: 100dvh;
     max-height: 100vh;
+    max-height: 100dvh;
     border-radius: 0;
   }
   .evModalHead{
@@ -1178,10 +1180,12 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 @media (max-width: 768px){
   /* Modal de evento: fullscreen para mejor aprovechamiento */
   .modal__card--event{
-    width: 100vw;
-    max-width: 100vw;
+    width: 100%;
+    max-width: 100%;
     height: 100vh;
+    height: 100dvh;
     max-height: 100vh;
+    max-height: 100dvh;
     border-radius: 0;
   }
   .eventModalImgWrap{
@@ -1189,6 +1193,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
   .eventModalGrid{
     min-height: 100vh;
+    min-height: 100dvh;
   }
 
   /* Close button con espacio para safe-area */
@@ -1302,6 +1307,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 @media (max-height: 500px) and (orientation: landscape){
   .eventModalGrid{
     min-height: 100vh;
+    min-height: 100dvh;
   }
   .eventModalInfo{
     bottom: 8px;

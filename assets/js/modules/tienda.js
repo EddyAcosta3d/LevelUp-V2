@@ -1,8 +1,27 @@
+'use strict';
+
+/**
+ * @module tienda
+ * @description Store/shop for rewards
+ *
+ * PUBLIC EXPORTS:
+ * - renderTienda, closeStoreItemModal, saveStoreItem
+ */
+
+// Import dependencies
+import {
+  state,
+  escapeHtml
+} from './core_globals.js';
+
+import { saveLocal } from './store.js';
+import { currentHero } from './fichas.js';
+
 // ============================================
 // TIENDA - Sistema completo de canje de medallas
 // ============================================
 
-function renderTienda(){
+export function renderTienda(){
   const container = $('#tiendaContainer');
   if (!container) return;
   
@@ -132,7 +151,7 @@ function renderTienda(){
   bindTiendaEvents();
 }
 
-function bindTiendaEvents(){
+export function bindTiendaEvents(){
   const container = $('#tiendaContainer');
   if (!container) return;
 
@@ -251,7 +270,7 @@ async function deleteStoreItem(itemId){
   toast('Item eliminado');
 }
 
-function openStoreItemModal(mode, item = null){
+export function openStoreItemModal(mode, item = null){
   let modal = $('#storeItemModal');
   if (!modal) {
     createStoreItemModal();
@@ -296,12 +315,12 @@ function openStoreItemModal(mode, item = null){
   modal.hidden = false;
 }
 
-function closeStoreItemModal(){
+export function closeStoreItemModal(){
   const modal = $('#storeItemModal');
   if (modal) modal.hidden = true;
 }
 
-function saveStoreItem(){
+export function saveStoreItem(){
   const modal = $('#storeItemModal');
   if (!modal) return;
   
@@ -370,7 +389,7 @@ function saveStoreItem(){
   closeStoreItemModal();
 }
 
-function createStoreItemModal(){
+export function createStoreItemModal(){
   const existingModal = $('#storeItemModal');
   if (existingModal) return;
   

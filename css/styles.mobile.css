@@ -56,9 +56,9 @@
     padding: 6px 10px !important;
   }
 
-  /* MEDALLAS - Muy visible */
+  /* Medallas: mantener escala consistente con el resto del formulario */
   #heroMedalsCount {
-    font-size: 32px !important;
+    font-size: 15px !important;
     font-weight: 900;
   }
 
@@ -96,6 +96,7 @@
     /* Event modal: el grid ocupa todo el alto */
     .modal__card--event .eventModalGrid{
       min-height: 100vh;
+      min-height: 100dvh;
     }
     .modal__card--event .eventModalImgWrap{
       border-radius: 0;
@@ -313,7 +314,11 @@
 
 /* SCROLL SUAVE EN MÓVIL */
 @media (max-width: 768px) {
-  * {
+  .pages,
+  .dropdown__menu,
+  .modal__card,
+  .eventModalInfo,
+  .eventModalGrid {
     -webkit-overflow-scrolling: touch;
   }
 
@@ -383,32 +388,34 @@
     border-radius: 16px !important;
   }
 
-  .brand__logo {
-    width: 34px !important;
-    height: 34px !important;
-  }
-
-  .brand__logo svg {
-    width: 22px !important;
-    height: 22px !important;
+  .brand__logoImg {
+    width: 42px !important;
+    height: 42px !important;
   }
 }
 
 
 /* --- FICHAS: Hero scene + formulario --- */
 @media (max-width: 430px) {
-  /* Hero scene: reducido para que Nombre/Edad/Rol/Stats sean visibles */
+  /* Hero scene: prominent viewport-based height */
   .heroScene {
-    min-height: 280px !important;
-    max-height: 42svh !important;
-    height: 42svh !important;
+    height: max(280px, 44svh);
+    min-height: 0;
+    max-height: 58svh;
   }
 
-  /* FG layer: ajustar para contenedor más corto */
+  /* FG layer: contain to show full character, anchored at bottom-center */
   .heroSceneLayer--fg {
-    background-size: contain !important;
-    background-position: 50% 100% !important;
-    inset: -4% !important;
+    inset: 0;
+    background-size: contain;
+    background-position: 50% 100%;
+  }
+
+  /* BG layer: cover the whole scene area */
+  .heroSceneLayer--bg {
+    inset: 0;
+    background-size: cover;
+    background-position: center;
   }
 
   /* Nombre overlay: compacto */
@@ -426,7 +433,14 @@
   }
 
   .content {
-    padding: 8px !important;
+    padding: 6px !important;
+  }
+
+  /* Avatar card: remove padding so heroScene fills the card edge-to-edge */
+  .card--avatar {
+    padding: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
   }
 
   /* Card del formulario: compacta */
@@ -440,6 +454,11 @@
     margin-bottom: 6px !important;
   }
 
+  /* Override 640px rule so Medallas shares the row with Rol (2×2 grid) */
+  .fields3 .field:last-child {
+    grid-column: auto !important;
+  }
+
   .field {
     margin-bottom: 10px !important;
   }
@@ -449,14 +468,26 @@
   }
 
   .medalBadgeSmall {
-    padding: 6px 12px !important;
+    height: 40px !important;
+    padding: 0 10px !important;
+    gap: 8px !important;
+    font-size: 14px !important;
   }
 
-  /* Stats: que no se corte el valor numérico a la derecha */
+  .medalBadgeSmall .medalCount {
+    font-size: 14px !important;
+  }
+
+  .medalBadgeSmall .medalSvg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Stats: contained within parent — visible stat values use the 30px grid column */
   .stats {
     margin-bottom: 6px !important;
     padding: 8px !important;
-    overflow: visible !important;
+    overflow: hidden !important;
   }
 
   .stat {
@@ -521,6 +552,32 @@
     min-height: 36px !important;
     max-height: 60px !important;
     font-size: 13px !important;
+  }
+}
+
+/* --- EXTRA SMALL PHONES (SE / Android compactos) --- */
+@media (max-width: 360px) {
+  .heroScene {
+    height: max(250px, 40svh) !important;
+    max-height: 52svh !important;
+  }
+
+  /* Reduce fricción: formulario en una sola columna */
+  .fields3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .fields3 .field:last-child {
+    grid-column: auto !important;
+  }
+
+  .xpBtns {
+    width: 100%;
+  }
+
+  .xpBtns .pill--small,
+  .xpBtns .pill--ghost {
+    flex: 1 1 calc(50% - 4px) !important;
   }
 }
 
@@ -737,7 +794,7 @@
     gap: 8px !important;
   }
 
-  .medalCount {
+  .medalBadgeLarge .medalCount {
     font-size: 22px !important;
   }
 }
@@ -806,12 +863,19 @@
 
 /* --- EVENTOS MODAL: fullscreen --- */
 @media (max-width: 430px) {
-  .modal__card--event {
-    width: 100vw !important;
-    height: 100dvh !important;
-    max-width: 100vw !important;
-    max-height: 100dvh !important;
+  /* Remove parent padding so the fullscreen card reaches the viewport edges */
+  #eventModal {
+    padding: 0 !important;
+  }
+
+  /* Use ID selector to override the generic .modal__card rule that appears later */
+  #eventModal .modal__card--event {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
     border-radius: 0 !important;
+    padding: 0 !important;
   }
 
   .eventModalImgWrap {
@@ -819,7 +883,7 @@
   }
 
   .eventModalGrid {
-    min-height: 100dvh !important;
+    min-height: 100% !important;
   }
 
   #btnEventClose.iconBtn {
@@ -888,19 +952,39 @@
 
   .pages {
     padding-bottom: 78px !important;
+    /* Reset desktop scrollbar compensation — mobile scrollbars overlay, no gutter needed */
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+    scrollbar-gutter: auto !important;
   }
 }
 
 
 /* --- GENERAL: overflow + resets para teléfono --- */
 @media (max-width: 430px) {
+  /* Tighter app padding so content fills more of the screen */
+  .app {
+    padding-left: calc(4px + var(--safe-left)) !important;
+    padding-right: calc(4px + var(--safe-right)) !important;
+  }
+
+  /* Prevent any horizontal overflow from leaking past the app shell */
+  html, body, .app, .shell {
+    overflow-x: hidden !important;
+  }
+
   .page {
     overflow-x: hidden !important;
   }
 
-  /* Modals genéricos: bottom sheet style */
+  /* Cards: never wider than their container */
+  .card, .cardGrid, .heroScene {
+    max-width: 100% !important;
+  }
+
+  /* Modals genéricos: bottom sheet style — use % instead of vw to avoid scrollbar width issues */
   .modal__card {
-    width: calc(100vw - 16px) !important;
+    width: calc(100% - 16px) !important;
     max-height: 88vh !important;
     border-radius: 16px 16px 10px 10px !important;
     padding: 12px !important;

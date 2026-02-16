@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <!-- iOS: evita zoom raro al rotar y mantiene el layout estable -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
   <!-- LevelUp STABLE_RESET_v15_CLEAN -->
 <title>LevelUp</title>
@@ -16,12 +16,14 @@
   <link rel="stylesheet" href="css/styles.levelup.css?v=LevelUP_V2_00.069" />
   <link rel="stylesheet" href="css/styles.tienda.css?v=LevelUP_V2_00.069" />
   <link rel="stylesheet" href="css/styles.celebrations.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.viewmode.css?v=LevelUP_V2_00.069" />
+  <link rel="stylesheet" href="css/styles.projector.css?v=LevelUP_V2_00.069" />
   <link rel="stylesheet" href="css/styles.mobile.css?v=LevelUP_V2_00.069" />
 </head>
 <body>
   <!-- Splash: cambia la variante con la clase:
        splash--free (default), splash--orb, splash--curtain -->
-  <div class="splash splash--free" id="splash" aria-label="LevelUp" role="status">
+  <div class="splash splash--free" id="splash" aria-label="LevelUp" role="status" hidden data-splash-paused="1">
     <div class="splash__inner">
       <img class="splash__logo" src="assets/logo.png" alt="LevelUp" />
       <div class="splash__glow" aria-hidden="true"></div>
@@ -72,12 +74,7 @@
         </button>
 
         <div class="brand" aria-label="LevelUp">
-          <div class="brand__logo" aria-hidden="true">
-            <svg viewBox="0 0 64 64" width="34" height="34" role="img" aria-label="LU">
-              <path d="M32 4l25 14v28L32 60 7 46V18L32 4z" fill="rgba(255,215,120,.12)" stroke="rgba(255,215,120,.55)" stroke-width="2"/>
-              <path d="M22 22h20v6H28v14h-6V22zm14 0h6v26h-6V22z" fill="rgba(255,255,255,.85)"/>
-            </svg>
-          </div>
+          <img class="brand__logoImg" src="assets/logo.png" alt="LevelUp" />
           <div class="brand__text">
             <div class="brand__title">MISIONES · RETOS · RECOMPENSAS</div>
             <div class="brand__subtitle" id="brandSubtitle">LevelUp</div>
@@ -100,6 +97,9 @@
         <div class="dropdown">
           <button class="pill pill--ghost" id="btnDatos" aria-haspopup="menu" aria-expanded="false">💾 Datos ▾</button>
           <div class="dropdown__menu" role="menu" aria-label="Datos" id="menuDatos">
+            <button class="menuitem" role="menuitem" id="btnSaveToGitHub" data-edit-only="1">💾 Guardar a GitHub</button>
+            <button class="menuitem" role="menuitem" id="btnConfigGitHub" data-edit-only="1">⚙️ Configurar GitHub</button>
+            <div class="menudivider"></div>
             <button class="menuitem" role="menuitem" id="btnReloadRemote">Recargar desde GitHub</button>
             <button class="menuitem" role="menuitem" id="btnImportJson">Importar JSON…</button>
             <button class="menuitem" role="menuitem" id="btnExportJson">Exportar JSON</button>
@@ -341,11 +341,6 @@
           </article>
 
           <article class="page" data-page="tienda">
-            <div class="pageIntro">
-              <h2 class="h2">Tienda</h2>
-              <p class="muted">Canjea tus medallas por recompensas especiales</p>
-            </div>
-
             <div id="tiendaContainer"></div>
           </article>
         </div>
@@ -401,29 +396,32 @@
     <!-- Modal: Subir de nivel + elegir recompensa -->
     <div class="modal luModal" id="levelUpModal" hidden>
       <div class="modal__backdrop" id="levelUpBackdrop"></div>
+      <div class="levelup-bg" aria-hidden="true"></div>
 
       <div class="modal__card luCard" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
-        <!-- STAGE -->
-        <div class="luStage" id="levelUpStage">
-          <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
-          <div class="luStageShade" aria-hidden="true"></div>
+        <div class="luStageBg" id="levelUpStageBg" aria-hidden="true"></div>
+        <div class="luStageShade" aria-hidden="true"></div>
 
-          <div class="luStageText">
-            <div class="luKicker" id="levelUpTitle">¡Desbloqueaste un nuevo nivel!</div>
-          </div>
-
-          <div class="luBadgeWrap" aria-hidden="false">
-            <div class="luBadge">
-              <div class="luNum" id="levelUpNum">1</div>
+        <div class="luLayout">
+          <div class="luVisualCol">
+            <div class="luHeroArt" id="levelUpHeroArt" aria-hidden="true"></div>
+            <div class="luTopMeta" aria-hidden="false">
+              <div class="luHeroName" id="levelUpHeroName">Héroe</div>
+              <div class="luLevelReadout" aria-label="Nivel actual"><span class="luNum" id="levelUpNum">1</span></div>
             </div>
           </div>
-        </div>
 
-        <!-- BODY -->
-        <div class="luBody" id="levelUpScrollArea">
-          <div class="luPickTitle">ELIGE TU RECOMPENSA</div>
-          <div class="luNote" id="levelUpNote" hidden></div>
-          <div class="luChoices" id="levelUpChoices"></div>
+          <div class="luBody" id="levelUpScrollArea">
+            <div class="levelup-panel" id="levelUpPanel">
+              <div class="luHead">
+                <div class="luTitleGlow" aria-hidden="true"></div>
+                <h2 class="luTitle" id="levelUpTitle">¡SUBISTE DE NIVEL!</h2>
+              </div>
+
+              <div class="luChoices" id="levelUpChoices"></div>
+
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -545,10 +543,66 @@
 
 
     <input type="file" id="fileJson" accept="application/json" hidden />
+
+    <!-- Modal: Configurar GitHub -->
+    <div class="modal" id="githubConfigModal" hidden>
+      <div class="modal__backdrop" id="githubConfigBackdrop"></div>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="githubConfigTitle">
+        <div class="modal__header">
+          <div class="cardTitle" id="githubConfigTitle">Configurar Auto-Guardado a GitHub</div>
+          <button class="pill pill--small pill--ghost" id="btnCloseGitHubConfig" type="button">✕</button>
+        </div>
+        <div class="modal__body">
+          <div class="muted" style="margin-bottom:14px;">
+            Para guardar automáticamente a GitHub, necesitas un <b>Personal Access Token (PAT)</b>.
+          </div>
+
+          <div class="field">
+            <label class="label">GitHub Personal Access Token</label>
+            <input class="input" id="inGitHubToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+            <div class="muted" style="margin-top:6px; font-size:13px;">
+              El token se guarda solo en este navegador. Necesita permiso <code>repo</code>.
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="field">
+            <div class="labelSmall">Estado de conexión</div>
+            <div id="githubStatusText" class="muted" style="padding:8px; background:rgba(255,255,255,0.03); border-radius:6px;">
+              No configurado
+            </div>
+          </div>
+
+          <div style="height:14px"></div>
+
+          <details style="margin-bottom:14px;">
+            <summary style="cursor:pointer; color:rgba(0,210,255,0.8); margin-bottom:8px;">
+              ¿Cómo obtener un token?
+            </summary>
+            <div class="muted" style="font-size:13px; line-height:1.6;">
+              1. Ve a <a href="https://github.com/settings/tokens" target="_blank" style="color:rgba(0,210,255,1);">github.com/settings/tokens</a><br/>
+              2. Click en "Generate new token" → "Tokens (classic)"<br/>
+              3. Dale un nombre (ej: "LevelUp Auto-Save")<br/>
+              4. Selecciona el permiso <b>repo</b> (Full control)<br/>
+              5. Click en "Generate token"<br/>
+              6. Copia el token (empieza con <code>ghp_</code>)<br/>
+              7. Pégalo arriba y haz click en "Guardar"
+            </div>
+          </details>
+
+          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+            <button class="pill pill--small pill--ghost" id="btnTestGitHub" type="button">Probar Conexión</button>
+            <button class="pill pill--small pill--ghost" id="btnClearGitHubToken" type="button">Borrar Token</button>
+            <button class="pill pill--small" id="btnSaveGitHubToken" type="button">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Cache-bust version -->
-  
+
 
   <!-- Eventos: modal de detalle -->
   <div class="modal" id="eventModal" hidden>
@@ -604,19 +658,22 @@
   </div>
 
 
-<script src="js/splash.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/store.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/parallax_manifest.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/fichas.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/desafios.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/eventos.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/tienda.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/celebrations.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/app.bindings.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/app.main.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/app.js?v=LevelUP_V2_00.069" defer></script>
+<!-- ============================================
+     ES6 MODULES - Single entry point
+     All dependencies loaded via import statements
+     ============================================ -->
+
+<!-- Non-module scripts (no dependencies) -->
+<script src="js/splash.js?v=LevelUP_V2_00.070" defer></script>
+<script src="js/modules/ui_shell.js?v=LevelUP_V2_00.070" defer></script>
+<script src="js/modules/parallax_manifest.js?v=LevelUP_V2_00.070" defer></script>
+
+<!-- Main ES6 module entry point (loads all other modules via imports) -->
+<script type="module" src="js/app.main.js?v=LevelUP_V2_00.070"></script>
+
+<!-- Legacy fallback for old browsers (optional) -->
+<script nomodule>
+  alert('Tu navegador no soporta módulos ES6. Por favor actualiza a una versión más reciente.');
+</script>
 </body>
 </html>

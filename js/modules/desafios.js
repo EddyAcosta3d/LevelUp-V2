@@ -1,4 +1,34 @@
-function renderChallenges(){
+'use strict';
+
+/**
+ * @module desafios
+ * @description Challenge/mission management and rendering
+ *
+ * PUBLIC EXPORTS:
+ * - renderChallenges, openChallengeModal, closeChallengeModal
+ * - saveNewChallenge, deleteSelectedChallenge
+ */
+
+// Import dependencies
+import {
+  state,
+  escapeHtml,
+  normalizeDifficulty,
+  isChallengeDone,
+  getFilteredChallenges
+} from './core_globals.js';
+
+import {
+  saveLocal
+} from './store.js';
+
+import {
+  currentHero,
+  ensureChallengeUI,
+  difficultyLabel
+} from './fichas.js';
+
+export function renderChallenges(){
     // Ensure default filters: one subject + easy difficulty
     const subjectsAll = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
     if (!state.challengeFilter) state.challengeFilter = { subjectId: null, diff: 'easy' };
@@ -173,7 +203,7 @@ function renderChallenges(){
 }
 
 
-function renderChallengeDetail(){
+export function renderChallengeDetail(){
   const hintEl = $('#challengeHint');
   const bodyEl = $('#challengeBody');
   const btnComplete = $('#btnChallengeComplete');

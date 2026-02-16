@@ -2,7 +2,7 @@
   "meta": {
     "app": "LevelUp",
     "version": "LevelUP_V2_00.033",
-    "updatedAt": "2026-02-06T03:48:51.915326Z",
+    "updatedAt": "2026-02-13T19:29:08.168Z",
     "build": "LevelUP_V2_00.050"
   },
   "heroes": [
@@ -39,7 +39,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_2",
@@ -74,7 +77,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_3",
@@ -109,7 +115,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_4",
@@ -144,7 +153,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_5",
@@ -179,7 +191,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_6",
@@ -214,7 +229,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_7",
@@ -249,7 +267,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_8",
@@ -284,7 +305,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_9",
@@ -319,7 +343,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_10",
@@ -354,7 +381,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_11",
@@ -389,7 +419,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_12",
@@ -424,7 +457,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_13",
@@ -459,7 +495,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_2d_14",
@@ -494,7 +533,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_1",
@@ -529,7 +571,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_2",
@@ -543,15 +588,15 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 6,
-        "SAB": 7,
-        "CAR": 7,
-        "RES": 3,
+        "INT": 4,
+        "SAB": 5,
+        "CAR": 6,
+        "RES": 6,
         "CRE": 4,
-        "int": 6,
-        "sab": 7,
-        "car": 7,
-        "res": 3,
+        "int": 4,
+        "sab": 5,
+        "car": 6,
+        "res": 6,
         "cre": 4
       },
       "desc": "",
@@ -564,7 +609,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_3",
@@ -578,16 +626,16 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 2,
+        "INT": 8,
         "SAB": 2,
-        "CAR": 2,
-        "RES": 0,
-        "CRE": 1,
-        "int": 2,
+        "CAR": 1,
+        "RES": 4,
+        "CRE": 2,
+        "int": 8,
         "sab": 2,
-        "car": 2,
-        "res": 0,
-        "cre": 1
+        "car": 1,
+        "res": 4,
+        "cre": 2
       },
       "desc": "",
       "goal": "",
@@ -599,7 +647,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_4",
@@ -634,7 +685,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_5",
@@ -648,16 +702,16 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 5,
+        "INT": 4,
         "SAB": 7,
-        "CAR": 2,
-        "RES": 0,
-        "CRE": 7,
-        "int": 5,
+        "CAR": 5,
+        "RES": 6,
+        "CRE": 3,
+        "int": 4,
         "sab": 7,
-        "car": 2,
-        "res": 0,
-        "cre": 7
+        "car": 5,
+        "res": 6,
+        "cre": 3
       },
       "desc": "",
       "goal": "",
@@ -669,7 +723,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_6",
@@ -683,16 +740,16 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 4,
-        "SAB": 3,
-        "CAR": 6,
+        "INT": 8,
+        "SAB": 7,
+        "CAR": 8,
         "RES": 8,
-        "CRE": 6,
-        "int": 4,
-        "sab": 3,
-        "car": 6,
+        "CRE": 8,
+        "int": 8,
+        "sab": 7,
+        "car": 8,
         "res": 8,
-        "cre": 6
+        "cre": 8
       },
       "desc": "",
       "goal": "",
@@ -704,7 +761,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_7",
@@ -739,7 +799,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_8",
@@ -774,7 +837,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_9",
@@ -809,7 +875,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_10",
@@ -844,7 +913,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_11",
@@ -859,15 +931,15 @@
       "weekXpMax": 40,
       "stats": {
         "INT": 7,
-        "SAB": 4,
-        "CAR": 2,
-        "RES": 8,
-        "CRE": 7,
+        "SAB": 6,
+        "CAR": 8,
+        "RES": 7,
+        "CRE": 6,
         "int": 7,
-        "sab": 4,
-        "car": 2,
-        "res": 8,
-        "cre": 7
+        "sab": 6,
+        "car": 8,
+        "res": 7,
+        "cre": 6
       },
       "desc": "",
       "goal": "",
@@ -879,7 +951,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_12",
@@ -914,7 +989,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_13",
@@ -930,12 +1008,12 @@
       "stats": {
         "INT": 5,
         "SAB": 6,
-        "CAR": 0,
+        "CAR": 8,
         "RES": 2,
         "CRE": 4,
         "int": 5,
         "sab": 6,
-        "car": 0,
+        "car": 8,
         "res": 2,
         "cre": 4
       },
@@ -949,7 +1027,10 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     },
     {
       "id": "h_3d_14",
@@ -963,16 +1044,16 @@
       "weekXp": 0,
       "weekXpMax": 40,
       "stats": {
-        "INT": 8,
-        "SAB": 4,
-        "CAR": 1,
-        "RES": 1,
-        "CRE": 1,
-        "int": 8,
-        "sab": 4,
-        "car": 1,
-        "res": 1,
-        "cre": 1
+        "INT": 3,
+        "SAB": 2,
+        "CAR": 7,
+        "RES": 4,
+        "CRE": 6,
+        "int": 3,
+        "sab": 2,
+        "car": 7,
+        "res": 4,
+        "cre": 6
       },
       "desc": "",
       "goal": "",
@@ -984,32 +1065,227 @@
       "pendingRewards": [],
       "challengeCompletions": {},
       "statsCap": 20,
-      "photoSrc": ""
+      "photoSrc": "",
+      "medals": 0,
+      "storeClaims": [],
+      "challengeHistory": []
     }
   ],
   "subjects": [
     {
-      "id": "sub-tech",
-      "name": "Tecnología"
+      "id": "sub-fis",
+      "name": "Física"
     },
     {
       "id": "sub-eng",
       "name": "Inglés"
     },
     {
-      "id": "sub-esp",
-      "name": "Español"
-    },
-    {
       "id": "sub-mat",
       "name": "Matemáticas"
     },
     {
-      "id": "sub-tut",
-      "name": "Tutoría"
+      "id": "sub-his",
+      "name": "Historia"
+    },
+    {
+      "id": "sub-tech",
+      "name": "Tecnología"
     }
   ],
   "challenges": [
+    {
+      "id": "ch-fis-01",
+      "title": "Física · Fácil 1: Velocidad en bicicleta",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nUn alumno recorre 120 metros en 30 segundos.\n1) Calcula su velocidad promedio.\n2) Escribe la fórmula que usaste.\n3) Explica en una oración qué significa el resultado.\n\nEvalúa: uso de fórmula v=d/t e interpretación básica.",
+      "subjectId": "sub-fis",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-fis-02",
+      "title": "Física · Fácil 2: Identifica fuerzas cotidianas",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nLee las situaciones y escribe qué fuerza predomina (gravedad, fricción o empuje):\n- Un libro cae de la mesa.\n- Frenas una bicicleta.\n- Empujas una caja para moverla.\n\nDespués explica por qué en cada caso.\n\nEvalúa: reconocimiento de fuerzas en contextos cotidianos.",
+      "subjectId": "sub-fis",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-fis-03",
+      "title": "Física · Media 1: Densidad de materiales",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nCalcula la densidad de un objeto que tiene masa de 200 g y volumen de 50 cm³.\n1) Aplica la fórmula d=m/v.\n2) Compara con el agua (1 g/cm³) y concluye si flotaría o se hundiría.\n\nEvalúa: cálculo y análisis de resultado.",
+      "subjectId": "sub-fis",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-fis-04",
+      "title": "Física · Media 2: Energía y transformación",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nExplica qué transformaciones de energía ocurren cuando:\n1) Enciendes una lámpara.\n2) Usas un ventilador.\n3) Cargas un celular.\n\nIncluye al menos una transformación por ejemplo y un diagrama simple de flechas.\n\nEvalúa: comprensión de transformaciones de energía.",
+      "subjectId": "sub-fis",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-fis-05",
+      "title": "Física · Difícil 1: Aceleración en un trayecto",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nUna patineta pasa de 2 m/s a 8 m/s en 3 segundos.\n1) Calcula la aceleración promedio.\n2) Explica si el movimiento es uniformemente acelerado.\n3) Propón una situación real donde ocurra algo parecido.\n\nEvalúa: razonamiento con a=(vf-vi)/t y argumentación.",
+      "subjectId": "sub-fis",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-fis-06",
+      "title": "Física · Difícil 2: Mini experimento de caída",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nDiseña un mini experimento para comparar la caída de dos objetos de distinta forma (misma masa aproximada).\nIncluye:\n- hipótesis\n- materiales\n- procedimiento\n- conclusión esperada\n\nEvalúa: método científico aplicado a conceptos de resistencia del aire.",
+      "subjectId": "sub-fis",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-eng-01",
+      "title": "Inglés · Fácil 1: Rutina diaria en presente simple",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nEscribe 8 oraciones en presente simple sobre tu rutina diaria.\nIncluye al menos 3 verbos diferentes y conectores (and, then, after).\n\nEvalúa: estructura sujeto + verbo y vocabulario básico.",
+      "subjectId": "sub-eng",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-eng-02",
+      "title": "Inglés · Fácil 2: Preguntas y respuestas cortas",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nEscribe 6 preguntas con Do/Does y responde en forma corta (Yes, I do / No, she doesn’t).\nTemas sugeridos: hobbies, school, sports.\n\nEvalúa: uso correcto de auxiliares.",
+      "subjectId": "sub-eng",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-eng-03",
+      "title": "Inglés · Media 1: Reading comprehension",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nLee un texto corto (8-10 líneas) sobre un estudiante y responde:\n1) Who is the main character?\n2) What does he/she do after school?\n3) Mention two details from the text.\n\nEvalúa: comprensión lectora y extracción de información.",
+      "subjectId": "sub-eng",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-eng-04",
+      "title": "Inglés · Media 2: Comparatives",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nEscribe 10 oraciones comparando personas, materias o deportes usando comparative adjectives (taller, more interesting, etc.).\nIncluye al menos 3 adjetivos largos con “more”.\n\nEvalúa: gramática de comparativos.",
+      "subjectId": "sub-eng",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-eng-05",
+      "title": "Inglés · Difícil 1: Short dialogue at school",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nCrea un diálogo de 14 a 16 líneas entre dos estudiantes que organizan un proyecto escolar.\nDebe incluir:\n- preguntas en presente\n- sugerencias (Let’s..., Why don’t we...?)\n- acuerdos y desacuerdos\n\nEvalúa: producción escrita y coherencia.",
+      "subjectId": "sub-eng",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-eng-06",
+      "title": "Inglés · Difícil 2: Opinion paragraph",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nEscribe un párrafo de 120-140 palabras: “Why learning English is useful for teenagers”.\nIncluye introducción, 2 ideas principales y cierre.\n\nEvalúa: organización textual, conectores y vocabulario.",
+      "subjectId": "sub-eng",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-mat-01",
+      "title": "Matemáticas · Fácil 1: Operaciones con enteros",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nResuelve:\n- (-8) + 15\n- 27 - 34\n- (-6) × (-4)\n- 45 ÷ (-9)\n\nExplica la regla de signos que usaste en dos ejercicios.\n\nEvalúa: operaciones básicas con enteros.",
+      "subjectId": "sub-mat",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-mat-02",
+      "title": "Matemáticas · Fácil 2: Fracciones equivalentes",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\n1) Simplifica: 18/24, 21/49 y 30/45.\n2) Escribe una fracción equivalente para cada una.\n3) Ordena de menor a mayor las fracciones simplificadas.\n\nEvalúa: simplificación y comparación de fracciones.",
+      "subjectId": "sub-mat",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-mat-03",
+      "title": "Matemáticas · Media 1: Ecuaciones lineales",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nResuelve y comprueba:\n1) 3x + 7 = 25\n2) 5(x - 2) = 20\n3) 2x + 3 = x + 11\n\nEvalúa: despeje y verificación de resultados.",
+      "subjectId": "sub-mat",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-mat-04",
+      "title": "Matemáticas · Media 2: Proporcionalidad",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nEn una receta para 4 personas se usan 300 g de pasta.\n1) ¿Cuánta pasta se necesita para 10 personas?\n2) Resuelve usando regla de tres.\n3) Explica por qué es proporcionalidad directa.\n\nEvalúa: modelación y resolución de problemas.",
+      "subjectId": "sub-mat",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-mat-05",
+      "title": "Matemáticas · Difícil 1: Sistema de ecuaciones",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nResuelve por sustitución o igualación:\n- x + y = 18\n- 2x - y = 3\n\nLuego interpreta el resultado en un contexto inventado (por ejemplo, boletos o edades).\n\nEvalúa: procedimientos algebraicos y interpretación.",
+      "subjectId": "sub-mat",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-mat-06",
+      "title": "Matemáticas · Difícil 2: Área compuesta",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nUn patio tiene forma de rectángulo de 12 m × 8 m con un semicírculo adosado en uno de los lados de 8 m.\n1) Calcula el área total (usa π=3.14).\n2) Muestra procedimiento completo.\n\nEvalúa: descomposición de figuras y cálculo geométrico.",
+      "subjectId": "sub-mat",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-his-01",
+      "title": "Historia · Fácil 1: Línea del tiempo básica",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nOrdena cronológicamente estos procesos y agrega una fecha aproximada:\n- Independencia de México\n- Revolución Mexicana\n- Porfiriato\n- Constitución de 1917\n\nEvalúa: ubicación temporal de procesos históricos.",
+      "subjectId": "sub-his",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-his-02",
+      "title": "Historia · Fácil 2: Causa y consecuencia",
+      "body": "Dificultad: Fácil\n\nNivel: 2° de secundaria\n\nConsigna:\nElige un hecho histórico de México visto en clase y escribe:\n1) Dos causas.\n2) Dos consecuencias.\n3) Una reflexión de 3 líneas sobre su impacto actual.\n\nEvalúa: pensamiento causal básico.",
+      "subjectId": "sub-his",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-his-03",
+      "title": "Historia · Media 1: Compara dos periodos",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nCompara el Porfiriato y la Revolución Mexicana en una tabla de 3 criterios:\n- economía\n- política\n- vida social\n\nCierra con una conclusión de 5 líneas.\n\nEvalúa: análisis comparativo.",
+      "subjectId": "sub-his",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-his-04",
+      "title": "Historia · Media 2: Fuentes históricas",
+      "body": "Dificultad: Media\n\nNivel: 2° de secundaria\n\nConsigna:\nBusca una imagen histórica y un texto breve sobre un mismo hecho.\nExplica:\n1) Qué información aporta cada fuente.\n2) Qué limitaciones tiene cada una.\n\nEvalúa: uso crítico de fuentes.",
+      "subjectId": "sub-his",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-his-05",
+      "title": "Historia · Difícil 1: Debate histórico",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nPrepara argumentos a favor y en contra de la afirmación:\n“La Revolución Mexicana mejoró inmediatamente la vida de toda la población”.\n\nIncluye mínimo 3 argumentos por postura y una conclusión personal.\n\nEvalúa: argumentación con base histórica.",
+      "subjectId": "sub-his",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-his-06",
+      "title": "Historia · Difícil 2: Ensayo corto",
+      "body": "Dificultad: Difícil\n\nNivel: 2° de secundaria\n\nConsigna:\nRedacta un ensayo de 180-220 palabras sobre:\n“Cambios y continuidades en México entre 1876 y 1920”.\nDebe incluir introducción, desarrollo y cierre.\n\nEvalúa: organización de ideas y manejo de procesos históricos.",
+      "subjectId": "sub-his",
+      "difficulty": "hard",
+      "points": 40
+    },
     {
       "id": "ch-tech-01",
       "title": "Ejercicio 1 – ¿Tecnología o no?",
@@ -1066,7 +1342,7 @@
       "title": "El Loquito del Centro",
       "image": "assets/jefes/Boss_loquito_unlocked_modal.webp",
       "lockedImage": "assets/jefes/Boss_loquito_locked_modal.webp",
-      "celebrationImage": "assets/celebrations/loquito_challenger.webp",
+      "celebrationImage": "assets/celebrations/loquito_challenger_vertical.png",
       "unlock": {
         "scope": "any",
         "type": "minChallenges",
@@ -1085,7 +1361,7 @@
       "title": "El Garbanzo Coqueto",
       "image": "assets/jefes/garbanzo__unlocked__modal.webp",
       "lockedImage": "assets/jefes/garbanzo__locked__modal.webp",
-      "celebrationImage": "assets/celebrations/garbanzo_challenger.webp",
+      "celebrationImage": "assets/celebrations/garbanzo_challenger_vertical.png",
       "unlock": {
         "scope": "any",
         "type": "anyStatAtLeast",
@@ -1116,7 +1392,7 @@
       "title": "La Guardia de la Puerta",
       "image": "assets/jefes/guardia__unlocked__modal.webp",
       "lockedImage": "assets/jefes/guardia__locked__modal.webp",
-      "celebrationImage": "assets/celebrations/guardia_challenger.webp",
+      "celebrationImage": "assets/celebrations/guardia_challenger_vertical.png",
       "unlock": {
         "scope": "any",
         "type": "groupChallengesAtLeast",
@@ -1136,7 +1412,7 @@
       "title": "El Prefecto de Malas",
       "image": "assets/jefes/prefecto_unlocked_modal.webp",
       "lockedImage": "assets/jefes/prefecto_locked_modal.webp",
-      "celebrationImage": "assets/celebrations/prefecto_challenger.webp",
+      "celebrationImage": "assets/celebrations/prefecto_challenger_vertical.png",
       "unlock": {
         "scope": "any",
         "type": "hasDifficulty",
@@ -1404,5 +1680,45 @@
         "label": "Ser nivel 1 o más"
       }
     }
-  ]
+  ],
+  "store": {
+    "items": [
+      {
+        "id": "store_demo_1",
+        "name": "Clase con juegos de mesa",
+        "description": "Una clase completa jugando juegos de mesa educativos",
+        "icon": "🎲",
+        "cost": 6,
+        "stock": 1,
+        "available": true
+      },
+      {
+        "id": "store_demo_2",
+        "name": "Quitar 1 pregunta del examen",
+        "description": "Elimina una pregunta de tu próximo examen",
+        "icon": "📝",
+        "cost": 4,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_demo_3",
+        "name": "Elegir tema de exposición",
+        "description": "Escoge el tema que quieras para tu exposición",
+        "icon": "🎤",
+        "cost": 3,
+        "stock": 5,
+        "available": true
+      },
+      {
+        "id": "store_demo_4",
+        "name": "Día libre de tarea",
+        "description": "Un día sin tarea (aplica una vez)",
+        "icon": "🎉",
+        "cost": 5,
+        "stock": 3,
+        "available": true
+      }
+    ]
+  }
 }

@@ -1,3 +1,25 @@
+'use strict';
+
+/**
+ * @module eventos
+ * @description Event and boss management
+ *
+ * PUBLIC EXPORTS:
+ * - renderEvents, toggleEventTab
+ */
+
+// Import dependencies
+import {
+  state,
+  escapeHtml,
+  isEventUnlocked,
+  getEventUnlockProgress,
+  isHeroEligibleForEvent
+} from './core_globals.js';
+
+import { saveLocal } from './store.js';
+import { currentHero } from './fichas.js';
+
     // --- Image helpers (1 intento + placeholder; sin swaps para evitar spam de 404) ---
   const EVT_PH_LOCKED_3x4   = './assets/placeholders/placeholder_locked_3x4.webp';
   const EVT_PH_UNLOCKED_3x4 = './assets/placeholders/placeholder_unlocked_3x4.webp';
@@ -338,8 +360,54 @@
     if (title) title.textContent = `¡Un nuevo ${kind.toLowerCase()} apareció!`;
     if (sub) sub.textContent = t;
 
-    // Si estamos usando la variante por imagen completa (arte ya con texto),
-    // usamos celebrationImage del evento si existe; si no, fallback al image normal.
+    const isPortraitViewport = (()=>{
+      // Forzamos criterio por aspecto real del viewport para evitar falsos negativos
+      // de matchMedia en algunos webviews/navegadores embebidos.
+      try{
+        const vw = Number(window.visualViewport?.width || window.innerWidth || 0);
+        const vh = Number(window.visualViewport?.height || window.innerHeight || 0);
+        return vh >= vw;
+      }catch(_e){}
+      return false;
+    })();
+
+    const resolveVerticalCelebrationSrc = ()=>{
+      const direct = (ev && ev.celebrationImage) ? String(ev.celebrationImage) : '';
+      if (direct) return direct;
+
+      const id = String(ev?.id || '').toLowerCase();
+      const title = String(ev?.title || '').toLowerCase();
+      const key = [id, title].join(' ');
+      if (/loquito/.test(key)) return 'assets/celebrations/loquito_challenger_vertical.png';
+      if (/garbanzo/.test(key)) return 'assets/celebrations/garbanzo_challenger_vertical.png';
+      if (/guardia/.test(key)) return 'assets/celebrations/guardia_challenger_vertical.png';
+      if (/prefecto/.test(key)) return 'assets/celebrations/prefecto_challenger_vertical.png';
+      return '';
+    };
+
+    const resolveHorizontalCelebrationSrc = ()=>{
+      const direct = (ev && ev.celebrationImageHorizontal) ? String(ev.celebrationImageHorizontal) : '';
+      if (direct) return direct;
+
+      const vertical = resolveVerticalCelebrationSrc();
+      if (vertical){
+        const derived = vertical.replace(/_vertical\.png$/i, '.webp');
+        if (derived !== vertical) return derived;
+      }
+
+      const id = String(ev?.id || '').toLowerCase();
+      const title = String(ev?.title || '').toLowerCase();
+      const key = [id, title].join(' ');
+      if (/loquito/.test(key)) return 'assets/celebrations/loquito_challenger.webp';
+      if (/garbanzo/.test(key)) return 'assets/celebrations/garbanzo_challenger.webp';
+      if (/guardia/.test(key)) return 'assets/celebrations/guardia_challenger.webp';
+      if (/prefecto/.test(key)) return 'assets/celebrations/prefecto_challenger.webp';
+      return '';
+    };
+
+    // Si estamos usando la variante por imagen completa (arte ya con texto):
+    // - vertical: prioriza celebrationImage (arte vertical challenger)
+    // - horizontal: prioriza image (arte modal horizontal)
     const useFullImage = ov.classList && ov.classList.contains('bossUnlock--img');
     if (!useFullImage){
       // Use unlocked image if available; fallback to lockedImage
@@ -348,12 +416,20 @@
         img.style.backgroundImage = src ? `url(${src})` : '';
       }
     } else {
-      // Full-image variant: usar celebrationImage si existe, sino image normal
-      const src = (ev && ev.celebrationImage) ? ev.celebrationImage
-                : (ev && ev.image) ? ev.image : '';
+      const verticalSrc = resolveVerticalCelebrationSrc();
+      const horizontalSrc = resolveHorizontalCelebrationSrc();
+      const src = isPortraitViewport
+        ? (verticalSrc || horizontalSrc || (ev && ev.image ? ev.image : ''))
+        : (horizontalSrc || verticalSrc || (ev && ev.image ? ev.image : ''));
       if (img){
         img.style.backgroundImage = src ? `url(${src})` : '';
+        if (src && /\/assets\/celebrations\//.test(src)){
+          img.setAttribute('data-boss-art', 'vertical');
+        } else {
+          img.setAttribute('data-boss-art', 'default');
+        }
       }
+      try{ ov.classList.toggle('bossUnlock--portraitArt', !!isPortraitViewport); }catch(_e){}
     }
 
 
@@ -398,6 +474,14 @@
       for (const ev of list){
         if (!ev || ev.kind !== 'boss') continue;
         const id = String(ev.id);
+
+        // If this boss wasn't tracked yet (e.g. data loaded after init),
+        // just record its current state — don't treat it as "newly unlocked".
+        if (!(id in window.__bossUnlockPrev)){
+          window.__bossUnlockPrev[id] = !!isEventUnlocked(ev);
+          continue;
+        }
+
         const prev = !!window.__bossUnlockPrev[id];
         const now = !!isEventUnlocked(ev);
         if (!prev && now){
@@ -427,30 +511,18 @@
       }catch(_e){ return null; }
     }
 
-    // Try to "unlock" audio playback on mobile browsers
-    // Use volume=0 so the unlock gesture never produces audible sound
-    // (on iOS, touchstart fires before scroll is detected, causing the sfx to play)
-    function unlockAudioOnce(){
-      try{
-        const a = ensureBossSfx();
-        if (!a) return;
-        var origVol = a.volume;
-        a.volume = 0;
-        var p = a.play();
-        if (p && typeof p.then === 'function'){
-          p.then(function(){ try{ a.pause(); a.currentTime = 0; a.volume = origVol; }catch(_e){} })
-           .catch(function(){ try{ a.volume = origVol; }catch(_e){} });
-        } else {
-          try{ a.pause(); a.currentTime = 0; a.volume = origVol; }catch(_e){}
-        }
-      }catch(_e){}
+    // Pre-create the Audio element on first user gesture so it's ready
+    // when showBossUnlockOverlay actually needs to play it.
+    // NOTE: We intentionally do NOT call .play() here — doing so caused
+    // audible sound on some iOS devices despite setting volume to 0.
+    function preloadAudioOnce(){
+      try{ ensureBossSfx(); }catch(_e){}
     }
 
     if (!window.__bossUnlockSfxBound){
       window.__bossUnlockSfxBound = true;
-      document.addEventListener('pointerdown', unlockAudioOnce, { once: true, passive: true });
-      document.addEventListener('touchstart', unlockAudioOnce, { once: true, passive: true });
-      document.addEventListener('keydown', unlockAudioOnce, { once: true });
+      document.addEventListener('pointerdown', preloadAudioOnce, { once: true, passive: true });
+      document.addEventListener('touchstart', preloadAudioOnce, { once: true, passive: true });
     }
   })();
 

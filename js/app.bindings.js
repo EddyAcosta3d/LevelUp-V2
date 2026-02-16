@@ -1,6 +1,90 @@
 'use strict';
 
-function bind(){
+/**
+ * @module app.bindings
+ * @description Event bindings and UI orchestration
+ *
+ * PUBLIC EXPORTS:
+ * - bind (main initialization function)
+ * - All render and action functions
+ */
+
+// Import ALL dependencies
+import {
+  state,
+  CONFIG,
+  logger,
+  escapeHtml,
+  makeId,
+  makeBlankHero,
+  getSelectedHero,
+  uiLock,
+  syncModalOpenState
+} from './modules/core_globals.js';
+
+import {
+  saveLocal,
+  loadData,
+  saveData
+} from './modules/store.js';
+
+import {
+  saveToGitHub,
+  hasGitHubToken,
+  setGitHubToken,
+  clearGitHubToken,
+  testGitHubConnection,
+  getGitHubStatus
+} from './modules/github_sync.js';
+
+import {
+  renderHeroList,
+  renderHeroDetail,
+  renderRewards,
+  currentHero,
+  openRoleModal,
+  closeRoleModal
+} from './modules/fichas.js';
+
+import {
+  renderChallenges,
+  openChallengeModal,
+  closeChallengeModal,
+  saveNewChallenge,
+  deleteSelectedChallenge
+} from './modules/desafios.js';
+
+import {
+  renderEvents
+} from './modules/eventos.js';
+
+import {
+  renderTienda,
+  closeStoreItemModal,
+  saveStoreItem
+} from './modules/tienda.js';
+
+import {
+  renderAll,
+  completeChallenge,
+  levelUp,
+  grantReward,
+  updateDataDebug,
+  demoData,
+  toast,
+  $,
+  $$
+} from './modules/app_actions.js';
+
+import {
+  showBigReward,
+  showConfetti,
+  animateXpBar
+} from './modules/celebrations.js';
+
+'use strict';
+
+export function bind(){
   if (window.__LEVELUP_BINDINGS_DONE) return;
   window.__LEVELUP_BINDINGS_DONE = true;
     // Cualquier botón "pill" con data-route (topnav + acciones derecha)
@@ -115,6 +199,34 @@ function bind(){
       clearLocal();
       toast('Copia local borrada');
       loadData({forceRemote:false});
+    });
+
+    // GitHub Auto-Save
+    $('#btnSaveToGitHub')?.addEventListener('click', async ()=>{
+      closeDatos();
+      if (!hasGitHubToken()) {
+        toast('⚠️ Configura tu token de GitHub primero');
+        openGitHubConfigModal();
+        return;
+      }
+
+      // Show progress
+      const progressToast = (msg) => toast(msg);
+      progressToast('Guardando a GitHub...');
+
+      const result = await saveToGitHub({ onProgress: progressToast });
+
+      if (result.success) {
+        toast('✅ Guardado en GitHub correctamente');
+        state.hasLocalChanges = false;
+      } else {
+        toast(`❌ Error: ${result.message}`);
+      }
+    });
+
+    $('#btnConfigGitHub')?.addEventListener('click', ()=>{
+      closeDatos();
+      openGitHubConfigModal();
     });
 
     // Role (sin PIN)
@@ -233,12 +345,12 @@ $('#btnChallengeComplete')?.addEventListener('click', ()=>{
 });
 
 // --- CRUD: Materias y Desafíos ---
-function pointsForDifficulty(diff){
+export function pointsForDifficulty(diff){
   const normalized = normalizeDifficulty(diff);
   return POINTS_BY_DIFFICULTY[normalized] || 0;
 }
 
-function refreshChallengeUI(){
+export function refreshChallengeUI(){
   ensureChallengeUI();
   renderChallenges();
   renderChallengeDetail();
@@ -246,7 +358,7 @@ function refreshChallengeUI(){
 }
 
 // Materias modal
-function openSubjectsModal(){  const m = $('#subjectsModal');
+export function openSubjectsModal(){  const m = $('#subjectsModal');
   if (!m) return;
   // Cierra dropdowns/controles que puedan quedar por encima del modal
   try{ document.activeElement && document.activeElement.blur(); }catch(e){}
@@ -258,13 +370,13 @@ function openSubjectsModal(){  const m = $('#subjectsModal');
   try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
   setTimeout(()=> $('#inNewSubject')?.focus(), 50);
 }
-function closeSubjectsModal(){
+export function closeSubjectsModal(){
   const m = $('#subjectsModal');
   if (!m) return;
   m.hidden = true;
   try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
 }
-function renderSubjectsModal(){
+export function renderSubjectsModal(){
   const box = $('#subjectsList');
   if (!box) return;
   box.innerHTML = '';
@@ -309,7 +421,7 @@ function renderSubjectsModal(){
 }
 
 // Historial de desafíos completados
-function openHistoryModal(){
+export function openHistoryModal(){
   const m = $('#historyModal');
   if (!m) return;
   try{ document.activeElement && document.activeElement.blur(); }catch(e){}
@@ -319,13 +431,47 @@ function openHistoryModal(){
   m.hidden = false;
   try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
 }
-function closeHistoryModal(){
+export function closeHistoryModal(){
   const m = $('#historyModal');
   if (!m) return;
   m.hidden = true;
   try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
 }
-function renderHistoryModal(){
+
+// GitHub Config Modal
+export function openGitHubConfigModal(){
+  const m = $('#githubConfigModal');
+  if (!m) return;
+  m.hidden = false;
+  updateGitHubStatusUI();
+  try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
+}
+
+export function closeGitHubConfigModal(){
+  const m = $('#githubConfigModal');
+  if (!m) return;
+  m.hidden = true;
+  try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
+}
+
+export function updateGitHubStatusUI(){
+  const statusEl = $('#githubStatusText');
+  if (!statusEl) return;
+
+  const status = getGitHubStatus();
+  if (status.hasToken) {
+    statusEl.textContent = `✅ Configurado - ${status.owner}/${status.repo}`;
+  } else {
+    statusEl.textContent = '❌ No configurado';
+  }
+
+  // Show current token (masked)
+  const input = $('#inGitHubToken');
+  if (input && !input.value && status.hasToken) {
+    input.placeholder = '••••••••••••••••••••';
+  }
+}
+export function renderHistoryModal(){
   const title = $('#historyModalTitle');
   const list = $('#historyList');
   const empty = $('#historyEmpty');
@@ -368,7 +514,7 @@ window.closeHistoryModal = closeHistoryModal;
 // Desafío modal
 let editingChallengeId = null;
 
-function setChallengeModalDiff(diff){
+export function setChallengeModalDiff(diff){
   const d = String(diff||'easy').toLowerCase();
   const hid = document.getElementById('inChDiff');
   if (hid) hid.value = d;
@@ -394,16 +540,16 @@ function setChallengeModalDiff(diff){
 
 
 // --- Challenge modal subject dropdown (custom, matches main Materia dropdown) ---
-function closeChModalSubjectDropdown(){
+export function closeChModalSubjectDropdown(){
   const dd = document.getElementById('chModalSubjectDropdown');
   if (dd) dd.classList.remove('is-open');
 }
-function toggleChModalSubjectDropdown(){
+export function toggleChModalSubjectDropdown(){
   const dd = document.getElementById('chModalSubjectDropdown');
   if (!dd) return;
   dd.classList.toggle('is-open');
 }
-function ensureChModalSubjectDropdown(subjects){
+export function ensureChModalSubjectDropdown(subjects){
   const dd = document.getElementById('chModalSubjectDropdown');
   const btn = document.getElementById('btnChModalSubject');
   const menu = document.getElementById('chModalSubjectMenu');
@@ -437,7 +583,7 @@ function ensureChModalSubjectDropdown(subjects){
   }
 }
 
-function openChallengeModal(mode='create', ch=null){  const m = $('#challengeModal');
+export function openChallengeModal(mode='create', ch=null){  const m = $('#challengeModal');
   if (!m) return;
   // Cierra dropdowns/controles abiertos (evita que se queden encima del modal)
   try{ document.activeElement && document.activeElement.blur(); }catch(e){}
@@ -491,7 +637,7 @@ function openChallengeModal(mode='create', ch=null){  const m = $('#challengeMod
   setTimeout(()=> inTitle?.focus(), 50);
 }
 
-function closeChallengeModal(){
+export function closeChallengeModal(){
   const m = $('#challengeModal');
   if (!m) return;
   m.hidden = true;
@@ -684,7 +830,6 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
 
     // Level Up modal backdrop
     $('#levelUpBackdrop')?.addEventListener('click', closeLevelUpModal);
-    $('#btnLevelUpClose')?.addEventListener('click', closeLevelUpModal);
 
     // Confirm modal backdrop
     $('#confirmBackdrop')?.addEventListener('click', ()=>{ const b=$('#btnConfirmCancel'); if(b) b.click(); });
@@ -786,6 +931,46 @@ $('#btnSaveChallenge')?.addEventListener('click', saveChallengeFromModal);
     });
 
     // Nota: Fotos se gestionan en /assets y en el JSON. No hay carga/edición dentro de la app.
+
+    // GitHub Config Modal
+    $('#btnCloseGitHubConfig')?.addEventListener('click', closeGitHubConfigModal);
+    $('#githubConfigBackdrop')?.addEventListener('click', closeGitHubConfigModal);
+
+    $('#btnSaveGitHubToken')?.addEventListener('click', ()=>{
+      const input = $('#inGitHubToken');
+      const token = input?.value?.trim();
+      if (!token) {
+        toast('⚠️ Ingresa un token válido');
+        return;
+      }
+      if (setGitHubToken(token)) {
+        toast('✅ Token guardado correctamente');
+        updateGitHubStatusUI();
+        closeGitHubConfigModal();
+      } else {
+        toast('❌ Error al guardar token');
+      }
+    });
+
+    $('#btnClearGitHubToken')?.addEventListener('click', ()=>{
+      clearGitHubToken();
+      const input = $('#inGitHubToken');
+      if (input) input.value = '';
+      updateGitHubStatusUI();
+      toast('Token borrado');
+    });
+
+    $('#btnTestGitHub')?.addEventListener('click', async ()=>{
+      const statusEl = $('#githubStatusText');
+      if (statusEl) statusEl.textContent = 'Probando conexión...';
+
+      const result = await testGitHubConnection();
+
+      if (statusEl) {
+        statusEl.textContent = result.success ? '✅ ' + result.message : '❌ ' + result.message;
+      }
+      toast(result.success ? '✅ Conexión exitosa' : '❌ ' + result.message);
+    });
 
     wireAutoGrow(document);
   
