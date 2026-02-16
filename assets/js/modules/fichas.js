@@ -30,6 +30,46 @@ import {
 // (Importante: NO inventar rutas por nombre para evitar 404.)
 const HERO_FG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_3x4.webp';
 const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.webp';
+/**
+ * Optimized hero selection - updates only what changed
+ * Instead of re-rendering everything, just update classes and relevant UI
+ */
+export function selectHero(heroId) {
+  if (state.selectedHeroId === heroId) return; // No change
+
+  const previousId = state.selectedHeroId;
+  state.selectedHeroId = heroId;
+
+  // Update hero list - just toggle classes (no re-render)
+  const heroList = document.getElementById('heroList');
+  if (heroList) {
+    const prevBtn = heroList.querySelector(`[data-hero-id="${previousId}"]`);
+    const newBtn = heroList.querySelector(`[data-hero-id="${heroId}"]`);
+
+    if (prevBtn) prevBtn.classList.remove('is-active');
+    if (newBtn) newBtn.classList.add('is-active');
+  }
+
+  // Update hero detail panel only
+  renderHeroDetail();
+
+  // Update current route view only if needed
+  const routeRenders = {
+    'desafios': () => typeof renderChallenges === 'function' && renderChallenges(),
+    'recompensas': () => typeof renderRewards === 'function' && renderRewards(),
+    'eventos': () => typeof renderEvents === 'function' && renderEvents(),
+    'tienda': () => typeof renderTienda === 'function' && renderTienda()
+  };
+
+  const renderFn = routeRenders[state.route];
+  if (renderFn) renderFn();
+
+  // Close drawer on mobile
+  if (typeof isDrawerLayout === 'function' && isDrawerLayout()) {
+    if (typeof closeDrawer === 'function') closeDrawer();
+  }
+}
+
   export function renderHeroList(){
     const list = $('#heroList');
     list.innerHTML = '';
@@ -71,23 +111,8 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
         </div>
       `;
       btn.addEventListener('click', ()=>{
-        state.selectedHeroId = hero.id;
-        renderHeroList();
-        renderHeroDetail();
-
-        // IMPORTANT: Refresh the current page so per-hero state (challenge completions, rewards, events eligibility)
-        // updates immediately when you switch heroes.
-        if (state.route === 'desafios') {
-          renderChallenges();
-        } else if (state.route === 'recompensas') {
-          renderRewards();
-        } else if (state.route === 'eventos') {
-          renderEvents();
-        } else if (state.route === 'tienda') {
-          if (typeof renderTienda === 'function') renderTienda();
-        }
-
-        if (isDrawerLayout()) closeDrawer();
+        // OPTIMIZED: Use selectHero() instead of multiple re-renders
+        selectHero(hero.id);
       });
       list.appendChild(btn);
     });

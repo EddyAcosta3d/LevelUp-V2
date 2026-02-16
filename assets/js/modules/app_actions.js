@@ -26,7 +26,11 @@ import {
   isChallengeDone,
   heroMaxStat,
   normalizeData,
-  totalCompletedAcrossHeroes
+  totalCompletedAcrossHeroes,
+  $,
+  $$,
+  clearDOMCache,
+  timeoutManager
 } from './core_globals.js';
 
 import {
@@ -898,3 +902,12 @@ function _heroArtCandidates(hero){
       try{ if (typeof syncModalOpenState==='function') syncModalOpenState(); }catch(e){}
     });
   }
+
+// Re-export DOM helpers for backward compatibility
+export { $, $$, clearDOMCache, timeoutManager };
+
+// Keep window.* assignments for backward compat
+if (typeof window !== "undefined") {
+  window.$ = $;
+  window.$$ = $$;
+}

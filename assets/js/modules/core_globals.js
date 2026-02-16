@@ -145,6 +145,108 @@ export function escapeAttr(s){
   return escapeHtml(s);
 }
 
+// ============================================
+// DOM HELPERS WITH CACHE (Performance optimization)
+// ============================================
+const _domCache = new Map();
+
+/**
+ * Optimized querySelector with cache
+ * @param {string} selector - CSS selector
+ * @param {boolean} skipCache - Force fresh query
+ * @returns {Element|null}
+ */
+export function $(selector, skipCache = false) {
+  if (!skipCache && _domCache.has(selector)) {
+    const cached = _domCache.get(selector);
+    // Verify element is still in DOM
+    if (cached && document.contains(cached)) {
+      return cached;
+    }
+    _domCache.delete(selector);
+  }
+
+  const el = document.querySelector(selector);
+  if (el && !skipCache) {
+    _domCache.set(selector, el);
+  }
+  return el;
+}
+
+/**
+ * Optimized querySelectorAll
+ * @param {string} selector - CSS selector
+ * @returns {NodeList}
+ */
+export function $$(selector) {
+  return document.querySelectorAll(selector);
+}
+
+/**
+ * Clear DOM cache (call when DOM structure changes significantly)
+ */
+export function clearDOMCache() {
+  _domCache.clear();
+}
+
+// ============================================
+// TIMEOUT MANAGER (Memory leak prevention)
+// ============================================
+class TimeoutManager {
+  constructor() {
+    this.timeouts = new Set();
+    this.intervals = new Set();
+  }
+
+  setTimeout(fn, delay, ...args) {
+    const id = setTimeout(() => {
+      this.timeouts.delete(id);
+      fn(...args);
+    }, delay);
+    this.timeouts.add(id);
+    return id;
+  }
+
+  setInterval(fn, delay, ...args) {
+    const id = setInterval(() => fn(...args), delay);
+    this.intervals.add(id);
+    return id;
+  }
+
+  clearTimeout(id) {
+    clearTimeout(id);
+    this.timeouts.delete(id);
+  }
+
+  clearInterval(id) {
+    clearInterval(id);
+    this.intervals.delete(id);
+  }
+
+  cleanup() {
+    this.timeouts.forEach(id => clearTimeout(id));
+    this.intervals.forEach(id => clearInterval(id));
+    this.timeouts.clear();
+    this.intervals.clear();
+  }
+
+  getStats() {
+    return {
+      activeTimeouts: this.timeouts.size,
+      activeIntervals: this.intervals.size,
+      total: this.timeouts.size + this.intervals.size
+    };
+  }
+}
+
+// Global timeout manager instance
+export const timeoutManager = new TimeoutManager();
+
+// Cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => timeoutManager.cleanup());
+}
+
 export function makeId(prefix='h'){
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
 }
@@ -880,10 +982,16 @@ d.heroes.forEach(h=>{
       h.goal = h.goal || '';
       h.medals = Number(h.medals ?? 0); // Sistema de medallas
       h.storeClaims = Array.isArray(h.storeClaims) ? h.storeClaims : []; // Historial de canjes
-      h.rewardsHistory = Array.isArray(h.rewardsHistory) ? h.rewardsHistory : [];
+
+      // OPTIMIZATION: Limit history arrays to prevent unbounded growth
+      const MAX_HISTORY = 200; // Keep last 200 entries
+      const MAX_STORE_CLAIMS = 100; // Keep last 100 store claims
+
+      h.rewardsHistory = Array.isArray(h.rewardsHistory) ? h.rewardsHistory.slice(-MAX_HISTORY) : [];
+      h.challengeHistory = Array.isArray(h.challengeHistory) ? h.challengeHistory.slice(-MAX_HISTORY) : [];
+      h.storeClaims = h.storeClaims.slice(-MAX_STORE_CLAIMS);
+
       h.challengeCompletions = (h.challengeCompletions && typeof h.challengeCompletions === 'object') ? h.challengeCompletions : {};
-      // Historial de desafíos completados (solo quedan los que siguen marcados como completados)
-      h.challengeHistory = Array.isArray(h.challengeHistory) ? h.challengeHistory : [];
       h.pendingRewards = Array.isArray(h.pendingRewards) ? h.pendingRewards : []; // items: { level, createdAt }
       // Reconcile: remove pending rewards that were already claimed (based on rewardsHistory levels)
       try{
