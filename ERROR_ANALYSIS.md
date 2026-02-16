@@ -2,15 +2,40 @@
 
 **Fecha**: 2026-02-16
 **Análisis**: Revisión completa del código fuente
+**Última Actualización**: 2026-02-16 (Correcciones aplicadas)
+
+---
+
+## ✅ ESTADO DE CORRECCIONES
+
+### Completadas (Commits: e055779, 7661cbe, dced635)
+
+#### Primera Ronda - Errores Críticos ✅
+- ✅ **getSelectedHero()** - Corregido búsqueda en `heroes` en lugar de `people`
+- ✅ **state.ui** - Inicializado con propiedad `pendingToastHeroId`
+- ✅ **heroFirstName() y FEMALE_NAME_SET** - Implementadas en fichas.js
+- ✅ **escapeHtml() duplicada** - Eliminada de celebrations.js
+
+#### Segunda Ronda - Mejoras de Calidad ✅
+- ✅ **currentHero()** - Refactorizado para usar getSelectedHero()
+- ✅ **escapeAttr()** - Helper agregado para escapar atributos HTML
+- ✅ **window.LevelUp** - Namespace creado para mejor organización
+- ✅ **Validación localStorage** - Agregada en saveLocal()
+
+### Pendientes
+- ⏳ Condición de carrera en parallax (línea 263-264, fichas.js)
+- ⏳ Manifest parallax hardcodeado (parallax_manifest.js)
+- ⏳ Timeout de carga de imágenes (eventos.js)
 
 ---
 
 ## 🔴 ERRORES CRÍTICOS (Prioridad 1)
 
-### 1. Funciones No Definidas - `heroFirstName()` y `FEMALE_NAME_SET`
+### 1. ✅ CORREGIDO - Funciones No Definidas - `heroFirstName()` y `FEMALE_NAME_SET`
 **Archivo**: `js/modules/fichas.js:157-159`
 **Severidad**: CRÍTICA
 **Tipo**: ReferenceError en tiempo de ejecución
+**Estado**: ✅ Corregido en commit 7661cbe
 
 ```javascript
 const n = heroFirstName(heroName);
@@ -38,10 +63,11 @@ const FEMALE_NAME_SET = new Set([
 
 ---
 
-### 2. Propiedad `state.ui` No Inicializada
+### 2. ✅ CORREGIDO - Propiedad `state.ui` No Inicializada
 **Archivo**: `js/modules/fichas.js:493`
 **Severidad**: CRÍTICA
 **Tipo**: TypeError en tiempo de ejecución
+**Estado**: ✅ Corregido en commit 7661cbe
 
 ```javascript
 if (state.ui.pendingToastHeroId !== hero.id){
@@ -70,10 +96,11 @@ const state = {
 
 ---
 
-### 3. Bug en `getSelectedHero()` - Búsqueda en Propiedad Incorrecta
+### 3. ✅ CORREGIDO - Bug en `getSelectedHero()` - Búsqueda en Propiedad Incorrecta
 **Archivo**: `js/modules/core_globals.js:308`
 **Severidad**: ALTA
 **Tipo**: Error lógico
+**Estado**: ✅ Corregido en commit 7661cbe
 
 ```javascript
 const people = state?.data?.people || [];  // INCORRECTO
@@ -94,10 +121,11 @@ return heroes.find(h => h.id === state.selectedHeroId);
 
 ## 🟠 ERRORES DE ALTA PRIORIDAD (Prioridad 2)
 
-### 4. Funciones Duplicadas - `escapeHtml()`
+### 4. ✅ CORREGIDO - Funciones Duplicadas - `escapeHtml()`
 **Archivos**:
 - `js/modules/core_globals.js:337-344`
 - `js/modules/celebrations.js:6-13`
+**Estado**: ✅ Corregido en commit 7661cbe
 
 **Problema**: Misma función definida en dos lugares
 
@@ -119,10 +147,11 @@ return heroes.find(h => h.id === state.selectedHeroId);
 
 ---
 
-### 6. Funciones Duplicadas - `getSelectedHero()` vs `currentHero()`
+### 6. ✅ CORREGIDO - Funciones Duplicadas - `getSelectedHero()` vs `currentHero()`
 **Archivos**:
 - `js/modules/core_globals.js:307-309`
 - `js/modules/fichas.js:71-73`
+**Estado**: ✅ Corregido en commit dced635
 
 **Problema**: Dos funciones hacen lo mismo con nombres diferentes
 
@@ -150,8 +179,9 @@ data-hero-name="${escapeHtml(hero.name).replace(/"/g, '&quot;')}"
 
 ---
 
-### 8. Validación Insuficiente de localStorage
+### 8. ✅ CORREGIDO - Validación Insuficiente de localStorage
 **Archivo**: `js/modules/store.js:6`
+**Estado**: ✅ Corregido en commit dced635
 
 **Problema**: No hay validación de estructura antes de guardar en `localStorage`
 
@@ -176,8 +206,9 @@ safe('Tienda', ()=> { if (typeof renderTienda === 'function') renderTienda(); })
 
 ---
 
-### 10. Contaminación del Scope Global
+### 10. ✅ PARCIALMENTE CORREGIDO - Contaminación del Scope Global
 **Archivo**: `js/app.bindings.js:791-797`
+**Estado**: ✅ Namespace `window.LevelUp` creado en commit dced635
 
 ```javascript
 window.openChallengeModal = openChallengeModal;
