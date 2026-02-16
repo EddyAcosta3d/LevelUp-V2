@@ -472,7 +472,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   // Modal helper (evita que un modal quede debajo de otro)
   const MODAL_IDS = ['roleModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal', 'historyModal', 'storeItemModal'];
   const getModal = (id) => document.getElementById(id);
-  function closeAllModals(exceptId=null){
+  export function closeAllModals(exceptId=null){
     MODAL_IDS.forEach(id=>{
       if (exceptId && id === exceptId) return;
       const m = getModal(id);
@@ -481,13 +481,15 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
     try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(e){}
   }
 
-  function syncModalOpenState(){
+  export function syncModalOpenState(){
     try{
       const anyOpen = !!document.querySelector('.modal:not([hidden])');
       document.body.classList.toggle('is-modal-open', anyOpen);
     }catch(e){}
   }
+  window.closeAllModals = closeAllModals;
   window.syncModalOpenState = syncModalOpenState;
+  window.LevelUp.closeAllModals = closeAllModals;
   window.LevelUp.syncModalOpenState = syncModalOpenState;
 
 
