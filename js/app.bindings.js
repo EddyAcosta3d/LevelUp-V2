@@ -112,6 +112,438 @@ export function bind(){
     }
   });
 
+  // Hero management buttons
+  bindHeroManagementButtons();
+
+  // Challenge buttons
+  bindChallengeButtons();
+
+  // Modal close buttons
+  bindModalCloseButtons();
+
   safeCall(bindTiendaEvents);
   safeCall(renderAll);
+}
+
+// ========================================================================
+// HERO MANAGEMENT BINDINGS
+// ========================================================================
+
+function bindHeroManagementButtons() {
+  const toast = window.toast || ((msg) => console.log(msg));
+  const { makeId, makeBlankHero } = window;
+
+  // New Hero button
+  document.getElementById('btnNuevoHeroe')?.addEventListener('click', () => {
+    if (!state.data.heroes) state.data.heroes = [];
+
+    const newHero = makeBlankHero ? makeBlankHero() : {
+      id: 'hero_' + Date.now(),
+      name: 'Nuevo héroe',
+      age: 13,
+      level: 1,
+      xp: 0,
+      xpMax: 100,
+      stats: { int: 0, sab: 0, car: 0, res: 0, cre: 0 },
+      medals: 0,
+      group: state.group || '2D',
+      challengeCompletions: {},
+      pendingRewards: [],
+      rewardsHistory: []
+    };
+
+    state.data.heroes.push(newHero);
+    state.selectedHeroId = newHero.id;
+
+    if (typeof window.saveLocal === 'function') {
+      window.saveLocal(state.data);
+    }
+
+    toast('Nuevo héroe creado');
+
+    if (typeof window.renderAll === 'function') {
+      window.renderAll();
+    }
+  });
+
+  // Delete Hero button
+  document.getElementById('btnEliminar')?.addEventListener('click', async () => {
+    const hero = window.currentHero ? window.currentHero() : null;
+    if (!hero) {
+      toast('No hay héroe seleccionado');
+      return;
+    }
+
+    const confirmed = window.openConfirmModal ?
+      await window.openConfirmModal({
+        title: 'Eliminar héroe',
+        message: `¿Seguro que quieres eliminar a ${hero.name}?`,
+        okText: 'Eliminar',
+        cancelText: 'Cancelar'
+      }) : confirm(`¿Seguro que quieres eliminar a ${hero.name}?`);
+
+    if (!confirmed) return;
+
+    if (state.data.heroes) {
+      state.data.heroes = state.data.heroes.filter(h => h.id !== hero.id);
+
+      // Select first remaining hero
+      if (state.data.heroes.length > 0) {
+        state.selectedHeroId = state.data.heroes[0].id;
+      } else {
+        state.selectedHeroId = null;
+      }
+
+      if (typeof window.saveLocal === 'function') {
+        window.saveLocal(state.data);
+      }
+
+      toast(`${hero.name} eliminado`);
+
+      if (typeof window.renderAll === 'function') {
+        window.renderAll();
+      }
+    }
+  });
+
+  // Weekly XP Reset button
+  document.getElementById('btnWeekReset')?.addEventListener('click', () => {
+    const hero = window.currentHero ? window.currentHero() : null;
+    if (!hero) {
+      toast('No hay héroe seleccionado');
+      return;
+    }
+
+    hero.weekXp = 0;
+
+    if (typeof window.saveLocal === 'function') {
+      window.saveLocal(state.data);
+    }
+
+    toast('XP semanal reiniciado');
+
+    if (typeof window.renderHeroDetail === 'function') {
+      window.renderHeroDetail();
+    }
+  });
+}
+
+// ========================================================================
+// CHALLENGE BINDINGS
+// ========================================================================
+
+function bindChallengeButtons() {
+  const toast = window.toast || ((msg) => console.log(msg));
+
+  // Difficulty filter buttons
+  const difficultyButtons = ['btnDiffEasy', 'btnDiffMed', 'btnDiffHard'];
+  const difficultyMap = {
+    'btnDiffEasy': 'easy',
+    'btnDiffMed': 'medium',
+    'btnDiffHard': 'hard'
+  };
+
+  difficultyButtons.forEach(btnId => {
+    document.getElementById(btnId)?.addEventListener('click', () => {
+      const diff = difficultyMap[btnId];
+      if (!state.challengeFilter) state.challengeFilter = {};
+      state.challengeFilter.diff = diff;
+
+      if (typeof window.renderChallenges === 'function') {
+        window.renderChallenges();
+      }
+    });
+  });
+
+  // Add Challenge button
+  document.getElementById('btnAddChallenge')?.addEventListener('click', () => {
+    if (typeof window.openChallengeModal === 'function') {
+      window.openChallengeModal('create');
+    } else {
+      toast('⚠️ Función openChallengeModal no disponible');
+    }
+  });
+
+  // Manage Subjects button
+  document.getElementById('btnManageSubjects')?.addEventListener('click', () => {
+    const modal = document.getElementById('subjectsModal');
+    if (modal) {
+      if (typeof window.closeAllModals === 'function') {
+        window.closeAllModals('subjectsModal');
+      }
+      modal.hidden = false;
+
+      // Render subjects list
+      renderSubjectsList();
+    }
+  });
+
+  // Add Subject button (inside subjects modal)
+  document.getElementById('btnAddSubject')?.addEventListener('click', () => {
+    const input = document.getElementById('inNewSubject');
+    if (!input) return;
+
+    const name = input.value.trim();
+    if (!name) {
+      toast('Ingresa el nombre de la materia');
+      return;
+    }
+
+    if (!state.data.subjects) state.data.subjects = [];
+
+    const newSubject = {
+      id: 'subj_' + Date.now(),
+      name: name,
+      linkedStats: ['SAB'] // Default
+    };
+
+    state.data.subjects.push(newSubject);
+    input.value = '';
+
+    if (typeof window.saveLocal === 'function') {
+      window.saveLocal(state.data);
+    }
+
+    toast(`Materia "${name}" agregada`);
+    renderSubjectsList();
+
+    if (typeof window.renderChallenges === 'function') {
+      window.renderChallenges();
+    }
+  });
+
+  // Challenge History button
+  document.getElementById('btnHistory')?.addEventListener('click', () => {
+    const modal = document.getElementById('historyModal');
+    if (modal) {
+      if (typeof window.closeAllModals === 'function') {
+        window.closeAllModals('historyModal');
+      }
+      modal.hidden = false;
+      renderChallengeHistory();
+    }
+  });
+
+  // Save Challenge button (inside challenge modal)
+  document.getElementById('btnSaveChallenge')?.addEventListener('click', () => {
+    const modal = document.getElementById('challengeModal');
+
+    // Get form values
+    const title = document.getElementById('inChTitle')?.value || '';
+    const body = document.getElementById('inChBody')?.value || '';
+    const points = parseInt(document.getElementById('inChPoints')?.value) || 10;
+    const subjectId = document.getElementById('inChSubject')?.value || '';
+    const difficulty = document.getElementById('inChDiff')?.value || 'easy';
+
+    if (!title.trim()) {
+      toast('Ingresa un título para el desafío');
+      return;
+    }
+
+    if (!subjectId) {
+      toast('Selecciona una materia');
+      return;
+    }
+
+    if (!state.data.challenges) state.data.challenges = [];
+
+    const newChallenge = {
+      id: 'ch_' + Date.now(),
+      title: title.trim(),
+      body: body.trim(),
+      points: points,
+      subjectId: subjectId,
+      difficulty: difficulty,
+      createdAt: new Date().toISOString()
+    };
+
+    state.data.challenges.push(newChallenge);
+
+    if (typeof window.saveLocal === 'function') {
+      window.saveLocal(state.data);
+    }
+
+    toast(`Desafío "${title}" creado`);
+
+    if (modal) modal.hidden = true;
+
+    if (typeof window.renderChallenges === 'function') {
+      window.renderChallenges();
+    }
+  });
+
+  // Cancel Challenge button (inside challenge modal)
+  document.getElementById('btnCancelChallenge')?.addEventListener('click', () => {
+    const modal = document.getElementById('challengeModal');
+    if (modal) modal.hidden = true;
+  });
+
+  // Reset Local Data button
+  document.getElementById('btnResetLocal')?.addEventListener('click', async () => {
+    const confirmed = window.openConfirmModal ?
+      await window.openConfirmModal({
+        title: 'Borrar copia local',
+        message: '¿Seguro que quieres borrar todos los datos locales? Se recargará desde GitHub.',
+        okText: 'Borrar',
+        cancelText: 'Cancelar'
+      }) : confirm('¿Seguro que quieres borrar todos los datos locales?');
+
+    if (!confirmed) return;
+
+    try {
+      localStorage.removeItem('levelup_data');
+      toast('Datos locales borrados. Recargando...');
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+    } catch (error) {
+      toast('Error al borrar datos locales');
+      console.error(error);
+    }
+  });
+}
+
+// ========================================================================
+// MODAL CLOSE BINDINGS
+// ========================================================================
+
+function bindModalCloseButtons() {
+  // Close buttons for various modals
+  const modalCloseBtns = [
+    { btnId: 'btnCloseRoleModal', modalId: 'roleModal' },
+    { btnId: 'btnCloseChallengeModal', modalId: 'challengeModal' },
+    { btnId: 'btnCloseHistoryModal', modalId: 'historyModal' },
+    { btnId: 'btnCloseSubjects', modalId: 'subjectsModal' }
+  ];
+
+  modalCloseBtns.forEach(({ btnId, modalId }) => {
+    document.getElementById(btnId)?.addEventListener('click', () => {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.hidden = true;
+    });
+
+    // Also bind backdrop clicks
+    const backdrop = document.getElementById(modalId.replace('Modal', 'Backdrop'));
+    if (backdrop) {
+      backdrop.addEventListener('click', () => {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.hidden = true;
+      });
+    }
+  });
+}
+
+// ========================================================================
+// HELPER FUNCTIONS
+// ========================================================================
+
+function renderSubjectsList() {
+  const list = document.getElementById('subjectsList');
+  if (!list) return;
+
+  const escapeHtml = window.escapeHtml || ((str) => String(str).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[m]));
+
+  list.innerHTML = '';
+
+  const subjects = state.data?.subjects || [];
+  if (!subjects.length) {
+    list.innerHTML = '<div class="muted">No hay materias.</div>';
+    return;
+  }
+
+  subjects.forEach(subject => {
+    const div = document.createElement('div');
+    div.className = 'subjectItem';
+    div.innerHTML = `
+      <span class="subjectItem__name">${escapeHtml(subject.name)}</span>
+      <button class="pill pill--small pill--danger" data-delete-subject="${subject.id}">Eliminar</button>
+    `;
+
+    // Delete button
+    const deleteBtn = div.querySelector('[data-delete-subject]');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        const confirmed = window.openConfirmModal ?
+          await window.openConfirmModal({
+            title: 'Eliminar materia',
+            message: `¿Eliminar "${subject.name}"?`,
+            okText: 'Eliminar',
+            cancelText: 'Cancelar'
+          }) : confirm(`¿Eliminar "${subject.name}"?`);
+
+        if (!confirmed) return;
+
+        state.data.subjects = state.data.subjects.filter(s => s.id !== subject.id);
+
+        if (typeof window.saveLocal === 'function') {
+          window.saveLocal(state.data);
+        }
+
+        const toast = window.toast || ((msg) => console.log(msg));
+        toast(`Materia "${subject.name}" eliminada`);
+        renderSubjectsList();
+
+        if (typeof window.renderChallenges === 'function') {
+          window.renderChallenges();
+        }
+      });
+    }
+
+    list.appendChild(div);
+  });
+}
+
+function renderChallengeHistory() {
+  const list = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  if (!list) return;
+
+  const escapeHtml = window.escapeHtml || ((str) => String(str).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[m]));
+
+  const hero = window.currentHero ? window.currentHero() : null;
+  if (!hero || !hero.challengeCompletions) {
+    if (empty) empty.hidden = false;
+    list.innerHTML = '';
+    return;
+  }
+
+  const completions = Object.entries(hero.challengeCompletions)
+    .map(([id, data]) => ({ id, ...data }))
+    .sort((a, b) => (b.at || 0) - (a.at || 0)); // Most recent first
+
+  if (!completions.length) {
+    if (empty) empty.hidden = false;
+    list.innerHTML = '';
+    return;
+  }
+
+  if (empty) empty.hidden = true;
+  list.innerHTML = '';
+
+  const challenges = state.data?.challenges || [];
+  const subjects = state.data?.subjects || [];
+  const subjectMap = new Map(subjects.map(s => [s.id, s.name]));
+  const challengeMap = new Map(challenges.map(c => [c.id, c]));
+
+  completions.forEach(comp => {
+    const challenge = challengeMap.get(comp.id);
+    if (!challenge) return;
+
+    const subjectName = subjectMap.get(challenge.subjectId) || challenge.subject || '—';
+    const difficulty = challenge.difficulty || 'easy';
+    const date = comp.at ? new Date(comp.at).toLocaleDateString('es-MX') : '—';
+
+    const div = document.createElement('div');
+    div.className = 'historyItem';
+    div.innerHTML = `
+      <div class="historyItem__badge" data-diff="${difficulty}">${escapeHtml(subjectName)}</div>
+      <div class="historyItem__title">${escapeHtml(challenge.title || 'Sin título')}</div>
+      <div class="historyItem__meta">${date}</div>
+    `;
+    list.appendChild(div);
+  });
 }
