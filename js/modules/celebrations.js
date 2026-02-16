@@ -1,16 +1,7 @@
 // ============================================
 // SISTEMA DE CELEBRACIONES Y FEEDBACK VISUAL
 // ============================================
-
-// Helper function local
-function _escapeHtml(s){
-  return String(s ?? '')
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'",'&#039;');
-}
+// Uses global escapeHtml() from core_globals.js
 
 /**
  * Muestra una pantalla de celebración grande
@@ -35,9 +26,9 @@ function showBigReward(options = {}) {
 
   overlay.innerHTML = `
     <div class="bigReward">
-      <div class="bigReward__icon">${_escapeHtml(icon)}</div>
-      <div class="bigReward__title">${_escapeHtml(title)}</div>
-      ${subtitle ? `<div class="bigReward__subtitle">${_escapeHtml(subtitle)}</div>` : ''}
+      <div class="bigReward__icon">${escapeHtml(icon)}</div>
+      <div class="bigReward__title">${escapeHtml(title)}</div>
+      ${subtitle ? `<div class="bigReward__subtitle">${escapeHtml(subtitle)}</div>` : ''}
     </div>
   `;
 

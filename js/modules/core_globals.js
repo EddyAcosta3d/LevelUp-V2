@@ -295,7 +295,10 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
     eventsTab: 'boss',
     isDetailsOpen: false,
     data: null,
-    dataSource: '—'      // remote | local | demo
+    dataSource: '—',     // remote | local | demo
+    ui: {                // UI state tracking
+      pendingToastHeroId: null
+    }
   };
 
   // Build marker (para confirmar en GitHub que sí cargó la versión correcta)
@@ -305,8 +308,8 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
 
   // Selected hero helper (used across modules/bindings)
   function getSelectedHero(){
-    const people = state?.data?.people || [];
-    return people.find(p=>p.id===state.selectedHeroId) || null;
+    const heroes = state?.data?.heroes || [];
+    return heroes.find(h=>h.id===state.selectedHeroId) || null;
   }
   window.getSelectedHero = getSelectedHero;
 

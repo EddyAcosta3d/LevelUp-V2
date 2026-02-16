@@ -151,7 +151,25 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
     try{ return String(str).normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }catch(_){ return String(str); }
   }
 
-  
+
+  // --- Helpers para determinación de género por nombre ---
+  function heroFirstName(fullName){
+    if (!fullName) return '';
+    const parts = String(fullName).trim().split(/\s+/);
+    return parts[0].toLowerCase();
+  }
+
+  // Conjunto de nombres femeninos comunes en español
+  const FEMALE_NAME_SET = new Set([
+    'maria', 'ana', 'carmen', 'laura', 'marta', 'sara', 'sofia', 'isabel',
+    'elena', 'paula', 'beatriz', 'teresa', 'rosa', 'patricia', 'andrea',
+    'lucia', 'raquel', 'monica', 'cristina', 'silvia', 'pilar', 'angela',
+    'susana', 'julia', 'clara', 'natalia', 'adriana', 'gabriela', 'diana',
+    'carolina', 'alejandra', 'victoria', 'mariana', 'daniela', 'valeria',
+    'camila', 'isabella', 'valentina', 'fernanda', 'paula', 'andrea',
+    'maia', 'emma', 'olivia', 'ava', 'mia', 'luna', 'eva', 'nora'
+  ]);
+
   // --- Placeholders para héroes sin arte ---
   function isFemaleHeroName(heroName){
     const n = heroFirstName(heroName);
