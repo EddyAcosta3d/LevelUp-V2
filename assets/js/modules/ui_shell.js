@@ -184,3 +184,23 @@
     toastTimer = setTimeout(()=>{ el.style.opacity = '0'; }, 2200);
   }
 
+// Export all functions for use in other modules
+if (typeof window !== 'undefined') {
+  window.setActiveRoute = setActiveRoute;
+  window.isEditEnabled = isEditEnabled;
+  window.updateEditButton = updateEditButton;
+  window.applyFichaLock = applyFichaLock;
+  window.isDrawerLayout = isDrawerLayout;
+  window.closeDrawer = closeDrawer;
+  window.openDrawer = openDrawer;
+  window.isDetailsAvailable = isDetailsAvailable;
+  window.syncDetailsUI = syncDetailsUI;
+  window.toggleDetails = toggleDetails;
+  window.updateDeviceDebug = updateDeviceDebug;
+  window.updateDataDebug = updateDataDebug;
+  window.toggleDatos = toggleDatos;
+  window.closeDatos = closeDatos;
+  window.autoGrowTextarea = autoGrowTextarea;
+  window.wireAutoGrow = wireAutoGrow;
+  window.toast = toast;
+}

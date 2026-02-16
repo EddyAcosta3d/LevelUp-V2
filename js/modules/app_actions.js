@@ -11,311 +11,50 @@
 
 // Import dependencies
 import {
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   state,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   CONFIG,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   DIFFICULTY,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   POINTS_BY_DIFFICULTY,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   logger,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   escapeHtml,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   makeId,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   makeBlankHero,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   seedChallengesDemo,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   seedEventsDemo,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   getSelectedHero,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   normalizeDifficulty,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   isChallengeDone,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   heroMaxStat,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   normalizeData,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   totalCompletedAcrossHeroes,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   $,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   $$,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   clearDOMCache,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   timeoutManager
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
 } from './core_globals.js';
 
 import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
-
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
-import {
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   saveLocal,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   loadData,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
   saveData
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
 } from './store.js';
 
-import {
-  renderChallenges
-} from './desafios.js';
 
-import {
-  renderEvents
-} from './eventos.js';
+import { renderHeroList, renderHeroDetail } from './fichas.js';
+import { renderChallenges, renderChallengeDetail } from './desafios.js';
+import { renderEvents } from './eventos.js';
+import { renderTienda } from './tienda.js';
 
 
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
-import {
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
-  renderHeroList,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
-  renderHeroDetail,
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
-  currentHero
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
-} from './fichas.js';
-
-import {
-  renderChallenges
-} from './desafios.js';
-
-import {
-  renderEvents
-} from './eventos.js';
+const toast = (...args) => { if (typeof window.toast === 'function') return window.toast(...args); };
+const updateDataDebug = (...args) => { if (typeof window.updateDataDebug === 'function') return window.updateDataDebug(...args); };
+const updateEditButton = (...args) => { if (typeof window.updateEditButton === 'function') return window.updateEditButton(...args); };
+const applyFichaLock = (...args) => { if (typeof window.applyFichaLock === 'function') return window.applyFichaLock(...args); };
+const closeAllModals = (...args) => {
+  if (typeof window.closeAllModals === 'function') return window.closeAllModals(...args);
+  document.querySelectorAll('.modal').forEach(m=>{ if (!args[0] || m.id!==args[0]) m.hidden = true; });
+};
+const syncModalOpenState = (...args) => { if (typeof window.syncModalOpenState === 'function') return window.syncModalOpenState(...args); };
 
   function renderPeopleTable(){
     const box = $('#peopleTable');
@@ -1181,7 +920,7 @@ function _heroArtCandidates(hero){
     });
   }
 
-// Export all functions used by bindings and other modules
+// Export functions used by bindings and bootstrap
 export {
   renderAll,
   bumpHeroXp,

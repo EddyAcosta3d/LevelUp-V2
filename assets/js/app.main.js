@@ -9,14 +9,27 @@
 import { state, logger } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
-import {
-  setActiveRoute,
-  updateDeviceDebug,
-  syncDetailsUI,
-  setRole,
-  hideSplash,
-  toast
-} from './modules/app_actions.js';
+import { setRole } from './modules/app_actions.js';
+import { initProjectorMode, isProjectorMode } from './modules/projector.js';
+
+
+const setActiveRoute = (...args) => {
+  if (typeof window.setActiveRoute === 'function') return window.setActiveRoute(...args);
+};
+const updateDeviceDebug = (...args) => {
+  if (typeof window.updateDeviceDebug === 'function') return window.updateDeviceDebug(...args);
+};
+const syncDetailsUI = (...args) => {
+  if (typeof window.syncDetailsUI === 'function') return window.syncDetailsUI(...args);
+};
+const hideSplash = (...args) => {
+  if (typeof window.hideSplash === 'function') return window.hideSplash(...args);
+  const splash = document.getElementById('splash');
+  if (splash) splash.hidden = true;
+};
+const toast = (...args) => {
+  if (typeof window.toast === 'function') return window.toast(...args);
+};
 
 export function updateTopbarHeightVar(){
   try{
@@ -34,7 +47,12 @@ export async function init(){
     window.__LEVELUP_INIT_DONE = true;
     updateTopbarHeightVar();
     window.addEventListener('resize', updateTopbarHeightVar);
-    const DEBUG = new URLSearchParams(location.search).has('debug');
+
+    const urlParams = new URLSearchParams(location.search);
+    const DEBUG = urlParams.has('debug');
+    const IS_ADMIN = urlParams.has('admin') && urlParams.get('admin') === 'true';
+    const IS_PROJECTOR = urlParams.has('mode') && urlParams.get('mode') === 'projector';
+
     // Captura errores para que en iPhone no se sienta "se rompió" sin pista
     window.addEventListener('error', (ev)=>{
       try{
@@ -52,20 +70,34 @@ export async function init(){
     // Configuración inicial (antes de cargar datos)
     preventIOSDoubleTapZoom();
 
-    // Rol inicial: edición habilitada (sin bloqueos)
-    try{ state.role='teacher'; }catch(_e){}
+    // Rol inicial: detectar desde URL
+    // ?admin=true → teacher (puede editar)
+    // Sin parámetro → viewer (solo lectura)
+    try{
+      state.role = IS_ADMIN ? 'teacher' : 'viewer';
+      // Agregar clase al body para estilos condicionales
+      document.body.classList.toggle('viewer-mode', !IS_ADMIN);
+      document.body.classList.toggle('admin-mode', IS_ADMIN);
+      document.body.classList.toggle('projector-mode', IS_PROJECTOR);
+    }catch(_e){}
+
     setActiveRoute(state.route);
     updateDeviceDebug();
     syncDetailsUI();
-    
+
     // CARGAR DATOS PRIMERO (crítico para que los bindings tengan datos disponibles)
     await loadData({forceRemote:false});
-    
-    // DESPUÉS hacer bindings (cuando ya hay datos)
-    bind();
-    
-    setRole('teacher');
-    syncDetailsUI();
+
+    // Check if we're in projector mode
+    if (IS_PROJECTOR) {
+      // Projector mode: don't bind, just show leaderboard
+      initProjectorMode();
+    } else {
+      // Normal mode: bind everything
+      bind();
+      setRole(IS_ADMIN ? 'teacher' : 'viewer');
+      syncDetailsUI();
+    }
   }
   (async()=>{ try{ await init(); } finally { hideSplash(); } })();
 

@@ -431,13 +431,17 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
     }
   };
 
+  // Legacy global exposure for non-module scripts
+  window.state = state;
+  window.BUILD_ID = BUILD_ID;
+
   // Build marker (para confirmar en GitHub que sí cargó la versión correcta)
   // Build identifier (also used for cache-busting via querystring in index.html)
-  const $ = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  // NOTE: DOM helpers `$`/`$$` are already defined and exported above.
+  // Avoid redeclaration here (it breaks module evaluation in browsers).
 
   // Selected hero helper (used across modules/bindings)
-  function getSelectedHero(){
+  export function getSelectedHero(){
     const heroes = state?.data?.heroes || [];
     return heroes.find(h=>h.id===state.selectedHeroId) || null;
   }
@@ -445,7 +449,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   window.LevelUp.getSelectedHero = getSelectedHero;
 
   // UI lock helper: prevents double clicks / repeated actions consistently
-  function uiLock(root, locked=true, opts={}){
+  export function uiLock(root, locked=true, opts={}){
     if (!root) return;
     const selector = opts.selector || 'button, [role="button"], a, input, select, textarea';
     const setPointer = (opts.pointerEvents !== false);
@@ -472,7 +476,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   // Modal helper (evita que un modal quede debajo de otro)
   const MODAL_IDS = ['roleModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal', 'historyModal', 'storeItemModal'];
   const getModal = (id) => document.getElementById(id);
-  function closeAllModals(exceptId=null){
+  export function closeAllModals(exceptId=null){
     MODAL_IDS.forEach(id=>{
       if (exceptId && id === exceptId) return;
       const m = getModal(id);
@@ -481,13 +485,15 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
     try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(e){}
   }
 
-  function syncModalOpenState(){
+  export function syncModalOpenState(){
     try{
       const anyOpen = !!document.querySelector('.modal:not([hidden])');
       document.body.classList.toggle('is-modal-open', anyOpen);
     }catch(e){}
   }
+  window.closeAllModals = closeAllModals;
   window.syncModalOpenState = syncModalOpenState;
+  window.LevelUp.closeAllModals = closeAllModals;
   window.LevelUp.syncModalOpenState = syncModalOpenState;
 
 
@@ -1022,5 +1028,4 @@ d.heroes.forEach(h=>{
     });
     return d;
   }
-
 
