@@ -69,8 +69,11 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
   }
 
   function currentHero(){
+    // Use global getSelectedHero() with fallback to first hero
+    const selected = getSelectedHero();
+    if (selected) return selected;
     const heroes = state.data?.heroes || [];
-    return heroes.find(h => h.id === state.selectedHeroId) || heroes[0] || null;
+    return heroes[0] || null;
   }
 
   function renderStats(hero){

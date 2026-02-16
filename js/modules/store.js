@@ -2,11 +2,26 @@
   function saveLocal(data){
     try{
       const payload = (data !== undefined) ? data : state.data;
+
+      // Basic validation: ensure payload has required structure
+      if (!payload || typeof payload !== 'object') {
+        console.error('saveLocal: Invalid payload - not an object');
+        return false;
+      }
+      if (!payload.meta || typeof payload.meta !== 'object') {
+        console.warn('saveLocal: Missing or invalid meta object');
+      }
+      if (!Array.isArray(payload.heroes)) {
+        console.error('saveLocal: Invalid payload - heroes must be an array');
+        return false;
+      }
+
       if (payload && payload.meta) payload.meta.updatedAt = new Date().toISOString();
       localStorage.setItem(CONFIG.storageKey, JSON.stringify(payload));
       state.hasLocalChanges = true;
       return true;
     }catch(e){
+      console.error('saveLocal failed:', e);
       return false;
     }
   }
