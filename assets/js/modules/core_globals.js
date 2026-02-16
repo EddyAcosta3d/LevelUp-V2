@@ -1,5 +1,23 @@
 'use strict';
 
+/**
+ * @module core_globals
+ * @description Core utilities, state management, and global functions for LevelUp V2
+ *
+ * PUBLIC EXPORTS:
+ * - CONFIG, DIFFICULTY, POINTS_BY_DIFFICULTY, DEFAULT_WEEK_XP_MAX
+ * - state (global app state)
+ * - logger (debug/info/warn/error)
+ * - debounce, throttle
+ * - escapeHtml, escapeAttr, sanitizeFileName
+ * - makeId, uid, makeBlankHero
+ * - seedChallengesDemo, seedEventsDemo
+ * - getSelectedHero, uiLock, syncModalOpenState
+ * - normalizeDifficulty, isChallengeDone, getFilteredChallenges
+ * - countCompletedForHeroByDifficulty, countCompletedForHero
+ * - heroMaxStat, isEventUnlocked, getEventUnlockProgress, isHeroEligibleForEvent
+ * - normalizeData, totalCompletedAcrossHeroes
+ */
 
 const BUILD_ID = 'LevelUP_V2_00.070';
 window.LEVELUP_BUILD = BUILD_ID;
@@ -18,50 +36,50 @@ window.LevelUp = window.LevelUp || {};
 */
   // CLEAN PASS v29: stability + small UI tweaks
 
-  const CONFIG = {
+  export const CONFIG = {
     remoteUrl: './data/data.json',
     remoteTimeoutMs: 3500,
     storageKey: 'levelup:data:v1'
   };
 
   // Weekly XP cap for "Actividades pequeñas" (per hero). If hero.weekXpMax is missing, we fall back to this.
-  const DEFAULT_WEEK_XP_MAX = 40;
+  export const DEFAULT_WEEK_XP_MAX = 40;
 
   // === CONSTANTES DE DIFICULTAD ===
-  const DIFFICULTY = Object.freeze({
+  export const DIFFICULTY = Object.freeze({
     EASY: 'easy',
     MEDIUM: 'medium',
     HARD: 'hard'
   });
 
   // Puntos base por dificultad
-  const POINTS_BY_DIFFICULTY = Object.freeze({
+  export const POINTS_BY_DIFFICULTY = Object.freeze({
     [DIFFICULTY.EASY]: 10,
     [DIFFICULTY.MEDIUM]: 20,
     [DIFFICULTY.HARD]: 40
   });
 
   // === SISTEMA DE LOGGING ===
-  const logger = {
+  export const logger = {
     _enabled: new URLSearchParams(location.search).has('debug'),
-    
+
     error: function(message, data) {
       console.error(`[LevelUp ERROR] ${message}`, data || '');
       if (this._enabled) {
         toast(`⚠️ ${message}`);
       }
     },
-    
+
     warn: function(message, data) {
       console.warn(`[LevelUp WARN] ${message}`, data || '');
     },
-    
+
     info: function(message) {
       if (this._enabled) {
         console.info(`[LevelUp INFO] ${message}`);
       }
     },
-    
+
     debug: function(message, data) {
       if (this._enabled) {
         console.log(`[LevelUp DEBUG] ${message}`, data || '');
@@ -70,11 +88,11 @@ window.LevelUp = window.LevelUp || {};
   };
 
   // === UTILIDADES ===
-  
+
   /**
    * Debounce: retrasa la ejecución hasta que pasen X ms sin llamadas
    */
-  function debounce(func, wait) {
+  export function debounce(func, wait) {
     let timeout;
     return function(...args) {
       const context = this;
@@ -86,7 +104,7 @@ window.LevelUp = window.LevelUp || {};
   /**
    * Throttle: ejecuta como máximo una vez cada X ms
    */
-  function throttle(func, limit) {
+  export function throttle(func, limit) {
     let inThrottle;
     return function(...args) {
       const context = this;
@@ -99,7 +117,7 @@ window.LevelUp = window.LevelUp || {};
   }
 
 // Convierte texto a un nombre seguro de archivo (sin perder mayúsculas/minúsculas)
-function sanitizeFileName(str){
+export function sanitizeFileName(str){
   const raw = String(str || '').trim();
   if(!raw) return '';
   // quita acentos cuando sea posible
@@ -113,7 +131,7 @@ function sanitizeFileName(str){
 }
 
 // Escape HTML para prevenir XSS
-function escapeHtml(s){
+export function escapeHtml(s){
   return String(s ?? '')
     .replaceAll('&','&amp;')
     .replaceAll('<','&lt;')
@@ -123,20 +141,20 @@ function escapeHtml(s){
 }
 
 // Escape HTML attributes (alias of escapeHtml for clarity in attribute context)
-function escapeAttr(s){
+export function escapeAttr(s){
   return escapeHtml(s);
 }
 
-function makeId(prefix='h'){
+export function makeId(prefix='h'){
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
 }
 
 // Compat / util: algunos bloques usan uid('x') en lugar de makeId('x')
-function uid(prefix='id'){
+export function uid(prefix='id'){
   return makeId(prefix);
 }
 
-function makeBlankHero(group){
+export function makeBlankHero(group){
   return {
     id: makeId('h'),
     group: group || '2D',
@@ -167,7 +185,7 @@ function makeBlankHero(group){
 
 // Demo de desafíos (2 por dificultad) para probar layout/UI.
 // Se inyecta SOLO si el JSON viene vacío y aún no se ha marcado meta.seededDemo.
-function seedChallengesDemo(S){
+export function seedChallengesDemo(S){
   const safe = (x, fallback) => (x && typeof x === 'object') ? x : fallback;
   S = safe(S, {
     tec:{id:'sub-tech', name:'Tecnología'},
@@ -294,7 +312,8 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   ];
 }
 
-  const state = {
+  // Global application state (exported for modules)
+  export const state = {
     route: 'fichas',
     role: 'viewer',      // futuro: 'teacher' con PIN
     group: '2D',
@@ -388,7 +407,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   }
 
   
-function seedEventsDemo(){
+export function seedEventsDemo(){
   return [
     {
       id:'ev_loquito',
@@ -417,7 +436,7 @@ function seedEventsDemo(){
   ];
 }
 
-function totalCompletedAcrossHeroes(){
+export function totalCompletedAcrossHeroes(){
   const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
   let n = 0;
   heroes.forEach(h=>{
@@ -427,7 +446,7 @@ function totalCompletedAcrossHeroes(){
   return n;
 }
 
-function normalizeDifficulty(diff){
+export function normalizeDifficulty(diff){
   const d = String(diff||'').toLowerCase().trim();
   if (!d) return '';
   if (['easy','facil','fácil','f'].includes(d)) return 'easy';
@@ -436,13 +455,13 @@ function normalizeDifficulty(diff){
   return d;
 }
 
-function isChallengeDone(hero, challengeId){
+export function isChallengeDone(hero, challengeId){
   if (!hero) return false;
   hero.challengeCompletions = (hero.challengeCompletions && typeof hero.challengeCompletions === 'object') ? hero.challengeCompletions : {};
   return !!hero.challengeCompletions[String(challengeId || '')];
 }
 
-function getFilteredChallenges(){
+export function getFilteredChallenges(){
   const challenges = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
   const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
   const f = state.challengeFilter || {};
@@ -460,7 +479,7 @@ function getFilteredChallenges(){
   });
 }
 
-function countCompletedForHeroByDifficulty(hero, difficulty){
+export function countCompletedForHeroByDifficulty(hero, difficulty){
   if (!hero) return 0;
   const diff = normalizeDifficulty(difficulty);
   const map = new Map((Array.isArray(state.data?.challenges) ? state.data.challenges : []).map(c=>[String(c.id), c]));
@@ -471,7 +490,7 @@ function countCompletedForHeroByDifficulty(hero, difficulty){
   }, 0);
 }
 
-function countCompletedForHero(hero){
+export function countCompletedForHero(hero){
   if (!hero) return 0;
   const c = (hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
   return Object.keys(c).length;
@@ -487,7 +506,7 @@ function _activeGroup(){
   }catch(e){ return '2D'; }
 }
 
-function heroMaxStat(hero){
+export function heroMaxStat(hero){
   const s = (hero && hero.stats && typeof hero.stats==='object') ? hero.stats : {};
   let m = 0;
   Object.keys(s).forEach(k=>{
@@ -607,7 +626,7 @@ function _rulePassesForHero(hero, u){
   return false;
 }
 
-function isEventUnlocked(ev){
+export function isEventUnlocked(ev){
   if (!ev) return false;
   if (ev.unlocked) return true;
   const u = ev.unlock || {};
@@ -645,7 +664,7 @@ function isEventUnlocked(ev){
 }
 
 // Helper for UI: progress numbers for unlock rules (group-based)
-function getEventUnlockProgress(ev){
+export function getEventUnlockProgress(ev){
   const u = ev?.unlock || {};
   const scope = String(u.scope || 'any').trim();
   const heroesAll = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
@@ -702,7 +721,7 @@ function getEventUnlockProgress(ev){
 }
 
 
-function isHeroEligibleForEvent(hero, ev){
+export function isHeroEligibleForEvent(hero, ev){
   if (!hero || !ev) return false;
   const r = ev.eligibility || {};
   // New flexible evaluator
@@ -729,7 +748,7 @@ function isHeroEligibleForEvent(hero, ev){
 
   return true;
 }
-function normalizeData(data){
+export function normalizeData(data){
     const d = data && typeof data === 'object' ? data : {};
     d.meta = (d.meta && typeof d.meta === 'object') ? d.meta : {};
     d.meta.updatedAt = d.meta.updatedAt || new Date().toISOString();

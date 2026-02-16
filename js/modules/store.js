@@ -1,5 +1,26 @@
+'use strict';
+
+/**
+ * @module store
+ * @description Data persistence layer - localStorage and remote fetch
+ *
+ * PUBLIC EXPORTS:
+ * - saveLocal, loadLocal, clearLocal
+ * - fetchRemote, loadData
+ * - saveData (legacy compat)
+ * - heroLabel (helper)
+ */
+
+// Import dependencies from core_globals
+import {
+  state,
+  CONFIG,
+  logger,
+  normalizeData
+} from './core_globals.js';
+
   // Storage
-  function saveLocal(data){
+  export function saveLocal(data){
     try{
       const payload = (data !== undefined) ? data : state.data;
 
@@ -25,37 +46,41 @@
       return false;
     }
   }
-  function loadLocal(){
+
+  export function loadLocal(){
     try{
       const raw = localStorage.getItem(CONFIG.storageKey);
       if (!raw) return null;
       return JSON.parse(raw);
     }catch(e){ return null; }
   }
-  function clearLocal(){ try{ localStorage.removeItem(CONFIG.storageKey); }catch(e){} }
+
+  export function clearLocal(){
+    try{ localStorage.removeItem(CONFIG.storageKey); }catch(e){}
+  }
 
   // Remote fetch timeout
-  async function fetchRemote(){
+  export async function fetchRemote(){
     const ctrl = new AbortController();
     const t = setTimeout(()=> ctrl.abort(), CONFIG.remoteTimeoutMs);
     try{
       const url = `${CONFIG.remoteUrl}?v=${Date.now()}`; // cache-buster
-      const res = await fetch(url, { 
-        signal: ctrl.signal, 
+      const res = await fetch(url, {
+        signal: ctrl.signal,
         cache: 'no-store',
         headers: { 'Accept': 'application/json' }
       });
-      
+
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
-      
+
       // Validar que la respuesta sea JSON
       const contentType = res.headers.get('content-type');
       if (contentType && !contentType.includes('application/json')) {
         console.warn('Respuesta no es JSON, intentando parsear de todas formas');
       }
-      
+
       const text = await res.text();
       try {
         return JSON.parse(text);
@@ -63,7 +88,7 @@
         console.error('Error parseando JSON:', parseError);
         throw new Error('JSON inválido en la respuesta');
       }
-      
+
     } catch(error) {
       // Manejar diferentes tipos de errores
       if (error.name === 'AbortError') {
@@ -78,20 +103,25 @@
     }
   }
 
-  async function loadData({forceRemote=false} = {}){
+  export async function loadData({forceRemote=false} = {}){
+    // Note: These functions are expected to be globally available (from app.bindings.js)
+    // toast, updateDataDebug, renderAll, demoData
+    // We'll keep them as global calls for now (backward compat)
+
     if (forceRemote){
       try{
         logger.info('Intentando cargar datos desde GitHub...');
         const d = await fetchRemote();
         state.data = normalizeData(d); state.dataSource = 'remote'; state.loadedFrom = 'remote';
         saveLocal(state.data);
-        toast('Cargado desde GitHub');
-        updateDataDebug(); renderAll();
+        if (typeof toast === 'function') toast('Cargado desde GitHub');
+        if (typeof updateDataDebug === 'function') updateDataDebug();
+        if (typeof renderAll === 'function') renderAll();
         logger.info('Datos cargados desde GitHub correctamente');
         return;
       }catch(e){
         logger.warn('No se pudo cargar desde GitHub', e.message);
-        toast('No se pudo cargar GitHub. Usando copia local.');
+        if (typeof toast === 'function') toast('No se pudo cargar GitHub. Usando copia local.');
       }
     }else{
       try{
@@ -99,7 +129,8 @@
         const d = await fetchRemote();
         state.data = normalizeData(d); state.dataSource = 'remote'; state.loadedFrom = 'remote';
         saveLocal(state.data);
-        updateDataDebug(); renderAll();
+        if (typeof updateDataDebug === 'function') updateDataDebug();
+        if (typeof renderAll === 'function') renderAll();
         logger.info('Datos cargados desde GitHub correctamente');
         return;
       }catch(e){
@@ -111,21 +142,26 @@
     if (local){
       logger.info('Usando datos de copia local');
       state.data = normalizeData(local); state.dataSource = 'local'; state.loadedFrom = 'local';
-      updateDataDebug(); renderAll();
+      if (typeof updateDataDebug === 'function') updateDataDebug();
+      if (typeof renderAll === 'function') renderAll();
       return;
     }
 
     logger.warn('No hay datos locales ni remotos, usando datos demo');
-    state.data = normalizeData(demoData()); state.dataSource = 'demo'; state.loadedFrom = 'demo';
-    updateDataDebug(); renderAll();
+    // demoData() is expected to be globally available
+    if (typeof demoData === 'function') {
+      state.data = normalizeData(demoData());
+      state.dataSource = 'demo';
+      state.loadedFrom = 'demo';
+      if (typeof updateDataDebug === 'function') updateDataDebug();
+      if (typeof renderAll === 'function') renderAll();
+    }
   }
 
   // Render helpers
-  // escapeHtml is defined in core_globals.js (loaded before this file)
-
-  function heroLabel(hero){
+  export function heroLabel(hero){
     const role = (hero.role && hero.role.trim()) ? hero.role.trim() : 'Sin rol';
-    return `${role} · Nivel ${hero.level ?? 1}`;
+    return `${hero.name || 'Sin nombre'} · ${role} · Nivel ${hero.level ?? 1}`;
   }
 
 
@@ -133,9 +169,9 @@
 // Compat layer: some modules still call saveData() (legacy name).
 // Keep it as a thin wrapper over saveLocal(state.data).
 // ------------------------------------------------------------------
-function saveData(){
+export function saveData(){
   try{
-    // state is defined in core_globals.js (same global scope)
+    // state is imported from core_globals
     saveLocal(state.data);
     if (state.dataSource === 'remote') state.dataSource = 'local';
   }catch(err){
@@ -144,5 +180,7 @@ function saveData(){
 }
 
 // Ensure legacy helpers are globally reachable (some browsers/extensions can change scoping)
+// BACKWARD COMPAT: Keep window.* assignments temporarily
 try{ window.saveData = saveData; }catch(_){ }
-
+try{ window.saveLocal = saveLocal; }catch(_){ }
+try{ window.loadData = loadData; }catch(_){ }
