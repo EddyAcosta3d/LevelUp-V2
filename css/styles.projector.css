@@ -1,0 +1,293 @@
+/* ============================================
+   MODO PROYECTOR - Para mostrar en clase
+   ============================================ */
+
+/*
+ * PROJECTOR MODE: Vista especial para proyectar en clase
+ * - Leaderboard grande con todos los alumnos
+ * - Estadísticas del grupo
+ * - Se activa con ?mode=projector
+ */
+
+/* Ocultar elementos innecesarios en modo proyector */
+body.projector-mode .topbar,
+body.projector-mode .sidebar,
+body.projector-mode .bottomNav,
+body.projector-mode .details,
+body.projector-mode [data-page]:not([data-page="projector"]) {
+  display: none !important;
+}
+
+/* Contenedor principal del proyector */
+.projector-container {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg,
+    var(--obsidian) 0%,
+    var(--cobalt) 50%,
+    var(--obsidian) 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  overflow: hidden;
+}
+
+/* Header del proyector */
+.projector-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.projector-title {
+  font-size: 56px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--amethyst));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.02em;
+}
+
+.projector-subtitle {
+  font-size: 24px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Grid de estadísticas */
+.projector-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.projector-stat-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 24px;
+  text-align: center;
+}
+
+.projector-stat-value {
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--accent);
+  margin: 0 0 8px 0;
+}
+
+.projector-stat-label {
+  font-size: 18px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Leaderboard */
+.projector-leaderboard {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 32px;
+  overflow-y: auto;
+}
+
+.projector-leaderboard-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Lista del leaderboard */
+.projector-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.projector-hero-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--borderSoft);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.projector-hero-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+
+/* Top 3 destacados */
+.projector-hero-item.rank-1 {
+  background: linear-gradient(90deg,
+    rgba(251, 191, 36, 0.15),
+    rgba(251, 191, 36, 0.05));
+  border-color: var(--gold);
+  border-width: 2px;
+}
+
+.projector-hero-item.rank-2 {
+  background: linear-gradient(90deg,
+    rgba(192, 192, 192, 0.15),
+    rgba(192, 192, 192, 0.05));
+  border-color: rgba(192, 192, 192, 0.5);
+  border-width: 2px;
+}
+
+.projector-hero-item.rank-3 {
+  background: linear-gradient(90deg,
+    rgba(205, 127, 50, 0.15),
+    rgba(205, 127, 50, 0.05));
+  border-color: rgba(205, 127, 50, 0.5);
+  border-width: 2px;
+}
+
+/* Posición */
+.projector-rank {
+  font-size: 32px;
+  font-weight: 900;
+  min-width: 60px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.projector-hero-item.rank-1 .projector-rank {
+  font-size: 40px;
+  color: var(--gold);
+}
+
+.projector-hero-item.rank-2 .projector-rank {
+  font-size: 36px;
+  color: rgba(192, 192, 192, 1);
+}
+
+.projector-hero-item.rank-3 .projector-rank {
+  font-size: 36px;
+  color: rgba(205, 127, 50, 1);
+}
+
+/* Avatar */
+.projector-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--cobalt);
+  border: 2px solid var(--border);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.projector-hero-item.rank-1 .projector-avatar,
+.projector-hero-item.rank-2 .projector-avatar,
+.projector-hero-item.rank-3 .projector-avatar {
+  width: 70px;
+  height: 70px;
+  border-width: 3px;
+}
+
+.projector-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Info */
+.projector-info {
+  flex: 1;
+}
+
+.projector-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px 0;
+}
+
+.projector-hero-item.rank-1 .projector-name,
+.projector-hero-item.rank-2 .projector-name,
+.projector-hero-item.rank-3 .projector-name {
+  font-size: 28px;
+}
+
+.projector-level {
+  font-size: 16px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* XP */
+.projector-xp {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: right;
+  min-width: 120px;
+}
+
+.projector-hero-item.rank-1 .projector-xp,
+.projector-hero-item.rank-2 .projector-xp,
+.projector-hero-item.rank-3 .projector-xp {
+  font-size: 32px;
+}
+
+/* Medallas */
+.projector-medals {
+  font-size: 18px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Animaciones */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.projector-hero-item {
+  animation: slideIn 0.4s ease-out forwards;
+}
+
+.projector-hero-item:nth-child(1) { animation-delay: 0.05s; }
+.projector-hero-item:nth-child(2) { animation-delay: 0.1s; }
+.projector-hero-item:nth-child(3) { animation-delay: 0.15s; }
+.projector-hero-item:nth-child(4) { animation-delay: 0.2s; }
+.projector-hero-item:nth-child(5) { animation-delay: 0.25s; }
+.projector-hero-item:nth-child(6) { animation-delay: 0.3s; }
+.projector-hero-item:nth-child(7) { animation-delay: 0.35s; }
+.projector-hero-item:nth-child(8) { animation-delay: 0.4s; }
+.projector-hero-item:nth-child(9) { animation-delay: 0.45s; }
+.projector-hero-item:nth-child(10) { animation-delay: 0.5s; }
+
+/* Responsive - pantallas pequeñas */
+@media (max-width: 1200px) {
+  .projector-title {
+    font-size: 42px;
+  }
+
+  .projector-name {
+    font-size: 20px;
+  }
+
+  .projector-xp {
+    font-size: 24px;
+  }
+}

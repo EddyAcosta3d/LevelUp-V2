@@ -1,0 +1,102 @@
+/* ============================================
+   MODO VIEWER / ADMIN - Controles condicionales
+   ============================================ */
+
+/*
+ * VIEWER MODE: Ocultar todos los controles de edición
+ * - Los alumnos ven la app en modo solo lectura
+ * - Se activa automáticamente si NO hay parámetro ?admin=true
+ */
+
+/* Ocultar elementos marcados con data-edit-only en modo viewer */
+body.viewer-mode [data-edit-only="1"],
+body.viewer-mode [data-edit-only] {
+  display: none !important;
+}
+
+/* Ocultar botones de edición específicos */
+body.viewer-mode .edit-button,
+body.viewer-mode .admin-controls,
+body.viewer-mode #btnEdicion,
+body.viewer-mode #btnNuevoHeroe,
+body.viewer-mode #btnSaveToGitHub,
+body.viewer-mode #btnConfigGitHub,
+body.viewer-mode #btnEliminar,
+body.viewer-mode #btnWeekReset,
+body.viewer-mode #btnAddChallenge,
+body.viewer-mode #btnManageSubjects,
+body.viewer-mode .heroDeleteBtn,
+body.viewer-mode #btnXpM5,
+body.viewer-mode #btnXpM1,
+body.viewer-mode #btnXpP1,
+body.viewer-mode #btnXpP5 {
+  display: none !important;
+}
+
+/* Ocultar botón de completar desafío */
+body.viewer-mode #btnChallengeComplete {
+  display: none !important;
+}
+
+/* Hacer inputs de solo lectura en modo viewer */
+body.viewer-mode input:not([type="file"]),
+body.viewer-mode textarea {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* MOBILE: Ocultar controles adicionales en móvil */
+@media (max-width: 768px) {
+  /* En móvil, siempre ocultar ciertos controles de admin */
+  /* Excepto si body tiene clase admin-mode */
+
+  body:not(.admin-mode) [data-edit-only="1"],
+  body:not(.admin-mode) [data-edit-only] {
+    display: none !important;
+  }
+
+  body:not(.admin-mode) .edit-button,
+  body:not(.admin-mode) .admin-controls,
+  body:not(.admin-mode) #btnEdicion,
+  body:not(.admin-mode) #btnNuevoHeroe,
+  body:not(.admin-mode) #btnSaveToGitHub,
+  body:not(.admin-mode) #btnConfigGitHub,
+  body:not(.admin-mode) #btnEliminar,
+  body:not(.admin-mode) #btnWeekReset,
+  body:not(.admin-mode) #btnAddChallenge,
+  body:not(.admin-mode) #btnManageSubjects,
+  body:not(.admin-mode) .heroDeleteBtn,
+  body:not(.admin-mode) #btnXpM5,
+  body:not(.admin-mode) #btnXpM1,
+  body:not(.admin-mode) #btnXpP1,
+  body:not(.admin-mode) #btnXpP5,
+  body:not(.admin-mode) #btnChallengeComplete {
+    display: none !important;
+  }
+
+  /* Ocultar dropdown de Datos en móvil (no admin) */
+  body:not(.admin-mode) #btnDatos {
+    display: none !important;
+  }
+
+  /* Hacer inputs de solo lectura */
+  body:not(.admin-mode) input:not([type="file"]),
+  body:not(.admin-mode) textarea {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+}
+
+/* ADMIN MODE: Mostrar indicador visual (opcional) */
+body.admin-mode #btnEdicion {
+  background: rgba(34, 211, 238, 0.2);
+  color: var(--accent);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+}
+
+/* VIEWER MODE: Indicador de solo lectura */
+body.viewer-mode #btnEdicion::after {
+  content: ' · Solo Lectura';
+  font-size: 0.85em;
+  opacity: 0.7;
+}
