@@ -269,3 +269,123 @@ export function getGitHubStatus() {
     branch: GITHUB_CONFIG.branch
   };
 }
+
+/**
+ * Open GitHub configuration modal
+ */
+export function openGitHubConfigModal() {
+  const modal = document.getElementById('githubConfigModal');
+  if (!modal) {
+    console.warn('GitHub config modal not found');
+    return;
+  }
+
+  // Close all other modals first
+  if (typeof window.closeAllModals === 'function') {
+    window.closeAllModals('githubConfigModal');
+  }
+
+  // Load current token (if exists)
+  const tokenInput = document.getElementById('inGitHubToken');
+  if (tokenInput && hasGitHubToken()) {
+    tokenInput.value = getToken() || '';
+  }
+
+  // Update status text
+  updateGitHubStatusText();
+
+  // Show modal
+  modal.hidden = false;
+
+  // Ensure modal bindings are set up
+  bindGitHubModalEvents();
+}
+
+/**
+ * Close GitHub configuration modal
+ */
+export function closeGitHubConfigModal() {
+  const modal = document.getElementById('githubConfigModal');
+  if (modal) {
+    modal.hidden = true;
+  }
+}
+
+/**
+ * Update GitHub status text in modal
+ */
+function updateGitHubStatusText() {
+  const statusEl = document.getElementById('githubStatusText');
+  if (!statusEl) return;
+
+  if (hasGitHubToken()) {
+    statusEl.textContent = '✅ Token configurado';
+    statusEl.style.color = 'rgba(0, 255, 100, 0.8)';
+  } else {
+    statusEl.textContent = 'No configurado';
+    statusEl.style.color = 'rgba(255, 255, 255, 0.5)';
+  }
+}
+
+/**
+ * Bind events for GitHub modal (only binds once)
+ */
+function bindGitHubModalEvents() {
+  // Prevent duplicate bindings
+  if (window.__githubModalBound) return;
+  window.__githubModalBound = true;
+
+  const toast = window.toast || ((msg) => console.log(msg));
+
+  // Close button
+  document.getElementById('btnCloseGitHubConfig')?.addEventListener('click', closeGitHubConfigModal);
+
+  // Backdrop click
+  document.getElementById('githubConfigBackdrop')?.addEventListener('click', closeGitHubConfigModal);
+
+  // Save token button
+  document.getElementById('btnSaveGitHubToken')?.addEventListener('click', () => {
+    const tokenInput = document.getElementById('inGitHubToken');
+    if (!tokenInput) return;
+
+    const token = tokenInput.value.trim();
+    if (!token) {
+      toast('❌ Por favor ingresa un token válido');
+      return;
+    }
+
+    if (setGitHubToken(token)) {
+      toast('✅ Token guardado correctamente');
+      updateGitHubStatusText();
+    } else {
+      toast('❌ Error al guardar el token');
+    }
+  });
+
+  // Clear token button
+  document.getElementById('btnClearGitHubToken')?.addEventListener('click', () => {
+    clearGitHubToken();
+    const tokenInput = document.getElementById('inGitHubToken');
+    if (tokenInput) tokenInput.value = '';
+    toast('Token eliminado');
+    updateGitHubStatusText();
+  });
+
+  // Test connection button
+  document.getElementById('btnTestGitHub')?.addEventListener('click', async () => {
+    toast('Probando conexión...');
+    const result = await testGitHubConnection();
+    if (result.success) {
+      toast('✅ ' + result.message);
+      updateGitHubStatusText();
+    } else {
+      toast('❌ ' + result.message);
+    }
+  });
+}
+
+// Export modal functions for global access
+if (typeof window !== 'undefined') {
+  window.openGitHubConfigModal = openGitHubConfigModal;
+  window.closeGitHubConfigModal = closeGitHubConfigModal;
+}
