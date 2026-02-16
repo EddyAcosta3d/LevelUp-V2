@@ -1,3 +1,40 @@
+'use strict';
+
+/**
+ * @module app_actions
+ * @description Core application actions and business logic
+ *
+ * PUBLIC EXPORTS:
+ * - renderAll, completeChallenge, levelUp, grantReward
+ * - updateDataDebug, demoData, toast, $
+ */
+
+// Import dependencies
+import {
+  state,
+  CONFIG,
+  DIFFICULTY,
+  POINTS_BY_DIFFICULTY,
+  logger,
+  escapeHtml,
+  makeId,
+  makeBlankHero,
+  seedChallengesDemo,
+  seedEventsDemo,
+  getSelectedHero,
+  normalizeDifficulty,
+  isChallengeDone,
+  heroMaxStat,
+  normalizeData,
+  totalCompletedAcrossHeroes
+} from './core_globals.js';
+
+import {
+  saveLocal,
+  loadData,
+  saveData
+} from './store.js';
+
   function renderPeopleTable(){
     const box = $('#peopleTable');
     const heroes = state.data?.heroes || [];
@@ -44,7 +81,7 @@
   }
 
   // Modo público: SOLO VER (sin PIN, sin edición dentro de la app)
-function setRole(nextRole){
+export function setRole(nextRole){
     state.role = nextRole;
     try{ document.documentElement.classList.toggle('is-edit', state.role === 'teacher'); }catch(_e){}
     updateEditButton();

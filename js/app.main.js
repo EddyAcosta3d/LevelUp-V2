@@ -1,6 +1,24 @@
 'use strict';
 
-function updateTopbarHeightVar(){
+/**
+ * @module app.main
+ * @description Main application initialization and startup logic
+ */
+
+// Import all dependencies
+import { state, logger } from './modules/core_globals.js';
+import { loadData } from './modules/store.js';
+import { bind } from './app.bindings.js';
+import {
+  setActiveRoute,
+  updateDeviceDebug,
+  syncDetailsUI,
+  setRole,
+  hideSplash,
+  toast
+} from './modules/app_actions.js';
+
+export function updateTopbarHeightVar(){
   try{
     const tb = document.querySelector('.topbar');
     const h = tb ? Math.round(tb.getBoundingClientRect().height) : 0;
@@ -11,7 +29,7 @@ function updateTopbarHeightVar(){
 }
 
 
-async function init(){
+export async function init(){
     if (window.__LEVELUP_INIT_DONE) return;
     window.__LEVELUP_INIT_DONE = true;
     updateTopbarHeightVar();
@@ -53,7 +71,7 @@ async function init(){
 
 	  // iOS Safari: reduce accidental double-tap zoom in non-interactive areas,
 	  // while keeping native pinch-to-zoom available for accessibility.
-	  function preventIOSDoubleTapZoom(){
+	  export function preventIOSDoubleTapZoom(){
 	    const ua = navigator.userAgent || '';
 	    const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && 'ontouchend' in document);
 	    if (!isIOS) return;

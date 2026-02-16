@@ -1,13 +1,22 @@
-// ============================================
-// SISTEMA DE CELEBRACIONES Y FEEDBACK VISUAL
-// ============================================
-// Uses global escapeHtml() from core_globals.js
+'use strict';
+
+/**
+ * @module celebrations
+ * @description Visual feedback and celebration animations
+ *
+ * PUBLIC EXPORTS:
+ * - showBigReward, showConfetti, showXpGain
+ * - animateXpBar, shakeElement
+ */
+
+// Import dependencies
+import { escapeHtml, state } from './core_globals.js';
 
 /**
  * Muestra una pantalla de celebración grande
  * @param {Object} options - { title, subtitle, icon, duration }
  */
-function showBigReward(options = {}) {
+export function showBigReward(options = {}) {
   const {
     title = '¡Felicidades!',
     subtitle = '',
@@ -33,7 +42,7 @@ function showBigReward(options = {}) {
   `;
 
   overlay.classList.add('is-visible');
-  
+
   // Confeti
   showConfetti();
 
@@ -46,10 +55,10 @@ function showBigReward(options = {}) {
 /**
  * Efecto de confeti
  */
-function showConfetti() {
+export function showConfetti() {
   const count = 50;
   const container = document.getElementById('confettiContainer');
-  
+
   let confettiEl = container;
   if (!confettiEl) {
     confettiEl = document.createElement('div');
@@ -79,23 +88,23 @@ function showConfetti() {
 /**
  * Animación de XP ganada
  */
-function showXpGain(amount, element) {
+export function showXpGain(amount, element) {
   if (!element) element = document.body;
-  
+
   const xpFloat = document.createElement('div');
   xpFloat.className = 'xpFloat';
   xpFloat.textContent = `+${amount} XP`;
-  
+
   const rect = element.getBoundingClientRect();
   xpFloat.style.left = (rect.left + rect.width / 2) + 'px';
   xpFloat.style.top = rect.top + 'px';
-  
+
   document.body.appendChild(xpFloat);
-  
+
   setTimeout(() => {
     xpFloat.classList.add('is-animating');
   }, 10);
-  
+
   setTimeout(() => {
     xpFloat.remove();
   }, 2000);
@@ -104,20 +113,20 @@ function showXpGain(amount, element) {
 /**
  * Animar barra de XP
  */
-function animateXpBar(heroId) {
+export function animateXpBar(heroId) {
   const hero = (state.data?.heroes || []).find(h => h.id === heroId);
   if (!hero) return;
-  
+
   const xpFill = document.getElementById('xpFill');
   if (!xpFill) return;
-  
+
   const xp = Number(hero.xp ?? 0);
   const xpMax = Number(hero.xpMax ?? 100);
   const percent = Math.max(0, Math.min(100, (xp / xpMax) * 100));
-  
+
   xpFill.style.transition = 'width 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)';
   xpFill.style.width = percent + '%';
-  
+
   // Efecto de brillo
   xpFill.classList.add('is-pulsing');
   setTimeout(() => {
@@ -128,7 +137,7 @@ function animateXpBar(heroId) {
 /**
  * Shake effect para elementos
  */
-function shakeElement(element) {
+export function shakeElement(element) {
   if (!element) return;
   element.classList.add('is-shaking');
   setTimeout(() => {
@@ -136,7 +145,7 @@ function shakeElement(element) {
   }, 500);
 }
 
-// Exponer globalmente
+// BACKWARD COMPAT: Exponer globalmente
 window.showBigReward = showBigReward;
 window.showConfetti = showConfetti;
 window.showXpGain = showXpGain;

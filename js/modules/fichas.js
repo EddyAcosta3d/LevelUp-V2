@@ -1,8 +1,36 @@
+'use strict';
+
+/**
+ * @module fichas
+ * @description Hero management - list, details, stats, avatar rendering
+ *
+ * PUBLIC EXPORTS:
+ * - renderHeroList, renderHeroDetail, currentHero
+ * - renderStats, buildAssetCandidates, renderHeroAvatar
+ * - heroFirstName, isFemaleHeroName, FEMALE_NAME_SET
+ * - applyHeroSceneLayers, ensureHeroNotesToggle
+ * - renderRoleOptions, openRoleModal, closeRoleModal
+ * - formatDateMX, difficultyLabel
+ */
+
+// Import dependencies
+import {
+  state,
+  escapeHtml,
+  getSelectedHero,
+  CONFIG
+} from './core_globals.js';
+
+import {
+  heroLabel,
+  saveLocal
+} from './store.js';
+
 // Placeholders globales para cuando aún no hay arte definido.
 // (Importante: NO inventar rutas por nombre para evitar 404.)
 const HERO_FG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_3x4.webp';
 const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.webp';
-  function renderHeroList(){
+  export function renderHeroList(){
     const list = $('#heroList');
     list.innerHTML = '';
     const heroes = (state.data?.heroes || []).filter(h => (h.group || '2D') === state.group);
@@ -68,7 +96,7 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
     applyThumbFallbacks(list);
   }
 
-  function currentHero(){
+  export function currentHero(){
     // Use global getSelectedHero() with fallback to first hero
     const selected = getSelectedHero();
     if (selected) return selected;
@@ -76,7 +104,7 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
     return heroes[0] || null;
   }
 
-  function renderStats(hero){
+  export function renderStats(hero){
   const box = $('#statsBox');
   if (!box) return;
   hero.stats = hero.stats && typeof hero.stats === 'object' ? hero.stats : {};
@@ -150,20 +178,20 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
     // no aquí (aquí no existe la variable `list`).
 }
 
-  function stripDiacritics(str){
+  export function stripDiacritics(str){
     try{ return String(str).normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }catch(_){ return String(str); }
   }
 
 
   // --- Helpers para determinación de género por nombre ---
-  function heroFirstName(fullName){
+  export function heroFirstName(fullName){
     if (!fullName) return '';
     const parts = String(fullName).trim().split(/\s+/);
     return parts[0].toLowerCase();
   }
 
   // Conjunto de nombres femeninos comunes en español
-  const FEMALE_NAME_SET = new Set([
+  export const FEMALE_NAME_SET = new Set([
     'maria', 'ana', 'carmen', 'laura', 'marta', 'sara', 'sofia', 'isabel',
     'elena', 'paula', 'beatriz', 'teresa', 'rosa', 'patricia', 'andrea',
     'lucia', 'raquel', 'monica', 'cristina', 'silvia', 'pilar', 'angela',
@@ -174,7 +202,7 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
   ]);
 
   // --- Placeholders para héroes sin arte ---
-  function isFemaleHeroName(heroName){
+  export function isFemaleHeroName(heroName){
     const n = heroFirstName(heroName);
     if (!n) return false;
     if (FEMALE_NAME_SET.has(n)) return true;
@@ -185,11 +213,11 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
     return false;
   }
 
-  function fallbackSiluetaFor(_heroName){
+  export function fallbackSiluetaFor(_heroName){
     return HERO_BG_PLACEHOLDER;
   }
 
-  function preloadImage(url){
+  export function preloadImage(url){
     return new Promise((resolve, reject)=>{
       const img = new Image();
       img.onload = ()=>resolve(url);
@@ -198,7 +226,7 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
     });
   }
 
-  function applyThumbFallbacks(rootEl){
+  export function applyThumbFallbacks(rootEl){
     if (!rootEl) return;
     const thumbs = rootEl.querySelectorAll('.heroCard__thumb[data-src]');
     thumbs.forEach((el)=>{
@@ -207,7 +235,7 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
     });
   }
 
-  function showFallbackAvatar(heroName){
+  export function showFallbackAvatar(heroName){
     const box = document.getElementById('avatarBox');
     if (!box) return;
     box.replaceChildren();
@@ -220,7 +248,7 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
     box.appendChild(img);
   }
 
-function buildAssetCandidates(heroName){
+export function buildAssetCandidates(heroName){
     const base = String(heroName || '').trim();
     if (!base) return [];
 
@@ -250,7 +278,7 @@ function buildAssetCandidates(heroName){
   // Nota: Ya no existe editor ni auto-load de fotos. Las fotos se gestionan en /assets
   // y se referencian en el JSON con hero.photo o hero.photoSrc.
 
-function renderHeroAvatar(hero){
+export function renderHeroAvatar(hero){
     const box = $('#avatarBox');
     if (!box) return;
 
@@ -277,7 +305,7 @@ function renderHeroAvatar(hero){
     // Sin foto: se oculta la capa para que se vean las capas de escena (parallax/demo).
   }
 
-  function applyHeroSceneLayers(hero){
+  export function applyHeroSceneLayers(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
 
@@ -322,7 +350,7 @@ function renderHeroAvatar(hero){
     ensureHeroNotesToggle(scene);
   }
 
-  function ensureHeroNotesToggle(scene){
+  export function ensureHeroNotesToggle(scene){
     try{
       if (!scene) return;
 
@@ -415,7 +443,7 @@ function renderHeroAvatar(hero){
     { id:'guardian',      name:'Guardián',      desc:'Cuida el orden, el enfoque y las reglas del equipo.' }
   ];
 
-  function renderRoleOptions(){
+  export function renderRoleOptions(){
     const list = $('#roleList');
     if (!list) return;
     list.innerHTML = '';
@@ -443,20 +471,20 @@ function renderHeroAvatar(hero){
     });
   }
 
-  function openRoleModal(){
+  export function openRoleModal(){
     const modal = $('#roleModal');
     if (!modal) return;
     closeAllModals('roleModal');
     renderRoleOptions();
     modal.hidden = false;
   }
-  function closeRoleModal(){
+  export function closeRoleModal(){
     const modal = $('#roleModal');
     if (!modal) return;
     modal.hidden = true;
   }
 
-  function renderHeroDetail(){
+  export function renderHeroDetail(){
     const hero = currentHero();
     if (!hero) return;
 
@@ -560,14 +588,14 @@ function renderHeroAvatar(hero){
   { id: "doubleNext", label: "Doble XP (siguiente desafío)", desc: "El próximo desafío vale el doble de XP.", icon: "✨", kind: "doubleNext", amount: 2 },
 ];
 
-  function formatDateMX(iso){
+  export function formatDateMX(iso){
     try{
       const d = new Date(iso);
       return d.toLocaleDateString('es-MX', { year:'numeric', month:'short', day:'2-digit' });
     }catch(_){ return iso || ''; }
   }
 
-  function renderHeroRewardsList(hero, listEl, emptyEl){
+  export function renderHeroRewardsList(hero, listEl, emptyEl){
     const hist = Array.isArray(hero.rewardsHistory) ? hero.rewardsHistory : [];
     listEl.innerHTML = '';
     if (!hist.length){
@@ -596,7 +624,7 @@ function renderHeroAvatar(hero){
     });
   }
 
-  function renderRewards(){
+  export function renderRewards(){
   const listEl = document.querySelector('#rewardsHistoryList');
   const emptyEl = document.querySelector('#rewardsHistoryEmpty');
   const subtitle = document.querySelector('#rewardsHistorySubtitle');
@@ -662,7 +690,7 @@ function renderHeroAvatar(hero){
 }
 
   
-function difficultyLabel(diff){
+export function difficultyLabel(diff){
   const d = String(diff || '').toLowerCase();
   if (d === 'easy') return 'Fácil';
   if (d === 'medium') return 'Medio';
@@ -671,7 +699,7 @@ function difficultyLabel(diff){
 }
 
 
-function ensureChallengeUI(){
+export function ensureChallengeUI(){
   const menu = $('#subjectMenu');
   const btn  = $('#btnSubject');
   const ddWrap = $('#subjectDropdown');
@@ -717,7 +745,7 @@ function ensureChallengeUI(){
   if (ddWrap) ddWrap.classList.add('dropdown--portal');
 }
 
-function positionSubjectMenu(){
+export function positionSubjectMenu(){
   const btn = $('#btnSubject');
   const menu = $('#subjectMenu');
   if (!btn || !menu) return;
@@ -742,16 +770,16 @@ function positionSubjectMenu(){
   menu.style.zIndex = '25050';
 }
 
-function openSubjectDropdown(){
+export function openSubjectDropdown(){
   const dd = $('#subjectDropdown');
   if (dd) dd.classList.add('is-open');
   positionSubjectMenu();
 }
-function closeSubjectDropdown(){
+export function closeSubjectDropdown(){
   const dd = $('#subjectDropdown');
   if (dd) dd.classList.remove('is-open');
 }
-function toggleSubjectDropdown(){
+export function toggleSubjectDropdown(){
   const dd = $('#subjectDropdown');
   if (!dd) return;
   dd.classList.toggle('is-open');

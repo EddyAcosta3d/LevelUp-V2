@@ -1,3 +1,25 @@
+'use strict';
+
+/**
+ * @module eventos
+ * @description Event and boss management
+ *
+ * PUBLIC EXPORTS:
+ * - renderEvents, toggleEventTab
+ */
+
+// Import dependencies
+import {
+  state,
+  escapeHtml,
+  isEventUnlocked,
+  getEventUnlockProgress,
+  isHeroEligibleForEvent
+} from './core_globals.js';
+
+import { saveLocal } from './store.js';
+import { currentHero } from './fichas.js';
+
     // --- Image helpers (1 intento + placeholder; sin swaps para evitar spam de 404) ---
   const EVT_PH_LOCKED_3x4   = './assets/placeholders/placeholder_locked_3x4.webp';
   const EVT_PH_UNLOCKED_3x4 = './assets/placeholders/placeholder_unlocked_3x4.webp';

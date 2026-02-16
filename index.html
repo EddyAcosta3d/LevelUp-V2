@@ -597,19 +597,22 @@
   </div>
 
 
-<script src="js/splash.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/core_globals.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/ui_shell.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/store.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/parallax_manifest.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/fichas.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/desafios.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/eventos.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/tienda.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/celebrations.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/modules/app_actions.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/app.bindings.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/app.main.js?v=LevelUP_V2_00.069" defer></script>
-  <script src="js/app.js?v=LevelUP_V2_00.069" defer></script>
+<!-- ============================================
+     ES6 MODULES - Single entry point
+     All dependencies loaded via import statements
+     ============================================ -->
+
+<!-- Non-module scripts (no dependencies) -->
+<script src="js/splash.js?v=LevelUP_V2_00.070" defer></script>
+<script src="js/modules/ui_shell.js?v=LevelUP_V2_00.070" defer></script>
+<script src="js/modules/parallax_manifest.js?v=LevelUP_V2_00.070" defer></script>
+
+<!-- Main ES6 module entry point (loads all other modules via imports) -->
+<script type="module" src="js/app.main.js?v=LevelUP_V2_00.070"></script>
+
+<!-- Legacy fallback for old browsers (optional) -->
+<script nomodule>
+  alert('Tu navegador no soporta módulos ES6. Por favor actualiza a una versión más reciente.');
+</script>
 </body>
 </html>
