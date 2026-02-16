@@ -39,6 +39,23 @@ import {
   saveData
 } from './store.js';
 
+
+import { renderHeroList, renderHeroDetail } from './fichas.js';
+import { renderChallenges, renderChallengeDetail } from './desafios.js';
+import { renderEvents } from './eventos.js';
+import { renderTienda } from './tienda.js';
+
+
+const toast = (...args) => { if (typeof window.toast === 'function') return window.toast(...args); };
+const updateDataDebug = (...args) => { if (typeof window.updateDataDebug === 'function') return window.updateDataDebug(...args); };
+const updateEditButton = (...args) => { if (typeof window.updateEditButton === 'function') return window.updateEditButton(...args); };
+const applyFichaLock = (...args) => { if (typeof window.applyFichaLock === 'function') return window.applyFichaLock(...args); };
+const closeAllModals = (...args) => {
+  if (typeof window.closeAllModals === 'function') return window.closeAllModals(...args);
+  document.querySelectorAll('.modal').forEach(m=>{ if (!args[0] || m.id!==args[0]) m.hidden = true; });
+};
+const syncModalOpenState = (...args) => { if (typeof window.syncModalOpenState === 'function') return window.syncModalOpenState(...args); };
+
   function renderPeopleTable(){
     const box = $('#peopleTable');
     const heroes = state.data?.heroes || [];
@@ -903,11 +920,30 @@ function _heroArtCandidates(hero){
     });
   }
 
-// Re-export DOM helpers for backward compatibility
-export { $, $$, clearDOMCache, timeoutManager };
+// Export functions used by bindings and bootstrap
+export {
+  renderAll,
+  bumpHeroXp,
+  handleImportJson,
+  handleExportJson,
+  openLevelUpModal,
+  closeLevelUpModal,
+  openConfirmModal,
+  $,
+  $$,
+  clearDOMCache,
+  timeoutManager
+};
 
 // Keep window.* assignments for backward compat
 if (typeof window !== "undefined") {
   window.$ = $;
   window.$$ = $$;
+  window.renderAll = renderAll;
+  window.bumpHeroXp = bumpHeroXp;
+  window.handleImportJson = handleImportJson;
+  window.handleExportJson = handleExportJson;
+  window.openLevelUpModal = openLevelUpModal;
+  window.closeLevelUpModal = closeLevelUpModal;
+  window.openConfirmModal = openConfirmModal;
 }

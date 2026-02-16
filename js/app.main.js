@@ -9,15 +9,27 @@
 import { state, logger } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
-import {
-  setActiveRoute,
-  updateDeviceDebug,
-  syncDetailsUI,
-  setRole,
-  hideSplash,
-  toast
-} from './modules/app_actions.js';
+import { setRole } from './modules/app_actions.js';
 import { initProjectorMode, isProjectorMode } from './modules/projector.js';
+
+
+const setActiveRoute = (...args) => {
+  if (typeof window.setActiveRoute === 'function') return window.setActiveRoute(...args);
+};
+const updateDeviceDebug = (...args) => {
+  if (typeof window.updateDeviceDebug === 'function') return window.updateDeviceDebug(...args);
+};
+const syncDetailsUI = (...args) => {
+  if (typeof window.syncDetailsUI === 'function') return window.syncDetailsUI(...args);
+};
+const hideSplash = (...args) => {
+  if (typeof window.hideSplash === 'function') return window.hideSplash(...args);
+  const splash = document.getElementById('splash');
+  if (splash) splash.hidden = true;
+};
+const toast = (...args) => {
+  if (typeof window.toast === 'function') return window.toast(...args);
+};
 
 export function updateTopbarHeightVar(){
   try{

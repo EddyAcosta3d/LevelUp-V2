@@ -14,7 +14,14 @@ import {
   escapeHtml,
   isEventUnlocked,
   getEventUnlockProgress,
-  isHeroEligibleForEvent
+  isHeroEligibleForEvent,
+  totalCompletedAcrossHeroes,
+  countCompletedForHero,
+  countCompletedForHeroByDifficulty,
+  normalizeDifficulty,
+  closeAllModals,
+  $,
+  $$
 } from './core_globals.js';
 
 import { saveLocal } from './store.js';
@@ -225,7 +232,7 @@ import { currentHero } from './fichas.js';
       renderEvents();
     });
   }
-  function renderEvents(){
+  export function renderEvents(){
     const grid = $('#eventGrid');
     if (!grid) return;
 
