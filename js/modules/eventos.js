@@ -279,6 +279,10 @@ const DEFAULT_BOSS_QUIZ = [
     const optionsEl = $('#bossBattleOptions');
     const nextBtn = $('#btnBossBattleNext');
     const closeBtn = $('#btnBossBattleClose');
+    const counterEl = $('#bossBattleCounter');
+    const healthFillEl = $('#bossBattleHealthFill');
+    const sceneBgEl = $('#bossBattleSceneBg');
+    const jefeImg = $('#bossBattleJefe');
 
     const questions = _getBattleQuestions(ev);
     if (!questions.length){
@@ -286,37 +290,108 @@ const DEFAULT_BOSS_QUIZ = [
       return;
     }
 
+    // Validar que haya al menos 1 pregunta de conocimiento general y 1 de materia
+    const hasGeneral = questions.some(q => String(q.category || '').toLowerCase() === 'general');
+    const hasSubject = questions.some(q => {
+      const cat = String(q.category || '').toLowerCase();
+      return cat && cat !== 'general';
+    });
+
+    if (!hasGeneral || !hasSubject){
+      console.warn('⚠️ El jefe debería tener al menos 1 pregunta de conocimiento general y 1 de materia');
+    }
+
     const bossName = String(ev?.title || 'Jefe final');
     if (titleEl) titleEl.textContent = `⚔️ ${hero?.name || 'Héroe'} vs ${bossName}`;
 
-    const bgEl = $('#bossBattleBg');
-    if (bgEl){
-      _setEventBgImage(bgEl, ev?.image || ev?.lockedImage || '', { locked: false, modal: true });
+    // Cargar battleSprites (fondo y jefe)
+    const sprites = ev?.battleSprites || {};
+
+    if (sceneBgEl && sprites.bg){
+      sceneBgEl.style.backgroundImage = `url('${sprites.bg}')`;
+    } else if (sceneBgEl){
+      // Fallback: usar imagen de desbloqueo
+      sceneBgEl.style.backgroundImage = `url('${ev?.image || ev?.lockedImage || ''}')`;
     }
 
+    if (jefeImg && sprites.idle){
+      jefeImg.src = sprites.idle;
+      jefeImg.className = 'bossBattle__jefe bossBattle__jefe--idle';
+    }
+
+    // Estado de la batalla
     let index = 0;
     let answered = false;
+    let correctCount = 0;
+    const totalQuestions = questions.length;
+
+    // Función para cambiar estado del jefe
+    const setJefeState = (state)=>{
+      if (!jefeImg || !sprites[state]) return;
+      jefeImg.src = sprites[state];
+      jefeImg.className = `bossBattle__jefe bossBattle__jefe--${state}`;
+
+      // Volver a idle después de la animación
+      if (state === 'mock' || state === 'hit'){
+        setTimeout(()=>{
+          if (sprites.idle){
+            jefeImg.src = sprites.idle;
+            jefeImg.className = 'bossBattle__jefe bossBattle__jefe--idle';
+          }
+        }, 1500);
+      }
+    };
+
+    // Función para actualizar barra de vida
+    const updateHealth = ()=>{
+      if (!healthFillEl) return;
+      const healthPercent = Math.max(0, 100 - (correctCount / totalQuestions) * 100);
+      healthFillEl.style.width = `${healthPercent}%`;
+    };
+
+    // Función para actualizar contador
+    const updateCounter = ()=>{
+      if (!counterEl) return;
+      counterEl.textContent = `Pregunta ${index + 1}/${totalQuestions}`;
+    };
 
     const renderQuestion = ()=>{
       const current = questions[index];
       answered = false;
+
+      updateCounter();
+
       if (questionEl) questionEl.textContent = current.question;
+
       if (nextBtn){
         nextBtn.disabled = true;
-        nextBtn.textContent = (index >= questions.length - 1) ? 'Finalizar duelo' : 'Siguiente pregunta';
+        const isLastQuestion = index >= questions.length - 1;
+        nextBtn.textContent = isLastQuestion ? 'Finalizar duelo ⚔️' : 'Siguiente pregunta →';
       }
+
       if (!optionsEl) return;
       optionsEl.innerHTML = '';
+
       current.options.forEach((option, optIndex)=>{
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'bossBattle__option';
         btn.textContent = option;
+
         btn.addEventListener('click', ()=>{
           if (answered) return;
           answered = true;
+
           const isCorrect = optIndex === current.correctIndex;
           btn.classList.add(isCorrect ? 'is-correct' : 'is-incorrect');
+
+          if (isCorrect){
+            correctCount++;
+            updateHealth();
+            setJefeState('hit');
+          } else {
+            setJefeState('mock');
+          }
 
           if (!isCorrect){
             const rightBtn = optionsEl.querySelector(`[data-opt-index="${current.correctIndex}"]`);
@@ -329,34 +404,114 @@ const DEFAULT_BOSS_QUIZ = [
 
           if (nextBtn) nextBtn.disabled = false;
         });
+
         btn.dataset.optIndex = String(optIndex);
         optionsEl.appendChild(btn);
       });
     };
 
+    // Sistema de recompensas al terminar
+    const finalizeBattle = ()=>{
+      const percentage = (correctCount / totalQuestions) * 100;
+      const isPerfect = correctCount === totalQuestions;
+      const isVictory = percentage >= 50;
+
+      let medalsEarned = 0;
+      let xpEarned = 0;
+      let message = '';
+
+      if (isPerfect){
+        // Victoria perfecta
+        medalsEarned = 3;
+        xpEarned = 50;
+        message = `🏆 ¡VICTORIA PERFECTA! ${correctCount}/${totalQuestions} correctas\n\n+${medalsEarned} medallas 🏅\n+${xpEarned} XP ⭐`;
+
+        if (typeof window.showBigReward === 'function'){
+          window.showBigReward({
+            title: '¡VICTORIA PERFECTA!',
+            subtitle: `Has derrotado a ${bossName}`,
+            icon: '🏆',
+            duration: 3000
+          });
+        }
+      } else if (isVictory){
+        // Victoria normal
+        medalsEarned = 1;
+        xpEarned = 20;
+        message = `🥈 ¡Victoria! ${correctCount}/${totalQuestions} correctas\n\n+${medalsEarned} medalla 🏅\n+${xpEarned} XP ⭐`;
+      } else {
+        // Derrota
+        xpEarned = 5;
+        message = `💀 Derrota... ${correctCount}/${totalQuestions} correctas\n\n${bossName}: "¡Vuelve cuando sepas más!"\n\n+${xpEarned} XP por participar`;
+      }
+
+      // Otorgar recompensas
+      if (hero && medalsEarned > 0){
+        hero.medals = Number(hero.medals ?? 0) + medalsEarned;
+      }
+
+      if (hero && xpEarned > 0){
+        hero.xp = Number(hero.xp ?? 0) + xpEarned;
+        // Verificar si sube de nivel
+        if (typeof window.bumpHeroXp === 'function'){
+          window.bumpHeroXp(0); // Trigger level up check
+        }
+      }
+
+      // Guardar cambios
+      if (typeof window.saveLocal === 'function'){
+        window.saveLocal(state.data);
+      }
+
+      // Marcar jefe como derrotado si es victoria
+      if (isVictory && hero){
+        if (!hero.defeatedBosses) hero.defeatedBosses = [];
+        if (!hero.defeatedBosses.includes(ev.id)){
+          hero.defeatedBosses.push(ev.id);
+        }
+      }
+
+      modal.hidden = true;
+      toast(message);
+
+      // Refrescar UI
+      if (typeof window.renderAll === 'function'){
+        window.renderAll();
+      }
+    };
+
     if (nextBtn){
       nextBtn.onclick = ()=>{
         if (!answered) return;
+
         if (index >= questions.length - 1){
-          modal.hidden = true;
-          toast(`🏆 ${hero?.name || 'Héroe'} terminó el duelo contra ${bossName}`);
+          finalizeBattle();
           return;
         }
+
         index += 1;
         renderQuestion();
       };
     }
 
     if (closeBtn){
-      closeBtn.onclick = ()=>{ modal.hidden = true; };
+      closeBtn.onclick = ()=>{
+        modal.hidden = true;
+        toast('Batalla cancelada');
+      };
     }
 
     modal.onclick = (e)=>{
       if (e.target === modal || e.target?.classList?.contains('bossBattle__shade')){
-        modal.hidden = true;
+        if (window.confirm('¿Seguro que quieres abandonar la batalla?')){
+          modal.hidden = true;
+          toast('Batalla cancelada');
+        }
       }
     };
 
+    // Inicializar batalla
+    updateHealth();
     renderQuestion();
     modal.hidden = false;
   }
