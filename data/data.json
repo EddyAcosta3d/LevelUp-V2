@@ -2,7 +2,7 @@
   "meta": {
     "app": "LevelUp",
     "version": "LevelUP_V2_00.033",
-    "updatedAt": "2026-02-13T19:29:08.168Z",
+    "updatedAt": "2026-02-17T06:51:01.009Z",
     "build": "LevelUP_V2_00.050"
   },
   "heroes": [
@@ -42,7 +42,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "levelStartAt": 1771310725169
     },
     {
       "id": "h_2d_2",
@@ -1333,6 +1334,15 @@
       "subjectId": "sub-tech",
       "difficulty": "hard",
       "points": 40
+    },
+    {
+      "id": "ch_1771310918664",
+      "title": "Calcula la velocidad",
+      "body": "Usa la fórmula:\n\nVelocidad = distancia ÷ tiempo\n\n3️⃣ Calcula:\n\na)\nUn alumno camina 20 m en 10 s\nVelocidad = ______ m/s\n\nb)\nUn ciclista recorre 100 m en 20 s\nVelocidad = ______ m/s",
+      "points": 40,
+      "subjectId": "sub-fis",
+      "difficulty": "hard",
+      "createdAt": "2026-02-17T06:48:38.664Z"
     }
   ],
   "events": [
