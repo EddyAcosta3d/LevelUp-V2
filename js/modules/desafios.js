@@ -394,53 +394,85 @@ export function closeChallengeModal(){
 }
 
 export function saveNewChallenge(){
-  const title = String(document.getElementById('inChTitle')?.value || '').trim();
-  const body = String(document.getElementById('inChBody')?.value || '').trim();
-  const points = Number.parseInt(document.getElementById('inChPoints')?.value, 10) || 10;
-  const subjectId = String(document.getElementById('inChSubject')?.value || '').trim();
-  const difficulty = normalizeDifficulty(document.getElementById('inChDiff')?.value || 'easy');
+  try {
+    const title = String(document.getElementById('inChTitle')?.value || '').trim();
+    const body = String(document.getElementById('inChBody')?.value || '').trim();
+    const pointsInput = document.getElementById('inChPoints')?.value;
+    const points = Number.parseInt(pointsInput, 10);
+    const subjectId = String(document.getElementById('inChSubject')?.value || '').trim();
+    const difficulty = normalizeDifficulty(document.getElementById('inChDiff')?.value || 'easy');
 
-  if (!title){
-    window.toast?.('Ingresa un título para el desafío');
+    // Enhanced validations
+    if (!title){
+      window.toast?.('❌ Ingresa un título para el desafío');
+      document.getElementById('inChTitle')?.focus();
+      return false;
+    }
+
+    if (!subjectId){
+      window.toast?.('❌ Selecciona una materia');
+      return false;
+    }
+
+    if (isNaN(points) || points < 0){
+      window.toast?.('❌ Ingresa un valor válido de puntos (número mayor o igual a 0)');
+      document.getElementById('inChPoints')?.focus();
+      return false;
+    }
+
+    // Ensure data structure exists
+    if (!state.data) state.data = {};
+    if (!Array.isArray(state.data.challenges)) {
+      state.data.challenges = [];
+    }
+
+    const editingId = state.editingChallengeId;
+    const existing = editingId
+      ? state.data.challenges.find(c => String(c.id) === String(editingId))
+      : null;
+
+    if (existing){
+      // Verify that editingId hasn't changed (race condition protection)
+      if (state.editingChallengeId !== editingId) {
+        window.toast?.('❌ El desafío cambió. Intenta de nuevo.');
+        closeChallengeModal();
+        return false;
+      }
+
+      existing.title = title;
+      existing.body = body;
+      existing.points = points;
+      existing.subjectId = subjectId;
+      existing.difficulty = difficulty;
+      window.toast?.('✅ Desafío actualizado');
+    } else {
+      state.data.challenges.push({
+        id: 'ch_' + Date.now(),
+        title,
+        body,
+        points,
+        subjectId,
+        difficulty,
+        createdAt: new Date().toISOString()
+      });
+      window.toast?.(`✅ Desafío "${title}" creado`);
+    }
+
+    saveLocal(state.data);
+    closeChallengeModal();
+    state.editingChallengeId = null;
+
+    if (typeof renderChallenges === 'function') {
+      renderChallenges();
+    }
+
+    return true;
+
+  } catch (err) {
+    console.error('Error al guardar desafío:', err);
+    window.toast?.('❌ Error al guardar el desafío. Intenta de nuevo.');
     return false;
   }
-  if (!subjectId){
-    window.toast?.('Selecciona una materia');
-    return false;
-  }
-
-  if (!Array.isArray(state.data?.challenges)) state.data.challenges = [];
-
-  const editingId = state.editingChallengeId;
-  const existing = editingId
-    ? state.data.challenges.find(c => String(c.id) === String(editingId))
-    : null;
-
-  if (existing){
-    existing.title = title;
-    existing.body = body;
-    existing.points = points;
-    existing.subjectId = subjectId;
-    existing.difficulty = difficulty;
-    window.toast?.('Desafío actualizado');
-  } else {
-    state.data.challenges.push({
-      id: 'ch_' + Date.now(),
-      title,
-      body,
-      points,
-      subjectId,
-      difficulty,
-      createdAt: new Date().toISOString()
-    });
-    window.toast?.(`Desafío "${title}" creado`);
-  }
-
-  saveLocal(state.data);
-  closeChallengeModal();
-  state.editingChallengeId = null;
-  renderChallenges();
-  return true;
 }
 
 export async function deleteSelectedChallenge(){

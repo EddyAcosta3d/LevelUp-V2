@@ -173,7 +173,9 @@ function bindHeroManagementButtons() {
 
   // New Hero button
   document.getElementById('btnNuevoHeroe')?.addEventListener('click', () => {
-    if (!state.data.heroes) state.data.heroes = [];
+    // Ensure data structure exists
+    if (!state.data) state.data = {};
+    if (!Array.isArray(state.data.heroes)) state.data.heroes = [];
 
     const newHero = makeBlankHero ? makeBlankHero() : {
       id: 'hero_' + Date.now(),
@@ -222,7 +224,8 @@ function bindHeroManagementButtons() {
 
     if (!confirmed) return;
 
-    if (state.data.heroes) {
+    // Ensure data structure exists
+    if (state.data && Array.isArray(state.data.heroes)) {
       state.data.heroes = state.data.heroes.filter(h => h.id !== hero.id);
 
       // Select first remaining hero
