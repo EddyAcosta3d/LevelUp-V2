@@ -2,7 +2,7 @@
   "meta": {
     "app": "LevelUp",
     "version": "LevelUP_V2_00.033",
-    "updatedAt": "2026-02-17T06:51:01.009Z",
+    "updatedAt": "2026-02-17T07:06:28.246Z",
     "build": "LevelUP_V2_00.050"
   },
   "heroes": [
@@ -508,7 +508,7 @@
       "age": 13,
       "role": "Artista",
       "level": 1,
-      "xp": 0,
+      "xp": 10,
       "xpMax": 100,
       "weekXp": 0,
       "weekXpMax": 40,
@@ -532,12 +532,18 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {},
+      "challengeCompletions": {
+        "ch-tech-01": {
+          "at": 1771311366461,
+          "points": 10
+        }
+      },
       "statsCap": 20,
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "levelStartAt": 1771311366462
     },
     {
       "id": "h_3d_1",
@@ -1343,6 +1349,33 @@
       "subjectId": "sub-fis",
       "difficulty": "hard",
       "createdAt": "2026-02-17T06:48:38.664Z"
+    },
+    {
+      "id": "ch_1771311551445",
+      "title": "Exposición Internet",
+      "body": "Apoyado con media catulina haz una exposición sobre como funciona el internet.",
+      "points": 40,
+      "subjectId": "sub-tech",
+      "difficulty": "hard",
+      "createdAt": "2026-02-17T06:59:11.445Z"
+    },
+    {
+      "id": "ch_1771311672486",
+      "title": "Historia básica",
+      "body": "Contesta las siguientes preguntas:\n\n1.¿Qué es la historia?\n\n2.¿Para que sirve estudiar historia?",
+      "points": 10,
+      "subjectId": "sub-his",
+      "difficulty": "easy",
+      "createdAt": "2026-02-17T07:01:12.486Z"
+    },
+    {
+      "id": "ch_1771311785442",
+      "title": "Ecuaciones y porcentajes",
+      "body": "7️⃣ Ecuaciones sencillas\n\nResuelve:\n\na) x + 7 = 15\nb) 3x = 18\nc) x − 9 = 4\n\n8️⃣ Porcentajes fáciles\n\na) 10% de 50 = ____\nb) 25% de 20 = ____\nc) 50% de 80 = ____",
+      "points": 20,
+      "subjectId": "sub-mat",
+      "difficulty": "medium",
+      "createdAt": "2026-02-17T07:03:05.442Z"
     }
   ],
   "events": [
