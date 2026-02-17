@@ -9,6 +9,9 @@
 const fs = require('fs');
 const path = require('path');
 
+const ROOT_DIR = __dirname;
+const resolveFromRoot = (...parts) => path.join(ROOT_DIR, ...parts);
+
 console.log('🔗 Iniciando pruebas de integración de módulos...\n');
 
 // Archivos en orden de carga (según index.html)
@@ -31,7 +34,7 @@ let loadedWithErrors = 0;
 console.log('📦 Verificando carga de módulos:\n');
 
 for (const modulePath of modules) {
-  const fullPath = path.join('/home/user/LevelUp-V2', modulePath);
+  const fullPath = resolveFromRoot(modulePath);
   const moduleName = path.basename(modulePath);
 
   try {
@@ -90,9 +93,16 @@ let verificationsOK = 0;
 let verificationsFailed = 0;
 
 for (const file of correctedFiles) {
-  const fullPath = path.join('/home/user/LevelUp-V2', file.path);
-  const content = fs.readFileSync(fullPath, 'utf8');
   const fileName = path.basename(file.path);
+
+  const fullPath = resolveFromRoot(file.path);
+  if (!fs.existsSync(fullPath)) {
+    console.log(`❌ ${fileName} - Archivo no encontrado`);
+    verificationsFailed++;
+    continue;
+  }
+
+  const content = fs.readFileSync(fullPath, 'utf8');
 
   if (file.mustContain) {
     let allFound = true;
@@ -134,8 +144,8 @@ let mirrorChecks = 0;
 let mirrorIssues = 0;
 
 for (const modulePath of ['js/modules/core_globals.js', 'js/modules/fichas.js', 'js/modules/store.js']) {
-  const sourcePath = path.join('/home/user/LevelUp-V2', modulePath);
-  const mirrorPath = path.join('/home/user/LevelUp-V2/assets', modulePath);
+  const sourcePath = resolveFromRoot(modulePath);
+  const mirrorPath = resolveFromRoot('assets', modulePath);
 
   try {
     const sourceContent = fs.readFileSync(sourcePath, 'utf8');
