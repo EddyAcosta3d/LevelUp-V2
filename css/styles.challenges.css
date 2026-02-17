@@ -1324,3 +1324,156 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
     padding: 8px 12px;
   }
 }
+
+/* Boss battle full-screen modal */
+.bossBattle{
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.bossBattle__bg,
+.bossBattle__shade{
+  position: absolute;
+  inset: 0;
+}
+.bossBattle__bg{
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.08);
+  filter: saturate(1.1) contrast(1.05) brightness(.7);
+  animation: bossBattlePan 14s ease-in-out infinite alternate;
+}
+.bossBattle__shade{
+  background:
+    radial-gradient(circle at center, rgba(12,16,24,.20), rgba(4,6,10,.88) 70%),
+    linear-gradient(180deg, rgba(2,5,10,.25), rgba(2,5,10,.82));
+}
+@keyframes bossBattlePan {
+  from { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
+  to { transform: scale(1.12) translate3d(1.5%, 1%, 0); }
+}
+.bossBattle__content{
+  position: relative;
+  z-index: 1;
+  width: min(920px, 94vw);
+  max-height: 92dvh;
+  overflow: auto;
+  padding: clamp(20px, 3vw, 34px);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(7,10,16,.72);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 30px 60px rgba(0,0,0,.45);
+}
+.bossBattle__close{
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.35);
+  background: rgba(7,12,18,.65);
+  color: #fff;
+  cursor: pointer;
+}
+.bossBattle__title{
+  font-size: clamp(20px, 2.8vw, 32px);
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+.bossBattle__question{
+  font-size: clamp(18px, 2.2vw, 26px);
+  line-height: 1.35;
+  margin-bottom: 16px;
+  color: #f3f8ff;
+}
+.bossBattle__options{
+  display: grid;
+  gap: 12px;
+}
+.bossBattle__option{
+  min-height: 54px;
+  border-radius: 14px;
+  border: 1px solid rgba(125,210,255,.34);
+  background: rgba(17,28,40,.72);
+  color: #e8f6ff;
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bossBattle__option.is-correct{
+  border-color: rgba(90,255,145,.95);
+  background: rgba(28,106,59,.86);
+  color: #eaffef;
+}
+.bossBattle__option.is-incorrect{
+  border-color: rgba(255,114,114,.95);
+  background: rgba(124,30,30,.85);
+  color: #ffecec;
+}
+.bossBattle__next{
+  margin-top: 16px;
+  width: 100%;
+  min-height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: linear-gradient(135deg, #ffd25d, #ff9f3b 50%, #ff6a2a);
+  color: #181107;
+  font-weight: 900;
+  letter-spacing: .3px;
+}
+.bossBattle__next:disabled{
+  opacity: .6;
+  filter: grayscale(.25);
+}
+
+#btnEventFight{
+  background: linear-gradient(135deg, #ffe48a 0%, #ffc13d 36%, #ff8d2b 72%, #ff622b 100%);
+  color: #220d00;
+  border: 1px solid rgba(255,255,255,.4);
+  font-weight: 900;
+  letter-spacing: .4px;
+  box-shadow: 0 12px 30px rgba(255,130,40,.32), inset 0 1px 0 rgba(255,255,255,.4);
+}
+#btnEventFight:disabled{
+  filter: grayscale(.35);
+  box-shadow: none;
+}
+
+/* Challenge list actions aligned with difficulty/xp pills */
+.challengeMetaRow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+.challengeMetaRow .chItemActions{
+  position: static;
+  margin-left: auto;
+  display:flex;
+  gap:8px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+html:not(.is-edit) .challengeMetaRow .chItemActions{
+  display:none !important;
+}
+
+/* Challenge modal: allow scrolling/editing long instructions */
+#challengeModal .modal__card{
+  max-height: min(90vh, 860px);
+  overflow-y: auto;
+}
+#challengeModal #inChBody{
+  min-height: 200px;
+  max-height: 52vh;
+  overflow-y: auto;
+  resize: vertical;
+  -webkit-overflow-scrolling: touch;
+}

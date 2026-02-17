@@ -648,12 +648,27 @@
             </div>
 
             <div class="eventModalActions">
-              <button class="btn btnPrimary" id="btnEventFight">⚔️ Retar</button>
+              <button class="btn btnPrimary" id="btnEventFight">⚔️ INICIAR DUELO ÉPICO</button>
               <button class="pill pill--small pill--ghost" id="btnEventToggleUnlock" type="button" data-edit-only="1">Desbloquear</button>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+
+  <!-- Modal de duelo contra jefe -->
+  <div class="modal bossBattle" id="bossBattleModal" hidden>
+    <div class="bossBattle__bg" id="bossBattleBg" aria-hidden="true"></div>
+    <div class="bossBattle__shade" aria-hidden="true"></div>
+
+    <div class="bossBattle__content" role="dialog" aria-modal="true" aria-labelledby="bossBattleTitle">
+      <button class="bossBattle__close" id="btnBossBattleClose" type="button" aria-label="Cerrar duelo">✕</button>
+      <div class="bossBattle__title" id="bossBattleTitle">⚔️ Duelo de jefe</div>
+      <div class="bossBattle__question" id="bossBattleQuestion">Pregunta</div>
+      <div class="bossBattle__options" id="bossBattleOptions"></div>
+      <button class="bossBattle__next" id="btnBossBattleNext" type="button" disabled>Siguiente pregunta</button>
     </div>
   </div>
 

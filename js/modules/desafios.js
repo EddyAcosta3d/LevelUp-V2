@@ -159,18 +159,17 @@ export function renderChallenges(){
 
     const canEdit = document.documentElement.classList.contains('is-edit');
     item.innerHTML = `
-      ${canEdit ? `
-        <div class="chItemActions" data-edit-only="1">
-          <button class="chIconBtn" type="button" data-act="edit" title="Editar" aria-label="Editar">✎</button>
-          <button class="chIconBtn chIconBtn--danger" type="button" data-act="del" title="Eliminar" aria-label="Eliminar">🗑</button>
-        </div>
-      ` : ''}
-
       <div class="challengeRow">
         <div class="challengeName">${escapeHtml(displayTitle)}</div>
         <div class="challengeMetaRow">
           <span class="chPill chPill--${escapeHtml(String(ch.difficulty||'').toLowerCase())}"><span class="i">⚡</span>${escapeHtml(diffLabel)}</span>
           <span class="chPill chPill--xp"><span class="i">⭐</span>${escapeHtml(String(pts))} XP</span>
+          ${canEdit ? `
+            <div class="chItemActions" data-edit-only="1">
+              <button class="chIconBtn" type="button" data-act="edit" title="Editar" aria-label="Editar">✎</button>
+              <button class="chIconBtn chIconBtn--danger" type="button" data-act="del" title="Eliminar" aria-label="Eliminar">🗑</button>
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
@@ -253,7 +252,7 @@ export function renderChallengeDetail(){
     if (subEl) subEl.textContent = 'Selecciona un desafío para ver instrucciones.';
     if (badgesEl) badgesEl.innerHTML = '';
     if (hintEl) hintEl.textContent = 'Selecciona un desafío.';
-    if (bodyEl) bodyEl.innerHTML = '';
+    if (bodyEl){ bodyEl.hidden = false; bodyEl.innerHTML = ''; }
     if (btnComplete){
       btnComplete.disabled = true;
       btnComplete.classList.remove('is-active','is-done');
@@ -269,8 +268,8 @@ export function renderChallengeDetail(){
   }
 
   const subj = ch.subject || (state.data?.subjects || []).find(s=>s.id === ch.subjectId)?.name || '—';
-  const pts = Number(ch.points ?? 0);
   const done = isChallengeDone(hero, ch.id);
+  const canEditView = document.documentElement.classList.contains('is-edit');
   // doneAt se guarda internamente, pero no lo mostramos en UI (se veía como un número largo).
 
   const stripSubjectPrefix = (title, subjectName)=>{
@@ -283,7 +282,7 @@ export function renderChallengeDetail(){
   const displayTitle = stripSubjectPrefix(ch.title, subj) || 'Desafío';
 
   if (titleEl) titleEl.textContent = displayTitle;
-  if (subEl) subEl.textContent = `${subj}`;
+  if (subEl) subEl.textContent = canEditView ? `${subj}` : '';
 
   // En el detalle NO repetimos dificultad/XP en la esquina (ya se ven claro en la tarjeta del centro).
   // Aquí solo dejamos el control de estado (Pendiente/Completado) en modo edición, justo en la esquina.
@@ -299,7 +298,10 @@ export function renderChallengeDetail(){
   }
 
   if (bodyEl){
-    bodyEl.innerHTML = `<div class="chInstrLabel">Instrucciones</div>` + formatBody(ch.body);
+    bodyEl.hidden = !canEditView;
+    bodyEl.innerHTML = canEditView
+      ? (`<div class="chInstrLabel">Instrucciones</div>` + formatBody(ch.body))
+      : '';
   }
 
   if (btnComplete){

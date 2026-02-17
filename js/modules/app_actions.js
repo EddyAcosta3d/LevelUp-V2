@@ -12,6 +12,7 @@
 // Import dependencies
 import {
   state,
+  DEFAULT_WEEK_XP_MAX,
   CONFIG,
   DIFFICULTY,
   POINTS_BY_DIFFICULTY,
@@ -120,6 +121,25 @@ export function setRole(nextRole){
     const hero = currentHero();
     if (!hero) return;
 
+    const source = opts && typeof opts === 'object' ? opts.source : null;
+    const isWeeklyCappedActivity = source === 'activity';
+
+    if (isWeeklyCappedActivity && delta > 0){
+      hero.weekXp = Number(hero.weekXp ?? 0);
+      hero.weekXpMax = Number(hero.weekXpMax ?? DEFAULT_WEEK_XP_MAX);
+
+      const remainingWeekXp = Math.max(0, hero.weekXpMax - hero.weekXp);
+      if (remainingWeekXp <= 0){
+        toast('Límite semanal alcanzado');
+        return;
+      }
+
+      if (delta > remainingWeekXp){
+        delta = remainingWeekXp;
+        toast('Se aplicó solo el XP restante del límite semanal');
+      }
+    }
+
     // Apply one-time XP multiplier (only for challenge awards)
     let multiplierUsed = 1;
     try{
@@ -146,6 +166,11 @@ export function setRole(nextRole){
     }
 
     if (hero.xp < 0) hero.xp = 0;
+
+    if (isWeeklyCappedActivity && delta > 0){
+      hero.weekXp = Number(hero.weekXp ?? 0) + Number(delta || 0);
+      if (hero.weekXp > hero.weekXpMax) hero.weekXp = hero.weekXpMax;
+    }
 
     const computeLevelCtx = ()=>{
       const since = Number(hero.levelStartAt || 0);
