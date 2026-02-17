@@ -37,7 +37,7 @@ export function renderChallenges(){
     if (!state.challengeFilter.diff) state.challengeFilter.diff = 'easy';
     if (!state.challengeFilter.subjectId && subjectsAll.length) state.challengeFilter.subjectId = subjectsAll[0].id;
 
-  ensureChallengeUI();
+  ensureChallengeUI(renderChallenges);
 
   const list = $('#challengeList');
   if (!list) return;
