@@ -1731,7 +1731,7 @@
         "name": "Clase con juegos de mesa",
         "description": "Una clase completa jugando juegos de mesa educativos",
         "icon": "🎲",
-        "cost": 6,
+        "cost": 8,
         "stock": 1,
         "available": true
       },
@@ -1740,17 +1740,8 @@
         "name": "Quitar 1 pregunta del examen",
         "description": "Elimina una pregunta de tu próximo examen",
         "icon": "📝",
-        "cost": 4,
+        "cost": 6,
         "stock": 999,
-        "available": true
-      },
-      {
-        "id": "store_demo_3",
-        "name": "Elegir tema de exposición",
-        "description": "Escoge el tema que quieras para tu exposición",
-        "icon": "🎤",
-        "cost": 3,
-        "stock": 5,
         "available": true
       },
       {
@@ -1758,8 +1749,80 @@
         "name": "Día libre de tarea",
         "description": "Un día sin tarea (aplica una vez)",
         "icon": "🎉",
+        "cost": 7,
+        "stock": 3,
+        "available": true
+      },
+      {
+        "id": "store_5",
+        "name": "10 min de Clash Royale",
+        "description": "Juega Clash Royale durante 10 minutos en el recreo",
+        "icon": "👑",
+        "cost": 5,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_6",
+        "name": "Música mientras trabajas",
+        "description": "Usa audífonos mientras haces trabajo individual",
+        "icon": "🎧",
+        "cost": 3,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_7",
+        "name": "Clase con UNO",
+        "description": "Jugar UNO mientras repasan conceptos de la materia",
+        "icon": "🃏",
+        "cost": 6,
+        "stock": 2,
+        "available": true
+      },
+      {
+        "id": "store_8",
+        "name": "Lotería educativa",
+        "description": "Jugar lotería con conceptos del tema",
+        "icon": "🎰",
         "cost": 5,
         "stock": 3,
+        "available": true
+      },
+      {
+        "id": "store_9",
+        "name": "Sentarse donde quieras",
+        "description": "Escoge tu lugar favorito durante 1 semana",
+        "icon": "🪑",
+        "cost": 6,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_10",
+        "name": "Clase al aire libre",
+        "description": "Tener clase afuera del salón en un lugar agradable",
+        "icon": "🌳",
+        "cost": 10,
+        "stock": 1,
+        "available": true
+      },
+      {
+        "id": "store_11",
+        "name": "Elige música para la clase",
+        "description": "Selecciona la música de fondo para trabajar durante la clase",
+        "icon": "🎵",
+        "cost": 4,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_12",
+        "name": "Tarjeta de regalo para tu juego favorito",
+        "description": "Tarjeta de regalo para Roblox, Free Fire, Fortnite u otro juego",
+        "icon": "🎁",
+        "cost": 15,
+        "stock": 5,
         "available": true
       }
     ]
