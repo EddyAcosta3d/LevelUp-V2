@@ -1636,24 +1636,110 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 
 /* Responsive: móviles */
 @media (max-width: 768px) {
-  .bossBattle__jefe{
+  /* === Jefe: centrado horizontalmente, grande en la mitad superior === */
+  .bossBattle__jefe {
+    /* Centrado: left+right+margin en lugar de transform
+       para no romper las animaciones translateY/scale del jefe */
+    left: 0;
     right: 0;
-    height: 50vh;
-    max-height: 400px;
+    width: 85%;
+    margin: 0 auto;
+    top: 0;
+    bottom: auto;
+    height: 46vh;
+    max-height: none;
+    object-fit: contain;
+    object-position: center bottom; /* pies al límite de la zona del jefe */
   }
 
-  .bossBattle__options{
+  /* === HUD: sin padding superior; el contenido baja al fondo solo === */
+  .bossBattle__hud {
+    padding: 0 14px max(24px, env(safe-area-inset-bottom, 24px));
+  }
+
+  /* === Header: barra delgada overlay en el borde superior === */
+  .bossBattle__header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 0;
+    /* 56px padding derecho para no solapar el botón cerrar (44px + 12px) */
+    padding: 10px 56px 10px 14px;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 20;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  }
+
+  .bossBattle__title {
+    font-size: 15px;
+  }
+
+  .bossBattle__counter {
+    font-size: 13px;
+  }
+
+  .bossBattle__health {
+    gap: 6px;
+  }
+
+  .bossBattle__healthBar {
+    width: 100px;
+    height: 16px;
+  }
+
+  /* === Pregunta: margin-top:auto la empuja a la mitad inferior === */
+  .bossBattle__questionBox {
+    margin-top: auto;
+    margin-bottom: 10px;
+    padding: 14px 16px;
+  }
+
+  .bossBattle__question {
+    font-size: clamp(15px, 4vw, 22px);
+  }
+
+  /* === Opciones: 2 columnas compactas === */
+  .bossBattle__options {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    flex: 0 0 auto; /* no crece; deja espacio al jefe arriba */
+  }
+
+  .bossBattle__option {
+    min-height: 52px;
+    padding: 10px 12px;
+    font-size: clamp(13px, 3.5vw, 16px);
+    border-radius: 12px;
+    border-width: 2px;
+  }
+
+  /* === Botón siguiente: compacto === */
+  .bossBattle__next {
+    margin-top: 8px;
+    min-height: 50px;
+    font-size: 16px;
+    padding: 12px 20px;
+  }
+}
+
+/* Teléfonos muy pequeños: 1 columna, jefe algo más chico */
+@media (max-width: 360px) {
+  .bossBattle__jefe {
+    height: 38vh;
+  }
+  .bossBattle__options {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 8px;
   }
-
-  .bossBattle__header{
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .bossBattle__healthBar{
-    width: 140px;
+  .bossBattle__option {
+    min-height: 46px;
   }
 }
 
