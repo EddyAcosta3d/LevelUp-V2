@@ -8,6 +8,8 @@
 import { state } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { renderAll, handleImportJson, handleExportJson, bumpHeroXp, setRole } from './modules/app_actions.js';
+import { renderChallenges, openChallengeModal } from './modules/desafios.js';
+import { toggleSubjectDropdown, currentHero } from './modules/fichas.js';
 import { bindTiendaEvents } from './modules/tienda.js';
 import { saveToGitHub, testGitHubConnection, setGitHubToken, clearGitHubToken } from './modules/github_sync.js';
 
@@ -82,11 +84,7 @@ export function bind(){
   document.getElementById('btnXpM5')?.addEventListener('click', ()=> bumpHeroXp(-5));
 
   // Subject dropdown button in Desafíos
-  document.getElementById('btnSubject')?.addEventListener('click', ()=> {
-    if (typeof window.toggleSubjectDropdown === 'function') {
-      window.toggleSubjectDropdown();
-    }
-  });
+  document.getElementById('btnSubject')?.addEventListener('click', ()=> safeCall(toggleSubjectDropdown));
 
   // Note: Edit mode is now controlled ONLY by ?admin=true URL parameter
   // No manual toggle button - reload page to change modes
@@ -172,7 +170,7 @@ function bindHeroManagementButtons() {
 
   // Delete Hero button
   document.getElementById('btnEliminar')?.addEventListener('click', async () => {
-    const hero = window.currentHero ? window.currentHero() : null;
+    const hero = currentHero();
     if (!hero) {
       toast('No hay héroe seleccionado');
       return;
@@ -212,7 +210,7 @@ function bindHeroManagementButtons() {
 
   // Weekly XP Reset button
   document.getElementById('btnWeekReset')?.addEventListener('click', () => {
-    const hero = window.currentHero ? window.currentHero() : null;
+    const hero = currentHero();
     if (!hero) {
       toast('No hay héroe seleccionado');
       return;
@@ -252,20 +250,14 @@ function bindChallengeButtons() {
       const diff = difficultyMap[btnId];
       if (!state.challengeFilter) state.challengeFilter = {};
       state.challengeFilter.diff = diff;
-
-      if (typeof window.renderChallenges === 'function') {
-        window.renderChallenges();
-      }
+      safeCall(renderChallenges);
     });
   });
 
   // Add Challenge button
   document.getElementById('btnAddChallenge')?.addEventListener('click', () => {
-    if (typeof window.openChallengeModal === 'function') {
-      window.openChallengeModal('create');
-    } else {
-      toast('⚠️ Función openChallengeModal no disponible');
-    }
+    const ok = safeCall(openChallengeModal, 'create');
+    if (typeof ok === 'undefined') toast('⚠️ Función openChallengeModal no disponible');
   });
 
   // Manage Subjects button
@@ -311,9 +303,7 @@ function bindChallengeButtons() {
     toast(`Materia "${name}" agregada`);
     renderSubjectsList();
 
-    if (typeof window.renderChallenges === 'function') {
-      window.renderChallenges();
-    }
+    safeCall(renderChallenges);
   });
 
   // Challenge History button
@@ -371,9 +361,7 @@ function bindChallengeButtons() {
 
     if (modal) modal.hidden = true;
 
-    if (typeof window.renderChallenges === 'function') {
-      window.renderChallenges();
-    }
+    safeCall(renderChallenges);
   });
 
   // Cancel Challenge button (inside challenge modal)
@@ -489,9 +477,7 @@ function renderSubjectsList() {
         toast(`Materia "${subject.name}" eliminada`);
         renderSubjectsList();
 
-        if (typeof window.renderChallenges === 'function') {
-          window.renderChallenges();
-        }
+        safeCall(renderChallenges);
       });
     }
 
@@ -508,7 +494,7 @@ function renderChallengeHistory() {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[m]));
 
-  const hero = window.currentHero ? window.currentHero() : null;
+  const hero = currentHero();
   if (!hero || !hero.challengeCompletions) {
     if (empty) empty.hidden = false;
     list.innerHTML = '';
