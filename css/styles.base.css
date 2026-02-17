@@ -1535,7 +1535,9 @@ body::-webkit-scrollbar,
   .topbar{flex-wrap:nowrap;}
   .topbar__left{flex:1; min-width:0;}
   .topbar__right{display:flex !important;}
-  .topbar__right{flex-wrap:wrap; justify-content:flex-end; gap:8px;}
+  /* nowrap + scroll horizontal para que los botones no fuercen una segunda fila */
+  .topbar__right{flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; justify-content:flex-end; gap:8px;}
+  .topbar__right::-webkit-scrollbar{display:none;}
   .topbar__right .pill{padding:8px 12px; font-size:12px;}
   .topbar__moreBtn{display:none !important;}
   .topbar__moreWrap{display:none !important;}

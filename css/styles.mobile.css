@@ -33,6 +33,13 @@
     min-height: 100px;
   }
 
+  /* Excepción: los textareas del overlay de notas sobre la imagen del héroe
+     son compactos por diseño; no deben crecer al tamaño genérico táctil */
+  .heroNotesOverlay textarea,
+  .noteGrid--overlay textarea {
+    min-height: unset;
+  }
+
   /* TEXTOS - Más grandes para legibilidad */
   .heroCard__name {
     font-size: 18px !important;
@@ -168,7 +175,8 @@
 
   /* NAVIGATION - Mejor accesibilidad táctil */
   .bottomNav {
-    height: 60px;
+    min-height: 60px;
+    /* No fixed height: let safe-area padding expand the bar on notched iPhones */
   }
 
   .bottomNav__btn {
@@ -951,7 +959,9 @@
   }
 
   .pages {
-    padding-bottom: 78px !important;
+    /* Ensure content clears the bottom nav even on iPhones with home indicator (34px safe area).
+       Nav height ≈ 54px content + env(safe-area-inset-bottom); add a 6px buffer. */
+    padding-bottom: max(84px, calc(60px + env(safe-area-inset-bottom, 0px))) !important;
     /* Reset desktop scrollbar compensation — mobile scrollbars overlay, no gutter needed */
     padding-right: 0 !important;
     padding-left: 0 !important;

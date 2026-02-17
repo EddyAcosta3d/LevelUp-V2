@@ -278,7 +278,9 @@ body.is-modal-open .dropdown__menu{
 
 /* Splash: logo más grande + brillo menos invasivo (evita barra blanca) */
 .splash__inner{ max-width: 560px; }
-.splash__logo{ width: clamp(320px, 50vw, 620px); }
+/* clamp original usaba 320px como mínimo = 100% del viewport en teléfonos ≤320px.
+   Con 70vw el logo escala fluidamente y nunca toca los bordes en pantallas pequeñas. */
+.splash__logo{ width: clamp(200px, 70vw, 620px); }
 .splash__shine{
   opacity: 0.25;
   filter: blur(1.2px);
