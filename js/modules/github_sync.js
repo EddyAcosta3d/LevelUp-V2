@@ -23,9 +23,24 @@ const GITHUB_CONFIG = {
   owner: 'EddyAcosta3d',  // Your GitHub username
   repo: 'LevelUp-V2',      // Your repository name
   path: 'data/data.json',  // Path to data file
-  branch: 'master',        // Branch to push to
+  branch: 'main',          // Preferred branch to push to
   tokenKey: 'github_pat',  // localStorage key for token
+  branchKey: 'github_branch', // localStorage key for resolved branch
 };
+
+function getStoredBranch() {
+  try {
+    return localStorage.getItem(GITHUB_CONFIG.branchKey) || null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+function setStoredBranch(branch) {
+  try {
+    if (branch) localStorage.setItem(GITHUB_CONFIG.branchKey, String(branch));
+  } catch (_e) {}
+}
 
 /**
  * Check if GitHub token is configured
@@ -87,14 +102,14 @@ export function clearGitHubToken() {
  * @param {string} token - GitHub PAT
  * @returns {Promise<string|null>} File SHA or null
  */
-async function getCurrentFileSHA(token) {
+async function getCurrentFileSHA(token, branch) {
   try {
-    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?ref=${GITHUB_CONFIG.branch}`;
+    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?ref=${encodeURIComponent(branch)}`;
 
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'Authorization': `token ${token}`,
+        'Authorization': `Bearer ${token}`,
         'Accept': 'application/vnd.github.v3+json',
       },
     });
@@ -109,6 +124,28 @@ async function getCurrentFileSHA(token) {
     console.error('Failed to get file SHA:', error);
     return null;
   }
+}
+
+async function resolveWorkingBranch(token) {
+  const candidates = [
+    getStoredBranch(),
+    GITHUB_CONFIG.branch,
+    'main',
+    'master'
+  ].filter(Boolean);
+
+  const tried = new Set();
+  for (const branch of candidates) {
+    if (tried.has(branch)) continue;
+    tried.add(branch);
+    const sha = await getCurrentFileSHA(token, branch);
+    if (sha) {
+      setStoredBranch(branch);
+      return { branch, sha };
+    }
+  }
+
+  return { branch: GITHUB_CONFIG.branch, sha: null };
 }
 
 /**
@@ -154,7 +191,7 @@ export async function saveToGitHub(options = {}) {
 
     // Step 2: Get current file SHA
     if (onProgress) onProgress('Obteniendo información del archivo...');
-    const sha = await getCurrentFileSHA(token);
+    const { branch, sha } = await resolveWorkingBranch(token);
     if (!sha) {
       throw new Error('No se pudo obtener información del archivo en GitHub.');
     }
@@ -191,7 +228,7 @@ export async function saveToGitHub(options = {}) {
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
-        'Authorization': `token ${token}`,
+        'Authorization': `Bearer ${token}`,
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
@@ -199,7 +236,7 @@ export async function saveToGitHub(options = {}) {
         message: commitMessage,
         content: content,
         sha: sha,
-        branch: GITHUB_CONFIG.branch
+        branch
       })
     });
 
@@ -214,7 +251,7 @@ export async function saveToGitHub(options = {}) {
 
     return {
       success: true,
-      message: 'Datos guardados en GitHub correctamente',
+      message: `Datos guardados en GitHub correctamente (${branch})`,
       commit: result.commit,
       url: result.content?.html_url
     };
@@ -241,10 +278,10 @@ export async function testGitHubConnection() {
     }
 
     // Try to get file info (read-only test)
-    const sha = await getCurrentFileSHA(token);
+    const { branch, sha } = await resolveWorkingBranch(token);
 
     if (sha) {
-      return { success: true, message: 'Conexión exitosa con GitHub' };
+      return { success: true, message: `Conexión exitosa con GitHub (${branch})` };
     } else {
       return { success: false, message: 'No se pudo acceder al archivo en GitHub' };
     }
@@ -266,7 +303,7 @@ export function getGitHubStatus() {
     owner: GITHUB_CONFIG.owner,
     repo: GITHUB_CONFIG.repo,
     path: GITHUB_CONFIG.path,
-    branch: GITHUB_CONFIG.branch
+    branch: getStoredBranch() || GITHUB_CONFIG.branch
   };
 }
 

@@ -8,7 +8,7 @@
 import { state } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { renderAll, handleImportJson, handleExportJson, bumpHeroXp, setRole } from './modules/app_actions.js';
-import { renderChallenges, openChallengeModal } from './modules/desafios.js';
+import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
 import { toggleSubjectDropdown, currentHero } from './modules/fichas.js';
 import { bindTiendaEvents } from './modules/tienda.js';
 import { saveToGitHub, testGitHubConnection, setGitHubToken, clearGitHubToken } from './modules/github_sync.js';
@@ -32,6 +32,9 @@ function activateRoute(route){
 
 export function bind(){
   document.querySelectorAll('[data-route]').forEach(btn=>{
+    // Recompensas has its own toggle handler (go/reverse).
+    // Skip generic route binding to avoid double navigation on click.
+    if (btn.id === 'btnRecompensas' || btn.id === 'btnMobileRewards') return;
     btn.addEventListener('click', ()=> activateRoute(btn.dataset.route));
   });
 
@@ -320,54 +323,12 @@ function bindChallengeButtons() {
 
   // Save Challenge button (inside challenge modal)
   document.getElementById('btnSaveChallenge')?.addEventListener('click', () => {
-    const modal = document.getElementById('challengeModal');
-
-    // Get form values
-    const title = document.getElementById('inChTitle')?.value || '';
-    const body = document.getElementById('inChBody')?.value || '';
-    const points = parseInt(document.getElementById('inChPoints')?.value) || 10;
-    const subjectId = document.getElementById('inChSubject')?.value || '';
-    const difficulty = document.getElementById('inChDiff')?.value || 'easy';
-
-    if (!title.trim()) {
-      toast('Ingresa un título para el desafío');
-      return;
-    }
-
-    if (!subjectId) {
-      toast('Selecciona una materia');
-      return;
-    }
-
-    if (!state.data.challenges) state.data.challenges = [];
-
-    const newChallenge = {
-      id: 'ch_' + Date.now(),
-      title: title.trim(),
-      body: body.trim(),
-      points: points,
-      subjectId: subjectId,
-      difficulty: difficulty,
-      createdAt: new Date().toISOString()
-    };
-
-    state.data.challenges.push(newChallenge);
-
-    if (typeof window.saveLocal === 'function') {
-      window.saveLocal(state.data);
-    }
-
-    toast(`Desafío "${title}" creado`);
-
-    if (modal) modal.hidden = true;
-
-    safeCall(renderChallenges);
+    safeCall(saveNewChallenge);
   });
 
   // Cancel Challenge button (inside challenge modal)
   document.getElementById('btnCancelChallenge')?.addEventListener('click', () => {
-    const modal = document.getElementById('challengeModal');
-    if (modal) modal.hidden = true;
+    safeCall(closeChallengeModal);
   });
 
   // Reset Local Data button

@@ -613,6 +613,18 @@ export function renderHeroAvatar(hero){
   { id: "doubleNext", label: "Doble XP (siguiente desafío)", desc: "El próximo desafío vale el doble de XP.", icon: "✨", kind: "doubleNext", amount: 2 },
 ];
 
+const REWARD_OPTIONS_BY_ID = new Map(REWARD_OPTIONS.map(r => [String(r.id), r]));
+
+function getRewardDescriptor(item){
+  const id = String(item?.rewardId || item?.id || '').trim();
+  const mapped = REWARD_OPTIONS_BY_ID.get(id);
+  return {
+    title: item?.title || mapped?.label || 'Recompensa',
+    desc: item?.desc || mapped?.desc || '',
+    badge: item?.badge || mapped?.icon || '🏆'
+  };
+}
+
   export function formatDateMX(iso){
     try{
       const d = new Date(iso);
@@ -633,14 +645,17 @@ export function renderHeroAvatar(hero){
       const div = document.createElement('div');
       div.className = 'rewardItem';
 
-      const title = item.title || 'Recompensa';
+      const rewardInfo = getRewardDescriptor(item);
+      const title = rewardInfo.title;
+      const desc = rewardInfo.desc;
       const level = (item.level === 0 || item.level) ? String(item.level) : '—';
       const date = item.date ? formatDateMX(item.date) : '—';
-      const badge = item.badge || '🏆';
+      const badge = rewardInfo.badge;
 
       div.innerHTML =
         '<div class="rewardItem__left">' +
           '<div class="rewardItem__title">' + escapeHtml(title) + '</div>' +
+          (desc ? '<div class="rewardItem__desc">' + escapeHtml(desc) + '</div>' : '') +
           '<div class="rewardItem__meta">Nivel ' + escapeHtml(level) + ' · ' + escapeHtml(date) + '</div>' +
         '</div>' +
         '<div class="rewardItem__badge">' + escapeHtml(badge) + '</div>';
@@ -667,14 +682,14 @@ export function renderHeroAvatar(hero){
     genList.innerHTML = '';
 
     const groups = [
-      { key:'progreso', label:'Progreso' },
-      { key:'comodín', label:'Comodines' },
-      { key:'privilegio', label:'Privilegios' },
-      { key:'coleccionable', label:'Coleccionables' },
+      { key:'stat', label:'Mejoras de stats' },
+      { key:'xp', label:'Impulso de XP' },
+      { key:'medal', label:'Medallas' },
+      { key:'doubleNext', label:'Bonificaciones' },
     ];
 
     groups.forEach(g=>{
-      const items = REWARD_OPTIONS.filter(r => (r.kind||'') === g.key && !['stat+1','weekMax+10','token+1','perk','badge'].includes(r.id));
+      const items = REWARD_OPTIONS.filter(r => (r.kind||'') === g.key);
       if(!items.length) return;
 
       const h = document.createElement('div');
