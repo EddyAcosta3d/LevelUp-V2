@@ -660,15 +660,47 @@
 
   <!-- Modal de duelo contra jefe -->
   <div class="modal bossBattle" id="bossBattleModal" hidden>
-    <div class="bossBattle__bg" id="bossBattleBg" aria-hidden="true"></div>
+    <!-- Layer 1: Fondo/Escenario -->
+    <div class="bossBattle__sceneBg" id="bossBattleSceneBg" aria-hidden="true"></div>
+
+    <!-- Layer 2: Personaje del Jefe -->
+    <img class="bossBattle__jefe" id="bossBattleJefe" alt="Jefe" aria-hidden="true" />
+
+    <!-- Layer 3: Shade (oscurecimiento) -->
     <div class="bossBattle__shade" aria-hidden="true"></div>
 
-    <div class="bossBattle__content" role="dialog" aria-modal="true" aria-labelledby="bossBattleTitle">
+    <!-- Layer 4: HUD (interfaz de usuario) -->
+    <div class="bossBattle__hud" role="dialog" aria-modal="true" aria-labelledby="bossBattleTitle">
       <button class="bossBattle__close" id="btnBossBattleClose" type="button" aria-label="Cerrar duelo">✕</button>
-      <div class="bossBattle__title" id="bossBattleTitle">⚔️ Duelo de jefe</div>
-      <div class="bossBattle__question" id="bossBattleQuestion">Pregunta</div>
-      <div class="bossBattle__options" id="bossBattleOptions"></div>
-      <button class="bossBattle__next" id="btnBossBattleNext" type="button" disabled>Siguiente pregunta</button>
+
+      <!-- Header con información de batalla -->
+      <div class="bossBattle__header">
+        <div class="bossBattle__title" id="bossBattleTitle">⚔️ Duelo de jefe</div>
+        <div class="bossBattle__meta">
+          <span class="bossBattle__counter" id="bossBattleCounter">Pregunta 1/4</span>
+          <div class="bossBattle__health">
+            <span class="bossBattle__healthLabel">HP</span>
+            <div class="bossBattle__healthBar">
+              <div class="bossBattle__healthFill" id="bossBattleHealthFill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pregunta (grande y centrada) -->
+      <div class="bossBattle__questionBox">
+        <div class="bossBattle__question" id="bossBattleQuestion">¿Cuál es la respuesta correcta?</div>
+      </div>
+
+      <!-- Opciones en 2 columnas (A/B arriba, C/D abajo) -->
+      <div class="bossBattle__options" id="bossBattleOptions">
+        <!-- Se llenarán dinámicamente con JS -->
+      </div>
+
+      <!-- Botón de siguiente pregunta -->
+      <button class="bossBattle__next" id="btnBossBattleNext" type="button" disabled>
+        Siguiente pregunta →
+      </button>
     </div>
   </div>
 

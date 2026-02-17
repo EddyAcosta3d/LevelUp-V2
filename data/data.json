@@ -1405,6 +1405,62 @@
       "image": "assets/jefes/garbanzo__unlocked__modal.webp",
       "lockedImage": "assets/jefes/garbanzo__locked__modal.webp",
       "celebrationImage": "assets/celebrations/garbanzo_challenger_vertical.png",
+      "battleSprites": {
+        "bg": "assets/jefes/batalla/boss02_garbanzo_bg.webp",
+        "idle": "assets/jefes/batalla/boss02_garbanzo_idle.webp",
+        "mock": "assets/jefes/batalla/boss02_garbanzo_mock.webp",
+        "hit": "assets/jefes/batalla/boss02_garbanzo_hit.webp"
+      },
+      "battleQuestions": [
+        {
+          "question": "¿Cuántos continentes hay en el mundo?",
+          "options": [
+            "7 continentes",
+            "5 continentes",
+            "6 continentes",
+            "8 continentes"
+          ],
+          "correctIndex": 0,
+          "category": "general",
+          "difficulty": "easy"
+        },
+        {
+          "question": "¿Qué deporte se juega con una pelota redonda y no se puede usar las manos?",
+          "options": [
+            "Fútbol",
+            "Basketball",
+            "Volleyball",
+            "Tennis"
+          ],
+          "correctIndex": 0,
+          "category": "general",
+          "difficulty": "easy"
+        },
+        {
+          "question": "¿Cuál es la fórmula para calcular el área de un rectángulo?",
+          "options": [
+            "base × altura",
+            "lado × lado",
+            "π × radio²",
+            "base × altura ÷ 2"
+          ],
+          "correctIndex": 0,
+          "category": "matematicas",
+          "difficulty": "easy"
+        },
+        {
+          "question": "How do you say 'perro' in English?",
+          "options": [
+            "Dog",
+            "Cat",
+            "Bird",
+            "Fish"
+          ],
+          "correctIndex": 0,
+          "category": "ingles",
+          "difficulty": "easy"
+        }
+      ],
       "unlock": {
         "scope": "any",
         "type": "anyStatAtLeast",

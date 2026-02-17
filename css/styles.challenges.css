@@ -1330,106 +1330,329 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   position: fixed;
   inset: 0;
   z-index: 1200;
-  display: grid;
-  place-items: center;
+  display: flex;
   overflow: hidden;
 }
-.bossBattle__bg,
-.bossBattle__shade{
+
+/* Layer 1: Scene Background (escenario) */
+.bossBattle__sceneBg{
   position: absolute;
   inset: 0;
-}
-.bossBattle__bg{
   background-size: cover;
   background-position: center;
   transform: scale(1.08);
-  filter: saturate(1.1) contrast(1.05) brightness(.7);
+  filter: saturate(1.1) contrast(1.05) brightness(.65);
   animation: bossBattlePan 14s ease-in-out infinite alternate;
 }
-.bossBattle__shade{
-  background:
-    radial-gradient(circle at center, rgba(12,16,24,.20), rgba(4,6,10,.88) 70%),
-    linear-gradient(180deg, rgba(2,5,10,.25), rgba(2,5,10,.82));
+
+/* Layer 2: Jefe (personaje) */
+.bossBattle__jefe{
+  position: absolute;
+  bottom: 0;
+  right: 5%;
+  height: 75vh;
+  max-height: 800px;
+  object-fit: contain;
+  object-position: bottom;
+  z-index: 2;
+  transition: opacity 0.3s, filter 0.3s, transform 0.3s;
+  pointer-events: none;
 }
+
+/* Estados del jefe */
+.bossBattle__jefe--idle{
+  animation: bossIdle 3s ease-in-out infinite;
+}
+
+.bossBattle__jefe--mock{
+  animation: bossMock 0.6s ease infinite;
+}
+
+.bossBattle__jefe--hit{
+  animation: bossHit 0.5s ease;
+  filter: brightness(2) saturate(0) hue-rotate(180deg);
+}
+
+/* Animaciones del jefe */
+@keyframes bossIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes bossMock {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.03) rotate(-2deg); }
+  75% { transform: scale(1.03) rotate(2deg); }
+}
+
+@keyframes bossHit {
+  0% { transform: translateX(0) scale(1); }
+  25% { transform: translateX(-20px) scale(0.98); }
+  50% { transform: translateX(15px) scale(0.96); }
+  75% { transform: translateX(-10px) scale(0.98); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+/* Layer 3: Shade (oscurecimiento) */
+.bossBattle__shade{
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background:
+    radial-gradient(circle at center, rgba(12,16,24,.15), rgba(4,6,10,.85) 70%),
+    linear-gradient(180deg, rgba(2,5,10,.2), rgba(2,5,10,.75));
+  pointer-events: none;
+}
+
+/* Animación del fondo */
 @keyframes bossBattlePan {
   from { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
   to { transform: scale(1.12) translate3d(1.5%, 1%, 0); }
 }
-.bossBattle__content{
+
+/* Layer 4: HUD (interfaz de usuario) */
+.bossBattle__hud{
   position: relative;
-  z-index: 1;
-  width: min(920px, 94vw);
-  max-height: 92dvh;
-  overflow: auto;
-  padding: clamp(20px, 3vw, 34px);
-  border-radius: 22px;
-  border: 1px solid rgba(255,255,255,.2);
-  background: rgba(7,10,16,.72);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 30px 60px rgba(0,0,0,.45);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: clamp(20px, 3vw, 40px);
+  padding-bottom: clamp(30px, 5vh, 60px);
 }
+
+/* Botón cerrar */
 .bossBattle__close{
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.35);
-  background: rgba(7,12,18,.65);
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.4);
+  background: rgba(7,12,18,.85);
   color: #fff;
+  font-size: 20px;
   cursor: pointer;
+  transition: all 0.2s;
+  z-index: 100;
 }
+.bossBattle__close:hover{
+  background: rgba(255,50,50,.85);
+  transform: scale(1.1);
+}
+
+/* Header con info de batalla */
+.bossBattle__header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(20px, 3vh, 30px);
+  gap: 20px;
+}
+
 .bossBattle__title{
-  font-size: clamp(20px, 2.8vw, 32px);
+  font-size: clamp(22px, 3vw, 36px);
   font-weight: 900;
-  margin-bottom: 16px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,.6);
 }
+
+.bossBattle__meta{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bossBattle__counter{
+  font-size: clamp(16px, 1.8vw, 20px);
+  font-weight: 700;
+  color: #ffd89a;
+  background: rgba(0,0,0,.5);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,216,154,.3);
+}
+
+/* Barra de vida del jefe */
+.bossBattle__health{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bossBattle__healthLabel{
+  font-size: 14px;
+  font-weight: 900;
+  color: #ff6b6b;
+  text-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+
+.bossBattle__healthBar{
+  width: 180px;
+  height: 22px;
+  background: rgba(0,0,0,.6);
+  border-radius: 12px;
+  border: 2px solid rgba(255,255,255,.3);
+  overflow: hidden;
+  position: relative;
+}
+
+.bossBattle__healthFill{
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #ff8e53, #ffb649);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 0 10px rgba(255,255,255,.4);
+  animation: healthPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes healthPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+
+/* Caja de pregunta */
+.bossBattle__questionBox{
+  flex: 0 0 auto;
+  margin-bottom: clamp(20px, 3vh, 35px);
+  padding: clamp(20px, 3vw, 35px);
+  background: rgba(0,0,0,.75);
+  border-radius: 18px;
+  border: 2px solid rgba(255,255,255,.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  backdrop-filter: blur(4px);
+}
+
 .bossBattle__question{
-  font-size: clamp(18px, 2.2vw, 26px);
-  line-height: 1.35;
-  margin-bottom: 16px;
-  color: #f3f8ff;
+  font-size: clamp(20px, 2.5vw, 30px);
+  line-height: 1.4;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0,0,0,.6);
 }
+
+/* Opciones en 2 columnas */
 .bossBattle__options{
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(12px, 2vw, 18px);
+  flex: 1;
+  align-content: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
 }
+
 .bossBattle__option{
-  min-height: 54px;
-  border-radius: 14px;
-  border: 1px solid rgba(125,210,255,.34);
-  background: rgba(17,28,40,.72);
+  min-height: clamp(70px, 10vh, 90px);
+  border-radius: 16px;
+  border: 3px solid rgba(125,210,255,.45);
+  background: rgba(17,28,40,.85);
   color: #e8f6ff;
-  text-align: left;
-  padding: 12px 14px;
+  text-align: center;
+  padding: clamp(12px, 2vw, 18px);
+  font-size: clamp(16px, 2vw, 20px);
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
 }
+
+.bossBattle__option:hover:not(:disabled){
+  transform: scale(1.03);
+  border-color: rgba(125,210,255,.85);
+  background: rgba(30,45,65,.95);
+  box-shadow: 0 6px 18px rgba(125,210,255,.4);
+}
+
+.bossBattle__option:disabled{
+  cursor: default;
+}
+
 .bossBattle__option.is-correct{
   border-color: rgba(90,255,145,.95);
-  background: rgba(28,106,59,.86);
+  background: rgba(28,106,59,.95);
   color: #eaffef;
+  animation: correctPulse 0.6s ease;
 }
+
 .bossBattle__option.is-incorrect{
   border-color: rgba(255,114,114,.95);
-  background: rgba(124,30,30,.85);
+  background: rgba(124,30,30,.95);
   color: #ffecec;
+  animation: incorrectShake 0.5s ease;
 }
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes incorrectShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+/* Botón siguiente */
 .bossBattle__next{
-  margin-top: 16px;
+  margin-top: clamp(20px, 3vh, 30px);
   width: 100%;
-  min-height: 52px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.2);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 56px;
+  border-radius: 16px;
+  border: 2px solid rgba(255,255,255,.3);
   background: linear-gradient(135deg, #ffd25d, #ff9f3b 50%, #ff6a2a);
   color: #181107;
+  font-size: clamp(16px, 2vw, 20px);
   font-weight: 900;
-  letter-spacing: .3px;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 6px 20px rgba(255,140,50,.4);
 }
+
+.bossBattle__next:hover:not(:disabled){
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255,140,50,.6);
+}
+
 .bossBattle__next:disabled{
-  opacity: .6;
-  filter: grayscale(.25);
+  opacity: .5;
+  filter: grayscale(.4);
+  cursor: not-allowed;
+}
+
+/* Responsive: móviles */
+@media (max-width: 768px) {
+  .bossBattle__jefe{
+    right: 0;
+    height: 50vh;
+    max-height: 400px;
+  }
+
+  .bossBattle__options{
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .bossBattle__header{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bossBattle__healthBar{
+    width: 140px;
+  }
 }
 
 #btnEventFight{
