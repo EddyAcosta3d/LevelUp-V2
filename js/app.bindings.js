@@ -81,11 +81,15 @@ export function bind(){
   document.getElementById('btnXpM1')?.addEventListener('click', ()=> bumpHeroXp(-1));
   document.getElementById('btnXpM5')?.addEventListener('click', ()=> bumpHeroXp(-5));
 
-  // Edit mode toggle button
-  document.getElementById('btnEdicion')?.addEventListener('click', ()=> {
-    const nextRole = state.role === 'teacher' ? 'viewer' : 'teacher';
-    setRole(nextRole);
+  // Subject dropdown button in Desafíos
+  document.getElementById('btnSubject')?.addEventListener('click', ()=> {
+    if (typeof window.toggleSubjectDropdown === 'function') {
+      window.toggleSubjectDropdown();
+    }
   });
+
+  // Note: Edit mode is now controlled ONLY by ?admin=true URL parameter
+  // No manual toggle button - reload page to change modes
 
   // GitHub configuration and save buttons
   document.getElementById('btnConfigGitHub')?.addEventListener('click', ()=> {

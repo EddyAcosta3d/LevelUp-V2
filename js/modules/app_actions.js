@@ -40,7 +40,7 @@ import {
 } from './store.js';
 
 
-import { renderHeroList, renderHeroDetail } from './fichas.js';
+import { renderHeroList, renderHeroDetail, currentHero } from './fichas.js';
 import { renderChallenges, renderChallengeDetail } from './desafios.js';
 import { renderEvents } from './eventos.js';
 import { renderTienda } from './tienda.js';
