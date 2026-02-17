@@ -45,6 +45,25 @@ body.viewer-mode textarea {
   opacity: 0.7;
 }
 
+/* Hide stats sliders in viewer mode */
+body.viewer-mode .statRange,
+body.viewer-mode .statSegs {
+  pointer-events: none !important;
+  opacity: 0.6 !important;
+}
+
+body.viewer-mode .statRange {
+  /* Completely hide the slider handle */
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent !important;
+}
+
+/* COMPLETELY HIDE edit mode toggle button - mode is fixed by URL param */
+#btnEdicion {
+  display: none !important;
+}
+
 /* MOBILE: Ocultar controles adicionales en móvil */
 @media (max-width: 768px) {
   /* En móvil, siempre ocultar ciertos controles de admin */

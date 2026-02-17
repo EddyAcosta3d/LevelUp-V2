@@ -72,7 +72,12 @@
       b.setAttribute('aria-disabled', String(locked));
     });
 
-    // Stats: se bloquean (sin cambiar brillo) vía pointer-events en CSS
+    // Stats: disable range sliders in viewer mode
+    $$(FICHA_LOCK.statsRangeSelector).forEach(el => {
+      try { el.disabled = locked; } catch(e){}
+      el.setAttribute('aria-disabled', String(locked));
+      el.style.pointerEvents = locked ? 'none' : '';
+    });
   }
 
 // Drawer
