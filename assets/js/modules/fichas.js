@@ -739,7 +739,7 @@ export function difficultyLabel(diff){
 }
 
 
-export function ensureChallengeUI(){
+export function ensureChallengeUI(onSubjectChange){
   const menu = $('#subjectMenu');
   const btn  = $('#btnSubject');
   const ddWrap = $('#subjectDropdown');
@@ -762,9 +762,10 @@ export function ensureChallengeUI(){
     it.addEventListener('click', (e)=>{
       e.preventDefault(); e.stopPropagation();
       state.challengeFilter.subjectId = subjectId;
+      state.selectedChallengeId = null;
       btn.textContent = (label + ' ▾');
       closeSubjectDropdown();
-      renderChallenges();
+      if (typeof onSubjectChange === 'function') onSubjectChange();
     });
     menu.appendChild(it);
   };

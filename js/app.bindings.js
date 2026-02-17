@@ -31,6 +31,12 @@ function activateRoute(route){
 }
 
 export function bind(){
+  document.querySelectorAll('.segmented__btn[data-group]').forEach((btn)=>{
+    const isActive = String(btn.dataset.group || '').trim() === String(state.group || '2D');
+    btn.classList.toggle('is-active', isActive);
+    btn.setAttribute('aria-selected', String(isActive));
+  });
+
   document.querySelectorAll('[data-route]').forEach(btn=>{
     // Recompensas has its own toggle handler (go/reverse).
     // Skip generic route binding to avoid double navigation on click.
@@ -85,6 +91,33 @@ export function bind(){
   document.getElementById('btnXpP5')?.addEventListener('click', ()=> bumpHeroXp(5));
   document.getElementById('btnXpM1')?.addEventListener('click', ()=> bumpHeroXp(-1));
   document.getElementById('btnXpM5')?.addEventListener('click', ()=> bumpHeroXp(-5));
+
+  // Quick activity chips (+Participación/+Trabajos/+Tareas)
+  document.querySelectorAll('#actChips [data-xp]').forEach((btn)=>{
+    btn.addEventListener('click', ()=>{
+      const delta = Number(btn.dataset.xp || 0);
+      if (!Number.isFinite(delta) || delta === 0) return;
+      bumpHeroXp(delta);
+    });
+  });
+
+  // Group segmented control (2D/3D)
+  document.querySelectorAll('.segmented__btn[data-group]').forEach((btn)=>{
+    btn.addEventListener('click', ()=>{
+      const nextGroup = String(btn.dataset.group || '').trim();
+      if (!nextGroup || state.group === nextGroup) return;
+
+      state.group = nextGroup;
+
+      document.querySelectorAll('.segmented__btn[data-group]').forEach((other)=>{
+        const isActive = other === btn;
+        other.classList.toggle('is-active', isActive);
+        other.setAttribute('aria-selected', String(isActive));
+      });
+
+      safeCall(renderAll);
+    });
+  });
 
   // Subject dropdown button in Desafíos
   document.getElementById('btnSubject')?.addEventListener('click', ()=> safeCall(toggleSubjectDropdown));
@@ -239,6 +272,44 @@ function bindHeroManagementButtons() {
 
 function bindChallengeButtons() {
   const toast = window.toast || ((msg) => console.log(msg));
+
+  // Complete/uncomplete selected challenge
+  document.getElementById('btnChallengeComplete')?.addEventListener('click', () => {
+    const hero = currentHero();
+    const challengeId = String(state.selectedChallengeId || '');
+    const challenge = (state.data?.challenges || []).find(c => String(c.id) === challengeId);
+    if (!hero || !challenge) {
+      toast('Selecciona un desafío');
+      return;
+    }
+
+    hero.challengeCompletions = (hero.challengeCompletions && typeof hero.challengeCompletions === 'object')
+      ? hero.challengeCompletions
+      : {};
+
+    const key = String(challenge.id);
+    const basePoints = Number(challenge.points ?? 0);
+    const isDone = !!hero.challengeCompletions[key];
+
+    if (isDone) {
+      const awarded = Number(hero.challengeCompletions[key]?.points ?? basePoints);
+      delete hero.challengeCompletions[key];
+      bumpHeroXp(-awarded);
+      toast('Desafío descompletado');
+    } else {
+      const multiplier = Math.max(1, Number(hero.nextChallengeMultiplier || 1));
+      const awarded = basePoints * multiplier;
+      hero.challengeCompletions[key] = { at: Date.now(), points: awarded };
+      bumpHeroXp(basePoints, { source: 'challenge' });
+      toast(multiplier > 1 ? 'Desafío completado (x2 XP)' : 'Desafío completado');
+    }
+
+    if (typeof window.saveLocal === 'function') {
+      window.saveLocal(state.data);
+    }
+
+    safeCall(renderAll);
+  });
 
   // Difficulty filter buttons
   const difficultyButtons = ['btnDiffEasy', 'btnDiffMed', 'btnDiffHard'];
