@@ -11,6 +11,8 @@
 
 // Import dependencies
 import {
+  $,
+  $$,
   state,
   escapeHtml,
   normalizeDifficulty,
@@ -316,6 +318,152 @@ export function renderChallengeDetail(){
     const hasHint = (hintEl && hintEl.textContent && hintEl.textContent.trim().length);
     headRow.style.display = hasHint ? '' : 'none';
   }
+}
+
+export function openChallengeModal(mode = 'create', challenge = null){
+  const modal = document.getElementById('challengeModal');
+  if (!modal) return;
+
+  const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
+  const titleEl = document.getElementById('challengeModalTitle');
+  const inTitle = document.getElementById('inChTitle');
+  const inBody = document.getElementById('inChBody');
+  const inPoints = document.getElementById('inChPoints');
+  const inSubject = document.getElementById('inChSubject');
+  const inDiff = document.getElementById('inChDiff');
+  const btnSubject = document.getElementById('btnChModalSubject');
+  const subjectMenu = document.getElementById('chModalSubjectMenu');
+  const diffPick = document.getElementById('inChDiffPick');
+
+  const editing = mode === 'edit' && challenge;
+  state.editingChallengeId = editing ? challenge.id : null;
+
+  if (titleEl) titleEl.textContent = editing ? 'Editar desafío' : 'Nuevo desafío';
+  if (inTitle) inTitle.value = editing ? String(challenge.title || '') : '';
+  if (inBody) inBody.value = editing ? String(challenge.body || '') : '';
+  if (inPoints) inPoints.value = editing ? String(Number(challenge.points ?? 10)) : '10';
+
+  const initialSubjectId = editing
+    ? String(challenge.subjectId || '')
+    : String(state.challengeFilter?.subjectId || subjects[0]?.id || '');
+  if (inSubject) inSubject.value = initialSubjectId;
+
+  const initialDiff = normalizeDifficulty(editing ? challenge.difficulty : state.challengeFilter?.diff || 'easy');
+  if (inDiff) inDiff.value = initialDiff;
+
+  const refreshSubjectLabel = ()=>{
+    if (!btnSubject) return;
+    const selectedId = inSubject?.value;
+    const subj = subjects.find(s => String(s.id) === String(selectedId));
+    btnSubject.textContent = `${subj?.name || 'Materia'} ▾`;
+  };
+
+  if (subjectMenu){
+    subjectMenu.innerHTML = subjects.map(s =>
+      `<button class="menuitem" type="button" data-id="${escapeHtml(String(s.id))}">${escapeHtml(String(s.name || 'Materia'))}</button>`
+    ).join('') || '<div class="menuitem muted">Sin materias</div>';
+
+    subjectMenu.querySelectorAll('[data-id]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if (inSubject) inSubject.value = btn.dataset.id || '';
+        refreshSubjectLabel();
+        subjectMenu.classList.remove('is-open');
+      });
+    });
+  }
+
+  btnSubject?.addEventListener('click', ()=> subjectMenu?.classList.toggle('is-open'));
+  diffPick?.querySelectorAll('[data-diff]').forEach(btn=>{
+    btn.classList.toggle('is-active', btn.dataset.diff === initialDiff);
+    btn.addEventListener('click', ()=>{
+      const diff = normalizeDifficulty(btn.dataset.diff || 'easy');
+      if (inDiff) inDiff.value = diff;
+      diffPick.querySelectorAll('[data-diff]').forEach(x=> x.classList.toggle('is-active', x === btn));
+    });
+  });
+
+  refreshSubjectLabel();
+  modal.hidden = false;
+}
+
+export function closeChallengeModal(){
+  const modal = document.getElementById('challengeModal');
+  if (modal) modal.hidden = true;
+}
+
+export function saveNewChallenge(){
+  const title = String(document.getElementById('inChTitle')?.value || '').trim();
+  const body = String(document.getElementById('inChBody')?.value || '').trim();
+  const points = Number.parseInt(document.getElementById('inChPoints')?.value, 10) || 10;
+  const subjectId = String(document.getElementById('inChSubject')?.value || '').trim();
+  const difficulty = normalizeDifficulty(document.getElementById('inChDiff')?.value || 'easy');
+
+  if (!title){
+    window.toast?.('Ingresa un título para el desafío');
+    return false;
+  }
+  if (!subjectId){
+    window.toast?.('Selecciona una materia');
+    return false;
+  }
+
+  if (!Array.isArray(state.data?.challenges)) state.data.challenges = [];
+
+  const editingId = state.editingChallengeId;
+  const existing = editingId
+    ? state.data.challenges.find(c => String(c.id) === String(editingId))
+    : null;
+
+  if (existing){
+    existing.title = title;
+    existing.body = body;
+    existing.points = points;
+    existing.subjectId = subjectId;
+    existing.difficulty = difficulty;
+    window.toast?.('Desafío actualizado');
+  } else {
+    state.data.challenges.push({
+      id: 'ch_' + Date.now(),
+      title,
+      body,
+      points,
+      subjectId,
+      difficulty,
+      createdAt: new Date().toISOString()
+    });
+    window.toast?.(`Desafío "${title}" creado`);
+  }
+
+  saveLocal(state.data);
+  closeChallengeModal();
+  state.editingChallengeId = null;
+  renderChallenges();
+  return true;
+}
+
+export async function deleteSelectedChallenge(){
+  const id = state.selectedChallengeId;
+  if (!id || !Array.isArray(state.data?.challenges)) return false;
+
+  const ch = state.data.challenges.find(x => x.id === id);
+  if (!ch) return false;
+
+  const ok = window.openConfirmModal
+    ? await window.openConfirmModal({
+      title: 'Eliminar desafío',
+      message: `¿Seguro que quieres eliminar "${ch.title || 'Desafío'}"?`,
+      okText: 'Eliminar',
+      cancelText: 'Cancelar'
+    })
+    : window.confirm(`¿Seguro que quieres eliminar "${ch.title || 'Desafío'}"?`);
+  if (!ok) return false;
+
+  state.data.challenges = state.data.challenges.filter(x => x.id !== id);
+  state.selectedChallengeId = null;
+  saveLocal(state.data);
+  window.toast?.('Desafío eliminado');
+  renderChallenges();
+  return true;
 }
 
 
