@@ -113,6 +113,8 @@ export function setRole(nextRole){
     try{ if (typeof renderChallenges === 'function') renderChallenges(); }catch(e){}
     try{ if (typeof renderChallengeDetail === 'function') renderChallengeDetail(); }catch(e){}
     try{ if (typeof renderEvents === 'function') renderEvents(); }catch(e){}
+    // Re-render hero list so adminOnly heroes appear/disappear with edit mode
+    try{ renderHeroList(); renderHeroDetail(currentHero()); }catch(e){}
     toast(state.role === 'teacher' ? 'Edición activada' : 'Modo solo ver');
   }
 

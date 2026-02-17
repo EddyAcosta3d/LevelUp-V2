@@ -73,7 +73,10 @@ export function selectHero(heroId) {
   export function renderHeroList(){
     const list = $('#heroList');
     list.innerHTML = '';
-    const heroes = (state.data?.heroes || []).filter(h => (h.group || '2D') === state.group);
+    const isEdit = state.role === 'teacher';
+    const heroes = (state.data?.heroes || []).filter(h =>
+      (h.group || '2D') === state.group && (!h.adminOnly || isEdit)
+    );
 
     if (!heroes.length){
       list.innerHTML = '<div class="muted" style="padding:10px 6px;">No hay personajes.</div>';
