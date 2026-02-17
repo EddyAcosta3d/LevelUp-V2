@@ -27,6 +27,39 @@ import {
 import { saveLocal } from './store.js';
 import { currentHero } from './fichas.js';
 
+const DEFAULT_BOSS_QUIZ = [
+  {
+    question: '¿Qué debes hacer primero al enfrentar un problema difícil?',
+    options: [
+      'Rendirte rápido',
+      'Analizar la situación con calma',
+      'Culpar a alguien más',
+      'Ignorarlo'
+    ],
+    correctIndex: 1
+  },
+  {
+    question: 'Si trabajas en equipo para vencer a un jefe, ¿qué ayuda más?',
+    options: [
+      'No escuchar a nadie',
+      'Cooperar y comunicar ideas',
+      'Hacer todo solo',
+      'Discutir sin parar'
+    ],
+    correctIndex: 1
+  },
+  {
+    question: '¿Qué actitud te da más oportunidad de ganar?',
+    options: [
+      'Constancia y aprendizaje',
+      'Miedo y bloqueo',
+      'Desorden total',
+      'Evitar intentarlo'
+    ],
+    correctIndex: 0
+  }
+];
+
     // --- Image helpers (1 intento + placeholder; sin swaps para evitar spam de 404) ---
   const EVT_PH_LOCKED_3x4   = './assets/placeholders/placeholder_locked_3x4.webp';
   const EVT_PH_UNLOCKED_3x4 = './assets/placeholders/placeholder_unlocked_3x4.webp';
@@ -185,7 +218,7 @@ import { currentHero } from './fichas.js';
     const btnFight = $('#btnEventFight');
     if (btnFight){
       btnFight.disabled = !(unlocked && eligible);
-      btnFight.textContent = unlocked ? (eligible ? '⚔️ Retar' : 'No elegible') : 'Bloqueado';
+      btnFight.textContent = unlocked ? (eligible ? '⚔️ INICIAR DUELO ÉPICO' : 'No elegible') : 'Bloqueado';
     }
 
     const btnToggleUnlock = $('#btnEventToggleUnlock');
@@ -199,7 +232,12 @@ import { currentHero } from './fichas.js';
     if (btnFight){
       btnFight.onclick = ()=>{
         if (!(unlocked && eligible)) return;
-        toast(`⚔️ ${hero?.name || 'Héroe'} reta a ${ev.title || 'este jefe'}!`);
+        if (String(ev?.kind || '') === 'boss'){
+          openBossBattleModal(ev, hero);
+          modal.hidden = true;
+          return;
+        }
+        toast(`⚔️ ${hero?.name || 'Héroe'} reta a ${ev.title || 'este evento'}!`);
         modal.hidden = true;
       };
     }
@@ -216,6 +254,110 @@ import { currentHero } from './fichas.js';
       };
     }
 
+    modal.hidden = false;
+  }
+
+
+  function _getBattleQuestions(ev){
+    const custom = Array.isArray(ev?.battleQuestions) ? ev.battleQuestions : [];
+    const src = custom.length ? custom : DEFAULT_BOSS_QUIZ;
+    return src
+      .map((q)=>({
+        question: String(q?.question || '').trim(),
+        options: Array.isArray(q?.options) ? q.options.map(o=>String(o ?? '')) : [],
+        correctIndex: Number(q?.correctIndex ?? -1)
+      }))
+      .filter((q)=> q.question && q.options.length === 4 && q.correctIndex >= 0 && q.correctIndex < 4);
+  }
+
+  function openBossBattleModal(ev, hero){
+    const modal = $('#bossBattleModal');
+    if (!modal) return;
+
+    const titleEl = $('#bossBattleTitle');
+    const questionEl = $('#bossBattleQuestion');
+    const optionsEl = $('#bossBattleOptions');
+    const nextBtn = $('#btnBossBattleNext');
+    const closeBtn = $('#btnBossBattleClose');
+
+    const questions = _getBattleQuestions(ev);
+    if (!questions.length){
+      toast('Este jefe aún no tiene preguntas configuradas.');
+      return;
+    }
+
+    const bossName = String(ev?.title || 'Jefe final');
+    if (titleEl) titleEl.textContent = `⚔️ ${hero?.name || 'Héroe'} vs ${bossName}`;
+
+    const bgEl = $('#bossBattleBg');
+    if (bgEl){
+      _setEventBgImage(bgEl, ev?.image || ev?.lockedImage || '', { locked: false, modal: true });
+    }
+
+    let index = 0;
+    let answered = false;
+
+    const renderQuestion = ()=>{
+      const current = questions[index];
+      answered = false;
+      if (questionEl) questionEl.textContent = current.question;
+      if (nextBtn){
+        nextBtn.disabled = true;
+        nextBtn.textContent = (index >= questions.length - 1) ? 'Finalizar duelo' : 'Siguiente pregunta';
+      }
+      if (!optionsEl) return;
+      optionsEl.innerHTML = '';
+      current.options.forEach((option, optIndex)=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bossBattle__option';
+        btn.textContent = option;
+        btn.addEventListener('click', ()=>{
+          if (answered) return;
+          answered = true;
+          const isCorrect = optIndex === current.correctIndex;
+          btn.classList.add(isCorrect ? 'is-correct' : 'is-incorrect');
+
+          if (!isCorrect){
+            const rightBtn = optionsEl.querySelector(`[data-opt-index="${current.correctIndex}"]`);
+            if (rightBtn) rightBtn.classList.add('is-correct');
+          }
+
+          optionsEl.querySelectorAll('.bossBattle__option').forEach((el)=>{
+            el.disabled = true;
+          });
+
+          if (nextBtn) nextBtn.disabled = false;
+        });
+        btn.dataset.optIndex = String(optIndex);
+        optionsEl.appendChild(btn);
+      });
+    };
+
+    if (nextBtn){
+      nextBtn.onclick = ()=>{
+        if (!answered) return;
+        if (index >= questions.length - 1){
+          modal.hidden = true;
+          toast(`🏆 ${hero?.name || 'Héroe'} terminó el duelo contra ${bossName}`);
+          return;
+        }
+        index += 1;
+        renderQuestion();
+      };
+    }
+
+    if (closeBtn){
+      closeBtn.onclick = ()=>{ modal.hidden = true; };
+    }
+
+    modal.onclick = (e)=>{
+      if (e.target === modal || e.target?.classList?.contains('bossBattle__shade')){
+        modal.hidden = true;
+      }
+    };
+
+    renderQuestion();
     modal.hidden = false;
   }
 
@@ -324,10 +466,15 @@ import { currentHero } from './fichas.js';
       try{ ov.hidden = true; document.documentElement.classList.remove('is-boss-unlock'); }catch(_e){}
     };
     const go = ()=>{
+      const targetId = String(ov.dataset.eventId || '').trim();
+      const targetKind = String(ov.dataset.eventKind || 'boss').trim() || 'boss';
       close();
-      try{ state.eventsTab = 'boss'; }catch(_e){}
+      try{ state.eventsTab = targetKind === 'event' ? 'event' : 'boss'; }catch(_e){}
       try{ if (typeof setActiveRoute === 'function') setActiveRoute('eventos'); }catch(_e){}
       try{ if (typeof renderEvents === 'function') renderEvents(); }catch(_e){}
+      if (targetId){
+        try{ openEventModal(targetId); }catch(_e){}
+      }
       // Jump to top so the grid is visible immediately
       try{ window.scrollTo({ top: 0, behavior: 'smooth' }); }catch(_e){ try{ window.scrollTo(0,0); }catch(__){} }
     };
@@ -366,6 +513,10 @@ import { currentHero } from './fichas.js';
     const t = (ev && ev.title) ? ev.title : kind;
     if (title) title.textContent = `¡Un nuevo ${kind.toLowerCase()} apareció!`;
     if (sub) sub.textContent = t;
+    try{
+      ov.dataset.eventId = String(ev?.id || '');
+      ov.dataset.eventKind = String(ev?.kind || 'boss');
+    }catch(_e){}
 
     const isPortraitViewport = (()=>{
       // Forzamos criterio por aspecto real del viewport para evitar falsos negativos

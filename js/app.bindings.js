@@ -97,7 +97,7 @@ export function bind(){
     btn.addEventListener('click', ()=>{
       const delta = Number(btn.dataset.xp || 0);
       if (!Number.isFinite(delta) || delta === 0) return;
-      bumpHeroXp(delta);
+      bumpHeroXp(delta, { source: 'activity' });
     });
   });
 
