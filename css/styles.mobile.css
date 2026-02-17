@@ -506,7 +506,7 @@
 
   .stat__val,
   .statNum {
-    font-size: 11px !important;
+    font-size: 15px !important;
     transform: none !important;
     -webkit-text-stroke: 0 !important;
     min-width: 28px !important;
