@@ -62,7 +62,7 @@ body.levelup-priority .bottomNav {
 .luCard {
   position: relative;
   z-index: 1;
-  width: 100vw !important;
+  width: 100% !important;
   height: 100vh;
   max-width: none !important;
   max-height: none !important;
