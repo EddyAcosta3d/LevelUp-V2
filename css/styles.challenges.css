@@ -1797,7 +1797,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
 
   .bossBattle__healthLabel {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   /* === Pregunta: margin-top:auto la empuja a la mitad inferior === */

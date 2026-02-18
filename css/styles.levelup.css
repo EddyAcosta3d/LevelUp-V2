@@ -64,6 +64,7 @@ body.levelup-priority .bottomNav {
   z-index: 1;
   width: 100% !important;
   height: 100vh;
+  height: 100dvh; /* iOS Safari: excluye el chrome del navegador */
   max-width: none !important;
   max-height: none !important;
   margin: 0 !important;
