@@ -673,22 +673,26 @@
     <div class="bossBattle__hud" role="dialog" aria-modal="true" aria-labelledby="bossBattleTitle">
       <button class="bossBattle__close" id="btnBossBattleClose" type="button" aria-label="Cerrar duelo">✕</button>
 
-      <!-- Header con información de batalla -->
-      <div class="bossBattle__header">
-        <div class="bossBattle__title" id="bossBattleTitle">⚔️ Duelo de jefe</div>
-        <div class="bossBattle__meta">
-          <span class="bossBattle__counter" id="bossBattleCounter">Pregunta 1/4</span>
-          <div class="bossBattle__health">
-            <span class="bossBattle__healthLabel">HP</span>
-            <div class="bossBattle__healthBar">
-              <div class="bossBattle__healthFill" id="bossBattleHealthFill"></div>
-            </div>
+      <!-- Nameplate del héroe (esquina superior izquierda) -->
+      <div class="bossBattle__heroPlate">
+        <span class="bossBattle__heroIcon">⚔️</span>
+        <span class="bossBattle__heroName" id="bossBattleHeroName">Héroe</span>
+      </div>
+
+      <!-- Nombre + HP del jefe, flotando cerca de la imagen del jefe -->
+      <div class="bossBattle__bossInfo">
+        <div class="bossBattle__bossName" id="bossBattleTitle">Jefe</div>
+        <div class="bossBattle__health">
+          <span class="bossBattle__healthLabel">HP</span>
+          <div class="bossBattle__healthBar">
+            <div class="bossBattle__healthFill" id="bossBattleHealthFill"></div>
           </div>
         </div>
       </div>
 
-      <!-- Pregunta (grande y centrada) -->
+      <!-- Pregunta con número de pregunta integrado como badge -->
       <div class="bossBattle__questionBox">
+        <span class="bossBattle__counter" id="bossBattleCounter">1/4</span>
         <div class="bossBattle__question" id="bossBattleQuestion">¿Cuál es la respuesta correcta?</div>
       </div>
 
@@ -697,10 +701,8 @@
         <!-- Se llenarán dinámicamente con JS -->
       </div>
 
-      <!-- Botón de siguiente pregunta -->
-      <button class="bossBattle__next" id="btnBossBattleNext" type="button" disabled>
-        Siguiente pregunta →
-      </button>
+      <!-- Botón siguiente: solo flecha -->
+      <button class="bossBattle__next" id="btnBossBattleNext" type="button" disabled aria-label="Siguiente pregunta">→</button>
     </div>
   </div>
 
