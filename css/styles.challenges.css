@@ -1372,8 +1372,10 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 }
 
 .bossBattle__jefe--hit{
-  animation: bossHit 0.5s ease;
-  filter: brightness(2) saturate(0) hue-rotate(180deg);
+  /* bossHit   → sacudida lateral (0.5s)
+     bossFlash → destello blanco RÁPIDO que desaparece a los ~120ms,
+                 dejando ver los colores originales el resto de la animación */
+  animation: bossHit 0.5s ease, bossFlash 0.30s ease forwards;
 }
 
 /* Animaciones del jefe */
@@ -1394,6 +1396,13 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   50% { transform: translateX(15px) scale(0.96); }
   75% { transform: translateX(-10px) scale(0.98); }
   100% { transform: translateX(0) scale(1); }
+}
+
+/* Destello de impacto: blanco total al inicio, colores normales a los ~120ms */
+@keyframes bossFlash {
+  0%   { filter: brightness(3) saturate(0) contrast(2); }
+  40%  { filter: brightness(1.5) saturate(0.3); }
+  100% { filter: brightness(1) saturate(1); }
 }
 
 /* Layer 3: Shade (oscurecimiento) */
