@@ -1373,8 +1373,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 
 .bossBattle__jefe--hit{
   animation: bossHit 0.5s ease;
-  /* Flash colorido: brillo alto + vibración de color, sin desaturar */
-  filter: brightness(2.2) saturate(1.8) contrast(1.2) hue-rotate(340deg);
+  filter: brightness(2) saturate(0) hue-rotate(180deg);
 }
 
 /* Animaciones del jefe */
@@ -1447,13 +1446,20 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   transform: scale(1.1);
 }
 
-/* Header con info de batalla */
+/* Header con info de batalla — panel glassmorphism que sigue el diseño de la app */
 .bossBattle__header{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: clamp(20px, 3vh, 30px);
-  gap: 20px;
+  gap: 16px;
+  margin-bottom: clamp(16px, 2.5vh, 28px);
+  padding: 12px 20px;
+  background: rgba(13,16,22,0.88);
+  border: 1px solid rgba(34,211,238,0.18);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.50), inset 0 1px 0 rgba(255,255,255,0.05);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .bossBattle__title{
@@ -1710,6 +1716,8 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   /* === HUD: sin padding superior; el contenido baja al fondo solo === */
   .bossBattle__hud {
     padding: 0 14px max(24px, env(safe-area-inset-bottom, 24px));
+    /* Scroll por si el contenido supera la mitad inferior en pantallas pequeñas */
+    overflow-y: auto;
   }
 
   /* === Header: barra delgada overlay en el borde superior === */
@@ -1725,11 +1733,14 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
     margin-bottom: 0;
     /* 56px padding derecho para no solapar el botón cerrar (44px + 12px) */
     padding: 10px 56px 10px 14px;
-    background: rgba(0, 0, 0, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(13,16,22,0.90);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     z-index: 20;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid rgba(34,211,238,0.15);
+    box-shadow: none;
   }
 
   .bossBattle__title {
@@ -1784,17 +1795,82 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
 }
 
-/* Teléfonos muy pequeños: 1 columna, jefe algo más chico */
+/* Teléfonos muy pequeños: 1 columna en opciones */
 @media (max-width: 360px) {
-  .bossBattle__jefe {
-    height: 38vh;
-  }
   .bossBattle__options {
     grid-template-columns: 1fr;
     gap: 8px;
   }
   .bossBattle__option {
-    min-height: 46px;
+    min-height: 44px;
+  }
+}
+
+/* Teléfono en landscape: jefe a la derecha, contenido a la izquierda (igual que desktop) */
+@media (max-width: 768px) and (orientation: landscape) {
+  .bossBattle__jefe {
+    left: auto;
+    right: 2%;
+    width: auto;
+    margin: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    max-height: none;
+    object-position: right bottom;
+  }
+
+  .bossBattle__hud {
+    padding: 8px clamp(260px, 40vw, 440px) max(10px, env(safe-area-inset-bottom, 10px)) 14px;
+    overflow-y: auto;
+  }
+
+  /* Header: vuelve al flujo flex normal (no overlay) */
+  .bossBattle__header {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding: 8px 50px 8px 14px;
+    margin-bottom: 10px;
+    border-radius: 16px;
+    border: 1px solid rgba(34,211,238,0.18);
+  }
+
+  /* Shade: igual que desktop pero más claro */
+  .bossBattle__shade {
+    background:
+      radial-gradient(ellipse 55% 90% at 78% 55%, rgba(4,6,10,.0), rgba(4,6,10,.35) 90%),
+      linear-gradient(100deg, rgba(2,5,10,.80) 0%, rgba(2,5,10,.25) 45%, rgba(2,5,10,.0) 65%),
+      linear-gradient(180deg, rgba(2,5,10,.05) 0%, rgba(2,5,10,.40) 100%);
+  }
+
+  .bossBattle__questionBox {
+    margin-top: 0;
+    margin-bottom: 8px;
+    padding: 10px 14px;
+  }
+
+  .bossBattle__question {
+    font-size: clamp(13px, 2.5vw, 17px);
+  }
+
+  .bossBattle__options {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .bossBattle__option {
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .bossBattle__next {
+    min-height: 40px;
+    margin-top: 6px;
+    font-size: 14px;
+    padding: 8px 16px;
   }
 }
 
