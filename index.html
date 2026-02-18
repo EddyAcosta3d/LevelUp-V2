@@ -706,6 +706,29 @@
     </div>
   </div>
 
+  <!-- Modal de resultado del duelo contra jefe -->
+  <div class="modal bossResult" id="bossResultModal" hidden>
+    <div class="bossResult__backdrop" aria-hidden="true"></div>
+    <div class="bossResult__panel" role="dialog" aria-modal="true" aria-labelledby="bossResultTitle">
+      <div class="bossResult__glow" aria-hidden="true"></div>
+
+      <div class="bossResult__icon" id="bossResultIcon" aria-hidden="true">🏆</div>
+      <div class="bossResult__outcome" id="bossResultTitle">¡Victoria!</div>
+      <div class="bossResult__vs" id="bossResultVs"></div>
+
+      <div class="bossResult__scoreWrap">
+        <span class="bossResult__score" id="bossResultScore">4 / 4</span>
+        <span class="bossResult__scoreLabel">respuestas correctas</span>
+      </div>
+
+      <div class="bossResult__rewards" id="bossResultRewards"></div>
+
+      <p class="bossResult__quote" id="bossResultQuote"></p>
+
+      <button class="bossResult__cta" id="btnBossResultContinue" type="button">Continuar</button>
+    </div>
+  </div>
+
 
 <!-- ============================================
      ES6 MODULES - Single entry point
