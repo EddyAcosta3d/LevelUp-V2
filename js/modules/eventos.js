@@ -218,7 +218,7 @@ const DEFAULT_BOSS_QUIZ = [
     const btnFight = $('#btnEventFight');
     if (btnFight){
       btnFight.disabled = !(unlocked && eligible);
-      btnFight.textContent = unlocked ? (eligible ? '⚔️ INICIAR DUELO ÉPICO' : 'No elegible') : 'Bloqueado';
+      btnFight.textContent = unlocked ? (eligible ? '⚔️ Pelear' : 'No elegible') : 'Bloqueado';
     }
 
     const btnToggleUnlock = $('#btnEventToggleUnlock');
