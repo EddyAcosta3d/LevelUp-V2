@@ -1373,7 +1373,8 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 
 .bossBattle__jefe--hit{
   animation: bossHit 0.5s ease;
-  filter: brightness(2) saturate(0) hue-rotate(180deg);
+  /* Flash colorido: brillo alto + vibración de color, sin desaturar */
+  filter: brightness(2.2) saturate(1.8) contrast(1.2) hue-rotate(340deg);
 }
 
 /* Animaciones del jefe */
@@ -1637,16 +1638,33 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 
 /* === Escritorio: contenido a la izquierda, jefe grande a la derecha === */
 @media (min-width: 769px) {
+  /* Fondo ligeramente más claro en desktop */
+  .bossBattle__sceneBg {
+    filter: saturate(1.1) contrast(1.05) brightness(.82);
+  }
+
+  /* Shade: oscurece SÓLO el lado izquierdo (texto) y deja el derecho (jefe) claro */
+  .bossBattle__shade {
+    background:
+      /* Zona del jefe (derecha): transparente al 75%, mínima oscuridad */
+      radial-gradient(ellipse 55% 85% at 78% 55%, rgba(4,6,10,.0), rgba(4,6,10,.35) 90%),
+      /* Lado izquierdo: oscuro para legibilidad del texto */
+      linear-gradient(100deg, rgba(2,5,10,.82) 0%, rgba(2,5,10,.30) 42%, rgba(2,5,10,.0) 60%),
+      /* Vignette inferior suave */
+      linear-gradient(180deg, rgba(2,5,10,.05) 0%, rgba(2,5,10,.38) 100%);
+  }
+
   /* Reservar el lado derecho para el jefe:
      padding-right empuja todo el contenido hacia la izquierda */
   .bossBattle__hud {
     padding-right: clamp(320px, 44vw, 820px);
   }
 
-  /* Jefe: más grande en escritorio */
+  /* Jefe: más grande en escritorio, sin límite de max-height */
   .bossBattle__jefe {
-    height: 84vh;
-    max-height: 960px;
+    height: 90vh;
+    max-height: none;
+    right: 2%;
   }
 
   /* Opciones: alineadas a la izquierda (no centradas en pantalla completa) */
@@ -1671,14 +1689,15 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
     right: 0;
     width: 85%;
     margin: 0 auto;
-    /* 44px offset = altura del header overlay de batalla, para que el jefe
-       no quede "pegado" al tope ni oculto detrás del header */
+    /* top: altura del header overlay (~44px) → el jefe no se oculta tras él
+       bottom: 50%                            → pies anclados al centro exacto
+       height: auto                           → tamaño determinado por top+bottom */
     top: 44px;
-    bottom: auto;
-    height: calc(46vh - 44px);
+    bottom: 50%;
+    height: auto;
     max-height: none;
     object-fit: contain;
-    object-position: center bottom; /* pies al límite de la zona del jefe */
+    object-position: center bottom; /* pies pegados al límite inferior del elemento */
   }
 
   /* === Shade: más claro en móvil para que el jefe no quede oscuro === */
