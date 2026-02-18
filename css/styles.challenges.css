@@ -1331,7 +1331,8 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 .bossBattle{
   position: fixed;
   inset: 0;
-  z-index: 1200;
+  /* Por encima de .topbar (z-index:20000) y .bottomNav (z-index:10000) */
+  z-index: 25000;
   display: flex;
   overflow: hidden;
 }
@@ -1634,9 +1635,35 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   cursor: not-allowed;
 }
 
+/* === Escritorio: contenido a la izquierda, jefe grande a la derecha === */
+@media (min-width: 769px) {
+  /* Reservar el lado derecho para el jefe:
+     padding-right empuja todo el contenido hacia la izquierda */
+  .bossBattle__hud {
+    padding-right: clamp(320px, 44vw, 820px);
+  }
+
+  /* Jefe: más grande en escritorio */
+  .bossBattle__jefe {
+    height: 84vh;
+    max-height: 960px;
+  }
+
+  /* Opciones: alineadas a la izquierda (no centradas en pantalla completa) */
+  .bossBattle__options {
+    margin: 0;
+    max-width: 760px;
+  }
+
+  /* Limitar ancho del botón siguiente */
+  .bossBattle__next {
+    max-width: 760px;
+  }
+}
+
 /* Responsive: móviles */
 @media (max-width: 768px) {
-  /* === Jefe: centrado horizontalmente, grande en la mitad superior === */
+  /* === Jefe: centrado horizontalmente, debajo del header overlay === */
   .bossBattle__jefe {
     /* Centrado: left+right+margin en lugar de transform
        para no romper las animaciones translateY/scale del jefe */
@@ -1644,12 +1671,21 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
     right: 0;
     width: 85%;
     margin: 0 auto;
-    top: 0;
+    /* 44px offset = altura del header overlay de batalla, para que el jefe
+       no quede "pegado" al tope ni oculto detrás del header */
+    top: 44px;
     bottom: auto;
-    height: 46vh;
+    height: calc(46vh - 44px);
     max-height: none;
     object-fit: contain;
     object-position: center bottom; /* pies al límite de la zona del jefe */
+  }
+
+  /* === Shade: más claro en móvil para que el jefe no quede oscuro === */
+  .bossBattle__shade {
+    background:
+      radial-gradient(ellipse 90% 55% at 50% 30%, transparent, rgba(4,6,10,.40) 80%),
+      linear-gradient(180deg, rgba(2,5,10,.0) 0%, rgba(2,5,10,.55) 100%);
   }
 
   /* === HUD: sin padding superior; el contenido baja al fondo solo === */
