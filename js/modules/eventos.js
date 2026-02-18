@@ -258,6 +258,66 @@ const DEFAULT_BOSS_QUIZ = [
   }
 
 
+  function _showBossResultModal({ outcome, correctCount, totalQuestions, bossName, medalsEarned, xpEarned }){
+    const el = $('#bossResultModal');
+    if (!el){
+      // Fallback si el elemento no existe en el DOM
+      const msg = outcome === 'perfect'
+        ? `🏆 ¡Victoria perfecta! ${correctCount}/${totalQuestions} · +${medalsEarned} medallas · +${xpEarned} XP`
+        : outcome === 'victory'
+          ? `🥈 ¡Victoria! ${correctCount}/${totalQuestions} · +${medalsEarned} medalla · +${xpEarned} XP`
+          : `💀 Derrota. ${correctCount}/${totalQuestions} · +${xpEarned} XP por participar`;
+      toast(msg);
+      if (typeof window.renderAll === 'function') window.renderAll();
+      return;
+    }
+
+    const cfg = {
+      perfect: { icon: '🏆', title: '¡Victoria Perfecta!', cta: '¡A celebrar!',
+                 quote: `Derrotaste a ${bossName} sin fallar ni una pregunta.` },
+      victory: { icon: '🥈', title: '¡Victoria!', cta: 'Continuar',
+                 quote: `Superaste el duelo contra ${bossName}.` },
+      defeat:  { icon: '💀', title: 'Derrota', cta: 'Intentarlo de nuevo',
+                 quote: `${bossName}: "¡Vuelve cuando sepas más!"` }
+    }[outcome] || { icon: '⚔️', title: 'Fin del duelo', cta: 'Continuar', quote: '' };
+
+    // Clase temática
+    el.className = `modal bossResult bossResult--${outcome}`;
+
+    const q = (id) => el.querySelector('#' + id);
+    const iconEl   = q('bossResultIcon');   if (iconEl)   iconEl.textContent  = cfg.icon;
+    const titleEl  = q('bossResultTitle');  if (titleEl)  titleEl.textContent = cfg.title;
+    const vsEl     = q('bossResultVs');     if (vsEl)     vsEl.textContent    = bossName ? `vs ${bossName}` : '';
+    const scoreEl  = q('bossResultScore');  if (scoreEl)  scoreEl.textContent = `${correctCount} / ${totalQuestions}`;
+    const quoteEl  = q('bossResultQuote');  if (quoteEl)  quoteEl.textContent = cfg.quote;
+    const ctaEl    = q('btnBossResultContinue'); if (ctaEl) ctaEl.textContent = cfg.cta;
+
+    const rewardsEl = q('bossResultRewards');
+    if (rewardsEl){
+      let chips = `<span class="bossResult__chip bossResult__chip--xp">⭐ +${xpEarned} XP</span>`;
+      if (medalsEarned > 0){
+        chips += `<span class="bossResult__chip bossResult__chip--medals">🏅 +${medalsEarned} medalla${medalsEarned !== 1 ? 's' : ''}</span>`;
+      }
+      rewardsEl.innerHTML = chips;
+    }
+
+    // Confeti en victorias
+    if (outcome !== 'defeat' && typeof window.showConfetti === 'function'){
+      setTimeout(()=> window.showConfetti(), 200);
+    }
+
+    // Botón cerrar
+    if (ctaEl){
+      ctaEl.onclick = ()=>{
+        el.hidden = true;
+        el.className = 'modal bossResult';
+        if (typeof window.renderAll === 'function') window.renderAll();
+      };
+    }
+
+    el.hidden = false;
+  }
+
   function _getBattleQuestions(ev){
     const custom = Array.isArray(ev?.battleQuestions) ? ev.battleQuestions : [];
     const src = custom.length ? custom : DEFAULT_BOSS_QUIZ;
@@ -423,43 +483,29 @@ const DEFAULT_BOSS_QUIZ = [
 
       let medalsEarned = 0;
       let xpEarned = 0;
-      let message = '';
+      let outcome = '';
 
       if (isPerfect){
-        // Victoria perfecta
         medalsEarned = 3;
         xpEarned = 50;
-        message = `🏆 ¡VICTORIA PERFECTA! ${correctCount}/${totalQuestions} correctas\n\n+${medalsEarned} medallas 🏅\n+${xpEarned} XP ⭐`;
-
-        if (typeof window.showBigReward === 'function'){
-          window.showBigReward({
-            title: '¡VICTORIA PERFECTA!',
-            subtitle: `Has derrotado a ${bossName}`,
-            icon: '🏆',
-            duration: 3000
-          });
-        }
+        outcome = 'perfect';
       } else if (isVictory){
-        // Victoria normal
         medalsEarned = 1;
         xpEarned = 20;
-        message = `🥈 ¡Victoria! ${correctCount}/${totalQuestions} correctas\n\n+${medalsEarned} medalla 🏅\n+${xpEarned} XP ⭐`;
+        outcome = 'victory';
       } else {
-        // Derrota
         xpEarned = 5;
-        message = `💀 Derrota... ${correctCount}/${totalQuestions} correctas\n\n${bossName}: "¡Vuelve cuando sepas más!"\n\n+${xpEarned} XP por participar`;
+        outcome = 'defeat';
       }
 
       // Otorgar recompensas
       if (hero && medalsEarned > 0){
         hero.medals = Number(hero.medals ?? 0) + medalsEarned;
       }
-
       if (hero && xpEarned > 0){
         hero.xp = Number(hero.xp ?? 0) + xpEarned;
-        // Verificar si sube de nivel
         if (typeof window.bumpHeroXp === 'function'){
-          window.bumpHeroXp(0); // Trigger level up check
+          window.bumpHeroXp(0);
         }
       }
 
@@ -476,13 +522,9 @@ const DEFAULT_BOSS_QUIZ = [
         }
       }
 
+      // Cerrar batalla y mostrar resultado
       modal.hidden = true;
-      toast(message);
-
-      // Refrescar UI
-      if (typeof window.renderAll === 'function'){
-        window.renderAll();
-      }
+      _showBossResultModal({ outcome, correctCount, totalQuestions, bossName, medalsEarned, xpEarned });
     };
 
     if (nextBtn){
