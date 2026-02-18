@@ -1811,9 +1811,9 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
     font-size: clamp(15px, 4vw, 22px);
   }
 
-  /* === Opciones: 2 columnas compactas === */
+  /* === Opciones: 1 columna en portrait (≤768px cubre iPad Mini 6 portrait en 744px y menores) === */
   .bossBattle__options {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     flex: 0 0 auto;
   }
@@ -1835,16 +1835,6 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
 }
 
-/* Teléfonos muy pequeños: 1 columna en opciones */
-@media (max-width: 360px) {
-  .bossBattle__options {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  .bossBattle__option {
-    min-height: 44px;
-  }
-}
 
 /* Teléfono en landscape: jefe a la derecha, contenido a la izquierda (igual que desktop) */
 @media (max-width: 768px) and (orientation: landscape) {
