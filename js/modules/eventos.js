@@ -302,7 +302,11 @@ const DEFAULT_BOSS_QUIZ = [
     }
 
     const bossName = String(ev?.title || 'Jefe final');
-    if (titleEl) titleEl.textContent = `⚔️ ${hero?.name || 'Héroe'} vs ${bossName}`;
+    if (titleEl) titleEl.textContent = bossName;
+
+    // Nameplate del héroe
+    const heroNameEl = $('#bossBattleHeroName');
+    if (heroNameEl) heroNameEl.textContent = hero?.name || 'Héroe';
 
     // Cargar battleSprites (fondo y jefe)
     const sprites = ev?.battleSprites || {};
@@ -352,7 +356,7 @@ const DEFAULT_BOSS_QUIZ = [
     // Función para actualizar contador
     const updateCounter = ()=>{
       if (!counterEl) return;
-      counterEl.textContent = `Pregunta ${index + 1}/${totalQuestions}`;
+      counterEl.textContent = `${index + 1} / ${totalQuestions}`;
     };
 
     const renderQuestion = ()=>{
@@ -366,7 +370,8 @@ const DEFAULT_BOSS_QUIZ = [
       if (nextBtn){
         nextBtn.disabled = true;
         const isLastQuestion = index >= questions.length - 1;
-        nextBtn.textContent = isLastQuestion ? 'Finalizar duelo ⚔️' : 'Siguiente pregunta →';
+        nextBtn.textContent = isLastQuestion ? '⚔️' : '→';
+        nextBtn.setAttribute('aria-label', isLastQuestion ? 'Finalizar duelo' : 'Siguiente pregunta');
       }
 
       if (!optionsEl) return;
