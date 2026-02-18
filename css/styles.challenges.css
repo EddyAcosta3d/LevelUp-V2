@@ -272,9 +272,9 @@ body.is-modal-open .dropdown__menu{
 .challengeHintBadges{ gap:10px !important; flex-wrap:wrap; }
 .challengeHintBadges .badge{ padding:6px 10px; border-radius: 999px; }
 
-/* Modales: z-index claro para que confirmación siempre esté arriba */
+/* Modales: z-index base 30000 (sobre topbar 20000 y bossBattle 25000).
+   luModal tiene 50000, confirmModal tiene 110000 — ver sus propios archivos. */
 .modal{ z-index: 30000; }
-#confirmModal{ z-index: 30000; }
 
 /* Splash: logo más grande + brillo menos invasivo (evita barra blanca) */
 .splash__inner{ max-width: 560px; }
@@ -1797,7 +1797,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
 
   .bossBattle__healthLabel {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   /* === Pregunta: margin-top:auto la empuja a la mitad inferior === */
@@ -1904,6 +1904,36 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
     margin-top: 6px;
     width: 44px;
     height: 44px;
+    font-size: 18px;
+  }
+}
+
+/* Teléfonos cortos (iPhone SE, Android compactos): alto ≤ 720px en portrait.
+   El jefe pasa a ocupar el 40% superior (en vez del 50%)
+   para dar 60% de espacio al contenido sin necesidad de scroll. */
+@media (max-width: 768px) and (max-height: 720px) and (orientation: portrait) {
+  .bossBattle__jefe {
+    bottom: 60%; /* jefe en top 40% */
+  }
+
+  .bossBattle__bossInfo {
+    top: 30%; /* ajustar a la nueva zona del jefe */
+  }
+
+  .bossBattle__option {
+    min-height: 44px;
+    padding: 7px 12px;
+  }
+
+  .bossBattle__questionBox {
+    padding: 18px 14px 10px;
+    margin-bottom: 6px;
+  }
+
+  .bossBattle__next {
+    width: 44px;
+    height: 44px;
+    margin-top: 6px;
     font-size: 18px;
   }
 }
