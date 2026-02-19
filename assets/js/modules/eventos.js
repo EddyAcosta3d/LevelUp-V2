@@ -27,6 +27,39 @@ import {
 import { saveLocal } from './store.js';
 import { currentHero } from './fichas.js';
 
+const DEFAULT_BOSS_QUIZ = [
+  {
+    question: '¿Qué debes hacer primero al enfrentar un problema difícil?',
+    options: [
+      'Rendirte rápido',
+      'Analizar la situación con calma',
+      'Culpar a alguien más',
+      'Ignorarlo'
+    ],
+    correctIndex: 1
+  },
+  {
+    question: 'Si trabajas en equipo para vencer a un jefe, ¿qué ayuda más?',
+    options: [
+      'No escuchar a nadie',
+      'Cooperar y comunicar ideas',
+      'Hacer todo solo',
+      'Discutir sin parar'
+    ],
+    correctIndex: 1
+  },
+  {
+    question: '¿Qué actitud te da más oportunidad de ganar?',
+    options: [
+      'Constancia y aprendizaje',
+      'Miedo y bloqueo',
+      'Desorden total',
+      'Evitar intentarlo'
+    ],
+    correctIndex: 0
+  }
+];
+
     // --- Image helpers (1 intento + placeholder; sin swaps para evitar spam de 404) ---
   const EVT_PH_LOCKED_3x4   = './assets/placeholders/placeholder_locked_3x4.webp';
   const EVT_PH_UNLOCKED_3x4 = './assets/placeholders/placeholder_unlocked_3x4.webp';
@@ -185,7 +218,7 @@ import { currentHero } from './fichas.js';
     const btnFight = $('#btnEventFight');
     if (btnFight){
       btnFight.disabled = !(unlocked && eligible);
-      btnFight.textContent = unlocked ? (eligible ? '⚔️ Retar' : 'No elegible') : 'Bloqueado';
+      btnFight.textContent = unlocked ? (eligible ? '⚔️ Pelear' : 'No elegible') : 'Bloqueado';
     }
 
     const btnToggleUnlock = $('#btnEventToggleUnlock');
@@ -199,7 +232,12 @@ import { currentHero } from './fichas.js';
     if (btnFight){
       btnFight.onclick = ()=>{
         if (!(unlocked && eligible)) return;
-        toast(`⚔️ ${hero?.name || 'Héroe'} reta a ${ev.title || 'este jefe'}!`);
+        if (String(ev?.kind || '') === 'boss'){
+          openBossBattleModal(ev, hero);
+          modal.hidden = true;
+          return;
+        }
+        toast(`⚔️ ${hero?.name || 'Héroe'} reta a ${ev.title || 'este evento'}!`);
         modal.hidden = true;
       };
     }
@@ -217,6 +255,339 @@ import { currentHero } from './fichas.js';
     }
 
     modal.hidden = false;
+  }
+
+
+  function _showBossResultModal({ outcome, correctCount, totalQuestions, bossName, medalsEarned, xpEarned }){
+    const el = $('#bossResultModal');
+    if (!el){
+      // Fallback si el elemento no existe en el DOM
+      const msg = outcome === 'perfect'
+        ? `🏆 ¡Victoria perfecta! ${correctCount}/${totalQuestions} · +${medalsEarned} medallas · +${xpEarned} XP`
+        : outcome === 'victory'
+          ? `🥈 ¡Victoria! ${correctCount}/${totalQuestions} · +${medalsEarned} medalla · +${xpEarned} XP`
+          : `💀 Derrota. ${correctCount}/${totalQuestions} · +${xpEarned} XP por participar`;
+      toast(msg);
+      if (typeof window.renderAll === 'function') window.renderAll();
+      return;
+    }
+
+    const cfg = {
+      perfect: { icon: '🏆', title: '¡Victoria Perfecta!', cta: '¡A celebrar!',
+                 quote: `Derrotaste a ${bossName} sin fallar ni una pregunta.` },
+      victory: { icon: '🥈', title: '¡Victoria!', cta: 'Continuar',
+                 quote: `Superaste el duelo contra ${bossName}.` },
+      defeat:  { icon: '💀', title: 'Derrota', cta: 'Intentarlo de nuevo',
+                 quote: `${bossName}: "¡Vuelve cuando sepas más!"` }
+    }[outcome] || { icon: '⚔️', title: 'Fin del duelo', cta: 'Continuar', quote: '' };
+
+    // Clase temática
+    el.className = `modal bossResult bossResult--${outcome}`;
+
+    const q = (id) => el.querySelector('#' + id);
+    const iconEl   = q('bossResultIcon');   if (iconEl)   iconEl.textContent  = cfg.icon;
+    const titleEl  = q('bossResultTitle');  if (titleEl)  titleEl.textContent = cfg.title;
+    const vsEl     = q('bossResultVs');     if (vsEl)     vsEl.textContent    = bossName ? `vs ${bossName}` : '';
+    const scoreEl  = q('bossResultScore');  if (scoreEl)  scoreEl.textContent = `${correctCount} / ${totalQuestions}`;
+    const quoteEl  = q('bossResultQuote');  if (quoteEl)  quoteEl.textContent = cfg.quote;
+    const ctaEl    = q('btnBossResultContinue'); if (ctaEl) ctaEl.textContent = cfg.cta;
+
+    const rewardsEl = q('bossResultRewards');
+    if (rewardsEl){
+      let chips = `<span class="bossResult__chip bossResult__chip--xp">⭐ +${xpEarned} XP</span>`;
+      if (medalsEarned > 0){
+        chips += `<span class="bossResult__chip bossResult__chip--medals">🏅 +${medalsEarned} medalla${medalsEarned !== 1 ? 's' : ''}</span>`;
+      }
+      rewardsEl.innerHTML = chips;
+    }
+
+    // Confeti en victorias
+    if (outcome !== 'defeat' && typeof window.showConfetti === 'function'){
+      setTimeout(()=> window.showConfetti(), 200);
+    }
+
+    // Botón cerrar
+    if (ctaEl){
+      ctaEl.onclick = ()=>{
+        el.hidden = true;
+        el.className = 'modal bossResult';
+        if (typeof window.renderAll === 'function') window.renderAll();
+      };
+    }
+
+    el.hidden = false;
+  }
+
+  function _getBattleQuestions(ev){
+    const custom = Array.isArray(ev?.battleQuestions) ? ev.battleQuestions : [];
+    const src = custom.length ? custom : DEFAULT_BOSS_QUIZ;
+    return src
+      .map((q)=>({
+        question: String(q?.question || '').trim(),
+        options: Array.isArray(q?.options) ? q.options.map(o=>String(o ?? '')) : [],
+        correctIndex: Number(q?.correctIndex ?? -1)
+      }))
+      .filter((q)=> q.question && q.options.length === 4 && q.correctIndex >= 0 && q.correctIndex < 4);
+  }
+
+  function openBossBattleModal(ev, hero){
+    const modal = $('#bossBattleModal');
+    if (!modal) return;
+
+    const titleEl = $('#bossBattleTitle');
+    const questionEl = $('#bossBattleQuestion');
+    const optionsEl = $('#bossBattleOptions');
+    const nextBtn = $('#btnBossBattleNext');
+    const closeBtn = $('#btnBossBattleClose');
+    const counterEl = $('#bossBattleCounter');
+    const healthFillEl = $('#bossBattleHealthFill');
+    const sceneBgEl = $('#bossBattleSceneBg');
+    const jefeImg = $('#bossBattleJefe');
+
+    const questions = _getBattleQuestions(ev);
+    if (!questions.length){
+      toast('Este jefe aún no tiene preguntas configuradas.');
+      return;
+    }
+
+    // Validar que haya al menos 1 pregunta de conocimiento general y 1 de materia
+    const hasGeneral = questions.some(q => String(q.category || '').toLowerCase() === 'general');
+    const hasSubject = questions.some(q => {
+      const cat = String(q.category || '').toLowerCase();
+      return cat && cat !== 'general';
+    });
+
+    if (!hasGeneral || !hasSubject){
+      console.warn('⚠️ El jefe debería tener al menos 1 pregunta de conocimiento general y 1 de materia');
+    }
+
+    const bossName = String(ev?.title || 'Jefe final');
+    if (titleEl) titleEl.textContent = bossName;
+
+    // Nameplate del héroe
+    const heroNameEl = $('#bossBattleHeroName');
+    if (heroNameEl) heroNameEl.textContent = hero?.name || 'Héroe';
+
+    // Cargar battleSprites (fondo y jefe)
+    const sprites = ev?.battleSprites || {};
+
+    if (sceneBgEl && sprites.bg){
+      sceneBgEl.style.backgroundImage = `url('${sprites.bg}')`;
+    } else if (sceneBgEl){
+      // Fallback: usar imagen de desbloqueo
+      sceneBgEl.style.backgroundImage = `url('${ev?.image || ev?.lockedImage || ''}')`;
+    }
+
+    if (jefeImg && sprites.idle){
+      jefeImg.src = sprites.idle;
+      jefeImg.className = 'bossBattle__jefe bossBattle__jefe--idle';
+    }
+
+    // Estado de la batalla
+    let index = 0;
+    let answered = false;
+    let correctCount = 0;
+    const totalQuestions = questions.length;
+
+    // SFX helpers de batalla
+    const _playSfx = (audio)=>{
+      try{
+        if (!audio) return;
+        audio.pause();
+        audio.currentTime = 0;
+        const p = audio.play();
+        if (p && typeof p.catch === 'function') p.catch(()=>{});
+      }catch(_e){}
+    };
+    const _stopTecnoLoop = ()=>{
+      try{
+        if (window.__battleSfxLoop){
+          window.__battleSfxLoop.pause();
+          window.__battleSfxLoop.currentTime = 0;
+        }
+      }catch(_e){}
+    };
+
+    // Función para cambiar estado del jefe
+    const setJefeState = (state)=>{
+      if (!jefeImg || !sprites[state]) return;
+      jefeImg.src = sprites[state];
+      jefeImg.className = `bossBattle__jefe bossBattle__jefe--${state}`;
+
+      // Volver a idle después de la animación
+      if (state === 'mock' || state === 'hit'){
+        setTimeout(()=>{
+          if (sprites.idle){
+            jefeImg.src = sprites.idle;
+            jefeImg.className = 'bossBattle__jefe bossBattle__jefe--idle';
+          }
+        }, 1500);
+      }
+    };
+
+    // Función para actualizar barra de vida
+    const updateHealth = ()=>{
+      if (!healthFillEl) return;
+      const healthPercent = Math.max(0, 100 - (correctCount / totalQuestions) * 100);
+      healthFillEl.style.width = `${healthPercent}%`;
+    };
+
+    // Función para actualizar contador
+    const updateCounter = ()=>{
+      if (!counterEl) return;
+      counterEl.textContent = `${index + 1} / ${totalQuestions}`;
+    };
+
+    const renderQuestion = ()=>{
+      const current = questions[index];
+      answered = false;
+
+      updateCounter();
+
+      if (questionEl) questionEl.textContent = current.question;
+
+      if (nextBtn){
+        nextBtn.disabled = true;
+        const isLastQuestion = index >= questions.length - 1;
+        nextBtn.textContent = isLastQuestion ? '⚔️' : '→';
+        nextBtn.setAttribute('aria-label', isLastQuestion ? 'Finalizar duelo' : 'Siguiente pregunta');
+      }
+
+      if (!optionsEl) return;
+      optionsEl.innerHTML = '';
+
+      current.options.forEach((option, optIndex)=>{
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bossBattle__option';
+        btn.textContent = option;
+
+        btn.addEventListener('click', ()=>{
+          if (answered) return;
+          answered = true;
+
+          const isCorrect = optIndex === current.correctIndex;
+          btn.classList.add(isCorrect ? 'is-correct' : 'is-incorrect');
+
+          if (isCorrect){
+            correctCount++;
+            updateHealth();
+            setJefeState('hit');
+            _playSfx(window.__battleSfxPunch);
+          } else {
+            setJefeState('mock');
+            _playSfx(window.__battleSfxWrong);
+          }
+
+          if (!isCorrect){
+            const rightBtn = optionsEl.querySelector(`[data-opt-index="${current.correctIndex}"]`);
+            if (rightBtn) rightBtn.classList.add('is-correct');
+          }
+
+          optionsEl.querySelectorAll('.bossBattle__option').forEach((el)=>{
+            el.disabled = true;
+          });
+
+          if (nextBtn) nextBtn.disabled = false;
+        });
+
+        btn.dataset.optIndex = String(optIndex);
+        optionsEl.appendChild(btn);
+      });
+    };
+
+    // Sistema de recompensas al terminar
+    const finalizeBattle = ()=>{
+      _stopTecnoLoop();
+      const percentage = (correctCount / totalQuestions) * 100;
+      const isPerfect = correctCount === totalQuestions;
+      const isVictory = percentage >= 50;
+
+      let medalsEarned = 0;
+      let xpEarned = 0;
+      let outcome = '';
+
+      if (isPerfect){
+        medalsEarned = 3;
+        xpEarned = 50;
+        outcome = 'perfect';
+      } else if (isVictory){
+        medalsEarned = 1;
+        xpEarned = 20;
+        outcome = 'victory';
+      } else {
+        xpEarned = 5;
+        outcome = 'defeat';
+      }
+
+      // Otorgar recompensas
+      if (hero && medalsEarned > 0){
+        hero.medals = Number(hero.medals ?? 0) + medalsEarned;
+      }
+      if (hero && xpEarned > 0){
+        hero.xp = Number(hero.xp ?? 0) + xpEarned;
+        if (typeof window.bumpHeroXp === 'function'){
+          window.bumpHeroXp(0);
+        }
+      }
+
+      // Guardar cambios
+      if (typeof window.saveLocal === 'function'){
+        window.saveLocal(state.data);
+      }
+
+      // Marcar jefe como derrotado si es victoria
+      if (isVictory && hero){
+        if (!hero.defeatedBosses) hero.defeatedBosses = [];
+        if (!hero.defeatedBosses.includes(ev.id)){
+          hero.defeatedBosses.push(ev.id);
+        }
+      }
+
+      // Cerrar batalla y mostrar resultado
+      modal.hidden = true;
+      _showBossResultModal({ outcome, correctCount, totalQuestions, bossName, medalsEarned, xpEarned });
+    };
+
+    if (nextBtn){
+      nextBtn.onclick = ()=>{
+        if (!answered) return;
+
+        if (index >= questions.length - 1){
+          finalizeBattle();
+          return;
+        }
+
+        index += 1;
+        renderQuestion();
+      };
+    }
+
+    if (closeBtn){
+      closeBtn.onclick = ()=>{
+        _stopTecnoLoop();
+        modal.hidden = true;
+        toast('Batalla cancelada');
+      };
+    }
+
+    modal.onclick = (e)=>{
+      if (e.target === modal || e.target?.classList?.contains('bossBattle__shade')){
+        if (window.confirm('¿Seguro que quieres abandonar la batalla?')){
+          _stopTecnoLoop();
+          modal.hidden = true;
+          toast('Batalla cancelada');
+        }
+      }
+    };
+
+    // Inicializar batalla
+    updateHealth();
+    renderQuestion();
+    modal.hidden = false;
+
+    // Iniciar música de fondo
+    _playSfx(window.__battleSfxLoop);
   }
 
   let _eventTabsBound = false;
@@ -324,10 +695,15 @@ import { currentHero } from './fichas.js';
       try{ ov.hidden = true; document.documentElement.classList.remove('is-boss-unlock'); }catch(_e){}
     };
     const go = ()=>{
+      const targetId = String(ov.dataset.eventId || '').trim();
+      const targetKind = String(ov.dataset.eventKind || 'boss').trim() || 'boss';
       close();
-      try{ state.eventsTab = 'boss'; }catch(_e){}
+      try{ state.eventsTab = targetKind === 'event' ? 'event' : 'boss'; }catch(_e){}
       try{ if (typeof setActiveRoute === 'function') setActiveRoute('eventos'); }catch(_e){}
       try{ if (typeof renderEvents === 'function') renderEvents(); }catch(_e){}
+      if (targetId){
+        try{ openEventModal(targetId); }catch(_e){}
+      }
       // Jump to top so the grid is visible immediately
       try{ window.scrollTo({ top: 0, behavior: 'smooth' }); }catch(_e){ try{ window.scrollTo(0,0); }catch(__){} }
     };
@@ -366,6 +742,10 @@ import { currentHero } from './fichas.js';
     const t = (ev && ev.title) ? ev.title : kind;
     if (title) title.textContent = `¡Un nuevo ${kind.toLowerCase()} apareció!`;
     if (sub) sub.textContent = t;
+    try{
+      ov.dataset.eventId = String(ev?.id || '');
+      ov.dataset.eventKind = String(ev?.kind || 'boss');
+    }catch(_e){}
 
     const isPortraitViewport = (()=>{
       // Forzamos criterio por aspecto real del viewport para evitar falsos negativos
@@ -530,6 +910,35 @@ import { currentHero } from './fichas.js';
       window.__bossUnlockSfxBound = true;
       document.addEventListener('pointerdown', preloadAudioOnce, { once: true, passive: true });
       document.addEventListener('touchstart', preloadAudioOnce, { once: true, passive: true });
+    }
+  })();
+
+
+  // ------------------------------------------------------------
+  // Battle SFX (punch, wrong, tecno loop) — preloaded on first gesture
+  // ------------------------------------------------------------
+  (function(){
+    function makeSfx(src, volume, loop){
+      try{
+        const a = new Audio(src);
+        a.preload = 'auto';
+        a.volume = volume ?? 0.8;
+        a.loop = !!loop;
+        return a;
+      }catch(_e){ return null; }
+    }
+    function ensureBattleSfx(){
+      try{
+        if (!window.__battleSfxPunch) window.__battleSfxPunch = makeSfx('assets/sfx/punch sfx.mp3', 0.8, false);
+        if (!window.__battleSfxWrong) window.__battleSfxWrong = makeSfx('assets/sfx/wrong sfx.mp3', 0.8, false);
+        if (!window.__battleSfxLoop)  window.__battleSfxLoop  = makeSfx('assets/sfx/tecno loop sfx.mp3', 0.5, true);
+      }catch(_e){}
+    }
+    function preloadBattleSfxOnce(){ try{ ensureBattleSfx(); }catch(_e){} }
+    if (!window.__battleSfxBound){
+      window.__battleSfxBound = true;
+      document.addEventListener('pointerdown', preloadBattleSfxOnce, { once: true, passive: true });
+      document.addEventListener('touchstart', preloadBattleSfxOnce, { once: true, passive: true });
     }
   })();
 

@@ -389,6 +389,25 @@ const DEFAULT_BOSS_QUIZ = [
     let correctCount = 0;
     const totalQuestions = questions.length;
 
+    // SFX helpers de batalla
+    const _playSfx = (audio)=>{
+      try{
+        if (!audio) return;
+        audio.pause();
+        audio.currentTime = 0;
+        const p = audio.play();
+        if (p && typeof p.catch === 'function') p.catch(()=>{});
+      }catch(_e){}
+    };
+    const _stopTecnoLoop = ()=>{
+      try{
+        if (window.__battleSfxLoop){
+          window.__battleSfxLoop.pause();
+          window.__battleSfxLoop.currentTime = 0;
+        }
+      }catch(_e){}
+    };
+
     // Función para cambiar estado del jefe
     const setJefeState = (state)=>{
       if (!jefeImg || !sprites[state]) return;
@@ -454,8 +473,10 @@ const DEFAULT_BOSS_QUIZ = [
             correctCount++;
             updateHealth();
             setJefeState('hit');
+            _playSfx(window.__battleSfxPunch);
           } else {
             setJefeState('mock');
+            _playSfx(window.__battleSfxWrong);
           }
 
           if (!isCorrect){
@@ -477,6 +498,7 @@ const DEFAULT_BOSS_QUIZ = [
 
     // Sistema de recompensas al terminar
     const finalizeBattle = ()=>{
+      _stopTecnoLoop();
       const percentage = (correctCount / totalQuestions) * 100;
       const isPerfect = correctCount === totalQuestions;
       const isVictory = percentage >= 50;
@@ -543,6 +565,7 @@ const DEFAULT_BOSS_QUIZ = [
 
     if (closeBtn){
       closeBtn.onclick = ()=>{
+        _stopTecnoLoop();
         modal.hidden = true;
         toast('Batalla cancelada');
       };
@@ -551,6 +574,7 @@ const DEFAULT_BOSS_QUIZ = [
     modal.onclick = (e)=>{
       if (e.target === modal || e.target?.classList?.contains('bossBattle__shade')){
         if (window.confirm('¿Seguro que quieres abandonar la batalla?')){
+          _stopTecnoLoop();
           modal.hidden = true;
           toast('Batalla cancelada');
         }
@@ -561,6 +585,9 @@ const DEFAULT_BOSS_QUIZ = [
     updateHealth();
     renderQuestion();
     modal.hidden = false;
+
+    // Iniciar música de fondo
+    _playSfx(window.__battleSfxLoop);
   }
 
   let _eventTabsBound = false;
@@ -883,6 +910,35 @@ const DEFAULT_BOSS_QUIZ = [
       window.__bossUnlockSfxBound = true;
       document.addEventListener('pointerdown', preloadAudioOnce, { once: true, passive: true });
       document.addEventListener('touchstart', preloadAudioOnce, { once: true, passive: true });
+    }
+  })();
+
+
+  // ------------------------------------------------------------
+  // Battle SFX (punch, wrong, tecno loop) — preloaded on first gesture
+  // ------------------------------------------------------------
+  (function(){
+    function makeSfx(src, volume, loop){
+      try{
+        const a = new Audio(src);
+        a.preload = 'auto';
+        a.volume = volume ?? 0.8;
+        a.loop = !!loop;
+        return a;
+      }catch(_e){ return null; }
+    }
+    function ensureBattleSfx(){
+      try{
+        if (!window.__battleSfxPunch) window.__battleSfxPunch = makeSfx('assets/sfx/punch sfx.mp3', 0.8, false);
+        if (!window.__battleSfxWrong) window.__battleSfxWrong = makeSfx('assets/sfx/wrong sfx.mp3', 0.8, false);
+        if (!window.__battleSfxLoop)  window.__battleSfxLoop  = makeSfx('assets/sfx/tecno loop sfx.mp3', 0.5, true);
+      }catch(_e){}
+    }
+    function preloadBattleSfxOnce(){ try{ ensureBattleSfx(); }catch(_e){} }
+    if (!window.__battleSfxBound){
+      window.__battleSfxBound = true;
+      document.addEventListener('pointerdown', preloadBattleSfxOnce, { once: true, passive: true });
+      document.addEventListener('touchstart', preloadBattleSfxOnce, { once: true, passive: true });
     }
   })();
 
