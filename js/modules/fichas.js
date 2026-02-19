@@ -512,6 +512,20 @@ export function renderHeroAvatar(hero){
     modal.hidden = true;
   }
 
+  // Binding de #inRol (input de solo lectura) → abre el modal de roles al hacer click
+  // Se ejecuta una sola vez al cargar el módulo; el input vive en el HTML estático.
+  (function(){
+    try{
+      const rolInput = document.getElementById('inRol');
+      if (rolInput){
+        rolInput.addEventListener('click', ()=>{ openRoleModal(); });
+        rolInput.addEventListener('keydown', (e)=>{
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRoleModal(); }
+        });
+      }
+    }catch(_e){}
+  })();
+
   export function renderHeroDetail(){
     const hero = currentHero();
     if (!hero) return;
