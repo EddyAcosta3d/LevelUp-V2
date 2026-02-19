@@ -138,7 +138,7 @@ body{
 .trophyIcon{ width:22px; height:22px; }
 /* show hamburger only on small screens */
 @media (min-width: 901px){ .topbar__menu{ display:none !important; } }
-@media (max-width: 900px){ .topbar__menu{ display:flex !important; } }
+@media (max-width: 900px){ .topbar__menu{ display:inline-flex !important; align-items:center; justify-content:center; } }
 
 
 /* Mobile: compact overflow menu for header actions */
