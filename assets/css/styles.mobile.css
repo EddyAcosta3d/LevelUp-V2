@@ -1028,3 +1028,42 @@
     place-items: center !important;
   }
 }
+
+/* ============================================
+   iPad mini 6 portrait y tabletas pequeñas (641–780px)
+   El header usa flex en este rango pero el hamburger
+   necesita tamaño explícito para no verse estirado
+   ============================================ */
+@media (min-width: 641px) and (max-width: 900px) {
+  .topbar__menu {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    font-size: 20px;
+    line-height: 1;
+    border-radius: 12px;
+  }
+}
+
+/* Hero detail en columna única para iPad mini portrait (744px cae aquí) */
+@media (min-width: 641px) and (max-width: 780px) {
+  .cardGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stats: 2 columnas (las 5 stats caben cómodamente) */
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Fields3: 2 columnas en lugar de 3 */
+  .fields3 {
+    grid-template-columns: 1fr 80px;
+  }
+
+  /* El panel derecho ocupa el ancho completo */
+  .card--form,
+  .card--stats {
+    width: 100%;
+  }
+}
