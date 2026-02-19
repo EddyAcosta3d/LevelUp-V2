@@ -699,6 +699,42 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
   .eventModalReqGrid{ grid-template-columns: 1fr; }
   .evModalSubtitle{ max-width: 100%; }
 }
+
+/* iPad portrait / tableta chica (641–920px):
+   el modal ocupa más pantalla, los botones se estiran y los
+   req-boxes recuperan sus 2 columnas (hay ancho de sobra) */
+@media (min-width: 641px) and (max-width: 920px){
+  /* Modal más ancho para aprovechar la pantalla */
+  #eventModal .modal__card--event{
+    width: min(720px, 96vw) !important;
+    max-width: 96vw !important;
+    max-height: 92dvh !important;
+    overflow-y: auto;
+  }
+
+  /* Imagen del jefe más alta */
+  .eventModalImgWrap{ min-height: 320px; }
+
+  /* Req boxes en 2 columnas (caben bien a este ancho) */
+  .eventModalReqGrid{ grid-template-columns: 1fr 1fr; }
+
+  /* Botones: se estiran para ocupar todo el ancho, sin quedarse en esquina */
+  .eventModalActions{
+    gap: 12px;
+    justify-content: stretch;
+  }
+  .eventModalActions .btn,
+  .eventModalActions .pill--small{
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    justify-content: center;
+  }
+  .eventModalActions .btnPrimary{
+    min-width: 0;
+  }
+}
+
 @media (max-width: 560px){
   .modal__card--event{
     width: 100%;
