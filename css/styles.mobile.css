@@ -112,7 +112,7 @@
 
   /* STATS - Indicadores más grandes */
   .statRange {
-    height: 10px;
+    display: none; /* Ocultar completamente en mobile; se usan los clics en segmentos */
   }
 
   .statSeg {
