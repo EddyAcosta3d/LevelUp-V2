@@ -427,17 +427,13 @@
     background-position: 50% 100%;
   }
 
-  /* BG/MID más grandes para que el parallax no recorte la escena */
+  /* BG un poco más grande para evitar recortes en escena estática */
   .heroSceneLayer--bg {
     inset: -14%;
     background-size: cover;
     background-position: 50% 52%;
   }
 
-  .heroSceneLayer--mid {
-    inset: -10%;
-    background-position: 50% 68%;
-  }
 
   /* Nombre overlay: compacto */
   .heroName--overlay {
