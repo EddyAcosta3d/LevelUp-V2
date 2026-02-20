@@ -94,17 +94,20 @@ export async function init(){
     window.LevelUp = window.LevelUp || {};
     window.LevelUp.getSession = getSession;
 
-    // Si hay sesión de alumno, pre-seleccionar su héroe antes de renderizar
-    if (_sess && !_sess.isAdmin && _sess.heroId) {
-      state.selectedHeroId = _sess.heroId;
-      // También cambiar al grupo correcto
-      const heroId = _sess.heroId;
-      const groupMatch = heroId.match(/^h_(\d+d)_/i);
-      if (groupMatch) state.group = groupMatch[1].toUpperCase();
-    }
-
     // CARGAR DATOS PRIMERO (crítico para que los bindings tengan datos disponibles)
     await loadData({forceRemote:false});
+
+    // DESPUÉS de cargar datos: pre-seleccionar el héroe de la sesión
+    // Esto evita que se muestre "Nuevo Héroe" vacío durante la carga
+    if (_sess && !_sess.isAdmin && _sess.heroId) {
+      const heroes = state.data?.heroes || [];
+      const sessionHero = heroes.find(h => h.id === _sess.heroId);
+      if (sessionHero) {
+        state.selectedHeroId = _sess.heroId;
+        // Cambiar al grupo correcto del héroe
+        state.group = sessionHero.group || '2D';
+      }
+    }
 
     // Check if we're in projector mode
     if (IS_PROJECTOR) {

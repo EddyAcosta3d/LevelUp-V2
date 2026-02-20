@@ -44,15 +44,25 @@
           });
         }
 
-        // Mostrar botón de salir en el sidebar
+        // Mostrar botón de salir en el sidebar (solo en móvil)
         const sideLogout = document.getElementById('sidebarLogoutBtn');
         const sideLogoutName = document.getElementById('sidebarLogoutName');
-        if (sideLogout) sideLogout.style.display = 'block';
+        // Solo mostrarlo en resoluciones donde el header está oculto (≤900px)
+        if (sideLogout) {
+          const showIfMobile = () => {
+            sideLogout.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+          };
+          showIfMobile();
+          window.addEventListener('resize', showIfMobile);
+        }
         if (sideLogoutName) {
+          // El span siguiente (el nombre) — lo llenamos con el nombre del héroe
           const trySetName = (n) => {
             const hero = window.state?.data?.heroes?.find(h => h.id === session.heroId);
             const name = hero?.name || session.email.split('@')[0];
-            sideLogoutName.textContent = '⚔️ ' + name;
+            sideLogoutName.textContent = '⚔️';
+            const nameSpan = sideLogoutName.nextElementSibling;
+            if (nameSpan) nameSpan.textContent = name;
             if (!hero && n > 0) setTimeout(() => trySetName(n-1), 600);
           };
           setTimeout(() => trySetName(5), 400);
@@ -194,26 +204,27 @@
           <button class="pill pill--small" id="btnNuevoHeroe" data-edit-only="1">+ Nuevo</button>
         </div>
 
-        <div class="list" id="heroList"></div>
-
-        <!-- Botón de salir — solo visible cuando hay sesión activa -->
-        <div id="sidebarLogoutBtn" style="display:none; padding: 12px 8px 6px;">
+        <!-- Botón salir: visible solo en móvil (en desktop está en el header) -->
+        <div id="sidebarLogoutBtn" style="display:none; padding: 0 0 10px 0;">
           <button onclick="window.LevelUp?.logout()" style="
             width:100%;
-            display:flex; align-items:center; justify-content:center; gap:8px;
+            display:flex; align-items:center; gap:8px;
             background:rgba(255,255,255,0.04);
             border:1px solid rgba(255,255,255,0.08);
-            border-radius:12px;
-            padding:10px 16px;
-            color:rgba(255,255,255,0.45);
-            font-size:13px;
+            border-radius:10px;
+            padding:9px 14px;
+            color:rgba(255,255,255,0.5);
+            font-size:12px;
             cursor:pointer;
-            transition: all 0.2s;
-          " onmouseover="this.style.borderColor='rgba(255,100,100,0.3)';this.style.color='rgba(255,120,120,0.9)'"
-             onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.45)'">
-            <span id="sidebarLogoutName">⚔️</span> · Cerrar sesión
+          ">
+            <span id="sidebarLogoutName">⚔️</span>
+            <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+            <span style="font-size:11px; opacity:0.5; white-space:nowrap;">Cerrar sesión ✕</span>
           </button>
         </div>
+
+        <div class="list" id="heroList"></div>
+
       </aside>
 
       <section class="content" id="content" aria-label="Contenido principal">
