@@ -70,7 +70,7 @@ export function selectHero(heroId) {
   }
 }
 
-  export function renderHeroList(){
+export function renderHeroList(){
     const list = $('#heroList');
     list.innerHTML = '';
     const isEdit = state.role === 'teacher';
