@@ -45,8 +45,8 @@ function getChallengeContextHero(){
 function isChallengeUnlockedForHero(hero, challengeId){
   if (!hero) return false;
   const assigned = hero.assignedChallenges;
-  // Backward compat: si aún no se usa asignación explícita, no bloqueamos.
-  if (!Array.isArray(assigned)) return true;
+  // Regla actual: por defecto NO está asignado hasta que el profe lo habilita.
+  if (!Array.isArray(assigned)) return false;
   return assigned.includes(String(challengeId));
 }
 
@@ -352,7 +352,7 @@ export function renderChallengeDetail(){
     assignBtn.type = 'button';
     assignBtn.className = 'pill pill--ghost';
     assignBtn.style.marginLeft = '8px';
-    assignBtn.textContent = unlocked ? '🔒 Quitar asignación' : '🔓 Asignar a este alumno';
+    assignBtn.textContent = unlocked ? 'Asignado' : 'Asignar';
     assignBtn.addEventListener('click', ()=>{
       if (!Array.isArray(hero.assignedChallenges)) hero.assignedChallenges = [];
       const chId = String(ch.id);
