@@ -2202,9 +2202,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{ width:0; height:0; }
 
   /* BG: cover the full scene */
   .heroSceneLayer--bg{
-    inset: 0;
+    inset: -12%;
     background-size: cover;
-    background-position: center;
+    background-position: 50% 52%;
+  }
+
+  .heroSceneLayer--mid{
+    inset: -8%;
+    background-position: 50% 68%;
   }
 }
 
