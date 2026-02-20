@@ -26,7 +26,8 @@ import {
 
 import {
   upsertHeroAssignment,
-  deleteHeroAssignment
+  deleteHeroAssignment,
+  getHeroAssignments
 } from './supabase_client.js';
 
 import {
@@ -359,18 +360,14 @@ export function renderChallengeDetail(){
   if (canEditView && hero && badgesEl){
     const assignBtn = document.createElement('button');
     assignBtn.type = 'button';
-    assignBtn.className = 'pill pill--ghost';
-    assignBtn.style.marginLeft = '8px';
+    assignBtn.className = 'pill pill--ghost challengeAssignBtn';
     assignBtn.textContent = unlocked ? 'Asignado' : 'Asignar';
     assignBtn.setAttribute('aria-pressed', String(unlocked));
+    assignBtn.dataset.state = unlocked ? 'assigned' : 'locked';
     assignBtn.classList.toggle('is-active', unlocked);
     assignBtn.title = unlocked
       ? 'Este desafío está desbloqueado para el alumno seleccionado.'
       : 'Este desafío está bloqueado para el alumno seleccionado.';
-    // Estado visual más claro: verde = asignado/desbloqueado, rojo = no asignado/bloqueado.
-    assignBtn.style.background = unlocked ? 'rgba(34, 197, 94, .22)' : 'rgba(239, 68, 68, .18)';
-    assignBtn.style.borderColor = unlocked ? 'rgba(34, 197, 94, .72)' : 'rgba(239, 68, 68, .56)';
-    assignBtn.style.color = unlocked ? '#dcfce7' : '#fee2e2';
     assignBtn.addEventListener('click', ()=>{
       const targetHero = getChallengeContextHero();
       if (!targetHero){
@@ -396,7 +393,17 @@ export function renderChallengeDetail(){
       const fn = assigning
         ? upsertHeroAssignment(targetHero.id, chId)
         : deleteHeroAssignment(targetHero.id, chId);
-      fn.catch(err => {
+      fn.then(async ()=> {
+        // Releer desde Supabase para confirmar el estado real guardado.
+        try {
+          const remoteAssignments = await getHeroAssignments(targetHero.id);
+          targetHero.assignedChallenges = remoteAssignments;
+          saveLocal(state.data);
+          renderChallenges();
+        } catch (_e) {
+          // Si falla la lectura, mantenemos el estado local optimista.
+        }
+      }).catch(err => {
         console.warn('[Sync] Error al sincronizar asignación:', err);
         window.toast?.(`⚠️ No se guardó en la nube: ${err.message || 'revisa tu conexión'}`);
       });

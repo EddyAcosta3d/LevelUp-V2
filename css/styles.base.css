@@ -227,6 +227,68 @@ body{
   border-radius: 12px;
 }
 
+.sessionPill,
+.sidebarLogoutBtn{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,209,102,0.26);
+  background: linear-gradient(180deg, rgba(255,209,102,0.16), rgba(255,209,102,0.08));
+  color: #ffd978;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color .16s ease, transform .1s ease, background .16s ease;
+}
+.sessionPill{ padding: 7px 14px; white-space: nowrap; }
+.sessionPill:hover,
+.sidebarLogoutBtn:hover{
+  border-color: rgba(255,209,102,0.45);
+  background: linear-gradient(180deg, rgba(255,209,102,0.22), rgba(255,209,102,0.12));
+}
+.sessionPill:active,
+.sidebarLogoutBtn:active{ transform: translateY(1px); }
+.sessionPill__hint,
+.sidebarLogoutBtn__hint{ opacity: .58; font-size: 11px; white-space: nowrap; }
+.sessionPill__name,
+.sidebarLogoutBtn__name{
+  max-width: 145px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebarLogoutWrap,
+.sidebarInstallWrap{ padding: 0 0 10px 0; }
+.sidebarLogoutBtn{
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: rgba(255,255,255,0.82);
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+}
+.sidebarLogoutBtn__name{ flex:1; text-align:left; }
+.sidebarInstallBtn{ width:100%; }
+
+.challengeAssignBtn{
+  margin-left: 8px;
+  min-width: 90px;
+  justify-content: center;
+}
+.challengeAssignBtn[data-state="assigned"]{
+  background: rgba(34, 197, 94, .18);
+  border-color: rgba(34, 197, 94, .55);
+  color: #dcfce7;
+}
+.challengeAssignBtn[data-state="locked"]{
+  background: rgba(239, 68, 68, .14);
+  border-color: rgba(239, 68, 68, .48);
+  color: #fee2e2;
+}
+
 .iconbtn{
   border: 1px solid var(--borderSoft);
   background: rgba(255,255,255,0.04);
