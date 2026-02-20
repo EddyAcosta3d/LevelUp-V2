@@ -11,6 +11,7 @@ import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
 import { initProjectorMode, isProjectorMode } from './modules/projector.js';
+import { getSession } from './modules/hero_session.js';
 
 
 const setActiveRoute = (...args) => {
@@ -50,8 +51,12 @@ export async function init(){
 
     const urlParams = new URLSearchParams(location.search);
     const DEBUG = urlParams.has('debug');
-    const IS_ADMIN = urlParams.has('admin') && urlParams.get('admin') === 'true';
     const IS_PROJECTOR = urlParams.has('mode') && urlParams.get('mode') === 'projector';
+
+    // Admin: URL param ?admin=true  O  sesion con isAdmin:true (cuenta de Eddy)
+    const _sess = getSession();
+    const IS_ADMIN = (urlParams.has('admin') && urlParams.get('admin') === 'true')
+                  || (_sess && _sess.isAdmin === true);
 
     // Captura errores para que en iPhone no se sienta "se rompió" sin pista
     window.addEventListener('error', (ev)=>{
