@@ -62,6 +62,9 @@ export function bind(){
   });
 
   document.getElementById('btnReloadRemote')?.addEventListener('click', ()=> loadData({ forceRemote: true }));
+  document.getElementById('btnAdminPanel')?.addEventListener('click', ()=> {
+    window.location.href = 'admin_panel.html';
+  });
   document.getElementById('btnImportJson')?.addEventListener('click', ()=> document.getElementById('fileImport')?.click());
   document.getElementById('btnExportJson')?.addEventListener('click', ()=> safeCall(handleExportJson));
 
@@ -333,15 +336,6 @@ function checkSubjectCompletion(hero, completedChallenge) {
 
 function bindChallengeButtons() {
   const toast = window.toast || ((msg) => console.log(msg));
-
-  // Notificar a student_actions cuando cambia el desafío seleccionado
-  // (se observa el estado cada vez que se llama a renderChallenges)
-  const _origRenderChallenges = window.LevelUp?._renderChallengesOrig;
-  document.addEventListener('challengeListRendered', () => {
-    document.dispatchEvent(new CustomEvent('challengeSelected', {
-      detail: { challengeId: state.selectedChallengeId }
-    }));
-  });
 
   // Complete/uncomplete selected challenge
   document.getElementById('btnChallengeComplete')?.addEventListener('click', () => {
