@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LevelUp — Acceso</title>
+  <link rel="icon" href="assets/logo_small.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100dvh;
+      background: #0a0a0f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 1rem;
+    }
+
+    .card {
+      background: #13131a;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+
+    .logo h1 {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .logo p {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .tab.active {
+      background: #FFD166;
+      color: #0a0a0f;
+      font-weight: 600;
+    }
+
+    /* Forms */
+    .form { display: none; flex-direction: column; gap: 1rem; }
+    .form.active { display: flex; }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px;
+    }
+
+    input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #FFD166;
+    }
+
+    input::placeholder { color: rgba(255,255,255,0.2); }
+
+    .btn {
+      background: #FFD166;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 12px;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Error / Success */
+    .msg {
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      display: none;
+    }
+    .msg.error { background: rgba(255,80,80,0.15); color: #ff6b6b; border: 1px solid rgba(255,80,80,0.2); display: block; }
+    .msg.success { background: rgba(80,255,150,0.1); color: #4ade80; border: 1px solid rgba(80,255,150,0.2); display: block; }
+
+    /* Password hint */
+    .hint {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      margin-top: 0.25rem;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #0a0a0f;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <img src="assets/logo.png" alt="LevelUp" onerror="this.style.display='none'">
+    <h1>LEVELUP</h1>
+    <p>MISIONES · RETOS · RECOMPENSAS</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tabLogin" onclick="switchTab('login')">Iniciar sesión</div>
+    <div class="tab" id="tabRegister" onclick="switchTab('register')">Crear cuenta</div>
+  </div>
+
+  <!-- LOGIN -->
+  <form class="form active" id="formLogin" onsubmit="handleLogin(event)">
+    <div id="loginMsg" class="msg"></div>
+    <label>
+      CORREO
+      <input type="email" id="loginEmail" placeholder="tu@correo.com" required autocomplete="email">
+    </label>
+    <label>
+      CONTRASEÑA
+      <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+    </label>
+    <button type="submit" class="btn" id="btnLogin">Entrar al juego</button>
+  </form>
+
+  <!-- REGISTRO -->
+  <form class="form" id="formRegister" onsubmit="handleRegister(event)">
+    <div id="registerMsg" class="msg"></div>
+    <label>
+      CORREO (el que te dio tu profe)
+      <input type="email" id="regEmail" placeholder="tu@levelup.mx" required autocomplete="email">
+    </label>
+    <label>
+      CONTRASEÑA (mínimo 6 caracteres)
+      <input type="password" id="regPassword" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+    </label>
+    <label>
+      CONFIRMAR CONTRASEÑA
+      <input type="password" id="regConfirm" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+    </label>
+    <button type="submit" class="btn" id="btnRegister">Crear mi cuenta</button>
+    <p class="hint">Solo funciona con el correo que te dio tu profe</p>
+  </form>
+</div>
+
+<script type="module">
+  import { loginHero, registerHero, getSession } from './js/modules/hero_session.js';
+
+  // Si ya hay sesión activa, redirigir directo
+  const existing = getSession();
+  if (existing) {
+    window.location.href = 'index.html';
+  }
+
+  // Exponer funciones globalmente para los onsubmit
+  window.switchTab = function(tab) {
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('formLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('formRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('loginMsg').className = 'msg';
+    document.getElementById('registerMsg').className = 'msg';
+  };
+
+  window.handleLogin = async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnLogin');
+    const msg = document.getElementById('loginMsg');
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Entrando...';
+    msg.className = 'msg';
+
+    try {
+      await loginHero(email, password);
+      btn.innerHTML = '✅ ¡Entrando!';
+      setTimeout(() => { window.location.href = 'index.html'; }, 500);
+    } catch (err) {
+      msg.className = 'msg error';
+      msg.textContent = err.message;
+      btn.disabled = false;
+      btn.textContent = 'Entrar al juego';
+    }
+  };
+
+  window.handleRegister = async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnRegister');
+    const msg = document.getElementById('registerMsg');
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('regConfirm').value;
+
+    if (password !== confirm) {
+      msg.className = 'msg error';
+      msg.textContent = 'Las contraseñas no coinciden.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Creando cuenta...';
+    msg.className = 'msg';
+
+    try {
+      await registerHero(email, password);
+      msg.className = 'msg success';
+      msg.textContent = '¡Cuenta creada! Ya puedes iniciar sesión.';
+      btn.disabled = false;
+      btn.textContent = 'Crear mi cuenta';
+      setTimeout(() => window.switchTab('login'), 1500);
+    } catch (err) {
+      msg.className = 'msg error';
+      msg.textContent = err.message;
+      btn.disabled = false;
+      btn.textContent = 'Crear mi cuenta';
+    }
+  };
+</script>
+
+</body>
+</html>

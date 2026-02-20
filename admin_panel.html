@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LevelUp — Panel Admin</title>
+  <link rel="icon" href="assets/logo_small.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100dvh;
+      background: #0a0a0f;
+      color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* Header */
+    .header {
+      background: #13131a;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #FFD166;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+
+    .btn-link {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-link:hover { border-color: #FFD166; color: #FFD166; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 1.5rem;
+      background: #13131a;
+    }
+
+    .tab {
+      padding: 0.85rem 1.25rem;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+    }
+
+    .tab.active {
+      color: #FFD166;
+      border-bottom-color: #FFD166;
+    }
+
+    .badge {
+      background: #ff4757;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 99px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* Content */
+    .content { padding: 1.5rem; max-width: 900px; margin: 0 auto; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Cards */
+    .card-list { display: flex; flex-direction: column; gap: 1rem; }
+
+    .card {
+      background: #13131a;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-title { font-weight: 600; font-size: 0.95rem; }
+    .card-meta { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 0.25rem; }
+
+    .status-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .status-pending  { background: rgba(255,209,102,0.15); color: #FFD166; }
+    .status-approved { background: rgba(80,200,120,0.15);  color: #4ade80; }
+    .status-rejected { background: rgba(255,80,80,0.15);   color: #ff6b6b; }
+    .status-delivered { background: rgba(80,200,120,0.15); color: #4ade80; }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 99px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 0.75rem;
+    }
+
+    .group-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #FFD166;
+    }
+
+    .file-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+    .file-link:hover { border-color: #FFD166; color: #FFD166; }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-approve {
+      background: rgba(80,200,120,0.15);
+      color: #4ade80;
+      border: 1px solid rgba(80,200,120,0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-approve:hover { background: rgba(80,200,120,0.25); }
+
+    .btn-reject {
+      background: rgba(255,80,80,0.1);
+      color: #ff6b6b;
+      border: 1px solid rgba(255,80,80,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-reject:hover { background: rgba(255,80,80,0.2); }
+
+    .btn-deliver {
+      background: rgba(80,180,255,0.1);
+      color: #60b4ff;
+      border: 1px solid rgba(80,180,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-deliver:hover { background: rgba(80,180,255,0.2); }
+
+    .comment-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      color: #fff;
+      font-size: 0.82rem;
+      resize: vertical;
+      min-height: 60px;
+      margin-top: 0.75rem;
+    }
+    .comment-input:focus { outline: none; border-color: #FFD166; }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.9rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+      padding: 0.4rem 0.85rem;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn.active { background: #FFD166; color: #0a0a0f; border-color: #FFD166; font-weight: 600; }
+
+    .loading { text-align: center; padding: 2rem; color: rgba(255,255,255,0.3); }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #13131a;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚔️ LEVELUP ADMIN</h1>
+  <div class="header-right">
+    <a href="index.html?admin=true" class="btn-link">← Volver a la app</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tabEvid" onclick="switchTab('evidencias')">
+    📎 Evidencias <span class="badge" id="badgeEvid" style="display:none">0</span>
+  </div>
+  <div class="tab" id="tabCanjes" onclick="switchTab('canjes')">
+    🏅 Canjes <span class="badge" id="badgeCanjes" style="display:none">0</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- EVIDENCIAS -->
+  <div class="section active" id="secEvid">
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterEvid('all', this)">Todos</button>
+      <button class="filter-btn" onclick="filterEvid('pending', this)">⏳ Pendientes</button>
+      <button class="filter-btn" onclick="filterEvid('approved', this)">✅ Aprobados</button>
+      <button class="filter-btn" onclick="filterEvid('rejected', this)">❌ Rechazados</button>
+    </div>
+    <div class="card-list" id="listEvid">
+      <div class="loading">Cargando evidencias...</div>
+    </div>
+  </div>
+
+  <!-- CANJES -->
+  <div class="section" id="secCanjes">
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterCanjes('all', this)">Todos</button>
+      <button class="filter-btn" onclick="filterCanjes('pending', this)">⏳ Pendientes</button>
+      <button class="filter-btn" onclick="filterCanjes('delivered', this)">✅ Entregados</button>
+    </div>
+    <div class="card-list" id="listCanjes">
+      <div class="loading">Cargando canjes...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import {
+    getAllSubmissions, updateSubmission,
+    getAllStoreClaims, updateStoreClaim
+  } from './js/modules/supabase_client.js';
+
+  let allEvid = [];
+  let allCanjes = [];
+  let evidFilter = 'all';
+  let canjesFilter = 'all';
+
+  // ============================================
+  // TOAST
+  // ============================================
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+  window.toast = toast;
+
+  // ============================================
+  // TABS
+  // ============================================
+  window.switchTab = function(tab) {
+    document.getElementById('tabEvid').classList.toggle('active', tab === 'evidencias');
+    document.getElementById('tabCanjes').classList.toggle('active', tab === 'canjes');
+    document.getElementById('secEvid').classList.toggle('active', tab === 'evidencias');
+    document.getElementById('secCanjes').classList.toggle('active', tab === 'canjes');
+  };
+
+  // ============================================
+  // FILTERS
+  // ============================================
+  window.filterEvid = function(f, btn) {
+    evidFilter = f;
+    document.querySelectorAll('#secEvid .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderEvid();
+  };
+
+  window.filterCanjes = function(f, btn) {
+    canjesFilter = f;
+    document.querySelectorAll('#secCanjes .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCanjes();
+  };
+
+  // ============================================
+  // FORMAT HELPERS
+  // ============================================
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleString('es-MX', {
+      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function statusBadge(status) {
+    const map = {
+      pending: ['⏳ Pendiente', 'pending'],
+      approved: ['✅ Aprobado', 'approved'],
+      rejected: ['❌ Rechazado', 'rejected'],
+      delivered: ['✅ Entregado', 'delivered'],
+    };
+    const [label, cls] = map[status] || [status, 'pending'];
+    return `<span class="status-badge status-${cls}">${label}</span>`;
+  }
+
+  // ============================================
+  // RENDER EVIDENCIAS
+  // ============================================
+  function renderEvid() {
+    const list = document.getElementById('listEvid');
+    let items = allEvid;
+    if (evidFilter !== 'all') items = items.filter(i => i.status === evidFilter);
+
+    const pendingCount = allEvid.filter(i => i.status === 'pending').length;
+    const badge = document.getElementById('badgeEvid');
+    badge.textContent = pendingCount;
+    badge.style.display = pendingCount > 0 ? '' : 'none';
+
+    if (!items.length) {
+      list.innerHTML = '<div class="empty-state">No hay evidencias aquí</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(item => `
+      <div class="card" id="evid-${item.id}">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${item.challenge_title || item.challenge_id}</div>
+            <div class="card-meta">Enviado el ${fmtDate(item.created_at)}</div>
+          </div>
+          ${statusBadge(item.status)}
+        </div>
+
+        <div class="hero-chip">
+          <div class="group-dot"></div>
+          ${item.hero_name} · Grupo ${item.hero_group}
+        </div>
+
+        ${item.comment ? `<div style="font-size:0.82rem; color:rgba(255,255,255,0.5); margin-bottom:0.5rem;">💬 "${item.comment}"</div>` : ''}
+
+        ${item.file_url
+          ? `<a href="${item.file_url}" target="_blank" class="file-link">📎 Ver archivo adjunto</a>`
+          : `<div style="font-size:0.78rem; color:rgba(255,255,255,0.3); margin-top:0.5rem;">Sin archivo adjunto</div>`
+        }
+
+        ${item.admin_comment ? `<div style="font-size:0.78rem; color:rgba(255,255,255,0.4); margin-top:0.75rem;">📝 Tu comentario: "${item.admin_comment}"</div>` : ''}
+
+        ${item.status === 'pending' ? `
+          <textarea class="comment-input" id="comment-${item.id}" placeholder="Comentario opcional para el alumno..."></textarea>
+          <div class="actions">
+            <button class="btn-approve" onclick="approveEvid('${item.id}')">✅ Aprobar</button>
+            <button class="btn-reject" onclick="rejectEvid('${item.id}')">❌ Rechazar</button>
+          </div>
+        ` : ''}
+      </div>
+    `).join('');
+  }
+
+  window.approveEvid = async function(id) {
+    const comment = document.getElementById(`comment-${id}`)?.value || '';
+    try {
+      await updateSubmission(id, {
+        status: 'approved',
+        admin_comment: comment || null,
+        reviewed_at: new Date().toISOString()
+      });
+      toast('✅ Aprobado — recuerda sumar el XP en la app y guardar a GitHub');
+      const item = allEvid.find(i => i.id === id);
+      if (item) { item.status = 'approved'; item.admin_comment = comment; }
+      renderEvid();
+    } catch (e) { toast('❌ Error: ' + e.message); }
+  };
+
+  window.rejectEvid = async function(id) {
+    const comment = document.getElementById(`comment-${id}`)?.value || '';
+    if (!comment) {
+      toast('⚠️ Escribe un motivo de rechazo para el alumno');
+      document.getElementById(`comment-${id}`)?.focus();
+      return;
+    }
+    try {
+      await updateSubmission(id, {
+        status: 'rejected',
+        admin_comment: comment,
+        reviewed_at: new Date().toISOString()
+      });
+      toast('❌ Rechazado');
+      const item = allEvid.find(i => i.id === id);
+      if (item) { item.status = 'rejected'; item.admin_comment = comment; }
+      renderEvid();
+    } catch (e) { toast('❌ Error: ' + e.message); }
+  };
+
+  // ============================================
+  // RENDER CANJES
+  // ============================================
+  function renderCanjes() {
+    const list = document.getElementById('listCanjes');
+    let items = allCanjes;
+    if (canjesFilter !== 'all') items = items.filter(i => i.status === canjesFilter);
+
+    const pendingCount = allCanjes.filter(i => i.status === 'pending').length;
+    const badge = document.getElementById('badgeCanjes');
+    badge.textContent = pendingCount;
+    badge.style.display = pendingCount > 0 ? '' : 'none';
+
+    if (!items.length) {
+      list.innerHTML = '<div class="empty-state">No hay canjes aquí</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(item => `
+      <div class="card" id="canje-${item.id}">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${item.item_name}</div>
+            <div class="card-meta">Solicitado el ${fmtDate(item.created_at)}</div>
+          </div>
+          ${statusBadge(item.status)}
+        </div>
+
+        <div class="hero-chip">
+          <div class="group-dot"></div>
+          ${item.hero_name} · Grupo ${item.hero_group}
+        </div>
+
+        <div style="font-size:0.82rem; color:rgba(255,255,255,0.5);">
+          Costo: 🏅 ${item.item_cost} medallas
+        </div>
+
+        ${item.status === 'pending' ? `
+          <div class="actions">
+            <button class="btn-deliver" onclick="deliverCanje('${item.id}')">✅ Marcar como entregado</button>
+          </div>
+        ` : `
+          <div style="font-size:0.78rem; color:rgba(255,255,255,0.3); margin-top:0.75rem;">Entregado el ${fmtDate(item.delivered_at)}</div>
+        `}
+      </div>
+    `).join('');
+  }
+
+  window.deliverCanje = async function(id) {
+    try {
+      await updateStoreClaim(id, {
+        status: 'delivered',
+        delivered_at: new Date().toISOString()
+      });
+      toast('✅ Marcado como entregado');
+      const item = allCanjes.find(i => i.id === id);
+      if (item) { item.status = 'delivered'; item.delivered_at = new Date().toISOString(); }
+      renderCanjes();
+    } catch (e) { toast('❌ Error: ' + e.message); }
+  };
+
+  // ============================================
+  // CARGAR DATOS
+  // ============================================
+  async function loadAll() {
+    try {
+      [allEvid, allCanjes] = await Promise.all([getAllSubmissions(), getAllStoreClaims()]);
+      renderEvid();
+      renderCanjes();
+    } catch (e) {
+      document.getElementById('listEvid').innerHTML = `<div class="empty-state">Error al cargar: ${e.message}</div>`;
+    }
+  }
+
+  loadAll();
+
+  // Auto-refresh cada 30 segundos
+  setInterval(loadAll, 30000);
+</script>
+
+</body>
+</html>
