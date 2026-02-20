@@ -1749,6 +1749,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{ width:0; height:0; }
   cursor:pointer;
   touch-action: pan-x;
 }
+/* Ocultar thumb del slider en modo viewer (alumnos) */
+.viewer-mode .statRange{
+  display: none;
+  pointer-events: none;
+}
 .statNum{
   min-width: 34px;
   text-align:center;

@@ -44,6 +44,20 @@
           });
         }
 
+        // Mostrar botón de salir en el sidebar
+        const sideLogout = document.getElementById('sidebarLogoutBtn');
+        const sideLogoutName = document.getElementById('sidebarLogoutName');
+        if (sideLogout) sideLogout.style.display = 'block';
+        if (sideLogoutName) {
+          const trySetName = (n) => {
+            const hero = window.state?.data?.heroes?.find(h => h.id === session.heroId);
+            const name = hero?.name || session.email.split('@')[0];
+            sideLogoutName.textContent = '⚔️ ' + name;
+            if (!hero && n > 0) setTimeout(() => trySetName(n-1), 600);
+          };
+          setTimeout(() => trySetName(5), 400);
+        }
+
         // Mostrar badge de sesión en el topbar
         const badge = document.getElementById('studentSessionBadge');
         if (badge) {
@@ -181,6 +195,25 @@
         </div>
 
         <div class="list" id="heroList"></div>
+
+        <!-- Botón de salir — solo visible cuando hay sesión activa -->
+        <div id="sidebarLogoutBtn" style="display:none; padding: 12px 8px 6px;">
+          <button onclick="window.LevelUp?.logout()" style="
+            width:100%;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:10px 16px;
+            color:rgba(255,255,255,0.45);
+            font-size:13px;
+            cursor:pointer;
+            transition: all 0.2s;
+          " onmouseover="this.style.borderColor='rgba(255,100,100,0.3)';this.style.color='rgba(255,120,120,0.9)'"
+             onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.45)'">
+            <span id="sidebarLogoutName">⚔️</span> · Cerrar sesión
+          </button>
+        </div>
       </aside>
 
       <section class="content" id="content" aria-label="Contenido principal">

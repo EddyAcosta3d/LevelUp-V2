@@ -90,6 +90,19 @@ export async function init(){
     updateDeviceDebug();
     syncDetailsUI();
 
+    // Exponer getSession globalmente para que fichas.js pueda usarlo
+    window.LevelUp = window.LevelUp || {};
+    window.LevelUp.getSession = getSession;
+
+    // Si hay sesión de alumno, pre-seleccionar su héroe antes de renderizar
+    if (_sess && !_sess.isAdmin && _sess.heroId) {
+      state.selectedHeroId = _sess.heroId;
+      // También cambiar al grupo correcto
+      const heroId = _sess.heroId;
+      const groupMatch = heroId.match(/^h_(\d+d)_/i);
+      if (groupMatch) state.group = groupMatch[1].toUpperCase();
+    }
+
     // CARGAR DATOS PRIMERO (crítico para que los bindings tengan datos disponibles)
     await loadData({forceRemote:false});
 
