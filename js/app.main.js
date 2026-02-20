@@ -184,6 +184,7 @@ export async function init(){
   })();
 
 
+<<<<<<< codex/fix-challenge-assignment-button-visibility-svvnkp
 let _deferredInstallPrompt = null;
 
 function setupPWAInstallPrompt(){
@@ -229,6 +230,8 @@ function setupPWAInstallPrompt(){
   });
 }
 
+=======
+>>>>>>> main
 function registerServiceWorker(){
   if (!('serviceWorker' in navigator)) return;
   window.addEventListener('load', ()=>{
@@ -238,5 +241,8 @@ function registerServiceWorker(){
   });
 }
 
+<<<<<<< codex/fix-challenge-assignment-button-visibility-svvnkp
 setupPWAInstallPrompt();
+=======
+>>>>>>> main
 registerServiceWorker();
