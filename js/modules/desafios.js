@@ -30,6 +30,18 @@ import {
   difficultyLabel
 } from './fichas.js';
 
+function getChallengeContextHero(){
+  // Contexto principal: héroe actualmente seleccionado.
+  const hero = currentHero();
+  if (hero) return hero;
+
+  // Fallback defensivo: en sesión admin sin selección previa,
+  // tomar el primer héroe del grupo actual para habilitar asignación.
+  const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
+  const inGroup = heroes.filter(h => String(h.group || '2D') === String(state.group || '2D'));
+  return inGroup[0] || heroes[0] || null;
+}
+
 function isChallengeUnlockedForHero(hero, challengeId){
   if (!hero) return false;
   const assigned = hero.assignedChallenges;
