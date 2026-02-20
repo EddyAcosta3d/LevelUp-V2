@@ -33,17 +33,9 @@ import {
 function isChallengeUnlockedForHero(hero, challengeId){
   if (!hero) return false;
   const assigned = hero.assignedChallenges;
-  if (!Array.isArray(assigned)) return false;
+  // Backward compat: si aún no se usa asignación explícita, no bloqueamos.
+  if (!Array.isArray(assigned)) return true;
   return assigned.includes(String(challengeId));
-}
-
-function getChallengeContextHero(){
-  const session = (()=>{ try{ return window.LevelUp?.getSession?.() || null; }catch(_e){ return null; } })();
-  if (session && !session.isAdmin && session.heroId){
-    const h = (state.data?.heroes || []).find(x => String(x.id) === String(session.heroId));
-    if (h) return h;
-  }
-  return currentHero();
 }
 
 export function renderChallenges(){
@@ -294,7 +286,6 @@ export function renderChallengeDetail(){
   const subj = ch.subject || (state.data?.subjects || []).find(s=>s.id === ch.subjectId)?.name || '—';
   const done = isChallengeDone(hero, ch.id);
   const canEditView = document.documentElement.classList.contains('is-edit');
-  const isTeacherView = (state.role === 'teacher') || document.body.classList.contains('admin-mode');
   const unlocked = isChallengeUnlockedForHero(hero, ch.id);
   // doneAt se guarda internamente, pero no lo mostramos en UI (se veía como un número largo).
 
@@ -309,7 +300,7 @@ export function renderChallengeDetail(){
 
   if (titleEl) titleEl.textContent = displayTitle;
   if (subEl) {
-    subEl.textContent = isTeacherView
+    subEl.textContent = canEditView
       ? `${subj} · Puedes asignar este desafío al alumno con el botón 🔓/🔒`
       : '';
   }
@@ -329,10 +320,10 @@ export function renderChallengeDetail(){
 
   if (bodyEl){
     bodyEl.hidden = false;
-    if (!isTeacherView && !unlocked){
+    if (!canEditView && !unlocked){
       bodyEl.innerHTML = '<div class="muted">🔒 Este desafío está bloqueado. Pídele a tu profe que te lo asigne para ver las instrucciones.</div>';
     } else {
-      bodyEl.innerHTML = (isTeacherView ? '<div class="chInstrLabel">Instrucciones</div>' : '') + formatBody(ch.body);
+      bodyEl.innerHTML = (canEditView ? '<div class="chInstrLabel">Instrucciones</div>' : '') + formatBody(ch.body);
     }
   }
 
@@ -344,15 +335,13 @@ export function renderChallengeDetail(){
     btnComplete.dataset.state = done ? 'done' : 'pending';
   }
 
-  if (isTeacherView && hero && badgesEl){
+  if (canEditView && hero && badgesEl){
     const assignBtn = document.createElement('button');
     assignBtn.type = 'button';
     assignBtn.className = 'pill pill--ghost';
     assignBtn.style.marginLeft = '8px';
     assignBtn.textContent = unlocked ? '🔒 Quitar asignación' : '🔓 Asignar a este alumno';
-    assignBtn.addEventListener('click', (ev)=>{
-      ev.preventDefault();
-      ev.stopPropagation();
+    assignBtn.addEventListener('click', ()=>{
       if (!Array.isArray(hero.assignedChallenges)) hero.assignedChallenges = [];
       const chId = String(ch.id);
       const i = hero.assignedChallenges.indexOf(chId);
@@ -364,8 +353,6 @@ export function renderChallengeDetail(){
         window.toast?.('Desafío asignado al alumno');
       }
       saveLocal(state.data);
-      renderChallengeDetail();
-      // refrescar lista para actualizar badge 🔒
       renderChallenges();
     });
     badgesEl.appendChild(assignBtn);

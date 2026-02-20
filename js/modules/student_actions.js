@@ -80,7 +80,7 @@ export function renderSubmitButton(session, challengeId) {
 
   // Si el profe ya usa asignación explícita, solo permitir envío en desafíos asignados.
   const assigned = hero.assignedChallenges;
-  const isUnlocked = Array.isArray(assigned) && assigned.includes(String(challengeId));
+  const isUnlocked = !Array.isArray(assigned) || assigned.includes(String(challengeId));
   if (!isUnlocked) return;
 
   // Verificar si ya fue enviado
