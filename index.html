@@ -32,14 +32,17 @@
       window.location.replace('login.html');
     }
 
-    // Si hay sesión de alumno (no admin): ocultar elementos de admin
-    if (session && !session.isAdmin) {
+    // Si hay sesión activa: mostrar badge de salir
+    // Si además NO es admin: ocultar elementos de admin
+    if (session) {
       document.addEventListener('DOMContentLoaded', () => {
-        // Ocultar todos los elementos marcados como admin-only
-        document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(el => {
-          el.hidden = true;
-          el.style.display = 'none';
-        });
+        // Ocultar elementos admin-only SOLO si es alumno (no admin)
+        if (!session.isAdmin) {
+          document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(el => {
+            el.hidden = true;
+            el.style.display = 'none';
+          });
+        }
 
         // Mostrar badge de sesión en el topbar
         const badge = document.getElementById('studentSessionBadge');
