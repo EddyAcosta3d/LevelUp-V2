@@ -416,8 +416,8 @@
   .heroScene {
     height: auto;
     aspect-ratio: 4 / 5;
-    min-height: clamp(240px, 38svh, 320px);
-    max-height: min(52svh, 420px);
+    min-height: clamp(250px, 40svh, 340px);
+    max-height: min(58svh, 440px);
   }
 
   /* FG layer: contain to show full character, anchored at bottom-center */
@@ -427,11 +427,16 @@
     background-position: 50% 100%;
   }
 
-  /* BG layer: cover the whole scene area */
+  /* BG/MID más grandes para que el parallax no recorte la escena */
   .heroSceneLayer--bg {
-    inset: 0;
+    inset: -14%;
     background-size: cover;
-    background-position: center;
+    background-position: 50% 52%;
+  }
+
+  .heroSceneLayer--mid {
+    inset: -10%;
+    background-position: 50% 68%;
   }
 
   /* Nombre overlay: compacto */

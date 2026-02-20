@@ -925,21 +925,30 @@ export function toggleSubjectDropdown(){
       const sceneH = scene.offsetHeight || 1;
       const center = scrollTop + viewH * 0.5;
       const progress = (center - sceneTop) / (sceneH + viewH); // aprox 0..1
-      const p = Math.max(-0.25, Math.min(1.25, progress));
+      const p = Math.max(-0.12, Math.min(1.12, progress));
+      const smallPhone = !!(window.matchMedia && window.matchMedia('(max-width: 560px)').matches);
+      const travel = smallPhone ? 180 : 260;
 
       layers.forEach(layer => {
         const speed = parseFloat(layer.getAttribute('data-speed') || '0.2');
-        // Efecto más fuerte (se nota más en celular al hacer scroll)
-        let y = (p - 0.5) * 380 * speed;
+        let y = (p - 0.5) * travel * speed;
 
         // Prioridad móvil: mantener FG anclada al borde inferior de la escena.
         // Evitamos desplazamiento hacia arriba (y negativo) para que no "flote"
         // separado del piso visual del background.
         if (layer.classList && layer.classList.contains('heroSceneLayer--fg')){
-          y = Math.max(0, y);
-          if (window.matchMedia && window.matchMedia('(max-width: 560px)').matches){
+          y = Math.max(0, Math.min(18, y * 0.35));
+          if (smallPhone){
             y = 0;
           }
+        }
+
+        if (layer.classList && layer.classList.contains('heroSceneLayer--bg')){
+          y = Math.max(-26, Math.min(26, y));
+        }
+
+        if (layer.classList && layer.classList.contains('heroSceneLayer--mid')){
+          y = Math.max(-18, Math.min(18, y));
         }
 
         layer.style.transform = `translate3d(0, ${y}px, 0)`;
