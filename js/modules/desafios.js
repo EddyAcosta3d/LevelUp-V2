@@ -357,12 +357,6 @@ export function renderChallengeDetail(){
     assignBtn.className = 'pill pill--ghost';
     assignBtn.style.marginLeft = '8px';
     assignBtn.textContent = unlocked ? 'Asignado' : 'Asignar';
-    assignBtn.setAttribute('aria-pressed', String(unlocked));
-    assignBtn.classList.toggle('is-active', unlocked);
-    assignBtn.title = unlocked
-      ? 'Este desafío está desbloqueado para el alumno seleccionado.'
-      : 'Este desafío está bloqueado para el alumno seleccionado.';
-
     assignBtn.addEventListener('click', ()=>{
       if (!Array.isArray(hero.assignedChallenges)) hero.assignedChallenges = [];
       const chId = String(ch.id);
