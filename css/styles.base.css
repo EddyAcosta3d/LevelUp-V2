@@ -1321,9 +1321,15 @@ body::-webkit-scrollbar,
 .heroPhotoFill img{
   width: 100%;
   height: 100%;
-  object-fit: contain; /* mostrar casi toda la imagen */
+  object-fit: cover; /* llenar todo el panel para evitar huecos */
   object-position: 50% 100%;
   display:block;
+}
+
+/* Asegura redondeo consistente en ambas esquinas superiores de la ficha */
+.card--avatar .heroPhotoFill,
+.card--avatar .heroPhotoFill img{
+  border-radius: inherit;
 }
 
 .heroSceneShade{
