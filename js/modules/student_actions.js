@@ -78,9 +78,9 @@ export function renderSubmitButton(session, challengeId) {
   const challenge = state.data?.challenges?.find(c => c.id === challengeId);
   if (!challenge) return;
 
-  // Si el profe ya usa asignación explícita, solo permitir envío en desafíos asignados.
+  // Regla actual: solo permitir envío en desafíos explícitamente asignados.
   const assigned = hero.assignedChallenges;
-  const isUnlocked = !Array.isArray(assigned) || assigned.includes(String(challengeId));
+  const isUnlocked = Array.isArray(assigned) && assigned.includes(String(challengeId));
   if (!isUnlocked) return;
 
   // Verificar si ya fue enviado
