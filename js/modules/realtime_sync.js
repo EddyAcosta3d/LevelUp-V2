@@ -86,7 +86,7 @@ export async function preloadStudentAssignments(heroId) {
 export async function loadAllAssignmentsIntoState() {
   try {
     const rows = await getAllHeroAssignments();
-    if (!Array.isArray(rows) || rows.length === 0) return;
+    if (!Array.isArray(rows)) return;
 
     const heroes = state.data?.heroes || [];
 
@@ -97,11 +97,10 @@ export async function loadAllAssignmentsIntoState() {
       byHero[hero_id].push(String(challenge_id));
     });
 
-    // Aplicar a cada héroe en state (solo si Supabase tiene registros para ese héroe)
+    // Supabase es la fuente de verdad: si un héroe no tiene filas,
+    // su lista debe quedar vacía (desafíos bloqueados).
     heroes.forEach(hero => {
-      if (byHero[hero.id]) {
-        hero.assignedChallenges = byHero[hero.id];
-      }
+      hero.assignedChallenges = Array.isArray(byHero[hero.id]) ? byHero[hero.id] : [];
     });
   } catch (_e) {
     // Fallo silencioso — usar las asignaciones del JSON local

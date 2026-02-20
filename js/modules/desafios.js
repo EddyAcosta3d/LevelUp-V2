@@ -26,7 +26,8 @@ import {
 
 import {
   upsertHeroAssignment,
-  deleteHeroAssignment
+  deleteHeroAssignment,
+  getHeroAssignments
 } from './supabase_client.js';
 
 import {
@@ -392,7 +393,17 @@ export function renderChallengeDetail(){
       const fn = assigning
         ? upsertHeroAssignment(targetHero.id, chId)
         : deleteHeroAssignment(targetHero.id, chId);
-      fn.catch(err => {
+      fn.then(async ()=> {
+        // Releer desde Supabase para confirmar el estado real guardado.
+        try {
+          const remoteAssignments = await getHeroAssignments(targetHero.id);
+          targetHero.assignedChallenges = remoteAssignments;
+          saveLocal(state.data);
+          renderChallenges();
+        } catch (_e) {
+          // Si falla la lectura, mantenemos el estado local optimista.
+        }
+      }).catch(err => {
         console.warn('[Sync] Error al sincronizar asignación:', err);
         window.toast?.(`⚠️ No se guardó en la nube: ${err.message || 'revisa tu conexión'}`);
       });
