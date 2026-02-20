@@ -25,6 +25,11 @@ import {
 } from './store.js';
 
 import {
+  upsertHeroAssignment,
+  deleteHeroAssignment
+} from './supabase_client.js';
+
+import {
   currentHero,
   ensureChallengeUI,
   difficultyLabel
@@ -375,15 +380,23 @@ export function renderChallengeDetail(){
       if (!Array.isArray(targetHero.assignedChallenges)) targetHero.assignedChallenges = [];
       const chId = String(ch.id);
       const i = targetHero.assignedChallenges.indexOf(chId);
+      let assigning;
       if (i >= 0){
         targetHero.assignedChallenges.splice(i, 1);
         window.toast?.(`🔒 ${targetHero.name || 'Alumno'}: desafío bloqueado`);
+        assigning = false;
       } else {
         targetHero.assignedChallenges.push(chId);
         window.toast?.(`🔓 ${targetHero.name || 'Alumno'}: desafío desbloqueado`);
+        assigning = true;
       }
       saveLocal(state.data);
       renderChallenges();
+      // Sincronizar con Supabase en segundo plano (no bloquea la UI)
+      const fn = assigning
+        ? upsertHeroAssignment(targetHero.id, chId)
+        : deleteHeroAssignment(targetHero.id, chId);
+      fn.catch(err => console.warn('[Sync] Error al sincronizar asignación:', err));
     });
     badgesEl.appendChild(assignBtn);
   }

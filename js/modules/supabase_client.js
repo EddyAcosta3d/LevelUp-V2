@@ -127,6 +127,51 @@ export async function updateStoreClaim(id, data) {
 }
 
 // ============================================
+// HERO ASSIGNMENTS — Asignaciones en tiempo real
+// ============================================
+
+export async function upsertHeroAssignment(heroId, challengeId) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/hero_assignments`, {
+    method: 'POST',
+    headers: {
+      ...headers(),
+      'Prefer': 'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify({ hero_id: heroId, challenge_id: String(challengeId) })
+  });
+  if (!res.ok) throw new Error(await parseError(res, `Error al asignar: ${res.status}`));
+  return true;
+}
+
+export async function deleteHeroAssignment(heroId, challengeId) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
+    { method: 'DELETE', headers: headers() }
+  );
+  if (!res.ok) throw new Error(await parseError(res, `Error al desasignar: ${res.status}`));
+  return true;
+}
+
+export async function getHeroAssignments(heroId) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&select=challenge_id`,
+    { headers: headers() }
+  );
+  if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones: ${res.status}`));
+  const rows = await res.json();
+  return rows.map(r => r.challenge_id);
+}
+
+export async function getAllHeroAssignments() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/hero_assignments?select=hero_id,challenge_id`,
+    { headers: headers() }
+  );
+  if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones: ${res.status}`));
+  return await res.json();
+}
+
+// ============================================
 // STORAGE — Subir archivos de evidencia
 // ============================================
 

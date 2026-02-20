@@ -12,6 +12,7 @@ import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
 import { initProjectorMode, isProjectorMode } from './modules/projector.js';
 import { getSession } from './modules/hero_session.js';
+import { startAssignmentSync, loadAllAssignmentsIntoState } from './modules/realtime_sync.js';
 
 
 const setActiveRoute = (...args) => {
@@ -127,6 +128,20 @@ export async function init(){
       bind();
       setRole(IS_ADMIN ? 'teacher' : 'viewer');
       syncDetailsUI();
+    }
+
+    // Sincronización de asignaciones con Supabase
+    if (IS_ADMIN) {
+      // Profe: cargar asignaciones de todos los alumnos al arrancar
+      loadAllAssignmentsIntoState().then(() => {
+        // Re-renderizar si ya había algo en pantalla
+        if (typeof window.renderChallenges === 'function') window.renderChallenges();
+      }).catch(() => {});
+    } else if (_sess && _sess.heroId) {
+      // Alumno: polling cada 5s para detectar nuevas asignaciones
+      startAssignmentSync(_sess.heroId, () => {
+        if (typeof window.renderChallenges === 'function') window.renderChallenges();
+      });
     }
   }
   (async()=>{ try{ await init(); } finally { hideSplash(); } })();
