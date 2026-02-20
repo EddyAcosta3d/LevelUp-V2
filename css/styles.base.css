@@ -965,18 +965,46 @@ body{
 .shell.is-drawer-open .bottomNav{ pointer-events: none; }
 .bottomNav__btn{
   flex:1;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
   color: var(--text);
-  border-radius: 18px;
-  padding: 14px 10px;
-  font-size: 13px;
+  border-radius: 16px;
+  padding: 10px 6px;
+  font-size: 11px;
   cursor:pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  transition: background .15s, border-color .15s;
+}
+.bottomNav__icon{
+  font-size: 22px;
+  line-height: 1;
+  display: block;
+}
+.bottomNav__label{
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
-.bottomNav__btn.is-active{ background: rgba(34,211,238,0.14); border-color: rgba(34,211,238,0.55); box-shadow: 0 0 0 2px rgba(34,211,238,0.12) inset; }
+.bottomNav__btn.is-active{
+  background: rgba(34,211,238,0.14);
+  border-color: rgba(34,211,238,0.55);
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.12) inset;
+  color: rgba(34,211,238,0.95);
+}
+
+/* Botón instalar: solo en desktop (el sidebar tiene el suyo para móvil/tablet) */
+#btnInstallApp{ display: none; }
+@media (min-width: 981px){ #btnInstallApp{ display: inline-flex; } }
+
+/* Sidebar install: solo en tablet/móvil */
+@media (min-width: 981px){ #sidebarInstallAppWrap{ display: none !important; } }
 
 /* Tablet */
 @media (max-width: 1180px){
