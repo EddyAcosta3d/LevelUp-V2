@@ -2,7 +2,18 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-004';
+const SW_VERSION = 'levelup-v2-sw-005';
+
+function shouldCacheResponse(res){
+  return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
+}
+
+function safeCachePut(request, res){
+  if (!shouldCacheResponse(res)) return;
+  caches.open(SW_VERSION)
+    .then((cache) => cache.put(request, res))
+    .catch(() => {});
+}
 
 const APP_SHELL = [
   './',
@@ -50,7 +61,7 @@ self.addEventListener('install', (event) => {
       return Promise.allSettled(
         APP_SHELL.map((url) =>
           fetch(new Request(url, { cache: 'reload' }))
-            .then((res) => { if (res.ok) return cache.put(url, res); })
+            .then((res) => { if (shouldCacheResponse(res)) return cache.put(url, res); })
             .catch(() => {})   // ignora silenciosamente archivos no disponibles
         )
       );
@@ -74,6 +85,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  if (req.headers.has('range')) return;
 
   const url = new URL(req.url);
   if (!/^https?:$/.test(url.protocol)) return;
@@ -91,10 +103,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          if (res.ok) {
-            const copy = res.clone();
-            caches.open(SW_VERSION).then((cache) => cache.put(req, copy));
-          }
+          safeCachePut(req, res.clone());
           return res;
         })
         .catch(() => caches.match(req))   // fallback offline: caché
@@ -107,8 +116,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(SW_VERSION).then((cache) => cache.put(req, copy));
+          safeCachePut(req, res.clone());
           return res;
         })
         .catch(() => caches.match(req))
@@ -121,10 +129,7 @@ self.addEventListener('fetch', (event) => {
     caches.match(req).then((cached) => {
       if (cached) return cached;
       return fetch(req).then((res) => {
-        if (res.ok) {
-          const copy = res.clone();
-          caches.open(SW_VERSION).then((cache) => cache.put(req, copy));
-        }
+        safeCachePut(req, res.clone());
         return res;
       });
     })

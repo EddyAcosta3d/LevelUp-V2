@@ -27,7 +27,8 @@ import {
 import {
   upsertHeroAssignment,
   deleteHeroAssignment,
-  getHeroAssignments
+  getHeroAssignments,
+  hasActiveSessionToken
 } from './supabase_client.js';
 
 import {
@@ -390,6 +391,11 @@ export function renderChallengeDetail(){
       saveLocal(state.data);
       renderChallenges();
       // Sincronizar con Supabase en segundo plano (no bloquea la UI)
+      if (!hasActiveSessionToken()){
+        window.toast?.('⚠️ Tu sesión expiró. Inicia sesión de nuevo para sincronizar en la nube.');
+        return;
+      }
+
       const fn = assigning
         ? upsertHeroAssignment(targetHero.id, chId)
         : deleteHeroAssignment(targetHero.id, chId);
@@ -404,8 +410,13 @@ export function renderChallengeDetail(){
           // Si falla la lectura, mantenemos el estado local optimista.
         }
       }).catch(err => {
-        console.warn('[Sync] Error al sincronizar asignación:', err);
-        window.toast?.(`⚠️ No se guardó en la nube: ${err.message || 'revisa tu conexión'}`);
+        if (String(err?.message || '') !== 'AUTH_REQUIRED'){
+          console.warn('[Sync] Error al sincronizar asignación:', err);
+        }
+        const msg = String(err?.message || '') === 'AUTH_REQUIRED'
+          ? 'Tu sesión expiró. Inicia sesión de nuevo para sincronizar.'
+          : (err.message || 'revisa tu conexión');
+        window.toast?.(`⚠️ No se guardó en la nube: ${msg}`);
       });
     });
     badgesEl.appendChild(assignBtn);

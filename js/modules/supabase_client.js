@@ -54,6 +54,10 @@ function getSessionToken() {
   return token;
 }
 
+export function hasActiveSessionToken() {
+  return !!getSessionToken();
+}
+
 async function parseError(res, fallback) {
   try {
     const data = await res.json();
@@ -165,6 +169,7 @@ export async function updateStoreClaim(id, data) {
 // ============================================
 
 export async function upsertHeroAssignment(heroId, challengeId) {
+  if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch('/rest/v1/hero_assignments', {
     method: 'POST',
     headers: {
@@ -177,6 +182,7 @@ export async function upsertHeroAssignment(heroId, challengeId) {
 }
 
 export async function deleteHeroAssignment(heroId, challengeId) {
+  if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch(
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
     { method: 'DELETE' }
@@ -186,6 +192,7 @@ export async function deleteHeroAssignment(heroId, challengeId) {
 }
 
 export async function getHeroAssignments(heroId) {
+  if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch(
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&select=challenge_id`
   );
