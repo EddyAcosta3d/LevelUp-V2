@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#111827" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -101,7 +102,7 @@
           if (badge) {
             badge.hidden = false;
             badge.style.cssText = '';
-            badge.innerHTML = '<button onclick="window.LevelUp.logout()" style="display:flex;align-items:center;gap:6px;background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);border-radius:99px;padding:6px 14px;font-size:12px;color:#FFD166;cursor:pointer;white-space:nowrap;">⚔️ ' + name + ' <span style="opacity:0.5;font-size:11px;">· salir</span></button>';
+            badge.innerHTML = '<button class="sessionPill" onclick="window.LevelUp.logout()"><span class="sessionPill__icon">⚔️</span><span class="sessionPill__name">' + name + '</span><span class="sessionPill__hint">· salir</span></button>';
           }
           if (!hero && n > 0) setTimeout(function() { fillName(n - 1); }, 500);
         }
@@ -226,27 +227,17 @@
         </div>
 
         <!-- Botón salir: visible solo en móvil (en desktop está en el header) -->
-        <div id="sidebarLogoutBtn" style="display:none; padding: 0 0 10px 0;">
-          <button onclick="window.LevelUp?.logout()" style="
-            width:100%;
-            display:flex; align-items:center; gap:8px;
-            background:rgba(255,255,255,0.04);
-            border:1px solid rgba(255,255,255,0.08);
-            border-radius:10px;
-            padding:9px 14px;
-            color:rgba(255,255,255,0.5);
-            font-size:12px;
-            cursor:pointer;
-          ">
+        <div id="sidebarLogoutBtn" class="sidebarLogoutWrap">
+          <button onclick="window.LevelUp?.logout()" class="sidebarLogoutBtn">
             <span id="sidebarLogoutName">⚔️</span>
-            <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
-            <span style="font-size:11px; opacity:0.5; white-space:nowrap;">Cerrar sesión ✕</span>
+            <span class="sidebarLogoutBtn__name"></span>
+            <span class="sidebarLogoutBtn__hint">Cerrar sesión ✕</span>
           </button>
         </div>
 
         
-        <div id="sidebarInstallAppWrap" style="padding: 0 0 10px 0;">
-          <button class="pill pill--small pill--ghost" id="btnInstallAppSidebar" data-install-app="1" type="button" style="width:100%;">📲 Instalar app</button>
+        <div id="sidebarInstallAppWrap" class="sidebarInstallWrap">
+          <button class="pill pill--small pill--ghost sidebarInstallBtn" id="btnInstallAppSidebar" data-install-app="1" type="button">📲 Instalar app</button>
         </div>
 
         <div class="list" id="heroList"></div>

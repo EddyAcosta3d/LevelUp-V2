@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-003';
+const SW_VERSION = 'levelup-v2-sw-004';
 
 const APP_SHELL = [
   './',
@@ -76,6 +76,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+  if (!/^https?:$/.test(url.protocol)) return;
   const path = url.pathname;
 
   // HTML y JS: network-first → nunca sirve archivos rotos del caché

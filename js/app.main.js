@@ -219,7 +219,6 @@ function setupPWAInstallPrompt(){
   setButtonsHidden(!!isStandalone);
 
   window.addEventListener('beforeinstallprompt', (e)=>{
-    e.preventDefault();
     _deferredInstallPrompt = e;
     setButtonsHidden(false);
   });
