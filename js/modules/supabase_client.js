@@ -72,7 +72,6 @@ const buildHeaders = ({ useAnon = false } = {}) => ({
 
 async function supabaseFetch(path, init = {}, { retryWithAnon = true } = {}) {
   const customHeaders = init.headers || {};
-  const hadSessionToken = !!getSession()?.token;
   const doFetch = (useAnon = false) => fetch(`${SUPABASE_URL}${path}`, {
     ...init,
     headers: {
@@ -82,7 +81,7 @@ async function supabaseFetch(path, init = {}, { retryWithAnon = true } = {}) {
   });
 
   let res = await doFetch(false);
-  if (retryWithAnon && res.status === 401 && hadSessionToken) {
+  if (retryWithAnon && res.status === 401 && getSessionToken()) {
     clearSessionToken();
     res = await doFetch(true);
   }
