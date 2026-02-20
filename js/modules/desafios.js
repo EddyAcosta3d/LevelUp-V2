@@ -30,6 +30,14 @@ import {
   difficultyLabel
 } from './fichas.js';
 
+function isChallengeUnlockedForHero(hero, challengeId){
+  if (!hero) return false;
+  const assigned = hero.assignedChallenges;
+  // Backward compat: si aún no se usa asignación explícita, no bloqueamos.
+  if (!Array.isArray(assigned)) return true;
+  return assigned.includes(String(challengeId));
+}
+
 export function renderChallenges(){
     // Ensure default filters: one subject + easy difficulty
     const subjectsAll = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
@@ -136,6 +144,7 @@ export function renderChallenges(){
 
   sorted.forEach(ch=>{
     const done = isChallengeDone(hero, ch.id);
+    const unlocked = isChallengeUnlockedForHero(hero, ch.id);
     const item = document.createElement('div');
     item.className = 'challengeItem' + (done ? ' is-done' : '') + (state.selectedChallengeId===ch.id ? ' is-selected' : '');
     item.dataset.diff = String(ch.difficulty || '').toLowerCase();
@@ -164,6 +173,7 @@ export function renderChallenges(){
         <div class="challengeMetaRow">
           <span class="chPill chPill--${escapeHtml(String(ch.difficulty||'').toLowerCase())}"><span class="i">⚡</span>${escapeHtml(diffLabel)}</span>
           <span class="chPill chPill--xp"><span class="i">⭐</span>${escapeHtml(String(pts))} XP</span>
+          ${!canEdit && !unlocked ? `<span class="chPill"><span class="i">🔒</span>Bloqueado</span>` : ''}
           ${canEdit ? `
             <div class="chItemActions" data-edit-only="1">
               <button class="chIconBtn" type="button" data-act="edit" title="Editar" aria-label="Editar">✎</button>
@@ -193,6 +203,9 @@ export function renderChallenges(){
     item.addEventListener('click', ()=>{
       state.selectedChallengeId = ch.id;
       renderChallengeDetail();
+      document.dispatchEvent(new CustomEvent('challengeSelected', {
+        detail: { challengeId: state.selectedChallengeId }
+      }));
       // update selected state without rerendering whole list later
       $$('#challengeList .challengeItem').forEach(el=> el.classList.toggle('is-selected', el === item));
     });
@@ -201,6 +214,9 @@ export function renderChallenges(){
   });
 
   renderChallengeDetail();
+  document.dispatchEvent(new CustomEvent('challengeSelected', {
+    detail: { challengeId: state.selectedChallengeId }
+  }));
 }
 
 
@@ -270,6 +286,7 @@ export function renderChallengeDetail(){
   const subj = ch.subject || (state.data?.subjects || []).find(s=>s.id === ch.subjectId)?.name || '—';
   const done = isChallengeDone(hero, ch.id);
   const canEditView = document.documentElement.classList.contains('is-edit');
+  const unlocked = isChallengeUnlockedForHero(hero, ch.id);
   // doneAt se guarda internamente, pero no lo mostramos en UI (se veía como un número largo).
 
   const stripSubjectPrefix = (title, subjectName)=>{
@@ -282,7 +299,11 @@ export function renderChallengeDetail(){
   const displayTitle = stripSubjectPrefix(ch.title, subj) || 'Desafío';
 
   if (titleEl) titleEl.textContent = displayTitle;
-  if (subEl) subEl.textContent = canEditView ? `${subj}` : '';
+  if (subEl) {
+    subEl.textContent = canEditView
+      ? `${subj} · Puedes asignar este desafío al alumno con el botón 🔓/🔒`
+      : '';
+  }
 
   // En el detalle NO repetimos dificultad/XP en la esquina (ya se ven claro en la tarjeta del centro).
   // Aquí solo dejamos el control de estado (Pendiente/Completado) en modo edición, justo en la esquina.
@@ -298,10 +319,12 @@ export function renderChallengeDetail(){
   }
 
   if (bodyEl){
-    bodyEl.hidden = !canEditView;
-    bodyEl.innerHTML = canEditView
-      ? (`<div class="chInstrLabel">Instrucciones</div>` + formatBody(ch.body))
-      : '';
+    bodyEl.hidden = false;
+    if (!canEditView && !unlocked){
+      bodyEl.innerHTML = '<div class="muted">🔒 Este desafío está bloqueado. Pídele a tu profe que te lo asigne para ver las instrucciones.</div>';
+    } else {
+      bodyEl.innerHTML = (canEditView ? '<div class="chInstrLabel">Instrucciones</div>' : '') + formatBody(ch.body);
+    }
   }
 
   if (btnComplete){
@@ -310,6 +333,29 @@ export function renderChallengeDetail(){
     btnComplete.classList.toggle('is-done', done);
     btnComplete.textContent = done ? '✅ Completado' : '⏳ Pendiente';
     btnComplete.dataset.state = done ? 'done' : 'pending';
+  }
+
+  if (canEditView && hero && badgesEl){
+    const assignBtn = document.createElement('button');
+    assignBtn.type = 'button';
+    assignBtn.className = 'pill pill--ghost';
+    assignBtn.style.marginLeft = '8px';
+    assignBtn.textContent = unlocked ? '🔒 Quitar asignación' : '🔓 Asignar a este alumno';
+    assignBtn.addEventListener('click', ()=>{
+      if (!Array.isArray(hero.assignedChallenges)) hero.assignedChallenges = [];
+      const chId = String(ch.id);
+      const i = hero.assignedChallenges.indexOf(chId);
+      if (i >= 0){
+        hero.assignedChallenges.splice(i, 1);
+        window.toast?.('Asignación removida');
+      } else {
+        hero.assignedChallenges.push(chId);
+        window.toast?.('Desafío asignado al alumno');
+      }
+      saveLocal(state.data);
+      renderChallenges();
+    });
+    badgesEl.appendChild(assignBtn);
   }
 
   // Esconde la fila de acciones (ya movimos el botón arriba) para dar más espacio a instrucciones.
