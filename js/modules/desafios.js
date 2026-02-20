@@ -377,6 +377,7 @@ export function renderChallengeDetail(){
       }
       if (!Array.isArray(targetHero.assignedChallenges)) targetHero.assignedChallenges = [];
       const chId = String(ch.id);
+      const prevAssignments = targetHero.assignedChallenges.slice();
       const i = targetHero.assignedChallenges.indexOf(chId);
       let assigning;
       if (i >= 0){
@@ -390,8 +391,12 @@ export function renderChallengeDetail(){
       }
       saveLocal(state.data);
       renderChallenges();
+
       // Sincronizar con Supabase en segundo plano (no bloquea la UI)
       if (!hasActiveSessionToken()){
+        targetHero.assignedChallenges = prevAssignments;
+        saveLocal(state.data);
+        renderChallenges();
         window.toast?.('⚠️ Tu sesión expiró. Inicia sesión de nuevo para sincronizar en la nube.');
         return;
       }
@@ -410,6 +415,9 @@ export function renderChallengeDetail(){
           // Si falla la lectura, mantenemos el estado local optimista.
         }
       }).catch(err => {
+        targetHero.assignedChallenges = prevAssignments;
+        saveLocal(state.data);
+        renderChallenges();
         if (String(err?.message || '') !== 'AUTH_REQUIRED'){
           console.warn('[Sync] Error al sincronizar asignación:', err);
         }

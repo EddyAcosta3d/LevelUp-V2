@@ -192,7 +192,6 @@ export async function deleteHeroAssignment(heroId, challengeId) {
 }
 
 export async function getHeroAssignments(heroId) {
-  if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch(
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&select=challenge_id`
   );

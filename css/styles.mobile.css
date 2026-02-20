@@ -414,9 +414,9 @@
 @media (max-width: 430px) {
   /* Hero scene: prominent viewport-based height */
   .heroScene {
-    height: max(280px, 44svh);
+    height: clamp(320px, 52dvh, 560px);
     min-height: 0;
-    max-height: 58svh;
+    max-height: 68dvh;
   }
 
   /* FG layer: contain to show full character, anchored at bottom-center */
