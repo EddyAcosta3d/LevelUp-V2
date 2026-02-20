@@ -22,13 +22,51 @@
 
   <!-- Verificación de sesión: si no hay sesión Y no es admin → redirigir a login -->
   <script type="module">
-    import { getSession } from './js/modules/hero_session.js';
+    import { getSession, logout } from './js/modules/hero_session.js';
     const session = getSession();
     const params = new URLSearchParams(location.search);
     const isAdmin = params.has('admin');
     const isProjector = params.has('mode');
+
     if (!session && !isAdmin && !isProjector) {
       window.location.replace('login.html');
+    }
+
+    // Si hay sesión de alumno (no admin): ocultar elementos de admin
+    if (session && !session.isAdmin) {
+      document.addEventListener('DOMContentLoaded', () => {
+        // Ocultar todos los elementos marcados como admin-only
+        document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(el => {
+          el.hidden = true;
+          el.style.display = 'none';
+        });
+
+        // Mostrar badge de sesión en el topbar
+        const badge = document.getElementById('studentSessionBadge');
+        if (badge) {
+          // Encontrar el nombre del héroe desde state (puede tardar un poco en cargar)
+          const tryFindHero = (attempts) => {
+            const hero = window.state?.data?.heroes?.find(h => h.id === session.heroId);
+            const name = hero?.name || session.email.split('@')[0];
+            badge.hidden = false;
+            badge.style.cssText = '';
+            badge.innerHTML = `
+              <button onclick="window.LevelUp.logout()" style="
+                display:flex; align-items:center; gap:6px;
+                background:rgba(255,209,102,0.12);
+                border:1px solid rgba(255,209,102,0.25);
+                border-radius:99px; padding:6px 14px;
+                font-size:12px; color:#FFD166; cursor:pointer;
+                white-space:nowrap;
+              ">
+                ⚔️ ${name} <span style="opacity:0.5; font-size:11px;">· salir</span>
+              </button>
+            `;
+            if (!hero && attempts > 0) setTimeout(() => tryFindHero(attempts - 1), 600);
+          };
+          setTimeout(() => tryFindHero(5), 400);
+        }
+      });
     }
   </script>
 </head>
@@ -102,12 +140,15 @@
       </nav>
 
       <div class="topbar__right">
-        <!-- Reemplaza "Presentación" por acceso directo a Recompensas (pantalla separada por ahora) -->
-        <button class="pill pill--ghost" id="btnRecompensas" data-route="recompensas">🏆 Recompensas</button>
-        <button class="pill pill--ghost" id="btnDebugPanel" aria-pressed="false">🧪 Estado</button>
+        <!-- Badge sesión alumno: se rellena desde hero_session.js -->
+        <div id="studentSessionBadge" hidden></div>
+
+        <!-- Solo admin -->
+        <button class="pill pill--ghost" id="btnRecompensas" data-route="recompensas" data-admin-only="1">🏆 Recompensas</button>
+        <button class="pill pill--ghost" id="btnDebugPanel" aria-pressed="false" data-admin-only="1">🧪 Estado</button>
 
         <div class="dropdown">
-          <button class="pill pill--ghost" id="btnDatos" aria-haspopup="menu" aria-expanded="false">💾 Datos ▾</button>
+          <button class="pill pill--ghost" id="btnDatos" aria-haspopup="menu" aria-expanded="false" data-admin-only="1">💾 Datos ▾</button>
           <div class="dropdown__menu" role="menu" aria-label="Datos" id="menuDatos">
             <button class="menuitem" role="menuitem" id="btnSaveToGitHub" data-edit-only="1">💾 Guardar a GitHub</button>
             <button class="menuitem" role="menuitem" id="btnConfigGitHub" data-edit-only="1">⚙️ Configurar GitHub</button>
@@ -120,7 +161,7 @@
           </div>
         </div>
 
-        <button class="pill pill--danger" id="btnEdicion">🔒 Edición</button>
+        <button class="pill pill--danger" id="btnEdicion" data-admin-only="1">🔒 Edición</button>
       </div>
     </header>
 
@@ -230,7 +271,7 @@
                   <div class="xpBar"><div class="xpFill" id="xpFill" style="width:0%"></div></div>
 
                   <div class="xpFooter">
-                    <div class="subCard">
+                    <div class="subCard" data-admin-only="1">
                       <div class="chipRow" id="actChips">
                         <button class="pill pill--small" data-xp="2">+2 Participación</button>
                         <button class="pill pill--small" data-xp="5">+5 Trabajos</button>
