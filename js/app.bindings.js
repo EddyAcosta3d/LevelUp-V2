@@ -33,6 +33,9 @@ function activateRoute(route){
 }
 
 export function bind(){
+  // Exponer renderChallenges globalmente para que realtime_sync pueda usarla
+  window.renderChallenges = renderChallenges;
+
   document.querySelectorAll('.segmented__btn[data-group]').forEach((btn)=>{
     const isActive = String(btn.dataset.group || '').trim() === String(state.group || '2D');
     btn.classList.toggle('is-active', isActive);
