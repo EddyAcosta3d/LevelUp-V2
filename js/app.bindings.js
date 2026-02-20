@@ -76,7 +76,7 @@ export function bind(){
   });
 
   document.getElementById('btnReloadRemote')?.addEventListener('click', ()=> loadData({ forceRemote: true }));
-  document.getElementById('btnAdminPanelChallenges')?.addEventListener('click', ()=> {
+  document.getElementById('btnAdminPanel')?.addEventListener('click', ()=> {
     window.location.href = 'admin_panel.html';
   });
   document.getElementById('btnImportJson')?.addEventListener('click', ()=> document.getElementById('fileImport')?.click());
@@ -429,6 +429,7 @@ function bindChallengeButtons() {
     const ok = safeCall(openChallengeModal, 'create');
     if (typeof ok === 'undefined') toast('⚠️ Función openChallengeModal no disponible');
   };
+  document.getElementById('btnAddChallenge')?.addEventListener('click', _openAddChallenge);
   document.getElementById('btnAddChallengeMenu')?.addEventListener('click', _openAddChallenge);
 
   // Manage Subjects button
@@ -444,6 +445,7 @@ function bindChallengeButtons() {
       renderSubjectsList();
     }
   };
+  document.getElementById('btnManageSubjects')?.addEventListener('click', _openManageSubjects);
   document.getElementById('btnManageSubjectsMenu')?.addEventListener('click', _openManageSubjects);
 
   // Add Subject button (inside subjects modal)
