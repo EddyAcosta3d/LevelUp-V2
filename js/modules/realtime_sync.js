@@ -15,6 +15,7 @@
 
 import { getHeroAssignments, getAllHeroAssignments } from './supabase_client.js';
 import { state } from './core_globals.js';
+import { saveLocal } from './store.js';
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -41,6 +42,7 @@ export function startAssignmentSync(heroId, onUpdate) {
         const hero = heroes.find(h => h.id === heroId);
         if (hero) {
           hero.assignedChallenges = challengeIds;
+          saveLocal(state.data);
           if (typeof onUpdate === 'function') onUpdate();
         }
       }
@@ -72,7 +74,10 @@ export async function preloadStudentAssignments(heroId) {
     const challengeIds = await getHeroAssignments(heroId);
     const heroes = state.data?.heroes || [];
     const hero = heroes.find(h => h.id === heroId);
-    if (hero) hero.assignedChallenges = challengeIds;
+    if (hero) {
+      hero.assignedChallenges = challengeIds;
+      saveLocal(state.data);
+    }
   } catch(_e) {
     // Fallo silencioso — usará los datos locales
   }
@@ -102,6 +107,8 @@ export async function loadAllAssignmentsIntoState() {
     heroes.forEach(hero => {
       hero.assignedChallenges = Array.isArray(byHero[hero.id]) ? byHero[hero.id] : [];
     });
+
+    saveLocal(state.data);
   } catch (_e) {
     // Fallo silencioso — usar las asignaciones del JSON local
   }
