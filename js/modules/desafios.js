@@ -357,7 +357,6 @@ export function renderChallengeDetail(){
     assignBtn.className = 'pill pill--ghost';
     assignBtn.style.marginLeft = '8px';
     assignBtn.textContent = unlocked ? 'Asignado' : 'Asignar';
-<<<<<<< codex/fix-challenge-assignment-button-visibility-svvnkp
     assignBtn.setAttribute('aria-pressed', String(unlocked));
     assignBtn.classList.toggle('is-active', unlocked);
     assignBtn.title = unlocked
@@ -367,9 +366,6 @@ export function renderChallengeDetail(){
     assignBtn.style.background = unlocked ? 'rgba(34, 197, 94, .22)' : 'rgba(239, 68, 68, .18)';
     assignBtn.style.borderColor = unlocked ? 'rgba(34, 197, 94, .72)' : 'rgba(239, 68, 68, .56)';
     assignBtn.style.color = unlocked ? '#dcfce7' : '#fee2e2';
-
-=======
->>>>>>> main
     assignBtn.addEventListener('click', ()=>{
       const targetHero = getChallengeContextHero();
       if (!targetHero){
@@ -380,19 +376,11 @@ export function renderChallengeDetail(){
       const chId = String(ch.id);
       const i = targetHero.assignedChallenges.indexOf(chId);
       if (i >= 0){
-<<<<<<< codex/fix-challenge-assignment-button-visibility-svvnkp
         targetHero.assignedChallenges.splice(i, 1);
         window.toast?.(`🔒 ${targetHero.name || 'Alumno'}: desafío bloqueado`);
       } else {
         targetHero.assignedChallenges.push(chId);
         window.toast?.(`🔓 ${targetHero.name || 'Alumno'}: desafío desbloqueado`);
-=======
-        hero.assignedChallenges.splice(i, 1);
-        window.toast?.(`🔒 ${hero.name || 'Alumno'}: desafío bloqueado`);
-      } else {
-        hero.assignedChallenges.push(chId);
-        window.toast?.(`🔓 ${hero.name || 'Alumno'}: desafío desbloqueado`);
->>>>>>> main
       }
       saveLocal(state.data);
       renderChallenges();
