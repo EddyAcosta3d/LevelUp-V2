@@ -63,6 +63,22 @@ export function stopAssignmentSync() {
 }
 
 // ============================================
+// Carga inicial para ALUMNO — antes del primer render
+// Evita que el alumno vea "bloqueado" hasta que llega el primer poll
+// ============================================
+
+export async function preloadStudentAssignments(heroId) {
+  try {
+    const challengeIds = await getHeroAssignments(heroId);
+    const heroes = state.data?.heroes || [];
+    const hero = heroes.find(h => h.id === heroId);
+    if (hero) hero.assignedChallenges = challengeIds;
+  } catch(_e) {
+    // Fallo silencioso — usará los datos locales
+  }
+}
+
+// ============================================
 // Carga inicial — para el profe al abrir la app
 // Merge de Supabase → state.data (todos los héroes)
 // ============================================

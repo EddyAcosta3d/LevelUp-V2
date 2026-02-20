@@ -144,6 +144,10 @@
     const next = (typeof open === 'boolean') ? open : !isOpen;
     dd.classList.toggle('is-open', next);
     $('#btnDatos').setAttribute('aria-expanded', String(next));
+    // En tablet, topbar__right tiene overflow-x:auto que recorta el dropdown.
+    // Cambiar a visible mientras esté abierto para que el menú no quede cortado.
+    const topbarRight = $('#btnDatos')?.closest?.('.topbar__right');
+    if (topbarRight) topbarRight.style.overflow = next ? 'visible' : '';
   }
   function closeDatos(){ toggleDatos(false); }
   // Textarea auto-grow (prevents inner scrollbars)

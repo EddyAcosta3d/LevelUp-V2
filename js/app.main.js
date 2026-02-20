@@ -12,7 +12,7 @@ import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
 import { initProjectorMode, isProjectorMode } from './modules/projector.js';
 import { getSession } from './modules/hero_session.js';
-import { startAssignmentSync, loadAllAssignmentsIntoState } from './modules/realtime_sync.js';
+import { startAssignmentSync, loadAllAssignmentsIntoState, preloadStudentAssignments } from './modules/realtime_sync.js';
 
 
 const setActiveRoute = (...args) => {
@@ -117,6 +117,12 @@ export async function init(){
           });
         } catch(_e) {}
       }
+    }
+
+    // ALUMNO: pre-cargar asignaciones de Supabase ANTES del primer render,
+    // para que los desafíos asignados aparezcan desbloqueados desde el inicio.
+    if (!IS_ADMIN && _sess && _sess.heroId) {
+      await preloadStudentAssignments(_sess.heroId);
     }
 
     // Check if we're in projector mode
