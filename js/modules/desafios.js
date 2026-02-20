@@ -30,11 +30,23 @@ import {
   difficultyLabel
 } from './fichas.js';
 
+function getChallengeContextHero(){
+  // Contexto principal: héroe actualmente seleccionado.
+  const hero = currentHero();
+  if (hero) return hero;
+
+  // Fallback defensivo: en sesión admin sin selección previa,
+  // tomar el primer héroe del grupo actual para habilitar asignación.
+  const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
+  const inGroup = heroes.filter(h => String(h.group || '2D') === String(state.group || '2D'));
+  return inGroup[0] || heroes[0] || null;
+}
+
 function isChallengeUnlockedForHero(hero, challengeId){
   if (!hero) return false;
   const assigned = hero.assignedChallenges;
-  // Backward compat: si aún no se usa asignación explícita, no bloqueamos.
-  if (!Array.isArray(assigned)) return true;
+  // Regla actual: por defecto NO está asignado hasta que el profe lo habilita.
+  if (!Array.isArray(assigned)) return false;
   return assigned.includes(String(challengeId));
 }
 
@@ -300,9 +312,13 @@ export function renderChallengeDetail(){
 
   if (titleEl) titleEl.textContent = displayTitle;
   if (subEl) {
-    subEl.textContent = canEditView
-      ? `${subj} · Puedes asignar este desafío al alumno con el botón 🔓/🔒`
-      : '';
+    if (canEditView){
+      const heroName = String(hero?.name || 'Sin alumno seleccionado');
+      const lockState = unlocked ? 'Desbloqueado' : 'Bloqueado';
+      subEl.textContent = `${subj} · Alumno: ${heroName} · Estado: ${lockState}`;
+    } else {
+      subEl.textContent = '';
+    }
   }
 
   // En el detalle NO repetimos dificultad/XP en la esquina (ya se ven claro en la tarjeta del centro).
@@ -340,17 +356,23 @@ export function renderChallengeDetail(){
     assignBtn.type = 'button';
     assignBtn.className = 'pill pill--ghost';
     assignBtn.style.marginLeft = '8px';
-    assignBtn.textContent = unlocked ? '🔒 Quitar asignación' : '🔓 Asignar a este alumno';
+    assignBtn.textContent = unlocked ? 'Asignado' : 'Asignar';
+    assignBtn.setAttribute('aria-pressed', String(unlocked));
+    assignBtn.classList.toggle('is-active', unlocked);
+    assignBtn.title = unlocked
+      ? 'Este desafío está desbloqueado para el alumno seleccionado.'
+      : 'Este desafío está bloqueado para el alumno seleccionado.';
+
     assignBtn.addEventListener('click', ()=>{
       if (!Array.isArray(hero.assignedChallenges)) hero.assignedChallenges = [];
       const chId = String(ch.id);
       const i = hero.assignedChallenges.indexOf(chId);
       if (i >= 0){
         hero.assignedChallenges.splice(i, 1);
-        window.toast?.('Asignación removida');
+        window.toast?.(`🔒 ${hero.name || 'Alumno'}: desafío bloqueado`);
       } else {
         hero.assignedChallenges.push(chId);
-        window.toast?.('Desafío asignado al alumno');
+        window.toast?.(`🔓 ${hero.name || 'Alumno'}: desafío desbloqueado`);
       }
       saveLocal(state.data);
       renderChallenges();
