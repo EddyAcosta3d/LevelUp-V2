@@ -278,6 +278,7 @@ export function makeBlankHero(group){
     medals: 0,
     tokens: 0,
     storeClaims: [],
+    assignedChallenges: null,
     rewardsHistory: [],
     challengeCompletions: {},
     challengeHistory: [],
@@ -988,6 +989,9 @@ d.heroes.forEach(h=>{
       h.goal = h.goal || '';
       h.medals = Number(h.medals ?? 0); // Sistema de medallas
       h.storeClaims = Array.isArray(h.storeClaims) ? h.storeClaims : []; // Historial de canjes
+      h.assignedChallenges = Array.isArray(h.assignedChallenges)
+        ? h.assignedChallenges.map(x => String(x))
+        : null;
 
       // OPTIMIZATION: Limit history arrays to prevent unbounded growth
       const MAX_HISTORY = 200; // Keep last 200 entries
@@ -1028,4 +1032,3 @@ d.heroes.forEach(h=>{
     });
     return d;
   }
-
