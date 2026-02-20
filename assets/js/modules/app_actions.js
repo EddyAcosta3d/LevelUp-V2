@@ -384,9 +384,8 @@ export function setRole(nextRole){
     const slug = key.trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
     if (!slug) return [];
     return _uniqueUrls([
-      `assets/parallax/${slug}_fg.webp`,
-      `assets/parallax/${slug}_mid.webp`,
-      `assets/parallax/${slug}_bg.webp`
+      `assets/hero_layers/${slug}_fg.webp`,
+      `assets/hero_layers/${slug}_bg.webp`
     ]);
   }
 

@@ -132,11 +132,10 @@
           <article class="page is-active" data-page="fichas">
             <div class="cardGrid">
               <div class="card card--center card--avatar">
-                <!-- ESCENA grande (sin marco): 3 capas para parallax en móvil -->
+                <!-- ESCENA grande (sin marco): 2 capas estáticas (background + foreground) -->
                 <div class="heroScene" id="heroScene" aria-label="Imagen del héroe">
-                  <div class="heroSceneLayer heroSceneLayer--bg" data-speed="0.18" aria-hidden="true"></div>
-                  <div class="heroSceneLayer heroSceneLayer--mid" data-speed="0.32" aria-hidden="true"></div>
-                  <div class="heroSceneLayer heroSceneLayer--fg" data-speed="0.48" aria-hidden="true"></div>
+                  <div class="heroSceneLayer heroSceneLayer--bg" aria-hidden="true"></div>
+                  <div class="heroSceneLayer heroSceneLayer--fg" aria-hidden="true"></div>
                   <!-- Foto del heroe (si existe) ocupa toda el area; si no, se oculta y se ven las capas de prueba -->
                   <div class="heroPhotoFill is-empty" id="avatarBox" aria-label="Foto del héroe"></div>
                   <div class="heroSceneShade" aria-hidden="true"></div>

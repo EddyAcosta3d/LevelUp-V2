@@ -1,62 +1,62 @@
 window.__PARALLAX_MANIFEST__ = {
   "alexis": {
-    "fg": "assets/parallax/alexis_fg.webp",
-    "bg": "assets/parallax/alexis_bg.webp",
+    "fg": "assets/hero_layers/alexis_fg.webp",
+    "bg": "assets/hero_layers/alexis_bg.webp",
     "mid": ""
   },
   "arely": {
-    "fg": "assets/parallax/arely_fg.webp",
-    "bg": "assets/parallax/arely_bg.webp",
+    "fg": "assets/hero_layers/arely_fg.webp",
+    "bg": "assets/hero_layers/arely_bg.webp",
     "mid": ""
   },
   "brandon": {
-    "fg": "assets/parallax/brandon_fg.webp",
-    "bg": "assets/parallax/brandon_bg.webp",
+    "fg": "assets/hero_layers/brandon_fg.webp",
+    "bg": "assets/hero_layers/brandon_bg.webp",
     "mid": ""
   },
   "eddy": {
-    "fg": "assets/parallax/eddy_fg.webp",
-    "bg": "assets/parallax/eddy_bg.webp",
+    "fg": "assets/hero_layers/eddy_fg.webp",
+    "bg": "assets/hero_layers/eddy_bg.webp",
     "mid": ""
   },
   "ernesto": {
-    "fg": "assets/parallax/ernesto_fg.webp",
-    "bg": "assets/parallax/ernesto_bg.webp",
+    "fg": "assets/hero_layers/ernesto_fg.webp",
+    "bg": "assets/hero_layers/ernesto_bg.webp",
     "mid": ""
   },
   "maia": {
-    "fg": "assets/parallax/maia_fg.webp",
-    "bg": "assets/parallax/maia_bg.webp",
+    "fg": "assets/hero_layers/maia_fg.webp",
+    "bg": "assets/hero_layers/maia_bg.webp",
     "mid": ""
   },
   "majo": {
-    "fg": "assets/parallax/majo_fg.webp",
-    "bg": "assets/parallax/majo_bg.webp",
+    "fg": "assets/hero_layers/majo_fg.webp",
+    "bg": "assets/hero_layers/majo_bg.webp",
     "mid": ""
   },
   "tadeo": {
-    "fg": "assets/parallax/tadeo_fg.webp",
-    "bg": "assets/parallax/tadeo_bg.webp",
+    "fg": "assets/hero_layers/tadeo_fg.webp",
+    "bg": "assets/hero_layers/tadeo_bg.webp",
     "mid": ""
   },
   "thaily": {
-    "fg": "assets/parallax/thaily_fg.webp",
-    "bg": "assets/parallax/thaily_bg.webp",
+    "fg": "assets/hero_layers/thaily_fg.webp",
+    "bg": "assets/hero_layers/thaily_bg.webp",
     "mid": ""
   },
   "lizeth": {
-    "fg": "assets/parallax/lizeth_fg.webp",
-    "bg": "assets/parallax/lizeth_bg.webp",
+    "fg": "assets/hero_layers/lizeth_fg.webp",
+    "bg": "assets/hero_layers/lizeth_bg.webp",
     "mid": ""
   },
   "leslye": {
-    "fg": "assets/parallax/leslye_fg.webp",
-    "bg": "assets/parallax/leslye_bg.webp",
+    "fg": "assets/hero_layers/leslye_fg.webp",
+    "bg": "assets/hero_layers/leslye_bg.webp",
     "mid": ""
   },
   "ana_brenda": {
-    "fg": "assets/parallax/ana_brenda_fg.webp",
-    "bg": "assets/parallax/ana_brenda_bg.webp",
+    "fg": "assets/hero_layers/ana_brenda_fg.webp",
+    "bg": "assets/hero_layers/ana_brenda_bg.webp",
     "mid": ""
   }
 };

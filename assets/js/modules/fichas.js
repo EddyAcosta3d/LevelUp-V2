@@ -288,7 +288,7 @@ export function buildAssetCandidates(heroName){
     const stems = [raw, noAcc, lower, slug].filter(Boolean);
     // GitHub Pages is case-sensitive; try common upper/lowercase extensions too.
     const exts = ['png','PNG','jpg','JPG','jpeg','JPEG','webp','WEBP'];
-    const folders = ['assets/parallax'];
+    const folders = ['assets/hero_layers'];
     const out = [];
     for (const stem of stems){
       for (const ext of exts){
@@ -363,7 +363,7 @@ export function renderHeroAvatar(hero){
       scene.dataset.parallax = '1';
       // Aplicar de inmediato (sin preload) — las rutas existen (manifest)
       scene.style.setProperty('--heroLayerBg', heroAssets.bg ? `url("${abs(heroAssets.bg)}")` : `url("${abs(HERO_BG_PLACEHOLDER)}")`);
-      scene.style.setProperty('--heroLayerMid', heroAssets.mid ? `url("${abs(heroAssets.mid)}")` : 'none');
+      scene.style.setProperty('--heroLayerMid', 'none');
       scene.style.setProperty('--heroLayerFg', heroAssets.fg ? `url("${abs(heroAssets.fg)}")` : 'none');
       ensureHeroNotesToggle(scene);
       return;
@@ -849,117 +849,16 @@ export function toggleSubjectDropdown(){
 
 
 
-// --- Parallax en Fichas (solo móvil): 2 capas (bg + fg) ---
-(function initHeroSceneParallax(){
+// Animación parallax desactivada para mejorar rendimiento en móvil.
+(function initHeroSceneStaticLayers(){
   try{
     if (window.__luHeroSceneParallaxInit) return;
     window.__luHeroSceneParallaxInit = true;
-
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return;
-
-    const mqMobile = window.matchMedia ? window.matchMedia('(max-width: 980px)') : { matches: false, addEventListener: null };
-
-    // Al cambiar entre móvil/escritorio, reseteamos transforms para que no se quede el offset del parallax.
-    let lastMobile = !!mqMobile.matches;
-    function resetHeroLayerTransforms(){
-      const scene = document.getElementById('heroScene');
-      if (!scene) return;
-      const layers = scene.querySelectorAll('.heroSceneLayer[data-speed]');
-      layers.forEach(l=>{ l.style.transform = 'translate3d(0,0,0)'; });
-    }
-
-
-    // En esta app el scroll principal vive en .pages (no en window) en móvil.
-    let scroller = null;
-    function getScroller(){
-      scroller = document.querySelector('.pages') || window;
-      return scroller;
-    }
-
-    let ticking = false;
-
-    function offsetTopWithin(el, ancestor){
-      let y = 0;
-      let n = el;
-      while (n && n !== ancestor){
-        y += (n.offsetTop || 0);
-        n = n.offsetParent;
-      }
-      return y;
-    }
-
-    function update(){
-      ticking = false;
-      // Solo en la pantalla de fichas
-      if (typeof state !== 'undefined' && state.route && state.route !== 'fichas') return;
-      if (!mqMobile.matches){
-        if (lastMobile){ resetHeroLayerTransforms(); lastMobile = false; }
-        return;
-      }
-      lastMobile = true;
-
-      const scene = document.getElementById('heroScene');
-      if (!scene) return;
-      if (String(scene.dataset.parallax||'0') !== '1'){
-        if (lastMobile){ resetHeroLayerTransforms(); }
-        return;
-      }
-      const layers = scene.querySelectorAll('.heroSceneLayer[data-speed]');
-      if (!layers || !layers.length) return;
-
-      // Usamos el scroll REAL (contenedor .pages en móvil). Esto es más confiable que window.scroll.
-      const isWindow = (scroller === window);
-      const scrollTop = isWindow ? (window.scrollY || document.documentElement.scrollTop || 0) : (scroller.scrollTop || 0);
-      const viewH = isWindow ? (window.innerHeight || 1) : (scroller.clientHeight || 1);
-      const sceneTop = isWindow ? (scene.getBoundingClientRect().top + scrollTop) : offsetTopWithin(scene, scroller);
-      const sceneH = scene.offsetHeight || 1;
-      const center = scrollTop + viewH * 0.5;
-      const progress = (center - sceneTop) / (sceneH + viewH); // aprox 0..1
-      const p = Math.max(-0.25, Math.min(1.25, progress));
-
-      layers.forEach(layer => {
-        const speed = parseFloat(layer.getAttribute('data-speed') || '0.2');
-        // Efecto más fuerte (se nota más en celular al hacer scroll)
-        let y = (p - 0.5) * 380 * speed;
-
-        // Prioridad móvil: mantener FG anclada al borde inferior de la escena.
-        // Evitamos desplazamiento hacia arriba (y negativo) para que no "flote"
-        // separado del piso visual del background.
-        if (layer.classList && layer.classList.contains('heroSceneLayer--fg')){
-          y = Math.max(0, y);
-        }
-
-        layer.style.transform = `translate3d(0, ${y}px, 0)`;
-      });
-    }
-
-    function onScroll(){
-      if (!ticking){
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    }
-
-    // Listeners: window + contenedor .pages (si existe)
-    const s = getScroller();
-    if (s && s !== window) s.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('scroll', onScroll, { passive: true }); // fallback (desktop / casos raros)
-    window.addEventListener('resize', onScroll);
-
-    if (mqMobile.addEventListener) mqMobile.addEventListener('change', (e)=>{
-      if (!e.matches){ resetHeroLayerTransforms(); lastMobile = false; }
-      onScroll();
-    });
-
-    // init: dispara varias veces por si la UI se pinta después del load
-    onScroll();
-    setTimeout(onScroll, 0);
-    setTimeout(onScroll, 250);
-    setTimeout(onScroll, 800);
-
+    const scene = document.getElementById('heroScene');
+    if (!scene) return;
+    const layers = scene.querySelectorAll('.heroSceneLayer');
+    layers.forEach(l=>{ l.style.transform = 'translate3d(0,0,0)'; });
   }catch(e){
-    // Fail silently (viewer experience)
-    console.warn('hero scene parallax init error', e);
+    console.warn('hero scene static init error', e);
   }
 })();
