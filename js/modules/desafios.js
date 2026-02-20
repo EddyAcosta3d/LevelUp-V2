@@ -31,20 +31,13 @@ import {
 } from './fichas.js';
 
 function getChallengeContextHero(){
-  const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
-
-  // 1) Fuente de verdad: hero seleccionado en estado global.
-  const selectedId = String(state.selectedHeroId || '').trim();
-  if (selectedId){
-    const selected = heroes.find(h => String(h.id) === selectedId);
-    if (selected) return selected;
-  }
-
-  // 2) Fallback de compatibilidad con lógica previa.
+  // Contexto principal: héroe actualmente seleccionado.
   const hero = currentHero();
   if (hero) return hero;
 
-  // 3) Fallback defensivo: primer héroe del grupo actual o global.
+  // Fallback defensivo: en sesión admin sin selección previa,
+  // tomar el primer héroe del grupo actual para habilitar asignación.
+  const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
   const inGroup = heroes.filter(h => String(h.group || '2D') === String(state.group || '2D'));
   return inGroup[0] || heroes[0] || null;
 }
@@ -364,16 +357,6 @@ export function renderChallengeDetail(){
     assignBtn.className = 'pill pill--ghost';
     assignBtn.style.marginLeft = '8px';
     assignBtn.textContent = unlocked ? 'Asignado' : 'Asignar';
-    assignBtn.setAttribute('aria-pressed', String(unlocked));
-    assignBtn.classList.toggle('is-active', unlocked);
-    assignBtn.title = unlocked
-      ? 'Este desafío está desbloqueado para el alumno seleccionado.'
-      : 'Este desafío está bloqueado para el alumno seleccionado.';
-    // Estado visual más claro: verde = asignado/desbloqueado, rojo = no asignado/bloqueado.
-    assignBtn.style.background = unlocked ? 'rgba(34, 197, 94, .22)' : 'rgba(239, 68, 68, .18)';
-    assignBtn.style.borderColor = unlocked ? 'rgba(34, 197, 94, .72)' : 'rgba(239, 68, 68, .56)';
-    assignBtn.style.color = unlocked ? '#dcfce7' : '#fee2e2';
-
     assignBtn.addEventListener('click', ()=>{
       const targetHero = getChallengeContextHero();
       if (!targetHero){
@@ -384,11 +367,11 @@ export function renderChallengeDetail(){
       const chId = String(ch.id);
       const i = targetHero.assignedChallenges.indexOf(chId);
       if (i >= 0){
-        targetHero.assignedChallenges.splice(i, 1);
-        window.toast?.(`🔒 ${targetHero.name || 'Alumno'}: desafío bloqueado`);
+        hero.assignedChallenges.splice(i, 1);
+        window.toast?.(`🔒 ${hero.name || 'Alumno'}: desafío bloqueado`);
       } else {
-        targetHero.assignedChallenges.push(chId);
-        window.toast?.(`🔓 ${targetHero.name || 'Alumno'}: desafío desbloqueado`);
+        hero.assignedChallenges.push(chId);
+        window.toast?.(`🔓 ${hero.name || 'Alumno'}: desafío desbloqueado`);
       }
       saveLocal(state.data);
       renderChallenges();
