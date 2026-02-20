@@ -182,3 +182,15 @@ export async function init(){
     const btn = document.getElementById('btnEventClose');
     if (btn) btn.addEventListener('click', ()=>{ const m=document.getElementById('eventModal'); if(m) m.hidden=true; });
   })();
+
+
+function registerServiceWorker(){
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch((err)=>{
+      console.warn('[PWA] No se pudo registrar service worker', err);
+    });
+  });
+}
+
+registerServiceWorker();

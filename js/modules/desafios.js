@@ -358,9 +358,14 @@ export function renderChallengeDetail(){
     assignBtn.style.marginLeft = '8px';
     assignBtn.textContent = unlocked ? 'Asignado' : 'Asignar';
     assignBtn.addEventListener('click', ()=>{
-      if (!Array.isArray(hero.assignedChallenges)) hero.assignedChallenges = [];
+      const targetHero = getChallengeContextHero();
+      if (!targetHero){
+        window.toast?.('⚠️ No hay alumno seleccionado');
+        return;
+      }
+      if (!Array.isArray(targetHero.assignedChallenges)) targetHero.assignedChallenges = [];
       const chId = String(ch.id);
-      const i = hero.assignedChallenges.indexOf(chId);
+      const i = targetHero.assignedChallenges.indexOf(chId);
       if (i >= 0){
         hero.assignedChallenges.splice(i, 1);
         window.toast?.(`🔒 ${hero.name || 'Alumno'}: desafío bloqueado`);
