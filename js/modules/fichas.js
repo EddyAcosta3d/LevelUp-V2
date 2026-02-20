@@ -937,6 +937,9 @@ export function toggleSubjectDropdown(){
         // separado del piso visual del background.
         if (layer.classList && layer.classList.contains('heroSceneLayer--fg')){
           y = Math.max(0, y);
+          if (window.matchMedia && window.matchMedia('(max-width: 560px)').matches){
+            y = 0;
+          }
         }
 
         layer.style.transform = `translate3d(0, ${y}px, 0)`;

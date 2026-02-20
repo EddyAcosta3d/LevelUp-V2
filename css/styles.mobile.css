@@ -5,6 +5,13 @@
 /* Asegurar tamaños táctiles mínimos de 44x44px */
 @media (max-width: 768px) {
 
+  /* Hero FG: mantener el personaje dentro del contenedor en móviles */
+  .heroSceneLayer--fg {
+    inset: 0;
+    background-size: contain;
+    background-position: 50% 100%;
+  }
+
   /* BOTONES principales - Tamaño mínimo para tocar fácilmente */
   .pill,
   .bottomNav__btn {
