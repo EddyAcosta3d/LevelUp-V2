@@ -312,9 +312,13 @@ export function renderChallengeDetail(){
 
   if (titleEl) titleEl.textContent = displayTitle;
   if (subEl) {
-    subEl.textContent = canEditView
-      ? `${subj} · Puedes asignar este desafío al alumno con el botón 🔓/🔒`
-      : '';
+    if (canEditView){
+      const heroName = String(hero?.name || 'Sin alumno seleccionado');
+      const lockState = unlocked ? 'Desbloqueado' : 'Bloqueado';
+      subEl.textContent = `${subj} · Alumno: ${heroName} · Estado: ${lockState}`;
+    } else {
+      subEl.textContent = '';
+    }
   }
 
   // En el detalle NO repetimos dificultad/XP en la esquina (ya se ven claro en la tarjeta del centro).
@@ -359,10 +363,10 @@ export function renderChallengeDetail(){
       const i = hero.assignedChallenges.indexOf(chId);
       if (i >= 0){
         hero.assignedChallenges.splice(i, 1);
-        window.toast?.('Asignación removida');
+        window.toast?.(`🔒 ${hero.name || 'Alumno'}: desafío bloqueado`);
       } else {
         hero.assignedChallenges.push(chId);
-        window.toast?.('Desafío asignado al alumno');
+        window.toast?.(`🔓 ${hero.name || 'Alumno'}: desafío desbloqueado`);
       }
       saveLocal(state.data);
       renderChallenges();
