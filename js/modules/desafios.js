@@ -51,7 +51,7 @@ export function renderChallenges(){
   if (!list) return;
   list.innerHTML = '';
 
-  const hero = currentHero();
+  const hero = getChallengeContextHero();
 
   // --- Level-up medal hint (near end of level) ---
   try{
@@ -225,7 +225,7 @@ export function renderChallengeDetail(){
   const bodyEl = $('#challengeBody');
   const btnComplete = $('#btnChallengeComplete');
 
-  const hero = currentHero();
+  const hero = getChallengeContextHero();
   const ch = (state.data?.challenges || []).find(x => x.id === state.selectedChallengeId);
 
   const titleEl = $('#challengeDetailTitle');

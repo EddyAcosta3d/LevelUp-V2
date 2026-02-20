@@ -191,6 +191,7 @@ if (typeof window !== 'undefined') {
       btn.style.background = 'rgba(255,80,80,0.2)';
       btn.style.color = '#ff6b6b';
       console.error('Submit error:', err);
+      window.toast?.(err?.message || 'Error al enviar evidencia');
     }
   };
 }
