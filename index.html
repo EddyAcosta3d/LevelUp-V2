@@ -47,67 +47,69 @@
       }
     })();
   </script>
-  <!-- UI de sesión: carga diferida, no bloquea -->
-  <script type="module">
-    import { logout } from './js/modules/hero_session.js';
+  <!-- UI de sesión: 100% inline, sin imports, sin bloqueos -->
+  <script>
+    (function() {
+      var session = window.__LU_SESSION__;
+      if (!session) return;
 
-    // Exponer logout globalmente — disponible inmediatamente
-    window.LevelUp = window.LevelUp || {};
-    window.LevelUp.logout = logout;
-
-    const session = window.__LU_SESSION__;
-    if (!session) return;
-
-    // Módulos ES6 son diferidos: el DOM ya está listo cuando llega aquí
-    // No necesitamos DOMContentLoaded — ejecutamos directo
-    const applySession = () => {
-      // Ocultar elementos admin-only para alumnos
-      if (!session.isAdmin) {
-        document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(el => {
-          el.hidden = true;
-          el.style.display = 'none';
-        });
-      }
-
-      // Botón salir en sidebar (solo móvil ≤900px)
-      const sideLogout = document.getElementById('sidebarLogoutBtn');
-      const sideLogoutName = document.getElementById('sidebarLogoutName');
-      if (sideLogout) {
-        const showIfMobile = () => {
-          sideLogout.style.display = window.innerWidth <= 900 ? 'block' : 'none';
-        };
-        showIfMobile();
-        window.addEventListener('resize', showIfMobile);
-      }
-
-      // Badge en topbar (desktop)
-      const badge = document.getElementById('studentSessionBadge');
-
-      // Llenar nombre — reintentar hasta que los datos del juego carguen
-      const fillName = (n) => {
-        const hero = window.state?.data?.heroes?.find(h => h.id === session.heroId);
-        const name = hero?.name || session.email.split('@')[0];
-        if (sideLogoutName) {
-          sideLogoutName.textContent = '⚔️';
-          const nameSpan = sideLogoutName.nextElementSibling;
-          if (nameSpan) nameSpan.textContent = name;
-        }
-        if (badge) {
-          badge.hidden = false;
-          badge.style.cssText = '';
-          badge.innerHTML = '<button onclick="window.LevelUp.logout()" style="display:flex;align-items:center;gap:6px;background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);border-radius:99px;padding:6px 14px;font-size:12px;color:#FFD166;cursor:pointer;white-space:nowrap;">⚔️ ' + name + ' <span style="opacity:0.5;font-size:11px;">· salir</span></button>';
-        }
-        if (!hero && n > 0) setTimeout(() => fillName(n - 1), 500);
+      // Logout: no necesita import, es solo limpiar storage y redirigir
+      window.LevelUp = window.LevelUp || {};
+      window.LevelUp.logout = function() {
+        try { sessionStorage.removeItem('levelup:session'); } catch(e) {}
+        window.location.replace('login.html');
       };
-      setTimeout(() => fillName(8), 200);
-    };
 
-    // Módulos ES6 ya tienen DOM listo, pero por seguridad verificamos
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', applySession);
-    } else {
-      applySession();
-    }
+      function applySession() {
+        // Ocultar elementos admin-only para alumnos
+        if (!session.isAdmin) {
+          document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(function(el) {
+            el.hidden = true;
+            el.style.display = 'none';
+          });
+        }
+
+        // Botón salir en sidebar (solo móvil ≤900px)
+        var sideLogout = document.getElementById('sidebarLogoutBtn');
+        var sideLogoutName = document.getElementById('sidebarLogoutName');
+        if (sideLogout) {
+          function showIfMobile() {
+            sideLogout.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+          }
+          showIfMobile();
+          window.addEventListener('resize', showIfMobile);
+        }
+
+        // Badge en topbar (desktop)
+        var badge = document.getElementById('studentSessionBadge');
+
+        // Llenar nombre cuando los datos del juego carguen
+        function fillName(n) {
+          var heroes = (window.state && window.state.data && window.state.data.heroes) || [];
+          var hero = heroes.find(function(h) { return h.id === session.heroId; });
+          var name = (hero && hero.name) || session.email.split('@')[0];
+
+          if (sideLogoutName) {
+            sideLogoutName.textContent = '⚔️';
+            var nameSpan = sideLogoutName.nextElementSibling;
+            if (nameSpan) nameSpan.textContent = name;
+          }
+          if (badge) {
+            badge.hidden = false;
+            badge.style.cssText = '';
+            badge.innerHTML = '<button onclick="window.LevelUp.logout()" style="display:flex;align-items:center;gap:6px;background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);border-radius:99px;padding:6px 14px;font-size:12px;color:#FFD166;cursor:pointer;white-space:nowrap;">⚔️ ' + name + ' <span style="opacity:0.5;font-size:11px;">· salir</span></button>';
+          }
+          if (!hero && n > 0) setTimeout(function() { fillName(n - 1); }, 500);
+        }
+        setTimeout(function() { fillName(8); }, 200);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applySession);
+      } else {
+        applySession();
+      }
+    })();
   </script>
 </head>
 <body>
