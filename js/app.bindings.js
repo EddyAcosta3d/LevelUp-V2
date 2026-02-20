@@ -12,6 +12,8 @@ import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeM
 import { toggleSubjectDropdown, currentHero } from './modules/fichas.js';
 import { bindTiendaEvents } from './modules/tienda.js';
 import { saveToGitHub, testGitHubConnection, setGitHubToken, clearGitHubToken } from './modules/github_sync.js';
+import { initStudentActions } from './modules/student_actions.js';
+import { getSession } from './modules/hero_session.js';
 
 function safeCall(fn, ...args){
   try{ if (typeof fn === 'function') return fn(...args); }catch(_e){}
@@ -332,6 +334,15 @@ function checkSubjectCompletion(hero, completedChallenge) {
 function bindChallengeButtons() {
   const toast = window.toast || ((msg) => console.log(msg));
 
+  // Notificar a student_actions cuando cambia el desafío seleccionado
+  // (se observa el estado cada vez que se llama a renderChallenges)
+  const _origRenderChallenges = window.LevelUp?._renderChallengesOrig;
+  document.addEventListener('challengeListRendered', () => {
+    document.dispatchEvent(new CustomEvent('challengeSelected', {
+      detail: { challengeId: state.selectedChallengeId }
+    }));
+  });
+
   // Complete/uncomplete selected challenge
   document.getElementById('btnChallengeComplete')?.addEventListener('click', () => {
     const hero = currentHero();
@@ -645,4 +656,18 @@ function renderChallengeHistory() {
     `;
     list.appendChild(div);
   });
+}
+
+// ============================================
+// STUDENT ACTIONS — Inicializar si hay sesión de alumno
+// ============================================
+const _studentSession = getSession();
+if (_studentSession && !_studentSession.isAdmin) {
+  if (document.readyState !== 'loading') {
+    setTimeout(() => initStudentActions(), 900);
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => initStudentActions(), 900);
+    });
+  }
 }
