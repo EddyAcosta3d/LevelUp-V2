@@ -59,9 +59,26 @@ export function bind(){
   document.addEventListener('click', (e)=>{
     const inDropdown = e.target && e.target.closest && e.target.closest('.dropdown');
     if (!inDropdown) safeCall(window.closeDatos);
+    if (!inDropdown) {
+      const challengeDd = document.getElementById('btnChallengeAdminMenu')?.closest('.dropdown');
+      if (challengeDd) challengeDd.classList.remove('is-open');
+      document.getElementById('btnChallengeAdminMenu')?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.getElementById('btnChallengeAdminMenu')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const dd = document.getElementById('btnChallengeAdminMenu')?.closest('.dropdown');
+    if (!dd) return;
+    const next = !dd.classList.contains('is-open');
+    dd.classList.toggle('is-open', next);
+    document.getElementById('btnChallengeAdminMenu')?.setAttribute('aria-expanded', String(next));
   });
 
   document.getElementById('btnReloadRemote')?.addEventListener('click', ()=> loadData({ forceRemote: true }));
+  document.getElementById('btnAdminPanelChallenges')?.addEventListener('click', ()=> {
+    window.location.href = 'admin_panel.html';
+  });
   document.getElementById('btnImportJson')?.addEventListener('click', ()=> document.getElementById('fileImport')?.click());
   document.getElementById('btnExportJson')?.addEventListener('click', ()=> safeCall(handleExportJson));
 
@@ -334,15 +351,6 @@ function checkSubjectCompletion(hero, completedChallenge) {
 function bindChallengeButtons() {
   const toast = window.toast || ((msg) => console.log(msg));
 
-  // Notificar a student_actions cuando cambia el desafío seleccionado
-  // (se observa el estado cada vez que se llama a renderChallenges)
-  const _origRenderChallenges = window.LevelUp?._renderChallengesOrig;
-  document.addEventListener('challengeListRendered', () => {
-    document.dispatchEvent(new CustomEvent('challengeSelected', {
-      detail: { challengeId: state.selectedChallengeId }
-    }));
-  });
-
   // Complete/uncomplete selected challenge
   document.getElementById('btnChallengeComplete')?.addEventListener('click', () => {
     const hero = currentHero();
@@ -417,13 +425,14 @@ function bindChallengeButtons() {
   });
 
   // Add Challenge button
-  document.getElementById('btnAddChallenge')?.addEventListener('click', () => {
+  const _openAddChallenge = () => {
     const ok = safeCall(openChallengeModal, 'create');
     if (typeof ok === 'undefined') toast('⚠️ Función openChallengeModal no disponible');
-  });
+  };
+  document.getElementById('btnAddChallengeMenu')?.addEventListener('click', _openAddChallenge);
 
   // Manage Subjects button
-  document.getElementById('btnManageSubjects')?.addEventListener('click', () => {
+  const _openManageSubjects = () => {
     const modal = document.getElementById('subjectsModal');
     if (modal) {
       if (typeof window.closeAllModals === 'function') {
@@ -434,7 +443,8 @@ function bindChallengeButtons() {
       // Render subjects list
       renderSubjectsList();
     }
-  });
+  };
+  document.getElementById('btnManageSubjectsMenu')?.addEventListener('click', _openManageSubjects);
 
   // Add Subject button (inside subjects modal)
   document.getElementById('btnAddSubject')?.addEventListener('click', () => {

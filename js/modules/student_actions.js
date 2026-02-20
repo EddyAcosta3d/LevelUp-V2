@@ -14,8 +14,6 @@ import { getSession } from './hero_session.js';
 import {
   insertSubmission,
   insertStoreClaim,
-  getSubmissionsByHero,
-  getStoreClaimsByHero,
   uploadEvidencia
 } from './supabase_client.js';
 import { state } from './core_globals.js';
@@ -41,44 +39,6 @@ export function initStudentActions() {
       handleStoreClaim(session, e.detail.item);
     }
   });
-}
-
-// ============================================
-// SESSION BADGE — muestra el nombre del alumno logueado
-// ============================================
-function injectSessionBadge(session) {
-  // Buscar el hero en state.data
-  const findAndInject = () => {
-    const hero = state.data?.heroes?.find(h => h.id === session.heroId);
-    if (!hero) {
-      setTimeout(findAndInject, 500);
-      return;
-    }
-
-    // Crear badge
-    const badge = document.createElement('div');
-    badge.id = 'studentSessionBadge';
-    badge.innerHTML = `
-      <div style="
-        display:flex; align-items:center; gap:0.6rem;
-        background:rgba(255,209,102,0.1);
-        border:1px solid rgba(255,209,102,0.2);
-        border-radius:99px; padding:4px 12px;
-        font-size:0.78rem; color:#FFD166;
-        position:fixed; top:0.75rem; right:1rem;
-        z-index:200; cursor:pointer;
-      " onclick="window.LevelUp?.logout()">
-        ⚔️ ${hero.name}
-        <span style="opacity:0.5; font-size:0.7rem;">salir</span>
-      </div>
-    `;
-    document.body.appendChild(badge);
-
-    // Seleccionar automáticamente el héroe del alumno
-    autoSelectHero(session.heroId);
-  };
-
-  findAndInject();
 }
 
 // ============================================
@@ -117,6 +77,11 @@ export function renderSubmitButton(session, challengeId) {
 
   const challenge = state.data?.challenges?.find(c => c.id === challengeId);
   if (!challenge) return;
+
+  // Si el profe ya usa asignación explícita, solo permitir envío en desafíos asignados.
+  const assigned = hero.assignedChallenges;
+  const isUnlocked = Array.isArray(assigned) && assigned.includes(String(challengeId));
+  if (!isUnlocked) return;
 
   // Verificar si ya fue enviado
   const container = document.getElementById('challengeDetail') ||
