@@ -79,9 +79,6 @@ export function bind(){
   document.getElementById('btnAdminPanel')?.addEventListener('click', ()=> {
     window.location.href = 'admin_panel.html';
   });
-  document.getElementById('btnAdminPanelChallenges')?.addEventListener('click', ()=> {
-    window.location.href = 'admin_panel.html';
-  });
   document.getElementById('btnImportJson')?.addEventListener('click', ()=> document.getElementById('fileImport')?.click());
   document.getElementById('btnExportJson')?.addEventListener('click', ()=> safeCall(handleExportJson));
 
