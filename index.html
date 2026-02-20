@@ -47,18 +47,20 @@
       }
     })();
   </script>
-  <!-- UI de sesión: se aplica después de que el DOM esté listo -->
+  <!-- UI de sesión: carga diferida, no bloquea -->
   <script type="module">
     import { logout } from './js/modules/hero_session.js';
 
-    // Exponer logout globalmente
+    // Exponer logout globalmente — disponible inmediatamente
     window.LevelUp = window.LevelUp || {};
     window.LevelUp.logout = logout;
 
     const session = window.__LU_SESSION__;
     if (!session) return;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // Módulos ES6 son diferidos: el DOM ya está listo cuando llega aquí
+    // No necesitamos DOMContentLoaded — ejecutamos directo
+    const applySession = () => {
       // Ocultar elementos admin-only para alumnos
       if (!session.isAdmin) {
         document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(el => {
@@ -81,7 +83,7 @@
       // Badge en topbar (desktop)
       const badge = document.getElementById('studentSessionBadge');
 
-      // Llenar nombre cuando los datos estén listos
+      // Llenar nombre — reintentar hasta que los datos del juego carguen
       const fillName = (n) => {
         const hero = window.state?.data?.heroes?.find(h => h.id === session.heroId);
         const name = hero?.name || session.email.split('@')[0];
@@ -93,12 +95,19 @@
         if (badge) {
           badge.hidden = false;
           badge.style.cssText = '';
-          badge.innerHTML = `<button onclick="window.LevelUp.logout()" style="display:flex;align-items:center;gap:6px;background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);border-radius:99px;padding:6px 14px;font-size:12px;color:#FFD166;cursor:pointer;white-space:nowrap;">⚔️ ${name} <span style="opacity:0.5;font-size:11px;">· salir</span></button>`;
+          badge.innerHTML = '<button onclick="window.LevelUp.logout()" style="display:flex;align-items:center;gap:6px;background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);border-radius:99px;padding:6px 14px;font-size:12px;color:#FFD166;cursor:pointer;white-space:nowrap;">⚔️ ' + name + ' <span style="opacity:0.5;font-size:11px;">· salir</span></button>';
         }
-        if (!hero && n > 0) setTimeout(() => fillName(n - 1), 600);
+        if (!hero && n > 0) setTimeout(() => fillName(n - 1), 500);
       };
-      setTimeout(() => fillName(6), 300);
-    });
+      setTimeout(() => fillName(8), 200);
+    };
+
+    // Módulos ES6 ya tienen DOM listo, pero por seguridad verificamos
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applySession);
+    } else {
+      applySession();
+    }
   </script>
 </head>
 <body>

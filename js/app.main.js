@@ -99,14 +99,22 @@ export async function init(){
     await loadData({forceRemote:false});
 
     // DESPUÉS de cargar datos: pre-seleccionar el héroe de la sesión
-    // Esto evita que se muestre "Nuevo Héroe" vacío durante la carga
+    // IMPORTANTE: debe hacerse ANTES de bind() para que renderHeroList
+    // ya encuentre el selectedHeroId correcto en su primera ejecución
     if (_sess && !_sess.isAdmin && _sess.heroId) {
       const heroes = state.data?.heroes || [];
       const sessionHero = heroes.find(h => h.id === _sess.heroId);
       if (sessionHero) {
         state.selectedHeroId = _sess.heroId;
-        // Cambiar al grupo correcto del héroe
         state.group = sessionHero.group || '2D';
+        // Sincronizar el tab de grupo en la UI antes de que bind() renderice
+        try {
+          document.querySelectorAll('.segmented__btn[data-group]').forEach(btn => {
+            const isActive = btn.dataset.group === state.group;
+            btn.classList.toggle('is-active', isActive);
+            btn.setAttribute('aria-selected', String(isActive));
+          });
+        } catch(_e) {}
       }
     }
 
