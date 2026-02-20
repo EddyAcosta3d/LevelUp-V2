@@ -396,7 +396,10 @@ export function renderChallengeDetail(){
       const fn = assigning
         ? upsertHeroAssignment(targetHero.id, chId)
         : deleteHeroAssignment(targetHero.id, chId);
-      fn.catch(err => console.warn('[Sync] Error al sincronizar asignación:', err));
+      fn.catch(err => {
+        console.warn('[Sync] Error al sincronizar asignación:', err);
+        window.toast?.(`⚠️ No se guardó en la nube: ${err.message || 'revisa tu conexión'}`);
+      });
     });
     badgesEl.appendChild(assignBtn);
   }
