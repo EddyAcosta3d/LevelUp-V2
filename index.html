@@ -20,81 +20,85 @@
   <link rel="stylesheet" href="css/styles.projector.css?v=LevelUP_V2_00.069" />
   <link rel="stylesheet" href="css/styles.mobile.css?v=LevelUP_V2_00.069" />
 
-  <!-- Verificación de sesión: si no hay sesión Y no es admin → redirigir a login -->
+  <!-- Verificación de sesión: NO bloquea el render -->
+  <script>
+    // Verificación rápida sin imports — usa sessionStorage directamente
+    (function() {
+      var SESSION_KEY = 'levelup:session';
+      var params = new URLSearchParams(location.search);
+      var isAdmin = params.has('admin');
+      var isProjector = params.has('mode');
+      if (isAdmin || isProjector) return; // modo admin/proyector: no verificar
+
+      try {
+        var raw = sessionStorage.getItem(SESSION_KEY);
+        if (!raw) { window.location.replace('login.html'); return; }
+        var s = JSON.parse(raw);
+        // Sesión válida por 8 horas
+        if (!s || (Date.now() - s.savedAt) > 8 * 60 * 60 * 1000) {
+          sessionStorage.removeItem(SESSION_KEY);
+          window.location.replace('login.html');
+          return;
+        }
+        // Guardar sesión en window para que otros módulos la lean sin import
+        window.__LU_SESSION__ = s;
+      } catch(e) {
+        window.location.replace('login.html');
+      }
+    })();
+  </script>
+  <!-- UI de sesión: se aplica después de que el DOM esté listo -->
   <script type="module">
-    import { getSession, logout } from './js/modules/hero_session.js';
-    const session = getSession();
-    const params = new URLSearchParams(location.search);
-    const isAdmin = params.has('admin');
-    const isProjector = params.has('mode');
+    import { logout } from './js/modules/hero_session.js';
 
-    if (!session && !isAdmin && !isProjector) {
-      window.location.replace('login.html');
-    }
+    // Exponer logout globalmente
+    window.LevelUp = window.LevelUp || {};
+    window.LevelUp.logout = logout;
 
-    // Si hay sesión activa: mostrar badge de salir
-    // Si además NO es admin: ocultar elementos de admin
-    if (session) {
-      document.addEventListener('DOMContentLoaded', () => {
-        // Ocultar elementos admin-only SOLO si es alumno (no admin)
-        if (!session.isAdmin) {
-          document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(el => {
-            el.hidden = true;
-            el.style.display = 'none';
-          });
-        }
+    const session = window.__LU_SESSION__;
+    if (!session) return;
 
-        // Mostrar botón de salir en el sidebar (solo en móvil)
-        const sideLogout = document.getElementById('sidebarLogoutBtn');
-        const sideLogoutName = document.getElementById('sidebarLogoutName');
-        // Solo mostrarlo en resoluciones donde el header está oculto (≤900px)
-        if (sideLogout) {
-          const showIfMobile = () => {
-            sideLogout.style.display = window.innerWidth <= 900 ? 'block' : 'none';
-          };
-          showIfMobile();
-          window.addEventListener('resize', showIfMobile);
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+      // Ocultar elementos admin-only para alumnos
+      if (!session.isAdmin) {
+        document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(el => {
+          el.hidden = true;
+          el.style.display = 'none';
+        });
+      }
+
+      // Botón salir en sidebar (solo móvil ≤900px)
+      const sideLogout = document.getElementById('sidebarLogoutBtn');
+      const sideLogoutName = document.getElementById('sidebarLogoutName');
+      if (sideLogout) {
+        const showIfMobile = () => {
+          sideLogout.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+        };
+        showIfMobile();
+        window.addEventListener('resize', showIfMobile);
+      }
+
+      // Badge en topbar (desktop)
+      const badge = document.getElementById('studentSessionBadge');
+
+      // Llenar nombre cuando los datos estén listos
+      const fillName = (n) => {
+        const hero = window.state?.data?.heroes?.find(h => h.id === session.heroId);
+        const name = hero?.name || session.email.split('@')[0];
         if (sideLogoutName) {
-          // El span siguiente (el nombre) — lo llenamos con el nombre del héroe
-          const trySetName = (n) => {
-            const hero = window.state?.data?.heroes?.find(h => h.id === session.heroId);
-            const name = hero?.name || session.email.split('@')[0];
-            sideLogoutName.textContent = '⚔️';
-            const nameSpan = sideLogoutName.nextElementSibling;
-            if (nameSpan) nameSpan.textContent = name;
-            if (!hero && n > 0) setTimeout(() => trySetName(n-1), 600);
-          };
-          setTimeout(() => trySetName(5), 400);
+          sideLogoutName.textContent = '⚔️';
+          const nameSpan = sideLogoutName.nextElementSibling;
+          if (nameSpan) nameSpan.textContent = name;
         }
-
-        // Mostrar badge de sesión en el topbar
-        const badge = document.getElementById('studentSessionBadge');
         if (badge) {
-          // Encontrar el nombre del héroe desde state (puede tardar un poco en cargar)
-          const tryFindHero = (attempts) => {
-            const hero = window.state?.data?.heroes?.find(h => h.id === session.heroId);
-            const name = hero?.name || session.email.split('@')[0];
-            badge.hidden = false;
-            badge.style.cssText = '';
-            badge.innerHTML = `
-              <button onclick="window.LevelUp.logout()" style="
-                display:flex; align-items:center; gap:6px;
-                background:rgba(255,209,102,0.12);
-                border:1px solid rgba(255,209,102,0.25);
-                border-radius:99px; padding:6px 14px;
-                font-size:12px; color:#FFD166; cursor:pointer;
-                white-space:nowrap;
-              ">
-                ⚔️ ${name} <span style="opacity:0.5; font-size:11px;">· salir</span>
-              </button>
-            `;
-            if (!hero && attempts > 0) setTimeout(() => tryFindHero(attempts - 1), 600);
-          };
-          setTimeout(() => tryFindHero(5), 400);
+          badge.hidden = false;
+          badge.style.cssText = '';
+          badge.innerHTML = `<button onclick="window.LevelUp.logout()" style="display:flex;align-items:center;gap:6px;background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);border-radius:99px;padding:6px 14px;font-size:12px;color:#FFD166;cursor:pointer;white-space:nowrap;">⚔️ ${name} <span style="opacity:0.5;font-size:11px;">· salir</span></button>`;
         }
-      });
-    }
+        if (!hero && n > 0) setTimeout(() => fillName(n - 1), 600);
+      };
+      setTimeout(() => fillName(6), 300);
+    });
   </script>
 </head>
 <body>

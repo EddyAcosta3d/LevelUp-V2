@@ -338,7 +338,7 @@ body{
   color: var(--text);
   border: 1px solid rgba(0,210,255,0.20);
 }
-.list{ overflow:auto; padding-right: 6px; }
+.list{ overflow:auto; overflow-x:hidden; padding-right: 6px; flex:1; min-height:0; }
 .heroCard{
   width:100%;
   text-align:left;
@@ -1007,7 +1007,9 @@ body{
   .cardGrid{ grid-template-columns: minmax(220px, 45vw) minmax(0, 1fr); }
   .sidebar{
     position:absolute;
-    left: 0; top: 0; height: 100%;
+    left: 0; top: 0;
+    height: 100%;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
     width: min(360px, 86vw);
     z-index: 30;
     transform: translateX(-105%);

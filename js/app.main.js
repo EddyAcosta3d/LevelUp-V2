@@ -54,7 +54,8 @@ export async function init(){
     const IS_PROJECTOR = urlParams.has('mode') && urlParams.get('mode') === 'projector';
 
     // Admin: URL param ?admin=true  O  sesion con isAdmin:true (cuenta de Eddy)
-    const _sess = getSession();
+    // Usar window.__LU_SESSION__ que ya fue parseado sin bloquear en index.html
+    const _sess = window.__LU_SESSION__ || getSession();
     const IS_ADMIN = (urlParams.has('admin') && urlParams.get('admin') === 'true')
                   || (_sess && _sess.isAdmin === true);
 
