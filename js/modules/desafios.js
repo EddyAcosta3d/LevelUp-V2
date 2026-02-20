@@ -299,7 +299,11 @@ export function renderChallengeDetail(){
   const displayTitle = stripSubjectPrefix(ch.title, subj) || 'Desafío';
 
   if (titleEl) titleEl.textContent = displayTitle;
-  if (subEl) subEl.textContent = canEditView ? `${subj}` : '';
+  if (subEl) {
+    subEl.textContent = canEditView
+      ? `${subj} · Puedes asignar este desafío al alumno con el botón 🔓/🔒`
+      : '';
+  }
 
   // En el detalle NO repetimos dificultad/XP en la esquina (ya se ven claro en la tarjeta del centro).
   // Aquí solo dejamos el control de estado (Pendiente/Completado) en modo edición, justo en la esquina.

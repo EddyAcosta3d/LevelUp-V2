@@ -59,6 +59,20 @@ export function bind(){
   document.addEventListener('click', (e)=>{
     const inDropdown = e.target && e.target.closest && e.target.closest('.dropdown');
     if (!inDropdown) safeCall(window.closeDatos);
+    if (!inDropdown) {
+      const challengeDd = document.getElementById('btnChallengeAdminMenu')?.closest('.dropdown');
+      if (challengeDd) challengeDd.classList.remove('is-open');
+      document.getElementById('btnChallengeAdminMenu')?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.getElementById('btnChallengeAdminMenu')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const dd = document.getElementById('btnChallengeAdminMenu')?.closest('.dropdown');
+    if (!dd) return;
+    const next = !dd.classList.contains('is-open');
+    dd.classList.toggle('is-open', next);
+    document.getElementById('btnChallengeAdminMenu')?.setAttribute('aria-expanded', String(next));
   });
 
   document.getElementById('btnReloadRemote')?.addEventListener('click', ()=> loadData({ forceRemote: true }));
@@ -411,13 +425,15 @@ function bindChallengeButtons() {
   });
 
   // Add Challenge button
-  document.getElementById('btnAddChallenge')?.addEventListener('click', () => {
+  const _openAddChallenge = () => {
     const ok = safeCall(openChallengeModal, 'create');
     if (typeof ok === 'undefined') toast('⚠️ Función openChallengeModal no disponible');
-  });
+  };
+  document.getElementById('btnAddChallenge')?.addEventListener('click', _openAddChallenge);
+  document.getElementById('btnAddChallengeMenu')?.addEventListener('click', _openAddChallenge);
 
   // Manage Subjects button
-  document.getElementById('btnManageSubjects')?.addEventListener('click', () => {
+  const _openManageSubjects = () => {
     const modal = document.getElementById('subjectsModal');
     if (modal) {
       if (typeof window.closeAllModals === 'function') {
@@ -428,7 +444,9 @@ function bindChallengeButtons() {
       // Render subjects list
       renderSubjectsList();
     }
-  });
+  };
+  document.getElementById('btnManageSubjects')?.addEventListener('click', _openManageSubjects);
+  document.getElementById('btnManageSubjectsMenu')?.addEventListener('click', _openManageSubjects);
 
   // Add Subject button (inside subjects modal)
   document.getElementById('btnAddSubject')?.addEventListener('click', () => {
