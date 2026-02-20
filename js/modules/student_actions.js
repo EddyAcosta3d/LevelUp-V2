@@ -27,8 +27,8 @@ export function initStudentActions() {
   const session = getSession();
   if (!session || session.isAdmin) return; // Solo para alumnos
 
-  // Inyectar el widget de sesión en el header
-  injectSessionBadge(session);
+  // Seleccionar automáticamente la ficha del alumno
+  autoSelectHero(session.heroId);
 
   // Escuchar cuando se selecciona un desafío → mostrar botón de enviar
   document.addEventListener('challengeSelected', (e) => {
