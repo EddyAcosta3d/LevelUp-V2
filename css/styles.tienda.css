@@ -273,40 +273,29 @@
 
 /* RESPONSIVE - MÓVIL */
 @media (max-width: 768px) {
-  .tiendaHeader {
-    flex-direction: column;
-    gap: 16px;
-    padding: 20px;
-  }
-  
-  .tiendaHeader__medals {
-    width: 100%;
-    justify-content: center;
-  }
-  
   .tiendaGrid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .tiendaItem {
     padding: 20px;
   }
-  
+
   .tiendaItem__icon {
     font-size: 40px;
     width: 56px;
     height: 56px;
   }
-  
+
   .tiendaItem__name {
     font-size: 16px;
   }
-  
+
   .tiendaItem__desc {
     font-size: 13px;
   }
-  
+
   .tiendaItem__claimBtn {
     position: static;
     width: 100%;
@@ -317,6 +306,22 @@
     position: static;
     opacity: 1;
     margin-top: 12px;
+    justify-content: center;
+  }
+}
+
+/* En phones (≤640px) el header se apila en columna;
+   en iPad (641-768px) se mantiene en fila para que el botón
+   "+ Agregar Item" quede alineado a la derecha de las medallas */
+@media (max-width: 640px) {
+  .tiendaHeader {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .tiendaHeader__medals {
+    width: 100%;
     justify-content: center;
   }
 }

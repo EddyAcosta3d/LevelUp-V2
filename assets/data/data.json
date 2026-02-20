@@ -9,6 +9,7 @@
     {
       "id": "h_2d_1",
       "group": "2D",
+      "adminOnly": true,
       "name": "Eddy",
       "age": 32,
       "role": "Mentor",

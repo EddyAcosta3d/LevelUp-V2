@@ -33,6 +33,13 @@
     min-height: 100px;
   }
 
+  /* Excepción: los textareas del overlay de notas sobre la imagen del héroe
+     son compactos por diseño; no deben crecer al tamaño genérico táctil */
+  .heroNotesOverlay textarea,
+  .noteGrid--overlay textarea {
+    min-height: unset;
+  }
+
   /* TEXTOS - Más grandes para legibilidad */
   .heroCard__name {
     font-size: 18px !important;
@@ -105,7 +112,7 @@
 
   /* STATS - Indicadores más grandes */
   .statRange {
-    height: 10px;
+    display: none; /* Ocultar completamente en mobile; se usan los clics en segmentos */
   }
 
   .statSeg {
@@ -168,7 +175,8 @@
 
   /* NAVIGATION - Mejor accesibilidad táctil */
   .bottomNav {
-    height: 60px;
+    min-height: 60px;
+    /* No fixed height: let safe-area padding expand the bar on notched iPhones */
   }
 
   .bottomNav__btn {
@@ -498,7 +506,7 @@
 
   .stat__val,
   .statNum {
-    font-size: 11px !important;
+    font-size: 15px !important;
     transform: none !important;
     -webkit-text-stroke: 0 !important;
     min-width: 28px !important;
@@ -951,7 +959,9 @@
   }
 
   .pages {
-    padding-bottom: 78px !important;
+    /* Ensure content clears the bottom nav even on iPhones with home indicator (34px safe area).
+       Nav height ≈ 54px content + env(safe-area-inset-bottom); add a 6px buffer. */
+    padding-bottom: max(84px, calc(60px + env(safe-area-inset-bottom, 0px))) !important;
     /* Reset desktop scrollbar compensation — mobile scrollbars overlay, no gutter needed */
     padding-right: 0 !important;
     padding-left: 0 !important;
@@ -1016,5 +1026,44 @@
     padding: 0 !important;
     display: grid !important;
     place-items: center !important;
+  }
+}
+
+/* ============================================
+   iPad mini 6 portrait y tabletas pequeñas (641–780px)
+   El header usa flex en este rango pero el hamburger
+   necesita tamaño explícito para no verse estirado
+   ============================================ */
+@media (min-width: 641px) and (max-width: 900px) {
+  .topbar__menu {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    font-size: 20px;
+    line-height: 1;
+    border-radius: 12px;
+  }
+}
+
+/* Hero detail en columna única para iPad mini portrait (744px cae aquí) */
+@media (min-width: 641px) and (max-width: 780px) {
+  .cardGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stats: 2 columnas (las 5 stats caben cómodamente) */
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Fields3: 2 columnas en lugar de 3 */
+  .fields3 {
+    grid-template-columns: 1fr 80px;
+  }
+
+  /* El panel derecho ocupa el ancho completo */
+  .card--form,
+  .card--stats {
+    width: 100%;
   }
 }

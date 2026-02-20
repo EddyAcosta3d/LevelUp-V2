@@ -62,8 +62,9 @@ body.levelup-priority .bottomNav {
 .luCard {
   position: relative;
   z-index: 1;
-  width: 100vw !important;
+  width: 100% !important;
   height: 100vh;
+  height: 100dvh; /* iOS Safari: excluye el chrome del navegador */
   max-width: none !important;
   max-height: none !important;
   margin: 0 !important;
@@ -316,6 +317,9 @@ body.levelup-priority .bottomNav {
   width: 100%;
   padding: 0 10px;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0; /* Permite que overflow-y: auto funcione dentro del flex panel */
+  -webkit-overflow-scrolling: touch;
 }
 
 .levelUpStatHead {

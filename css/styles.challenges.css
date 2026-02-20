@@ -272,13 +272,15 @@ body.is-modal-open .dropdown__menu{
 .challengeHintBadges{ gap:10px !important; flex-wrap:wrap; }
 .challengeHintBadges .badge{ padding:6px 10px; border-radius: 999px; }
 
-/* Modales: z-index claro para que confirmación siempre esté arriba */
+/* Modales: z-index base 30000 (sobre topbar 20000 y bossBattle 25000).
+   luModal tiene 50000, confirmModal tiene 110000 — ver sus propios archivos. */
 .modal{ z-index: 30000; }
-#confirmModal{ z-index: 30000; }
 
 /* Splash: logo más grande + brillo menos invasivo (evita barra blanca) */
 .splash__inner{ max-width: 560px; }
-.splash__logo{ width: clamp(320px, 50vw, 620px); }
+/* clamp original usaba 320px como mínimo = 100% del viewport en teléfonos ≤320px.
+   Con 70vw el logo escala fluidamente y nunca toca los bordes en pantallas pequeñas. */
+.splash__logo{ width: clamp(200px, 70vw, 620px); }
 .splash__shine{
   opacity: 0.25;
   filter: blur(1.2px);
@@ -697,6 +699,42 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
   .eventModalReqGrid{ grid-template-columns: 1fr; }
   .evModalSubtitle{ max-width: 100%; }
 }
+
+/* iPad portrait / tableta chica (641–920px):
+   el modal ocupa más pantalla, los botones se estiran y los
+   req-boxes recuperan sus 2 columnas (hay ancho de sobra) */
+@media (min-width: 641px) and (max-width: 920px){
+  /* Modal más ancho para aprovechar la pantalla */
+  #eventModal .modal__card--event{
+    width: min(720px, 96vw) !important;
+    max-width: 96vw !important;
+    max-height: 92dvh !important;
+    overflow-y: auto;
+  }
+
+  /* Imagen del jefe más alta */
+  .eventModalImgWrap{ min-height: 320px; }
+
+  /* Req boxes en 2 columnas (caben bien a este ancho) */
+  .eventModalReqGrid{ grid-template-columns: 1fr 1fr; }
+
+  /* Botones: se estiran para ocupar todo el ancho, sin quedarse en esquina */
+  .eventModalActions{
+    gap: 12px;
+    justify-content: stretch;
+  }
+  .eventModalActions .btn,
+  .eventModalActions .pill--small{
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    justify-content: center;
+  }
+  .eventModalActions .btnPrimary{
+    min-width: 0;
+  }
+}
+
 @media (max-width: 560px){
   .modal__card--event{
     width: 100%;
@@ -1329,107 +1367,623 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 .bossBattle{
   position: fixed;
   inset: 0;
-  z-index: 1200;
-  display: grid;
-  place-items: center;
+  /* Por encima de .topbar (z-index:20000) y .bottomNav (z-index:10000) */
+  z-index: 25000;
+  display: flex;
   overflow: hidden;
 }
-.bossBattle__bg,
-.bossBattle__shade{
+
+/* Layer 1: Scene Background (escenario) */
+.bossBattle__sceneBg{
   position: absolute;
   inset: 0;
-}
-.bossBattle__bg{
   background-size: cover;
   background-position: center;
   transform: scale(1.08);
-  filter: saturate(1.1) contrast(1.05) brightness(.7);
+  filter: saturate(1.1) contrast(1.05) brightness(.65);
   animation: bossBattlePan 14s ease-in-out infinite alternate;
 }
-.bossBattle__shade{
-  background:
-    radial-gradient(circle at center, rgba(12,16,24,.20), rgba(4,6,10,.88) 70%),
-    linear-gradient(180deg, rgba(2,5,10,.25), rgba(2,5,10,.82));
+
+/* Layer 2: Jefe (personaje) */
+.bossBattle__jefe{
+  position: absolute;
+  bottom: 0;
+  right: 5%;
+  height: 75vh;
+  max-height: 800px;
+  object-fit: contain;
+  object-position: bottom;
+  z-index: 2;
+  transition: opacity 0.3s, filter 0.3s, transform 0.3s;
+  pointer-events: none;
 }
+
+/* Estados del jefe */
+.bossBattle__jefe--idle{
+  animation: bossIdle 3s ease-in-out infinite;
+}
+
+.bossBattle__jefe--mock{
+  animation: bossMock 0.6s ease infinite;
+}
+
+.bossBattle__jefe--hit{
+  /* bossHit   → sacudida lateral (0.5s)
+     bossFlash → destello blanco RÁPIDO que desaparece a los ~120ms,
+                 dejando ver los colores originales el resto de la animación */
+  animation: bossHit 0.5s ease, bossFlash 0.30s ease forwards;
+}
+
+/* Animaciones del jefe */
+@keyframes bossIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes bossMock {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.03) rotate(-2deg); }
+  75% { transform: scale(1.03) rotate(2deg); }
+}
+
+@keyframes bossHit {
+  0% { transform: translateX(0) scale(1); }
+  25% { transform: translateX(-20px) scale(0.98); }
+  50% { transform: translateX(15px) scale(0.96); }
+  75% { transform: translateX(-10px) scale(0.98); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+/* Destello de impacto: blanco total al inicio, colores normales a los ~120ms */
+@keyframes bossFlash {
+  0%   { filter: brightness(3) saturate(0) contrast(2); }
+  40%  { filter: brightness(1.5) saturate(0.3); }
+  100% { filter: brightness(1) saturate(1); }
+}
+
+/* Layer 3: Shade (oscurecimiento suave — la legibilidad viene del fondo propio de cada elemento) */
+.bossBattle__shade{
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background:
+    radial-gradient(circle at center, rgba(12,16,24,.04), rgba(4,6,10,.48) 70%),
+    linear-gradient(180deg, rgba(2,5,10,.08), rgba(2,5,10,.42));
+  pointer-events: none;
+}
+
+/* Animación del fondo */
 @keyframes bossBattlePan {
   from { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
   to { transform: scale(1.12) translate3d(1.5%, 1%, 0); }
 }
-.bossBattle__content{
+
+/* Layer 4: HUD (interfaz de usuario) */
+.bossBattle__hud{
   position: relative;
-  z-index: 1;
-  width: min(920px, 94vw);
-  max-height: 92dvh;
-  overflow: auto;
-  padding: clamp(20px, 3vw, 34px);
-  border-radius: 22px;
-  border: 1px solid rgba(255,255,255,.2);
-  background: rgba(7,10,16,.72);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 30px 60px rgba(0,0,0,.45);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: clamp(20px, 3vw, 40px);
+  padding-bottom: clamp(30px, 5vh, 60px);
 }
+
+/* Botón cerrar */
 .bossBattle__close{
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.35);
-  background: rgba(7,12,18,.65);
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.4);
+  background: rgba(7,12,18,.85);
   color: #fff;
+  font-size: 20px;
   cursor: pointer;
+  transition: all 0.2s;
+  z-index: 100;
 }
-.bossBattle__title{
-  font-size: clamp(20px, 2.8vw, 32px);
+.bossBattle__close:hover{
+  background: rgba(255,50,50,.85);
+  transform: scale(1.1);
+}
+
+/* ── Nameplate del héroe (esquina superior izquierda) ── */
+.bossBattle__heroPlate{
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 10px;
+  background: rgba(13,16,22,0.78);
+  border: 1px solid rgba(125,210,255,0.28);
+  border-radius: 30px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+
+.bossBattle__heroIcon{
+  font-size: 15px;
+  line-height: 1;
+}
+
+.bossBattle__heroName{
+  font-size: 13px;
+  font-weight: 800;
+  color: #7dd2ff;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  white-space: nowrap;
+}
+
+/* ── Info del jefe: nombre + HP, flotando cerca de la imagen ── */
+.bossBattle__bossInfo{
+  position: absolute;
+  bottom: clamp(22px, 5vh, 60px);
+  right: clamp(16px, 3vw, 36px);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.bossBattle__bossName{
+  font-size: clamp(15px, 2vw, 22px);
   font-weight: 900;
-  margin-bottom: 16px;
+  color: #fff;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 10px rgba(0,0,0,.9), 0 0 18px rgba(255,80,60,.45);
+  padding: 6px 18px;
+  background: rgba(70,8,8,0.62);
+  border: 1px solid rgba(255,100,70,0.38);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  white-space: nowrap;
 }
+
+/* ── Barra de vida del jefe ── */
+.bossBattle__health{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bossBattle__healthLabel{
+  font-size: 12px;
+  font-weight: 900;
+  color: #ff6b6b;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  letter-spacing: 0.5px;
+}
+
+.bossBattle__healthBar{
+  width: 200px;
+  height: 18px;
+  background: rgba(0,0,0,0.55);
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,100,70,0.40);
+  overflow: hidden;
+  position: relative;
+}
+
+.bossBattle__healthFill{
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #ff4444, #ff8040, #ffb649);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 0 8px rgba(255,255,255,.3);
+  animation: healthPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes healthPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.18); }
+}
+
+/* Caja de pregunta */
+.bossBattle__questionBox{
+  position: relative;
+  flex: 0 0 auto;
+  margin-bottom: clamp(20px, 3vh, 35px);
+  margin-top: 14px; /* espacio para que el badge no quede pegado al elemento anterior */
+  padding: clamp(28px, 3.5vw, 38px) clamp(20px, 3vw, 35px) clamp(20px, 3vw, 30px);
+  background: rgba(6,10,18,0.82);
+  border-radius: 18px;
+  border: 1.5px solid rgba(255,255,255,.20);
+  box-shadow: 0 8px 28px rgba(0,0,0,.50);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Badge de número de pregunta: sale por arriba del borde del box */
+.bossBattle__counter{
+  position: absolute;
+  top: -13px;
+  left: 18px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #ffd89a;
+  background: rgba(18,10,2,0.90);
+  padding: 3px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,216,154,.32);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .bossBattle__question{
-  font-size: clamp(18px, 2.2vw, 26px);
-  line-height: 1.35;
-  margin-bottom: 16px;
-  color: #f3f8ff;
+  font-size: clamp(18px, 2.2vw, 28px);
+  line-height: 1.4;
+  font-weight: 700;
+  color: #f0f8ff;
+  text-align: center;
+  text-shadow: 0 1px 5px rgba(0,0,0,.5);
 }
+
+/* Opciones en 2 columnas */
 .bossBattle__options{
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(12px, 2vw, 18px);
+  flex: 1;
+  align-content: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
 }
+
 .bossBattle__option{
-  min-height: 54px;
-  border-radius: 14px;
-  border: 1px solid rgba(125,210,255,.34);
-  background: rgba(17,28,40,.72);
+  min-height: clamp(70px, 10vh, 90px);
+  border-radius: 16px;
+  border: 3px solid rgba(125,210,255,.45);
+  background: rgba(17,28,40,.85);
   color: #e8f6ff;
-  text-align: left;
-  padding: 12px 14px;
+  text-align: center;
+  padding: clamp(12px, 2vw, 18px);
+  font-size: clamp(16px, 2vw, 20px);
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
 }
+
+.bossBattle__option:hover:not(:disabled){
+  transform: scale(1.03);
+  border-color: rgba(125,210,255,.85);
+  background: rgba(30,45,65,.95);
+  box-shadow: 0 6px 18px rgba(125,210,255,.4);
+}
+
+.bossBattle__option:disabled{
+  cursor: default;
+}
+
 .bossBattle__option.is-correct{
   border-color: rgba(90,255,145,.95);
-  background: rgba(28,106,59,.86);
+  background: rgba(28,106,59,.95);
   color: #eaffef;
+  animation: correctPulse 0.6s ease;
 }
+
 .bossBattle__option.is-incorrect{
   border-color: rgba(255,114,114,.95);
-  background: rgba(124,30,30,.85);
+  background: rgba(124,30,30,.95);
   color: #ffecec;
+  animation: incorrectShake 0.5s ease;
 }
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes incorrectShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+/* Botón siguiente — círculo compacto con flecha, alineado a la derecha */
 .bossBattle__next{
-  margin-top: 16px;
-  width: 100%;
-  min-height: 52px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.2);
+  margin-top: clamp(12px, 1.8vh, 20px);
+  margin-left: auto;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.28);
   background: linear-gradient(135deg, #ffd25d, #ff9f3b 50%, #ff6a2a);
-  color: #181107;
+  color: #1a0e00;
+  font-size: 22px;
   font-weight: 900;
-  letter-spacing: .3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 5px 18px rgba(255,130,40,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
+
+.bossBattle__next:hover:not(:disabled){
+  transform: scale(1.10);
+  box-shadow: 0 7px 24px rgba(255,130,40,.70);
+}
+
 .bossBattle__next:disabled{
-  opacity: .6;
-  filter: grayscale(.25);
+  opacity: .45;
+  filter: grayscale(.5);
+  cursor: not-allowed;
+}
+
+/* === Escritorio: contenido a la izquierda, jefe grande a la derecha === */
+@media (min-width: 769px) {
+  /* Fondo ligeramente más claro en desktop */
+  .bossBattle__sceneBg {
+    filter: saturate(1.1) contrast(1.05) brightness(.86);
+  }
+
+  /* Shade: izquierda con suficiente oscuridad para legibilidad, derecha casi transparente */
+  .bossBattle__shade {
+    background:
+      radial-gradient(ellipse 55% 85% at 78% 55%, rgba(4,6,10,.0), rgba(4,6,10,.18) 90%),
+      linear-gradient(100deg, rgba(2,5,10,.62) 0%, rgba(2,5,10,.18) 40%, rgba(2,5,10,.0) 58%),
+      linear-gradient(180deg, rgba(2,5,10,.04) 0%, rgba(2,5,10,.22) 100%);
+  }
+
+  /* HUD: reservar lado derecho para el jefe; gap entre elementos del flujo */
+  .bossBattle__hud {
+    padding-right: clamp(320px, 44vw, 820px);
+    gap: clamp(10px, 1.8vh, 20px);
+  }
+
+  /* Jefe: más grande en escritorio */
+  .bossBattle__jefe {
+    height: 90vh;
+    max-height: none;
+    right: 2%;
+  }
+
+  /* Nameplate del héroe: sale del posicionamiento absoluto y entra al flujo.
+     margin-top limpia el espacio del botón cerrar (44px btn + 4px gap). */
+  .bossBattle__heroPlate {
+    position: relative;
+    top: auto;
+    left: auto;
+    margin-top: 48px;
+    align-self: flex-start;
+  }
+
+  /* Info del jefe: también en el flujo, debajo del heroPlate.
+     margin-bottom: auto actúa como espaciador flexible que empuja
+     la pregunta + opciones hacia la mitad/inferior de la pantalla. */
+  .bossBattle__bossInfo {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    align-items: flex-start;
+    margin-bottom: auto;
+  }
+
+  /* Opciones: alineadas a la izquierda */
+  .bossBattle__options {
+    margin: 0;
+    max-width: 760px;
+  }
+}
+
+/* Responsive: móviles */
+@media (max-width: 768px) {
+  /* === Jefe: centrado horizontalmente, top 50% de pantalla === */
+  .bossBattle__jefe {
+    left: 0;
+    right: 0;
+    width: 85%;
+    margin: 0 auto;
+    top: 0;        /* sin offset: el jefe arranca desde arriba */
+    bottom: 50%;   /* pies anclados al centro exacto */
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  /* === Shade: muy ligero en móvil, el jefe debe verse luminoso === */
+  .bossBattle__shade {
+    background:
+      radial-gradient(ellipse 90% 55% at 50% 30%, transparent, rgba(4,6,10,.22) 80%),
+      linear-gradient(180deg, rgba(2,5,10,.0) 0%, rgba(2,5,10,.36) 100%);
+  }
+
+  /* === HUD: el contenido baja al fondo por margin-top:auto en questionBox === */
+  .bossBattle__hud {
+    padding: 0 14px max(24px, env(safe-area-inset-bottom, 24px));
+    overflow-y: auto;
+  }
+
+  /* === HeroPlate: oculto en móvil para no saturar la pantalla === */
+  .bossBattle__heroPlate {
+    display: none;
+  }
+
+  /* === BossInfo: centrado en la zona del jefe, justo encima del área de contenido === */
+  .bossBattle__bossInfo {
+    bottom: auto;
+    right: auto;
+    top: 38%;              /* en la parte baja de la zona del jefe */
+    left: 50%;
+    transform: translateX(-50%);
+    align-items: center;
+    flex-direction: column;
+    gap: 6px;
+    width: max-content;
+    max-width: calc(100% - 32px);
+  }
+
+  .bossBattle__bossName {
+    font-size: 14px;
+    padding: 4px 14px;
+  }
+
+  .bossBattle__healthBar {
+    width: 150px;
+    height: 13px;
+  }
+
+  .bossBattle__healthLabel {
+    font-size: 12px;
+  }
+
+  /* === Pregunta: margin-top:auto la empuja a la mitad inferior === */
+  .bossBattle__questionBox {
+    margin-top: auto;
+    margin-bottom: 10px;
+    padding: 22px 16px 14px; /* extra top para el badge */
+  }
+
+  .bossBattle__question {
+    font-size: clamp(15px, 4vw, 22px);
+  }
+
+  /* === Opciones: 1 columna en portrait (≤768px cubre iPad Mini 6 portrait en 744px y menores) === */
+  .bossBattle__options {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+
+  .bossBattle__option {
+    min-height: 52px;
+    padding: 10px 12px;
+    font-size: clamp(13px, 3.5vw, 16px);
+    border-radius: 12px;
+    border-width: 2px;
+  }
+
+  /* === Botón siguiente: mantenemos el círculo compacto === */
+  .bossBattle__next {
+    margin-top: 8px;
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+
+/* Teléfono en landscape: jefe a la derecha, contenido a la izquierda (igual que desktop) */
+@media (max-width: 768px) and (orientation: landscape) {
+  .bossBattle__jefe {
+    left: auto;
+    right: 2%;
+    width: auto;
+    margin: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    max-height: none;
+    object-position: right bottom;
+  }
+
+  .bossBattle__hud {
+    padding: 8px clamp(260px, 40vw, 440px) max(10px, env(safe-area-inset-bottom, 10px)) 14px;
+    overflow-y: auto;
+  }
+
+  /* Shade: similar al desktop, muy ligero */
+  .bossBattle__shade {
+    background:
+      radial-gradient(ellipse 55% 90% at 78% 55%, rgba(4,6,10,.0), rgba(4,6,10,.18) 90%),
+      linear-gradient(100deg, rgba(2,5,10,.60) 0%, rgba(2,5,10,.16) 45%, rgba(2,5,10,.0) 62%),
+      linear-gradient(180deg, rgba(2,5,10,.04) 0%, rgba(2,5,10,.22) 100%);
+  }
+
+  /* HeroPlate: vuelve a ser visible en landscape */
+  .bossBattle__heroPlate {
+    display: flex;
+  }
+
+  /* BossInfo: restaurar layout vertical alineado a la derecha */
+  .bossBattle__bossInfo {
+    top: auto;
+    left: auto;
+    transform: none;
+    align-items: flex-end;
+    flex-direction: column;
+    bottom: clamp(14px, 3vh, 40px);
+    right: clamp(12px, 2vw, 28px);
+  }
+
+  .bossBattle__questionBox {
+    margin-top: 0;
+    margin-bottom: 8px;
+    padding: 22px 14px 12px;
+  }
+
+  .bossBattle__question {
+    font-size: clamp(13px, 2.5vw, 17px);
+  }
+
+  .bossBattle__options {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .bossBattle__option {
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .bossBattle__next {
+    margin-top: 6px;
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+}
+
+/* Teléfonos cortos (iPhone SE, Android compactos): alto ≤ 720px en portrait.
+   El jefe pasa a ocupar el 40% superior (en vez del 50%)
+   para dar 60% de espacio al contenido sin necesidad de scroll. */
+@media (max-width: 768px) and (max-height: 720px) and (orientation: portrait) {
+  .bossBattle__jefe {
+    bottom: 60%; /* jefe en top 40% */
+  }
+
+  .bossBattle__bossInfo {
+    top: 30%; /* ajustar a la nueva zona del jefe */
+  }
+
+  .bossBattle__option {
+    min-height: 44px;
+    padding: 7px 12px;
+  }
+
+  .bossBattle__questionBox {
+    padding: 18px 14px 10px;
+    margin-bottom: 6px;
+  }
+
+  .bossBattle__next {
+    width: 44px;
+    height: 44px;
+    margin-top: 6px;
+    font-size: 18px;
+  }
 }
 
 #btnEventFight{
@@ -1476,4 +2030,249 @@ html:not(.is-edit) .challengeMetaRow .chItemActions{
   overflow-y: auto;
   resize: vertical;
   -webkit-overflow-scrolling: touch;
+}
+
+
+/* ================================================================
+   BOSS RESULT MODAL — aparece tras finalizar un duelo contra jefe
+   ================================================================ */
+
+.bossResult{
+  position: fixed;
+  inset: 0;
+  z-index: 50000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.76);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 16px;
+}
+.bossResult[hidden]{ display: none; }
+
+.bossResult__backdrop{
+  position: absolute;
+  inset: 0;
+}
+
+/* Panel central */
+.bossResult__panel{
+  position: relative;
+  z-index: 1;
+  width: min(480px, 100%);
+  background: linear-gradient(160deg, rgba(12,15,24,.97) 0%, rgba(18,22,36,.97) 100%);
+  border: 1.5px solid rgba(255,255,255,.10);
+  border-radius: 28px;
+  padding: clamp(28px, 5vh, 48px) clamp(22px, 5vw, 44px) clamp(24px, 4vh, 40px);
+  text-align: center;
+  box-shadow:
+    0 40px 90px rgba(0,0,0,.65),
+    0 0 0 1px rgba(255,255,255,.04) inset;
+  overflow: hidden;
+  animation: bossResultPop .48s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes bossResultPop{
+  0%  { transform: scale(.68) translateY(24px); opacity: 0; }
+  100%{ transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+/* Glow de acento detrás del panel */
+.bossResult__glow{
+  position: absolute;
+  top: -80%;
+  left: -20%;
+  width: 140%;
+  height: 200%;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: .13;
+  filter: blur(55px);
+  background: radial-gradient(circle, var(--br-glow, #7dd2ff) 0%, transparent 65%);
+  animation: bossResultGlowPulse 3s ease-in-out infinite;
+}
+@keyframes bossResultGlowPulse{
+  0%, 100%{ opacity: .10; }
+  50%     { opacity: .20; }
+}
+
+/* Icono central */
+.bossResult__icon{
+  display: block;
+  font-size: clamp(56px, 14vw, 80px);
+  line-height: 1;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 6px 24px rgba(0,0,0,.5));
+  animation: bossResultIconIn .55s cubic-bezier(0.34, 1.56, 0.64, 1) .1s both;
+}
+@keyframes bossResultIconIn{
+  0%  { transform: scale(0) rotate(-25deg); opacity: 0; }
+  100%{ transform: scale(1) rotate(0);      opacity: 1; }
+}
+
+/* Título del resultado */
+.bossResult__outcome{
+  font-size: clamp(22px, 5.5vw, 32px);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -.4px;
+  text-shadow: 0 2px 14px rgba(0,0,0,.5);
+  margin-bottom: 4px;
+  line-height: 1.15;
+}
+
+/* "vs Nombre del Jefe" */
+.bossResult__vs{
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.42);
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.bossResult__vs:empty{ margin-bottom: 10px; }
+
+/* Score grande */
+.bossResult__scoreWrap{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 22px;
+}
+.bossResult__score{
+  font-size: clamp(44px, 10vw, 64px);
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 28px var(--br-glow, rgba(125,210,255,.7));
+  font-variant-numeric: tabular-nums;
+}
+.bossResult__scoreLabel{
+  font-size: 11px;
+  color: rgba(255,255,255,.38);
+  text-transform: uppercase;
+  letter-spacing: .9px;
+}
+
+/* Chips de recompensa */
+.bossResult__rewards{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.bossResult__chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 40px;
+  font-size: clamp(14px, 3.5vw, 16px);
+  font-weight: 800;
+  border: 1.5px solid;
+  white-space: nowrap;
+}
+.bossResult__chip--xp{
+  color: #ffd890;
+  border-color: rgba(255,200,70,.30);
+  background: rgba(160,100,0,.20);
+}
+.bossResult__chip--medals{
+  color: #9ef5b8;
+  border-color: rgba(80,240,120,.28);
+  background: rgba(0,120,50,.20);
+}
+
+/* Quote del jefe */
+.bossResult__quote{
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255,255,255,.38);
+  line-height: 1.55;
+  margin: 0 0 24px;
+}
+.bossResult__quote:empty{ margin-bottom: 6px; }
+
+/* Botón principal */
+.bossResult__cta{
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.07);
+  color: #fff;
+  font-size: clamp(14px, 3.5vw, 16px);
+  font-weight: 800;
+  letter-spacing: .3px;
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,.3);
+}
+.bossResult__cta:hover{
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.13);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+
+/* ── Variantes temáticas ─────────────────────────────────── */
+
+/* Victoria perfecta: dorado */
+.bossResult--perfect{
+  --br-glow: #ffd250;
+}
+.bossResult--perfect .bossResult__panel{
+  border-color: rgba(255,210,70,.22);
+}
+.bossResult--perfect .bossResult__cta{
+  background: linear-gradient(135deg, rgba(255,210,70,.22), rgba(255,150,30,.18));
+  border-color: rgba(255,200,60,.35);
+}
+.bossResult--perfect .bossResult__cta:hover{
+  background: linear-gradient(135deg, rgba(255,210,70,.35), rgba(255,150,30,.30));
+}
+
+/* Victoria normal: azul */
+.bossResult--victory{
+  --br-glow: #5abeff;
+}
+.bossResult--victory .bossResult__panel{
+  border-color: rgba(90,190,255,.20);
+}
+.bossResult--victory .bossResult__cta{
+  background: rgba(90,190,255,.14);
+  border-color: rgba(90,190,255,.32);
+}
+.bossResult--victory .bossResult__cta:hover{
+  background: rgba(90,190,255,.26);
+}
+
+/* Derrota: rojo */
+.bossResult--defeat{
+  --br-glow: #dc4646;
+}
+.bossResult--defeat .bossResult__panel{
+  border-color: rgba(220,70,70,.22);
+}
+.bossResult--defeat .bossResult__cta{
+  background: rgba(220,70,70,.14);
+  border-color: rgba(220,70,70,.32);
+}
+.bossResult--defeat .bossResult__cta:hover{
+  background: rgba(220,70,70,.26);
+}
+
+/* Mobile: panel toca los bordes en phones muy pequeños */
+@media (max-width: 380px){
+  .bossResult__panel{
+    padding: 24px 16px 20px;
+    border-radius: 22px;
+  }
+  .bossResult__chip{
+    padding: 7px 14px;
+    font-size: 13px;
+  }
 }

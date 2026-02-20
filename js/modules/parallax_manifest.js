@@ -48,5 +48,15 @@ window.__PARALLAX_MANIFEST__ = {
     "fg": "assets/parallax/lizeth_fg.webp",
     "bg": "assets/parallax/lizeth_bg.webp",
     "mid": ""
+  },
+  "leslie": {
+    "fg": "assets/parallax/leslie_fg.webp",
+    "bg": "assets/parallax/leslie_bg.webp",
+    "mid": ""
+  },
+  "ana_brenda": {
+    "fg": "assets/parallax/ana_brenda_fg.webp",
+    "bg": "assets/parallax/ana_brenda_bg.webp",
+    "mid": ""
   }
 };

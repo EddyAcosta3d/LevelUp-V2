@@ -512,12 +512,49 @@ html.is-boss-unlock, html.is-boss-unlock body {
   z-index: 2;
 }
 
-/* --- iPad mini / small tablets (≤ 820px) --- */
-@media (max-width: 820px) {
+/* --- iPad mini / small tablets (701–820px): fullscreen igual que mobile --- */
+@media (min-width: 701px) and (max-width: 820px) {
   .bossUnlock.bossUnlock--img .bossUnlock__frame{
-    width: min(720px, 96vw);
-    height: min(620px, 88vh);
-    border-radius: 18px;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  }
+  .bossUnlock.bossUnlock--img .bossUnlock__card{
+    border-radius: 0;
+  }
+  .bossUnlock.bossUnlock--img .bossUnlock__img{
+    background-position: center center;
+    background-size: cover;
+  }
+  .bossUnlock.bossUnlock--img.bossUnlock--portraitArt .bossUnlock__img{
+    background-size: cover;
+    background-position: center 20%;
+    background-color: transparent;
+  }
+  /* Mostrar botón VER JEFES centrado abajo */
+  .bossUnlock.bossUnlock--img .bossUnlock__btn{
+    display: block !important;
+    position: absolute;
+    bottom: max(28px, env(safe-area-inset-bottom, 28px));
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 3;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.28);
+    padding: 16px 36px;
+    border-radius: 16px;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+  }
+  .bossUnlock.bossUnlock--img .bossUnlock__close{
+    top: max(14px, env(safe-area-inset-top, 14px));
+    right: max(14px, env(safe-area-inset-right, 14px));
+    width: 46px;
+    height: 46px;
   }
 }
 
@@ -562,7 +599,30 @@ html.is-boss-unlock, html.is-boss-unlock body {
     border-radius: 0;
   }
   .bossUnlock.bossUnlock--img .bossUnlock__img{
-    background-position: center 15%;
+    background-position: center center;
+    background-size: cover; /* Sin áreas negras en mobile */
+  }
+  /* En mobile portrait art también usar cover para evitar área negra */
+  .bossUnlock.bossUnlock--img.bossUnlock--portraitArt .bossUnlock__img{
+    background-size: cover;
+    background-position: center 20%;
+    background-color: transparent;
+  }
+  /* Mostrar botón VER JEFES en mobile dentro del overlay --img */
+  .bossUnlock.bossUnlock--img .bossUnlock__btn{
+    display: block !important;
+    position: absolute;
+    bottom: max(24px, env(safe-area-inset-bottom, 24px));
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 3;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-size: 1rem;
   }
   .bossUnlock.bossUnlock--img .bossUnlock__close{
     top: max(12px, env(safe-area-inset-top, 12px));

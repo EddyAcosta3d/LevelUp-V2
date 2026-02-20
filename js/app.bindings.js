@@ -173,7 +173,9 @@ function bindHeroManagementButtons() {
 
   // New Hero button
   document.getElementById('btnNuevoHeroe')?.addEventListener('click', () => {
-    if (!state.data.heroes) state.data.heroes = [];
+    // Ensure data structure exists
+    if (!state.data) state.data = {};
+    if (!Array.isArray(state.data.heroes)) state.data.heroes = [];
 
     const newHero = makeBlankHero ? makeBlankHero() : {
       id: 'hero_' + Date.now(),
@@ -222,7 +224,8 @@ function bindHeroManagementButtons() {
 
     if (!confirmed) return;
 
-    if (state.data.heroes) {
+    // Ensure data structure exists
+    if (state.data && Array.isArray(state.data.heroes)) {
       state.data.heroes = state.data.heroes.filter(h => h.id !== hero.id);
 
       // Select first remaining hero
@@ -270,6 +273,62 @@ function bindHeroManagementButtons() {
 // CHALLENGE BINDINGS
 // ========================================================================
 
+/**
+ * Check if all challenges for a subject are completed and award medal
+ * @param {Object} hero - The current hero
+ * @param {Object} completedChallenge - The challenge that was just completed
+ */
+function checkSubjectCompletion(hero, completedChallenge) {
+  const toast = window.toast || ((msg) => console.log(msg));
+  const subjectId = completedChallenge.subjectId;
+  if (!subjectId) return;
+
+  // Initialize subject medals tracker
+  if (!hero.subjectMedals) hero.subjectMedals = {};
+
+  // Skip if already awarded medal for this subject
+  if (hero.subjectMedals[subjectId]) return;
+
+  // Get all challenges for this subject
+  const subjectChallenges = (state.data?.challenges || []).filter(
+    c => String(c.subjectId) === String(subjectId)
+  );
+
+  // If no challenges, return
+  if (subjectChallenges.length === 0) return;
+
+  // Check if all are completed
+  const allCompleted = subjectChallenges.every(ch => {
+    const key = String(ch.id);
+    return hero.challengeCompletions && hero.challengeCompletions[key];
+  });
+
+  if (allCompleted) {
+    // Award medal
+    hero.medals = Number(hero.medals ?? 0) + 1;
+    hero.subjectMedals[subjectId] = {
+      awardedAt: Date.now(),
+      subjectName: completedChallenge.subject ||
+                   (state.data?.subjects || []).find(s => s.id === subjectId)?.name ||
+                   'Materia'
+    };
+
+    // Get subject name for toast
+    const subjectName = hero.subjectMedals[subjectId].subjectName;
+    toast(`🏆 ¡Materia completada! +1 medalla por completar todos los desafíos de ${subjectName}`);
+
+    // Show celebration
+    if (typeof window.showBigReward === 'function') {
+      window.showBigReward({
+        title: '¡Materia Completada!',
+        subtitle: `Has completado todos los desafíos de ${subjectName}`,
+        icon: '🏆',
+        duration: 3000
+      });
+    }
+  }
+}
+
 function bindChallengeButtons() {
   const toast = window.toast || ((msg) => console.log(msg));
 
@@ -295,13 +354,31 @@ function bindChallengeButtons() {
       const awarded = Number(hero.challengeCompletions[key]?.points ?? basePoints);
       delete hero.challengeCompletions[key];
       bumpHeroXp(-awarded);
+
+      // Remove medal if it was a hard challenge
+      const difficulty = String(challenge.difficulty || '').toLowerCase();
+      if (difficulty === 'hard') {
+        hero.medals = Math.max(0, Number(hero.medals ?? 0) - 1);
+      }
+
       toast('Desafío descompletado');
     } else {
       const multiplier = Math.max(1, Number(hero.nextChallengeMultiplier || 1));
       const awarded = basePoints * multiplier;
       hero.challengeCompletions[key] = { at: Date.now(), points: awarded };
       bumpHeroXp(basePoints, { source: 'challenge' });
-      toast(multiplier > 1 ? 'Desafío completado (x2 XP)' : 'Desafío completado');
+
+      // Award medal for hard challenges
+      const difficulty = String(challenge.difficulty || '').toLowerCase();
+      if (difficulty === 'hard') {
+        hero.medals = Number(hero.medals ?? 0) + 1;
+        toast('🏅 ¡Desafío difícil completado! +1 medalla');
+      } else {
+        toast(multiplier > 1 ? 'Desafío completado (x2 XP)' : 'Desafío completado');
+      }
+
+      // Check if all challenges for this subject are completed
+      checkSubjectCompletion(hero, challenge);
     }
 
     if (typeof window.saveLocal === 'function') {
