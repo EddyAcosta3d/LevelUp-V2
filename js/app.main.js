@@ -182,3 +182,61 @@ export async function init(){
     const btn = document.getElementById('btnEventClose');
     if (btn) btn.addEventListener('click', ()=>{ const m=document.getElementById('eventModal'); if(m) m.hidden=true; });
   })();
+
+
+let _deferredInstallPrompt = null;
+
+function setupPWAInstallPrompt(){
+  const installButtons = Array.from(document.querySelectorAll('[data-install-app="1"]'));
+  if (!installButtons.length) return;
+
+  const setButtonsHidden = (hidden)=>{
+    installButtons.forEach((btn)=>{ btn.hidden = !!hidden; });
+  };
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  setButtonsHidden(!!isStandalone);
+
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    _deferredInstallPrompt = e;
+    setButtonsHidden(false);
+  });
+
+  window.addEventListener('appinstalled', ()=>{
+    _deferredInstallPrompt = null;
+    setButtonsHidden(true);
+    try{ window.toast?.('✅ App instalada'); }catch(_e){}
+  });
+
+  installButtons.forEach((btn)=>{
+    btn.addEventListener('click', async ()=>{
+      try{
+        if (_deferredInstallPrompt){
+          _deferredInstallPrompt.prompt();
+          await _deferredInstallPrompt.userChoice;
+          _deferredInstallPrompt = null;
+          return;
+        }
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
+        if (isIOS){
+          window.toast?.('En iPhone/iPad: Compartir → Añadir a pantalla de inicio');
+        } else {
+          window.toast?.('Si no aparece el diálogo, usa el menú del navegador → Instalar app');
+        }
+      }catch(_e){}
+    });
+  });
+}
+
+function registerServiceWorker(){
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch((err)=>{
+      console.warn('[PWA] No se pudo registrar service worker', err);
+    });
+  });
+}
+
+setupPWAInstallPrompt();
+registerServiceWorker();

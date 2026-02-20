@@ -5,6 +5,10 @@
   <!-- iOS: evita zoom raro al rotar y mantiene el layout estable -->
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <!-- LevelUp STABLE_RESET_v15_CLEAN -->
 <title>LevelUp</title>
   <!-- Icono de la pestaña (pon tu archivo en assets/logo.png o cambia la ruta) -->
@@ -187,6 +191,7 @@
 
         <!-- Solo admin -->
         <button class="pill pill--ghost" id="btnRecompensas" data-route="recompensas">🏆 Recompensas</button>
+        <button class="pill pill--ghost" id="btnInstallApp" data-install-app="1" type="button" title="Instalar app">📲 Instalar app</button>
         <button class="pill pill--ghost" id="btnDebugPanel" aria-pressed="false" data-admin-only="1">🧪 Estado</button>
 
         <div class="dropdown">
@@ -237,6 +242,11 @@
             <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
             <span style="font-size:11px; opacity:0.5; white-space:nowrap;">Cerrar sesión ✕</span>
           </button>
+        </div>
+
+        
+        <div id="sidebarInstallAppWrap" style="padding: 0 0 10px 0;">
+          <button class="pill pill--small pill--ghost" id="btnInstallAppSidebar" data-install-app="1" type="button" style="width:100%;">📲 Instalar app</button>
         </div>
 
         <div class="list" id="heroList"></div>
