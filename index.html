@@ -34,11 +34,23 @@
     (function() {
       var SESSION_KEY = 'levelup:session';
       var params = new URLSearchParams(location.search);
-      var isLegacyAdminUrl = params.has('admin');
-      var isLegacyProjectorUrl = params.has('mode');
-      if (isLegacyAdminUrl || isLegacyProjectorUrl) {
-        // Compatibilidad: limpiar parámetros legacy para mantener una sola URL.
-        window.history.replaceState({}, '', 'index.html');
+      var isAdmin = params.has('admin');
+      var isProjector = params.has('mode');
+      var isGuest = params.get('guest') === '1';
+      if (isAdmin || isProjector) return; // modo admin/proyector: no verificar
+
+      if (isGuest) {
+        var guestSession = {
+          access_token: 'guest-mode',
+          refresh_token: '',
+          email: 'invitado@levelup.local',
+          heroId: null,
+          isAdmin: false,
+          savedAt: Date.now(),
+          guest: true
+        };
+        window.__LU_SESSION__ = guestSession;
+        return;
       }
 
       try {

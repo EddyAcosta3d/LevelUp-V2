@@ -246,7 +246,7 @@
     </label>
     <button type="submit" class="btn" id="btnLogin">Entrar al juego</button>
     <button type="button" class="btn" id="btnGuest" style="margin-top:10px; background:linear-gradient(180deg,#374151,#1f2937); border-color:rgba(255,255,255,.22);">👀 Entrar como invitado (solo lectura)</button>
-    <p class="hint">Comparte este acceso para mostrar el proyecto sin permitir edición.</p>
+    <p class="hint">Comparte este acceso para mostrar el proyecto sin permitir edición: <code>index.html?guest=1</code>.</p>
   </form>
 
   <!-- REGISTRO -->
@@ -345,8 +345,7 @@
   };
 
   document.getElementById('btnGuest')?.addEventListener('click', () => {
-    loginGuest();
-    window.location.href = 'index.html';
+    window.location.href = 'index.html?guest=1';
   });
 </script>
 
