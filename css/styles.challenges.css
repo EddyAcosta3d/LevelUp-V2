@@ -182,6 +182,34 @@ body.is-modal-open .dropdown__menu{
   border-radius: var(--modal-radius) var(--modal-radius) 0 0;
 }
 .modal__body{ display:grid; gap: 12px; }
+
+.modalActions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+.modalSpacer{ height:12px; }
+.modalSpacer--sm{ height:10px; }
+.modalSpacer--md{ height:14px; }
+.rowInline{ display:flex; gap:10px; }
+.rowInline--center{ align-items:center; }
+.cardTitle--section{ margin:6px 0 10px; }
+.githubStatusText{
+  padding:8px;
+  background:rgba(255,255,255,0.03);
+  border-radius:6px;
+}
+.helpDetails{ margin-bottom:14px; }
+.helpDetails__summary{
+  cursor:pointer;
+  color:rgba(0,210,255,0.8);
+  margin-bottom:8px;
+}
+.helpDetails__content{
+  font-size:13px;
+  line-height:1.6;
+}
 .roleList{ display:grid; gap: 10px; }
 .roleItem{
   text-align:left;
@@ -351,12 +379,16 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 
 /* Difficulty buttons (modal) */
 .diffButtons{ display:flex; gap:10px; }
-.diffButtons .pill{ flex:1; }
-.pill{ border:1px solid rgba(0,210,255,.18); background: rgba(0,0,0,.18); color: rgba(220,220,230,.92); padding:10px 12px; border-radius:999px; cursor:pointer; }
-.pill.is-active{ border-color: rgba(0,210,255,.55); box-shadow: 0 0 0 2px rgba(0,210,255,.10) inset, 0 0 18px rgba(0,210,255,.12); }
-.pill--easy.is-active{ border-color: rgba(0,210,255,.65); }
-.pill--medium.is-active{ border-color: rgba(114,26,255,.55); }
-.pill--hard.is-active{ border-color: rgba(255,90,90,.55); }
+.diffButtons .pill{
+  flex:1;
+  border:1px solid rgba(0,210,255,.18);
+  background: rgba(0,0,0,.18);
+  color: rgba(220,220,230,.92);
+}
+.diffButtons .pill.is-active{ border-color: rgba(0,210,255,.55); box-shadow: 0 0 0 2px rgba(0,210,255,.10) inset, 0 0 18px rgba(0,210,255,.12); }
+.diffButtons .pill--easy.is-active{ border-color: rgba(0,210,255,.65); }
+.diffButtons .pill--medium.is-active{ border-color: rgba(114,26,255,.55); }
+.diffButtons .pill--hard.is-active{ border-color: rgba(255,90,90,.55); }
 
 
 /* Events / Bosses — redesigned layout (V2.068) */
@@ -727,7 +759,7 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 .eventModalActions .btn{
   border-radius: 14px;
 }
-.eventModalActions .btnPrimary{
+.eventModalActions .eventFightBtn{
   min-width: 180px;
 }
 .eventModalFoot{
@@ -767,14 +799,14 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
     gap: 12px;
     justify-content: stretch;
   }
-  .eventModalActions .btn,
+  .eventModalActions .eventFightBtn,
   .eventModalActions .pill--small{
     flex: 1;
     min-width: 0;
     text-align: center;
     justify-content: center;
   }
-  .eventModalActions .btnPrimary{
+  .eventModalActions .eventFightBtn{
     min-width: 0;
   }
 }
@@ -1309,7 +1341,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
     padding-top: 8px;
     padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
   }
-  .eventModalActions .btnPrimary{
+  .eventModalActions .eventFightBtn{
     min-width: 140px;
     padding: 10px 16px;
     font-size: 14px;
@@ -1401,7 +1433,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   .eventModalReqBox{
     padding: 8px !important;
   }
-  .eventModalActions .btnPrimary{
+  .eventModalActions .eventFightBtn{
     min-width: 120px;
     padding: 8px 12px;
   }
@@ -2030,16 +2062,24 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
 }
 
+.eventFightBtn,
 #btnEventFight{
-  background: linear-gradient(135deg, #ffe48a 0%, #ffc13d 36%, #ff8d2b 72%, #ff622b 100%);
-  color: #220d00;
-  border: 1px solid rgba(255,255,255,.4);
-  font-weight: 900;
-  letter-spacing: .4px;
-  box-shadow: 0 12px 30px rgba(255,130,40,.32), inset 0 1px 0 rgba(255,255,255,.4);
+  background: linear-gradient(135deg, rgba(34,211,238,0.98) 0%, rgba(59,130,246,0.95) 48%, rgba(139,92,246,0.94) 100%);
+  color: rgba(245,250,255,0.98);
+  border: 1px solid rgba(125,210,255,.46);
+  font-weight: 800;
+  letter-spacing: .25px;
+  box-shadow: 0 10px 28px rgba(34,211,238,.30), inset 0 1px 0 rgba(255,255,255,.22);
 }
+.eventFightBtn:hover:not(:disabled),
+#btnEventFight:hover:not(:disabled){
+  border-color: rgba(125,210,255,.72);
+  box-shadow: 0 12px 32px rgba(34,211,238,.40), inset 0 1px 0 rgba(255,255,255,.28);
+}
+.eventFightBtn:disabled,
 #btnEventFight:disabled{
-  filter: grayscale(.35);
+  opacity:.6;
+  filter: saturate(.7);
   box-shadow: none;
 }
 
