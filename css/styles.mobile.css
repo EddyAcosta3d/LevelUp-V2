@@ -988,6 +988,53 @@
   }
 }
 
+/* --- EVENTOS/JEFES MODAL: mejor uso de espacio para imágenes grandes en móvil --- */
+@media (max-width: 560px) {
+  #eventModal {
+    padding: 0 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  #eventModal .modal__card--event {
+    width: 100% !important;
+    height: 100dvh !important;
+    max-width: 100% !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  #eventModal .eventModalGrid {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  #eventModal .eventModalImg {
+    background-size: cover !important;
+    background-position: center top !important;
+  }
+
+  #eventModal .evModalHead {
+    top: max(10px, env(safe-area-inset-top, 10px)) !important;
+    left: 10px !important;
+    right: 10px !important;
+  }
+
+  #eventModal .eventModalInfo {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    max-height: 52dvh !important;
+    overflow: auto !important;
+  }
+}
+
 
 /* --- BOTTOM NAV --- */
 @media (max-width: 430px) {
