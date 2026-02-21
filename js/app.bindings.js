@@ -144,8 +144,8 @@ export function bind(){
   // Subject dropdown button in Desafíos
   document.getElementById('btnSubject')?.addEventListener('click', ()=> safeCall(toggleSubjectDropdown));
 
-  // Note: Edit mode is now controlled ONLY by ?admin=true URL parameter
-  // No manual toggle button - reload page to change modes
+  // Edit mode is controlled by authenticated admin session only (cuenta Eddy).
+  // No manual toggle button.
 
   // GitHub configuration and save buttons
   document.getElementById('btnConfigGitHub')?.addEventListener('click', ()=> {

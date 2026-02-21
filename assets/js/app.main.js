@@ -10,7 +10,6 @@ import { state, logger } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
-import { initProjectorMode, isProjectorMode } from './modules/projector.js';
 
 
 const setActiveRoute = (...args) => {
@@ -50,8 +49,8 @@ export async function init(){
 
     const urlParams = new URLSearchParams(location.search);
     const DEBUG = urlParams.has('debug');
-    const IS_ADMIN = urlParams.has('admin') && urlParams.get('admin') === 'true';
-    const IS_PROJECTOR = urlParams.has('mode') && urlParams.get('mode') === 'projector';
+    const _sess = window.__LU_SESSION__ || null;
+    const IS_ADMIN = !!(_sess && _sess.isAdmin === true);
 
     // Captura errores para que en iPhone no se sienta "se rompió" sin pista
     window.addEventListener('error', (ev)=>{
@@ -70,15 +69,12 @@ export async function init(){
     // Configuración inicial (antes de cargar datos)
     preventIOSDoubleTapZoom();
 
-    // Rol inicial: detectar desde URL
-    // ?admin=true → teacher (puede editar)
-    // Sin parámetro → viewer (solo lectura)
+    // Rol inicial: solo por sesión
     try{
       state.role = IS_ADMIN ? 'teacher' : 'viewer';
       // Agregar clase al body para estilos condicionales
       document.body.classList.toggle('viewer-mode', !IS_ADMIN);
       document.body.classList.toggle('admin-mode', IS_ADMIN);
-      document.body.classList.toggle('projector-mode', IS_PROJECTOR);
     }catch(_e){}
 
     setActiveRoute(state.route);
@@ -88,16 +84,10 @@ export async function init(){
     // CARGAR DATOS PRIMERO (crítico para que los bindings tengan datos disponibles)
     await loadData({forceRemote:false});
 
-    // Check if we're in projector mode
-    if (IS_PROJECTOR) {
-      // Projector mode: don't bind, just show leaderboard
-      initProjectorMode();
-    } else {
-      // Normal mode: bind everything
-      bind();
-      setRole(IS_ADMIN ? 'teacher' : 'viewer');
-      syncDetailsUI();
-    }
+    // Modo normal: bind siempre (se eliminó modo proyector por URL)
+    bind();
+    setRole(IS_ADMIN ? 'teacher' : 'viewer');
+    syncDetailsUI();
   }
   (async()=>{ try{ await init(); } finally { hideSplash(); } })();
 

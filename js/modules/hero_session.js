@@ -90,6 +90,19 @@ export async function loginHero(email, password) {
   return session;
 }
 
+
+export function loginGuest() {
+  const session = {
+    email: 'invitado@levelup.local',
+    heroId: null,
+    isAdmin: false,
+    token: 'guest-mode',
+    guest: true,
+    savedAt: Date.now()
+  };
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  return session;
+}
 export async function registerHero(email, password) {
   // Verificar que el correo esté en el mapa antes de registrar
   const heroId = HERO_MAP[email.toLowerCase().trim()];

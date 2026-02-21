@@ -27,7 +27,7 @@ Ya no necesitas descargar el JSON y subirlo manualmente. Ahora guardas directame
    - **Copia el token** (empieza con `ghp_`)
 
 2. **Configurar el token en LevelUp:**
-   - Abre tu sitio con `?admin=true` (ejemplo: `https://tu-usuario.github.io/LevelUp-V2?admin=true`)
+   - Abre tu sitio normal (`https://tu-usuario.github.io/LevelUp-V2`) e inicia sesión con la cuenta admin (Eddy).
    - Click en **"💾 Datos"** → **"⚙️ Configurar GitHub"**
    - Pega tu token
    - Click en **"Guardar"**
@@ -74,7 +74,7 @@ https://tu-usuario.github.io/LevelUp-V2
 
 #### **Link para TI (Edición Completa)**
 ```
-https://tu-usuario.github.io/LevelUp-V2?admin=true
+https://tu-usuario.github.io/LevelUp-V2 (inicia sesión con Eddy)
 ```
 
 **Qué ves:**
@@ -86,48 +86,21 @@ https://tu-usuario.github.io/LevelUp-V2?admin=true
 
 **Importante:**
 - Guarda este link en tus favoritos en iPad/celular/PC
-- NUNCA compartas el link con `?admin=true` a los alumnos
+- NUNCA compartas la cuenta admin (Eddy) con alumnos.
 
 ---
 
-### 3️⃣ **Modo Proyector (Para Clase)**
+### 3️⃣ **Proyección en clase (sin modo especial)**
 
-Vista especial para proyectar en clase y mostrar el ranking de todos los alumnos.
-
-#### **Link para PROYECTAR**
-```
-https://tu-usuario.github.io/LevelUp-V2?mode=projector
-```
-
-**Qué muestra:**
-- 🏆 **Leaderboard grande** con todos los alumnos (12-14)
-- 📊 **Estadísticas del grupo**:
-  - Total de estudiantes
-  - XP total del grupo
-  - XP promedio
-  - Nivel promedio
-  - Desafíos completados
-- 🥇🥈🥉 **Top 3 destacados** (con colores especiales)
-- ⚡ **Auto-actualización** cada 30 segundos
-
-**Uso en clase:**
-1. Abre el link en tu navegador
-2. Presiona F11 (pantalla completa)
-3. Proyecta en la pantalla
-4. Los alumnos ven su posición en tiempo real
-
-**Ideal para:**
-- Motivar a los alumnos mostrando su progreso
-- Crear competencia sana
-- Celebrar logros del grupo
-- Mostrar estadísticas de la semana
+Usa la app normal en pantalla completa (F11) para proyectar ranking y progreso.
 
 ---
+
 
 ## 📱 Uso en Dispositivos
 
 ### **iPad / iPhone (Tú)**
-- Usa: `https://tu-usuario.github.io/LevelUp-V2?admin=true`
+- Usa: `https://tu-usuario.github.io/LevelUp-V2 (inicia sesión con Eddy)`
 - Guarda en favoritos
 - Puedes editar desde cualquier lugar
 - Cuando termines de hacer cambios: **"💾 Datos" → "Guardar a GitHub"**
@@ -139,12 +112,12 @@ https://tu-usuario.github.io/LevelUp-V2?mode=projector
 - Comparte este link vía QR code o por mensaje
 
 ### **PC / Mac (Tú)**
-- Usa: `https://tu-usuario.github.io/LevelUp-V2?admin=true`
+- Usa: `https://tu-usuario.github.io/LevelUp-V2 (inicia sesión con Eddy)`
 - Ideal para crear desafíos, gestionar materias, etc.
 - Pantalla completa aprovecha mejor el espacio
 
 ### **Proyector (Clase)**
-- Usa: `https://tu-usuario.github.io/LevelUp-V2?mode=projector`
+- Usa: `(El modo proyector por URL fue eliminado)`
 - Presiona F11 para pantalla completa
 - Auto-actualiza cada 30 segundos
 
@@ -153,13 +126,13 @@ https://tu-usuario.github.io/LevelUp-V2?mode=projector
 ## 🎓 Flujo de Trabajo Semanal Recomendado
 
 ### **Lunes (Inicio de semana)**
-1. Abre el modo proyector y muestra el ranking
+1. Abre la app en pantalla completa (F11) y muestra el ranking
 2. Anuncia los nuevos desafíos de la semana
 3. Motiva a los alumnos mostrando el Top 3
 
 ### **Durante la semana (iPad/celular)**
 1. Cuando un alumno complete una tarea/participación:
-   - Abre la app con `?admin=true`
+   - Abre la app e inicia sesión con Eddy
    - Busca al alumno
    - Agrega XP correspondiente
    - Click en **"Guardar a GitHub"**
@@ -181,10 +154,10 @@ https://tu-usuario.github.io/LevelUp-V2?mode=projector
 - Asegúrate que el token tiene permiso `repo`
 
 ### **"Los alumnos ven botones de edición"**
-- Verifica que están usando el link SIN `?admin=true`
+- Verifica que no tengan acceso a la cuenta admin (Eddy)
 - En móvil, los botones se ocultan automáticamente
 
-### **"El modo proyector no se ve bien"**
+### **"La proyección no se ve bien"**
 - Presiona F11 para pantalla completa
 - Asegúrate que la resolución del proyector es al menos 1280x720
 
@@ -201,8 +174,8 @@ https://tu-usuario.github.io/LevelUp-V2?mode=projector
 - **QR Code**: Genera uno en https://qr.io con el link de arriba
 
 ### **Para ti (profesor):**
-- **Editar**: `https://tu-usuario.github.io/LevelUp-V2?admin=true`
-- **Proyectar**: `https://tu-usuario.github.io/LevelUp-V2?mode=projector`
+- **Editar**: `https://tu-usuario.github.io/LevelUp-V2 (inicia sesión con Eddy)`
+- **Proyectar**: `(El modo proyector por URL fue eliminado)`
 - **GitHub Repo**: `https://github.com/tu-usuario/LevelUp-V2`
 
 ### **Ayuda:**

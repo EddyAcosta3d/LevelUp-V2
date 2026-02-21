@@ -245,6 +245,8 @@
       <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
     </label>
     <button type="submit" class="btn" id="btnLogin">Entrar al juego</button>
+    <button type="button" class="btn" id="btnGuest" style="margin-top:10px; background:linear-gradient(180deg,#374151,#1f2937); border-color:rgba(255,255,255,.22);">👀 Entrar como invitado (solo lectura)</button>
+    <p class="hint">Comparte este acceso para mostrar el proyecto sin permitir edición.</p>
   </form>
 
   <!-- REGISTRO -->
@@ -268,7 +270,7 @@
 </div>
 
 <script type="module">
-  import { loginHero, registerHero, getSession } from './js/modules/hero_session.js';
+  import { loginHero, registerHero, getSession, loginGuest } from './js/modules/hero_session.js';
 
   // Si ya hay sesión activa, redirigir directo
   const existing = getSession();
@@ -341,6 +343,11 @@
       btn.textContent = 'Crear mi cuenta';
     }
   };
+
+  document.getElementById('btnGuest')?.addEventListener('click', () => {
+    loginGuest();
+    window.location.href = 'index.html';
+  });
 </script>
 
 </body>

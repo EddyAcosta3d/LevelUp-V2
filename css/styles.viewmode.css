@@ -5,7 +5,7 @@
 /*
  * VIEWER MODE: Ocultar todos los controles de edición
  * - Los alumnos ven la app en modo solo lectura
- * - Se activa automáticamente si NO hay parámetro ?admin=true
+ * - Se activa automáticamente para sesiones sin privilegios admin
  */
 
 /* Ocultar elementos marcados con data-edit-only en modo viewer */

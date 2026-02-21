@@ -26,7 +26,6 @@
   <link rel="stylesheet" href="css/styles.tienda.css?v=LevelUP_V2_00.070" />
   <link rel="stylesheet" href="css/styles.celebrations.css?v=LevelUP_V2_00.070" />
   <link rel="stylesheet" href="css/styles.viewmode.css?v=LevelUP_V2_00.070" />
-  <link rel="stylesheet" href="css/styles.projector.css?v=LevelUP_V2_00.070" />
   <link rel="stylesheet" href="css/styles.mobile.css?v=LevelUP_V2_00.070" />
 
   <!-- Verificación de sesión: NO bloquea el render -->
@@ -35,9 +34,12 @@
     (function() {
       var SESSION_KEY = 'levelup:session';
       var params = new URLSearchParams(location.search);
-      var isAdmin = params.has('admin');
-      var isProjector = params.has('mode');
-      if (isAdmin || isProjector) return; // modo admin/proyector: no verificar
+      var isLegacyAdminUrl = params.has('admin');
+      var isLegacyProjectorUrl = params.has('mode');
+      if (isLegacyAdminUrl || isLegacyProjectorUrl) {
+        // Compatibilidad: limpiar parámetros legacy para mantener una sola URL.
+        window.history.replaceState({}, '', 'index.html');
+      }
 
       try {
         var raw = sessionStorage.getItem(SESSION_KEY);
@@ -70,6 +72,10 @@
       };
 
       function applySession() {
+        if (session.guest) {
+          document.body.classList.add('guest-mode');
+        }
+
         // Ocultar elementos admin-only para alumnos
         if (!session.isAdmin) {
           document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(function(el) {
@@ -106,7 +112,8 @@
           if (badge) {
             badge.hidden = false;
             badge.style.cssText = '';
-            badge.innerHTML = '<button class="sessionPill" onclick="window.LevelUp.logout()"><span class="sessionPill__icon">⚔️</span><span class="sessionPill__name">' + name + '</span><span class="sessionPill__hint">· salir</span></button>';
+            var label = session.guest ? 'Invitado' : name;
+            badge.innerHTML = '<button class="sessionPill" onclick="window.LevelUp.logout()"><span class="sessionPill__icon">⚔️</span><span class="sessionPill__name">' + label + '</span><span class="sessionPill__hint">· salir</span></button>';
           }
           if (!hero && n > 0) setTimeout(function() { fillName(n - 1); }, 500);
         }
