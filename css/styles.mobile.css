@@ -990,6 +990,10 @@
 
 /* --- EVENTOS/JEFES MODAL: mejor uso de espacio para imágenes grandes en móvil --- */
 @media (max-width: 560px) {
+  #eventModal[hidden] {
+    display: none !important;
+  }
+
   #eventModal {
     padding: 0 !important;
     display: flex !important;
