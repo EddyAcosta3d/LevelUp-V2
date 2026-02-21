@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-005';
+const SW_VERSION = 'levelup-v2-sw-007';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -109,6 +109,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // CSS: network-first para que cambios visuales se reflejen sin depender
+  // de cache-busting manual en cada release.
+  if (path.endsWith('.css')) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          safeCachePut(req, res.clone());
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
   // data.json: network-first con fallback a caché
   if (path.endsWith('/data/data.json') || path === '/data/data.json') {
     event.respondWith(
@@ -122,7 +136,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // CSS, imágenes, assets: cache-first (cambian raramente)
+  // Imágenes y otros assets estáticos: cache-first
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;

@@ -69,6 +69,8 @@ export function renderTienda(){
   const header = `
     <div class="tiendaHeader">
       <div class="tiendaHeader__info">
+        <div class="tiendaHeader__eyebrow">RECOMPENSAS</div>
+        <div class="tiendaHeader__title">Tienda del Héroe</div>
         <div class="tiendaHeader__medals">
           <div class="medalBadgeLarge">
             <svg viewBox="0 0 24 24" class="medalIcon">
@@ -78,7 +80,7 @@ export function renderTienda(){
             </svg>
             <span class="medalCount">${heroMedals}</span>
           </div>
-          <div class="medalLabel">Tus medallas</div>
+          <div class="medalLabel">Medallas disponibles para canjear</div>
         </div>
       </div>
       ${state.role === 'teacher' ? `
@@ -156,17 +158,17 @@ export function renderTienda(){
               </div>
               <div class="tiendaItem__status ${statusClass}">${status}</div>
             </div>
+            ${state.role === 'teacher' ? `
+              <div class="tiendaItem__adminBtns">
+                <button class="iconBtn iconBtn--small" data-action="edit" title="Editar">✎</button>
+                <button class="iconBtn iconBtn--small iconBtn--danger" data-action="delete" title="Eliminar">🗑</button>
+              </div>
+            ` : ''}
           </div>
           ${canClaim ? `
             <button class="tiendaItem__claimBtn pill pill--small" data-action="claim">
               Canjear
             </button>
-          ` : ''}
-          ${state.role === 'teacher' ? `
-            <div class="tiendaItem__adminBtns">
-              <button class="iconBtn iconBtn--small" data-action="edit" title="Editar">✎</button>
-              <button class="iconBtn iconBtn--small iconBtn--danger" data-action="delete" title="Eliminar">🗑</button>
-            </div>
           ` : ''}
         </div>
       `;

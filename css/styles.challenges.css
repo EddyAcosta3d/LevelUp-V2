@@ -182,6 +182,34 @@ body.is-modal-open .dropdown__menu{
   border-radius: var(--modal-radius) var(--modal-radius) 0 0;
 }
 .modal__body{ display:grid; gap: 12px; }
+
+.modalActions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+.modalSpacer{ height:12px; }
+.modalSpacer--sm{ height:10px; }
+.modalSpacer--md{ height:14px; }
+.rowInline{ display:flex; gap:10px; }
+.rowInline--center{ align-items:center; }
+.cardTitle--section{ margin:6px 0 10px; }
+.githubStatusText{
+  padding:8px;
+  background:rgba(255,255,255,0.03);
+  border-radius:6px;
+}
+.helpDetails{ margin-bottom:14px; }
+.helpDetails__summary{
+  cursor:pointer;
+  color:rgba(0,210,255,0.8);
+  margin-bottom:8px;
+}
+.helpDetails__content{
+  font-size:13px;
+  line-height:1.6;
+}
 .roleList{ display:grid; gap: 10px; }
 .roleItem{
   text-align:left;
@@ -351,12 +379,16 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 
 /* Difficulty buttons (modal) */
 .diffButtons{ display:flex; gap:10px; }
-.diffButtons .pill{ flex:1; }
-.pill{ border:1px solid rgba(0,210,255,.18); background: rgba(0,0,0,.18); color: rgba(220,220,230,.92); padding:10px 12px; border-radius:999px; cursor:pointer; }
-.pill.is-active{ border-color: rgba(0,210,255,.55); box-shadow: 0 0 0 2px rgba(0,210,255,.10) inset, 0 0 18px rgba(0,210,255,.12); }
-.pill--easy.is-active{ border-color: rgba(0,210,255,.65); }
-.pill--medium.is-active{ border-color: rgba(114,26,255,.55); }
-.pill--hard.is-active{ border-color: rgba(255,90,90,.55); }
+.diffButtons .pill{
+  flex:1;
+  border:1px solid rgba(0,210,255,.18);
+  background: rgba(0,0,0,.18);
+  color: rgba(220,220,230,.92);
+}
+.diffButtons .pill.is-active{ border-color: rgba(0,210,255,.55); box-shadow: 0 0 0 2px rgba(0,210,255,.10) inset, 0 0 18px rgba(0,210,255,.12); }
+.diffButtons .pill--easy.is-active{ border-color: rgba(0,210,255,.65); }
+.diffButtons .pill--medium.is-active{ border-color: rgba(114,26,255,.55); }
+.diffButtons .pill--hard.is-active{ border-color: rgba(255,90,90,.55); }
 
 
 /* Events / Bosses — redesigned layout (V2.068) */
@@ -546,18 +578,44 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 
 /* Header */
 .evModalHead{
+  position:absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  z-index: 9;
   display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:14px;
-  padding: 16px 18px 12px;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  background:
-    radial-gradient(900px 260px at 20% -30%, rgba(0,210,255,.12), transparent 55%),
-    rgba(10,12,18,.88);
-  backdrop-filter: blur(10px);
+  align-items:center;
+  justify-content:flex-end;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
 }
-.evModalHead__left{ min-width: 0; display:flex; flex-direction:column; gap:8px; }
+.evModalHead__left{ display:none; }
+.evModalPills{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+  justify-content:flex-end;
+  max-width: min(72%, 620px);
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(34,211,238,0.24);
+  background: rgba(7,12,20,0.62);
+  backdrop-filter: blur(8px);
+}
+.eventModalTitleSr{
+  position:absolute !important;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border:0;
+}
 .evModalKickerRow{
   display:flex;
   flex-wrap:wrap;
@@ -600,40 +658,40 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
   letter-spacing: .2px;
 }
 .evModalSubtitle{
-  color: rgba(220,220,230,.70);
-  font-size: 13px;
-  line-height: 1.25;
-  max-width: 70ch;
+  display:none;
 }
 
 /* Close button */
 #btnEventClose.iconBtn{
+  position: static;
+  z-index: 10;
   width: 42px;
   height: 42px;
-  border-radius: 14px;
-  border:1px solid rgba(255,255,255,.08);
-  background: rgba(0,0,0,.24);
-  color: rgba(240,245,255,.92);
+  border-radius: 13px;
+  border:1px solid rgba(34,211,238,.44);
+  background: rgba(8,13,22,.94);
+  color: rgba(240,245,255,.98);
+  box-shadow: 0 10px 26px rgba(0,0,0,.50), 0 0 0 1px rgba(0,0,0,.35) inset;
 }
-#btnEventClose.iconBtn:hover{ border-color: rgba(0,210,255,.28); }
+#btnEventClose.iconBtn:hover{ border-color: rgba(34,211,238,.72); background: rgba(11,20,34,.96); }
 
 /* Body grid */
 .eventModalGrid{
-  display:grid;
-  grid-template-columns: minmax(300px, 380px) 1fr;
-  gap: 18px;
-  padding: 16px 18px 18px;
-  align-items: stretch;
+  position:relative;
+  min-height: min(82vh, 760px);
+  padding: 0;
+  display:block;
 }
 
 /* Artwork */
 .eventModalImgWrap{
-  position:relative;
+  position:absolute;
+  inset:0;
   border-radius:22px;
   border:1px solid rgba(255,255,255,.07);
   overflow:hidden;
   background: rgba(0,0,0,.28);
-  min-height: 360px;
+  min-height: 100%;
 }
 .eventModalImg{
   position:absolute;
@@ -648,8 +706,8 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
   position:absolute;
   inset:0;
   background:
-    radial-gradient(80% 70% at 50% 28%, rgba(0,210,255,.12), transparent 55%),
-    linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,.30) 55%, rgba(0,0,0,.10));
+    radial-gradient(120% 90% at 50% 30%, rgba(0,210,255,.10), transparent 56%),
+    linear-gradient(to bottom, rgba(0,0,0,.08), rgba(0,0,0,.18) 48%, rgba(0,0,0,.60) 84%, rgba(0,0,0,.80) 100%);
 }
 .eventModalImgStamp{
   position:absolute;
@@ -668,21 +726,31 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 
 /* Right panel */
 .eventModalInfo{
+  position:absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 7;
   min-width: 0;
   display:flex;
   flex-direction:column;
-  gap: 12px;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(34,211,238,0.18);
+  background: linear-gradient(180deg, rgba(7,11,18,0.38), rgba(7,11,18,0.78));
+  backdrop-filter: blur(8px);
 }
 .eventModalReqGrid{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 .eventModalReqBox{
-  border:1px solid rgba(255,255,255,.07);
-  background: rgba(0,0,0,.18);
-  border-radius:18px;
-  padding: 14px;
+  border:1px solid rgba(34,211,238,.14);
+  background: rgba(4,8,14,.62);
+  border-radius:14px;
+  padding: 10px 12px;
 }
 .eventModalReqTitle{
   font-weight: 900;
@@ -704,16 +772,16 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 }
 .miniMeter{
   margin-top:10px;
-  height:10px;
+  height:12px;
   border-radius:999px;
   overflow:hidden;
-  border:1px solid rgba(0,210,255,.14);
-  background: rgba(0,0,0,.22);
+  border:1px solid rgba(34,211,238,.22);
+  background: rgba(4,8,14,.82);
 }
 .miniMeter__fill{
   height:100%;
   width:0%;
-  background: linear-gradient(90deg, rgba(0,210,255,.85), rgba(255,255,255,.35));
+  background: linear-gradient(90deg, rgba(34,211,238,.92), rgba(59,130,246,.88), rgba(139,92,246,.78));
 }
 
 /* Actions */
@@ -722,12 +790,12 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
   gap:10px;
   flex-wrap:wrap;
   align-items:center;
-  padding-top: 2px;
+  padding-top: 6px;
 }
-.eventModalActions .btn{
-  border-radius: 14px;
+.eventModalActions > .pill{
+  min-height: 40px;
 }
-.eventModalActions .btnPrimary{
+.eventModalActions .eventFightBtn{
   min-width: 180px;
 }
 .eventModalFoot{
@@ -767,14 +835,14 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
     gap: 12px;
     justify-content: stretch;
   }
-  .eventModalActions .btn,
+  .eventModalActions .eventFightBtn,
   .eventModalActions .pill--small{
     flex: 1;
     min-width: 0;
     text-align: center;
     justify-content: center;
   }
-  .eventModalActions .btnPrimary{
+  .eventModalActions .eventFightBtn{
     min-width: 0;
   }
 }
@@ -787,19 +855,6 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
     max-height: 100vh;
     max-height: 100dvh;
     border-radius: 0;
-  }
-  .evModalHead{
-    position: sticky;
-    top: 0;
-    z-index: 3;
-  }
-  .eventModalActions{
-    position: sticky;
-    bottom: 0;
-    z-index: 3;
-    padding: 10px 0 8px;
-    background: linear-gradient(to top, rgba(10,12,18,.94), rgba(10,12,18,.62), transparent);
-    backdrop-filter: blur(10px);
   }
 }
 @media (max-width: 420px){
@@ -1179,232 +1234,39 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 
 
 
-/* === Boss/Event modal overrides (full-bleed, no top bar, brighter art) === */
-.modal__card--event{ padding:0 !important; overflow:hidden; }
-.evModalHead{
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-}
-.evModalHead__left{ display:none !important; }
-#eventModalTitle, #eventModalSubtitle{ display:none !important; }
-
-#btnEventClose.iconBtn{
-  position:absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 10;
-  background: rgba(10,12,16,.35);
-  border: 1px solid rgba(255,255,255,.10);
-  backdrop-filter: blur(10px);
-}
-
-.eventModalGrid{
-  position:relative;
-  padding:0 !important;
-  min-height: min(78vh, 720px);
-}
-.eventModalImgWrap{
-  position:absolute;
-  inset:0;
-  border-radius: 24px;
-  overflow:hidden;
-}
-.eventModalImg{
-  position:absolute;
-  inset:0;
-  background-size: cover;
-  background-position: center;
-  /* brighten unlocked art */
-  filter: brightness(1.20) contrast(1.06) saturate(1.06);
-}
-.eventModalImg.is-locked{
-  filter: grayscale(1) contrast(1.12) brightness(.72);
-}
-.eventModalImgShade{
-  position:absolute;
-  inset:0;
-  /* much lighter on top; readability only at bottom */
-  background: linear-gradient(to bottom,
-    rgba(0,0,0,0.00) 0%,
-    rgba(0,0,0,0.10) 55%,
-    rgba(0,0,0,0.48) 100%);
-  pointer-events:none;
-}
-.eventModalInfo{
-  position:absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
-  z-index: 6;
-}
-.eventModalReqGrid{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  max-width: 980px;
-  margin: 0 auto;
-}
-.eventModalReqBox{
-  background: rgba(10,12,16,.52) !important;
-  border: 1px solid rgba(255,255,255,.10) !important;
-  backdrop-filter: blur(14px);
-}
-@media (max-width: 820px){
+/* === Event modal responsive cleanup (cinemático, imagen full-fondo) === */
+@media (max-width: 920px){
+  .modal__card--event{
+    width: min(760px, 96vw);
+    max-height: 92dvh;
+    overflow: hidden;
+  }
+  .eventModalGrid{ min-height: min(80dvh, 720px); }
+  .eventModalInfo{ left: 10px; right: 10px; bottom: 10px; padding: 10px; }
   .eventModalReqGrid{ grid-template-columns: 1fr; }
-  .eventModalGrid{ min-height: min(80vh, 760px); }
-
-  /* Event cards: ajustar tamaño de título en arte */
-  .evCard__title{ font-size: clamp(14px, 3.5vw, 18px); }
+  .eventModalActions > .pill{ flex: 1; justify-content: center; }
 }
 
-/* --- iPad mini y tablets pequeñas (≤ 768px) --- */
-@media (max-width: 768px){
-  /* Modal de evento: fullscreen para mejor aprovechamiento */
+@media (max-width: 560px){
   .modal__card--event{
     width: 100%;
-    max-width: 100%;
-    height: 100vh;
     height: 100dvh;
-    max-height: 100vh;
     max-height: 100dvh;
     border-radius: 0;
   }
-  .eventModalImgWrap{
-    border-radius: 0;
-  }
-  .eventModalGrid{
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-
-  /* Close button con espacio para safe-area */
-  #btnEventClose.iconBtn{
-    top: max(14px, env(safe-area-inset-top, 14px));
-    right: max(14px, env(safe-area-inset-right, 14px));
-    width: 44px;
-    height: 44px;
-  }
-
-  /* Info panel en la parte inferior */
-  .eventModalInfo{
-    left: 12px;
-    right: 12px;
-    bottom: max(12px, env(safe-area-inset-bottom, 12px));
-  }
-
-  /* Req boxes más compactos */
-  .eventModalReqBox{
-    padding: 10px !important;
-    border-radius: 14px;
-  }
-  .eventModalReqTitle{ font-size: 11px; }
-  .eventModalReqText{ font-size: 12px; margin-top: 6px; }
-  .eventModalMini{ font-size: 11px; margin-top: 6px; }
-  .miniMeter{ margin-top: 6px; height: 8px; }
-
-  /* Actions más compactas */
-  .eventModalActions{
-    gap: 8px;
-    padding-top: 8px;
-    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
-  }
-  .eventModalActions .btnPrimary{
-    min-width: 140px;
-    padding: 10px 16px;
-    font-size: 14px;
-  }
-
-  /* Shade más oscuro en la parte inferior para legibilidad */
-  .eventModalImgShade{
-    background: linear-gradient(to bottom,
-      rgba(0,0,0,0.00) 0%,
-      rgba(0,0,0,0.08) 40%,
-      rgba(0,0,0,0.55) 75%,
-      rgba(0,0,0,0.78) 100%);
-  }
-}
-
-/* --- Teléfonos (≤ 560px) --- */
-@media (max-width: 560px){
-  /* evModalPills: solo mostrar los que quepan */
-  .evModalPills{
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .evModalPills .pill--mini{
-    font-size: 10px;
-    padding: 4px 8px;
-    min-height: 24px;
-  }
-
-  /* Event cards: imagen con aspect-ratio más cuadrado en pantallas pequeñas */
-  .evCard__img{
-    aspect-ratio: 4/5;
-  }
-
-  /* Req grid: 1 columna, más compacto */
-  .eventModalReqGrid{
-    gap: 8px;
-  }
-
-  /* Modal actions: usar toda la anchura */
-  .eventModalActions{
-    justify-content: stretch;
-  }
-  .eventModalActions .btn{
-    flex: 1;
-    text-align: center;
-    justify-content: center;
-  }
-}
-
-/* --- Teléfonos muy pequeños (≤ 380px) --- */
-@media (max-width: 380px){
-  .evCard{ padding: 8px; gap: 8px; }
-  .evCard__media{ border-radius: 12px; }
-  .evCard__titleOnArt{
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-  }
-  .evCard__title{ font-size: 13px; }
-  .evCard__chev{ width: 24px; height: 24px; font-size: 14px; }
-  .evReqText{ font-size: 12px; }
-  .evReqIcon{ width: 22px; height: 22px; font-size: 11px; }
-
-  /* Modal info: más compacto */
+  .eventModalImgWrap{ border-radius: 0; }
+  .evModalHead{ top: max(10px, env(safe-area-inset-top, 10px)); left: 10px; right: 10px; }
+  #btnEventClose.iconBtn{ width: 44px; height: 44px; }
   .eventModalInfo{
     left: 8px;
     right: 8px;
     bottom: max(8px, env(safe-area-inset-bottom, 8px));
+    padding: 8px;
   }
-  .eventModalReqBox{
-    padding: 8px !important;
-    border-radius: 12px;
-  }
-}
-
-/* --- Landscape en móvil para el modal --- */
-@media (max-height: 500px) and (orientation: landscape){
-  .eventModalGrid{
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-  .eventModalInfo{
-    bottom: 8px;
-  }
-  .eventModalReqGrid{
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .eventModalReqBox{
-    padding: 8px !important;
-  }
-  .eventModalActions .btnPrimary{
-    min-width: 120px;
-    padding: 8px 12px;
-  }
+  .eventModalReqTitle{ font-size: 11px; }
+  .eventModalReqText{ font-size: 12px; margin-top: 4px; }
+  .eventModalMini{ font-size: 11px; margin-top: 6px; }
+  .miniMeter{ height: 8px; margin-top: 6px; }
 }
 
 /* Boss battle full-screen modal */
@@ -2030,16 +1892,24 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
 }
 
+.eventFightBtn,
 #btnEventFight{
-  background: linear-gradient(135deg, #ffe48a 0%, #ffc13d 36%, #ff8d2b 72%, #ff622b 100%);
-  color: #220d00;
-  border: 1px solid rgba(255,255,255,.4);
-  font-weight: 900;
-  letter-spacing: .4px;
-  box-shadow: 0 12px 30px rgba(255,130,40,.32), inset 0 1px 0 rgba(255,255,255,.4);
+  background: linear-gradient(135deg, rgba(34,211,238,0.98) 0%, rgba(59,130,246,0.95) 48%, rgba(139,92,246,0.94) 100%);
+  color: rgba(245,250,255,0.98);
+  border: 1px solid rgba(125,210,255,.46);
+  font-weight: 800;
+  letter-spacing: .25px;
+  box-shadow: 0 10px 28px rgba(34,211,238,.30), inset 0 1px 0 rgba(255,255,255,.22);
 }
+.eventFightBtn:hover:not(:disabled),
+#btnEventFight:hover:not(:disabled){
+  border-color: rgba(125,210,255,.72);
+  box-shadow: 0 12px 32px rgba(34,211,238,.40), inset 0 1px 0 rgba(255,255,255,.28);
+}
+.eventFightBtn:disabled,
 #btnEventFight:disabled{
-  filter: grayscale(.35);
+  opacity:.6;
+  filter: saturate(.7);
   box-shadow: none;
 }
 
