@@ -109,24 +109,8 @@ const DEFAULT_BOSS_QUIZ = [
     const unlocked = isEventUnlocked(ev);
     const eligible = hero ? isHeroEligibleForEvent(hero, ev) : false;
 
-    const kindLabel = ev.kind === 'boss' ? 'JEFE' : 'EVENTO';
-    const stateLabel = unlocked ? (eligible ? 'LISTO' : 'DESBLOQ.') : 'BLOQUEADO';
-    const eligLabel = unlocked ? (eligible ? 'ELEGIBLE' : 'NO ELEGIBLE') : '—';
-
     const titleEl = $('#eventModalTitle');
     if (titleEl) titleEl.textContent = unlocked ? (ev.title || 'Evento') : '?????';
-
-    const kindEl = $('#eventModalKind');
-    if (kindEl) kindEl.textContent = kindLabel;
-
-    const statePill = $('#eventModalState');
-    if (statePill) statePill.textContent = stateLabel;
-    const eligPill = $('#eventModalElig');
-    if (eligPill) eligPill.textContent = eligLabel;
-
-    const stamp = $('#eventModalStamp');
-    if (stamp) stamp.textContent = unlocked ? (ev.title || kindLabel) : '?????';
-
 
     const subtitleEl = $('#eventModalSubtitle');
     if (subtitleEl){
@@ -152,8 +136,8 @@ const DEFAULT_BOSS_QUIZ = [
     const eligMeter = $('#eventModalEligMeter');
 
     // Defaults
-    if (unlockText) unlockText.textContent = (ev.unlock?.label || '—');
-    if (eligReq) eligReq.textContent = (ev.eligibility?.label || '—');
+    if (unlockText) unlockText.textContent = unlocked ? (ev.unlock?.label || '—') : '';
+    if (eligReq) eligReq.textContent = unlocked ? (ev.eligibility?.label || '—') : '';
     if (unlockMini) unlockMini.textContent = '';
     if (eligMini) eligMini.textContent = '';
     if (unlockMeter) unlockMeter.style.width = '0%';

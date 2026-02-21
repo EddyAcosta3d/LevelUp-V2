@@ -597,8 +597,8 @@
         </div>
         <div class="modal__body">
           <div class="confirmMsg" id="confirmMessage">¿Seguro?</div>
-          <div style="height:14px"></div>
-          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+          <div class="modalSpacer modalSpacer--md"></div>
+          <div class="modalActions">
             <button class="pill pill--small pill--ghost" id="btnConfirmCancel" type="button">Cancelar</button>
             <button class="pill pill--small pill--danger" id="btnConfirmOk" type="button">Aceptar</button>
           </div>
@@ -617,15 +617,15 @@
         <div class="modal__body">
           <div class="formCard">
             <label class="label">Nueva materia</label>
-            <div style="display:flex; gap:10px; align-items:center;">
+            <div class="rowInline rowInline--center">
               <input class="input" id="inNewSubject" placeholder="Ej: Ciencias" />
               <button class="pill pill--small" id="btnAddSubject" type="button">Agregar</button>
             </div>
           </div>
 
-          <div style="height:12px"></div>
+          <div class="modalSpacer"></div>
 
-          <div class="cardTitle" style="margin:6px 0 10px;">Lista</div>
+          <div class="cardTitle cardTitle--section">Lista</div>
           <div class="subjectsList" id="subjectsList"></div>
         </div>
       </div>
@@ -671,15 +671,15 @@
             <input class="input" id="inChTitle" placeholder="Ej: Problemas de fracciones" />
           </div>
 
-          <div style="height:10px"></div>
+          <div class="modalSpacer modalSpacer--sm"></div>
 
           <div class="field">
             <label class="label">Instrucciones</label>
             <textarea class="textarea" id="inChBody" placeholder="Escribe instrucciones simples..."></textarea>
           </div>
 
-          <div style="height:14px"></div>
-          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+          <div class="modalSpacer modalSpacer--md"></div>
+          <div class="modalActions">
             <button class="pill pill--small pill--ghost" id="btnCancelChallenge" type="button">Cancelar</button>
             <button class="pill pill--small" id="btnSaveChallenge" type="button">Guardar</button>
           </div>
@@ -727,22 +727,22 @@
             </div>
           </div>
 
-          <div style="height:10px"></div>
+          <div class="modalSpacer modalSpacer--sm"></div>
 
           <div class="field">
             <div class="labelSmall">Estado de conexión</div>
-            <div id="githubStatusText" class="muted" style="padding:8px; background:rgba(255,255,255,0.03); border-radius:6px;">
+            <div id="githubStatusText" class="muted githubStatusText">
               No configurado
             </div>
           </div>
 
-          <div style="height:14px"></div>
+          <div class="modalSpacer modalSpacer--md"></div>
 
-          <details style="margin-bottom:14px;">
-            <summary style="cursor:pointer; color:rgba(0,210,255,0.8); margin-bottom:8px;">
+          <details class="helpDetails">
+            <summary class="helpDetails__summary">
               ¿Cómo obtener un token?
             </summary>
-            <div class="muted" style="font-size:13px; line-height:1.6;">
+            <div class="muted helpDetails__content">
               1. Ve a <a href="https://github.com/settings/tokens" target="_blank" style="color:rgba(0,210,255,1);">github.com/settings/tokens</a><br/>
               2. Click en "Generate new token" → "Tokens (classic)"<br/>
               3. Dale un nombre (ej: "LevelUp Auto-Save")<br/>
@@ -753,7 +753,7 @@
             </div>
           </details>
 
-          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+          <div class="modalActions">
             <button class="pill pill--small pill--ghost" id="btnTestGitHub" type="button">Probar Conexión</button>
             <button class="pill pill--small pill--ghost" id="btnClearGitHubToken" type="button">Borrar Token</button>
             <button class="pill pill--small" id="btnSaveGitHubToken" type="button">Guardar</button>
@@ -773,15 +773,9 @@
     <div class="modal__card modal__card--event" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
       <div class="modal__head evModalHead">
         <div class="evModalHead__left">
-          <h3 id="eventModalTitle">Evento</h3>
+          <h3 id="eventModalTitle" class="eventModalTitleSr">Evento</h3>
           <div class="evModalSubtitle" id="eventModalSubtitle">—</div>
-          <div class="evModalPills">
-            <span class="pill pill--mini" id="eventModalKind">EVENTO</span>
-            <span class="pill pill--mini" id="eventModalState">—</span>
-            <span class="pill pill--mini" id="eventModalElig">—</span>
-          </div>
         </div>
-        <div class="evModalStamp" id="eventModalStamp" aria-hidden="true">?????</div>
         <button class="iconBtn" id="btnEventClose" title="Cerrar" aria-label="Cerrar">✕</button>
       </div>
 
@@ -810,7 +804,7 @@
             </div>
 
             <div class="eventModalActions">
-              <button class="btn btnPrimary" id="btnEventFight">⚔️ Pelear</button>
+              <button class="pill pill--small eventFightBtn" id="btnEventFight">⚔️ Pelear</button>
               <button class="pill pill--small pill--ghost" id="btnEventToggleUnlock" type="button" data-edit-only="1">Desbloquear</button>
             </div>
           </div>
