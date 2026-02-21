@@ -384,27 +384,31 @@
 
           <article class="page" data-page="desafios">
             <div class="challengeTop">
-              <div class="dropdown" id="subjectDropdown">
-                <button class="pill" id="btnSubject" type="button">Materia ▾</button>
-                <div class="dropdown__menu" id="subjectMenu" role="menu" aria-label="Materias"></div>
-              </div>
+              <div class="challengeTop__main">
+                <div class="dropdown" id="subjectDropdown">
+                  <button class="pill" id="btnSubject" type="button">Materia ▾</button>
+                  <div class="dropdown__menu" id="subjectMenu" role="menu" aria-label="Materias"></div>
+                </div>
 
-              <div class="diffPills" id="diffPills" role="group" aria-label="Dificultad">
-                <button class="pill pill--ghost" id="btnDiffEasy" type="button" data-diff="easy">Fácil</button>
-                <button class="pill pill--ghost" id="btnDiffMed" type="button" data-diff="medium">Medio</button>
-                <button class="pill pill--ghost" id="btnDiffHard" type="button" data-diff="hard">Difícil</button>
-              </div>
-
-              <div class="dropdown" data-admin-only="1">
-                <button class="pill" id="btnChallengeAdminMenu" type="button" aria-haspopup="menu" aria-expanded="false">⚙️ Gestionar ▾</button>
-                <div class="dropdown__menu" id="challengeAdminMenu" role="menu" aria-label="Acciones de desafíos">
-                  <button class="menuitem" role="menuitem" id="btnAddChallengeMenu" data-edit-only="1">+ Crear desafío</button>
-                  <button class="menuitem" role="menuitem" id="btnManageSubjectsMenu" data-edit-only="1">✎ Editar materias</button>
-                  <div class="menudivider"></div>
-                  <button class="menuitem" role="menuitem" id="btnAdminPanelChallenges">📎 Revisar evidencias</button>
+                <div class="diffPills" id="diffPills" role="group" aria-label="Dificultad">
+                  <button class="pill pill--ghost" id="btnDiffEasy" type="button" data-diff="easy">Fácil</button>
+                  <button class="pill pill--ghost" id="btnDiffMed" type="button" data-diff="medium">Medio</button>
+                  <button class="pill pill--ghost" id="btnDiffHard" type="button" data-diff="hard">Difícil</button>
                 </div>
               </div>
-              <button class="pill pill--ghost" id="btnHistory" type="button">📜 Historial</button>
+
+              <div class="challengeTop__actions">
+                <button class="pill pill--ghost" id="btnHistory" type="button">📜 Historial</button>
+                <div class="dropdown" data-admin-only="1">
+                  <button class="pill" id="btnChallengeAdminMenu" type="button" aria-haspopup="menu" aria-expanded="false">⚙️ Gestionar ▾</button>
+                  <div class="dropdown__menu" id="challengeAdminMenu" role="menu" aria-label="Acciones de desafíos">
+                    <button class="menuitem" role="menuitem" id="btnAddChallengeMenu" data-edit-only="1">+ Crear desafío</button>
+                    <button class="menuitem" role="menuitem" id="btnManageSubjectsMenu" data-edit-only="1">✎ Editar materias</button>
+                    <div class="menudivider"></div>
+                    <button class="menuitem" role="menuitem" id="btnAdminPanelChallenges">📎 Revisar evidencias</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             

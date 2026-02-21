@@ -63,12 +63,27 @@
 /* Detalle: badges solo en header (evitar duplicados en el cuerpo) */
 .challengeDetailMeta{ padding-top: 2px; }
 
-/* Pills de dificultad: colorear el activo */
+/* Pills de dificultad: cada una con su color de dificultad */
 .diffPills .pill{ border-color: rgba(220,220,230,0.14); }
-.diffPills .pill.is-active{ border-color: rgba(0,210,255,0.40); background: rgba(0,210,255,0.10); }
-.diffPills .pill.is-active[data-diff="easy"]{ border-color: rgba(0,210,255,0.55); background: rgba(0,210,255,0.12); }
-.diffPills .pill.is-active[data-diff="medium"]{ border-color: rgba(114,26,255,0.55); background: rgba(114,26,255,0.12); }
-.diffPills .pill.is-active[data-diff="hard"]{ border-color: rgba(255,90,90,0.55); background: rgba(255,90,90,0.12); }
+.diffPills .pill[data-diff="easy"]{
+  border-color: rgba(0,210,255,0.38);
+  color: rgba(145,236,255,0.96);
+  background: rgba(0,210,255,0.08);
+}
+.diffPills .pill[data-diff="medium"]{
+  border-color: rgba(114,26,255,0.36);
+  color: rgba(206,173,255,0.96);
+  background: rgba(114,26,255,0.09);
+}
+.diffPills .pill[data-diff="hard"]{
+  border-color: rgba(255,90,90,0.36);
+  color: rgba(255,183,183,0.96);
+  background: rgba(255,90,90,0.08);
+}
+.diffPills .pill.is-active{ box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; }
+.diffPills .pill.is-active[data-diff="easy"]{ border-color: rgba(0,210,255,0.65); background: rgba(0,210,255,0.18); color: rgba(182,244,255,1); }
+.diffPills .pill.is-active[data-diff="medium"]{ border-color: rgba(114,26,255,0.66); background: rgba(114,26,255,0.2); color: rgba(225,201,255,1); }
+.diffPills .pill.is-active[data-diff="hard"]{ border-color: rgba(255,90,90,0.66); background: rgba(255,90,90,0.18); color: rgba(255,214,214,1); }
 
 /* Acciones por-item (editar / borrar) viven en la tarjeta del listado */
 .chItemActions{
@@ -202,8 +217,25 @@ body.is-modal-open .dropdown__menu{
 .overlay[hidden]{ display:none !important; pointer-events: none !important; }
 
 /* --- Desafíos (nuevo header + detalle) --- */
-.challengeTop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+.challengeTop{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px 12px;
+  margin:8px 0 14px;
+  padding:10px;
+  border:1px solid rgba(130,150,185,0.20);
+  border-radius:16px;
+  background: linear-gradient(180deg, rgba(7,13,28,0.9), rgba(5,10,22,0.82));
+}
 .challengeTop .dropdown{position:relative}
+.challengeTop__main,
+.challengeTop__actions{display:flex;align-items:center;gap:10px;min-width:0}
+.challengeTop__main{flex-wrap:wrap}
+.challengeTop__actions{justify-content:flex-end}
+#subjectDropdown{flex:0 0 auto}
+#subjectDropdown .pill{font-weight:700}
+.challengeTop__main .diffPills{flex:1 1 320px;min-width:220px}
+.challengeTop__actions #btnHistory{border-style:dashed;opacity:0.92}
 #subjectMenu{min-width:220px}
 .diffPills{display:flex;gap:8px;flex-wrap:wrap}
 .challengeDetailHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 10px}
@@ -218,6 +250,11 @@ body.is-modal-open .dropdown__menu{
   align-items:center;
 }
 .challengeBody{min-height:140px;white-space:pre-wrap;border:1px solid var(--borderSoft);background:rgba(0,0,0,0.22);border-radius:16px;padding:12px;color:var(--text, #dcdce6)}
+
+@media (max-width:900px){
+  .challengeTop{grid-template-columns:1fr}
+  .challengeTop__actions{justify-content:flex-start}
+}
 @media (max-width:640px){
   .challengeBody{min-height:180px}
 }
