@@ -138,7 +138,11 @@ html.is-edit .chItemActions{
   z-index: 100000;
   display:grid;
   place-items:center;
-  padding: 20px;
+  padding: clamp(14px, 2.2vw, 24px);
+  --modal-radius: 20px;
+  --modal-surface: linear-gradient(180deg, rgba(17,23,37,0.97), rgba(11,16,28,0.97));
+  --modal-border: 1px solid rgba(121, 143, 186, 0.34);
+  --modal-shadow: 0 26px 90px rgba(0,0,0,0.72);
 }
 
 /* Ensure confirmation modal always appears on top of other open modals */
@@ -152,29 +156,32 @@ body.is-modal-open .dropdown__menu{
 .modal__backdrop{
   position:absolute;
   inset:0;
-  background: rgba(0,0,0,0.74);
-  backdrop-filter: none;
+  background: radial-gradient(circle at 20% 15%, rgba(41, 90, 188, 0.18), rgba(0,0,0,0.84) 62%);
+  backdrop-filter: blur(8px) saturate(120%);
 }
 .modal__card{
   position:relative;
   width: min(720px, 96vw);
-  max-height: min(78vh, 760px);
+  max-height: min(82vh, 800px);
   overflow:auto;
-  border-radius: var(--radius);
-  padding: 16px;
-  background: var(--panel);
-  border: 1px solid var(--borderSoft);
-  box-shadow: 0 22px 80px rgba(0,0,0,0.70);
+  border-radius: var(--modal-radius);
+  padding: 18px;
+  background: var(--modal-surface);
+  border: var(--modal-border);
+  box-shadow: var(--modal-shadow);
 }
 .modal__header{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap: 10px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--borderSoft);
+  margin: -18px -18px 14px;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid rgba(121, 143, 186, 0.25);
+  background: linear-gradient(180deg, rgba(16,21,34,0.98), rgba(16,21,34,0.82));
+  border-radius: var(--modal-radius) var(--modal-radius) 0 0;
 }
+.modal__body{ display:grid; gap: 12px; }
 .roleList{ display:grid; gap: 10px; }
 .roleItem{
   text-align:left;
@@ -210,8 +217,8 @@ body.is-modal-open .dropdown__menu{
 
 .overlay{
   position:absolute; inset:0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(2px);
+  background: radial-gradient(circle at top, rgba(24,41,74,.32), rgba(0,0,0,.72) 70%);
+  backdrop-filter: blur(6px);
   z-index: 20;
 }
 .overlay[hidden]{ display:none !important; pointer-events: none !important; }
@@ -1093,7 +1100,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   background: #121724;
   border: 1px solid #1B2333;
 }
-.modal__header{ background: #0D1016; }
+.modal__header{ background: linear-gradient(180deg, rgba(16,21,34,0.98), rgba(16,21,34,0.82)); }
 
 /* Difficulty picker coloring */
 .field--diff .diffPick{ width:100%; }
