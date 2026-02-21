@@ -187,6 +187,15 @@
     .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
+    .btn--guest {
+      margin-top: 10px;
+      background: linear-gradient(180deg, #4b5563, #1f2937);
+      border: 1px solid rgba(255,255,255,.22);
+      color: rgba(241,245,249,.96);
+      text-shadow: 0 1px 2px rgba(0,0,0,.45);
+      box-shadow: 0 6px 18px rgba(15,23,42,.45), 0 2px 6px rgba(0,0,0,.35);
+    }
+
     /* Error / Success */
     .msg {
       padding: 0.75rem 1rem;
@@ -245,8 +254,7 @@
       <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
     </label>
     <button type="submit" class="btn" id="btnLogin">Entrar al juego</button>
-    <button type="button" class="btn" id="btnGuest" style="margin-top:10px; background:linear-gradient(180deg,#374151,#1f2937); border-color:rgba(255,255,255,.22);">👀 Entrar como invitado (solo lectura)</button>
-    <p class="hint">Comparte este acceso para mostrar el proyecto sin permitir edición: <code>index.html?guest=1</code>.</p>
+    <button type="button" class="btn btn--guest" id="btnGuest">Entrar como invitado</button>
   </form>
 
   <!-- REGISTRO -->
