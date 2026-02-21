@@ -2,6 +2,33 @@
    TIENDA - Estilos completos
    ============================================ */
 
+#tiendaContainer {
+  padding: 8px;
+  border-radius: 20px;
+  background:
+    radial-gradient(1200px 300px at 10% -20%, rgba(34,211,238,0.10), transparent 55%),
+    radial-gradient(900px 260px at 95% 120%, rgba(139,92,246,0.10), transparent 55%);
+}
+
+.tiendaHeader__eyebrow {
+  font-size: 11px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(34,211,238,0.86);
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.tiendaHeader__title {
+  font-size: clamp(20px, 2.6vw, 30px);
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 14px rgba(34,211,238,0.16);
+}
+
+
 .tiendaHeader {
   display: flex;
   justify-content: space-between;
@@ -265,6 +292,9 @@
 .tiendaEmpty {
   text-align: center;
   padding: 60px 24px;
+  border: 1px dashed rgba(34,211,238,0.24);
+  border-radius: 18px;
+  background: rgba(10,14,22,0.55);
 }
 
 .tiendaEmpty__icon {
@@ -327,6 +357,14 @@
     flex-direction: column;
     gap: 16px;
     padding: 20px;
+  }
+
+  .tiendaHeader__title {
+    text-align: center;
+  }
+
+  .tiendaHeader__eyebrow {
+    text-align: center;
   }
 
   .tiendaHeader__medals {
