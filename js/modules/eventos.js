@@ -109,8 +109,26 @@ const DEFAULT_BOSS_QUIZ = [
     const unlocked = isEventUnlocked(ev);
     const eligible = hero ? isHeroEligibleForEvent(hero, ev) : false;
 
+    const kindLabel = ev.kind === 'boss' ? 'JEFE' : 'EVENTO';
+    const stateLabel = unlocked ? (eligible ? 'LISTO' : 'DESBLOQ.') : '';
+    const eligLabel = unlocked ? (eligible ? 'ELEGIBLE' : 'NO ELEGIBLE') : '';
+
     const titleEl = $('#eventModalTitle');
     if (titleEl) titleEl.textContent = unlocked ? (ev.title || 'Evento') : '?????';
+
+    const kindEl = $('#eventModalKind');
+    if (kindEl) kindEl.textContent = kindLabel;
+
+    const statePill = $('#eventModalState');
+    if (statePill) {
+      statePill.textContent = stateLabel;
+      statePill.hidden = !unlocked;
+    }
+    const eligPill = $('#eventModalElig');
+    if (eligPill) {
+      eligPill.textContent = eligLabel;
+      eligPill.hidden = !unlocked;
+    }
 
     const subtitleEl = $('#eventModalSubtitle');
     if (subtitleEl){

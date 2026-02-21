@@ -593,6 +593,18 @@ html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
   backdrop-filter: none;
 }
 .evModalHead__left{ display:none; }
+.evModalPills{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+  justify-content:flex-end;
+  max-width: min(72%, 620px);
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(34,211,238,0.24);
+  background: rgba(7,12,20,0.62);
+  backdrop-filter: blur(8px);
+}
 .eventModalTitleSr{
   position:absolute !important;
   width:1px;
@@ -1242,19 +1254,142 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
     max-height: 100dvh;
     border-radius: 0;
   }
-  .eventModalImgWrap{ border-radius: 0; }
-  .evModalHead{ top: max(10px, env(safe-area-inset-top, 10px)); left: 10px; right: 10px; }
-  #btnEventClose.iconBtn{ width: 44px; height: 44px; }
+  .eventModalImgWrap{
+    border-radius: 0;
+  }
+  .eventModalGrid{
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Close button con espacio para safe-area */
+  #btnEventClose.iconBtn{
+    top: max(14px, env(safe-area-inset-top, 14px));
+    right: max(14px, env(safe-area-inset-right, 14px));
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Info panel en la parte inferior */
+  .eventModalInfo{
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  }
+
+  /* Req boxes más compactos */
+  .eventModalReqBox{
+    padding: 10px !important;
+    border-radius: 14px;
+  }
+  .eventModalReqTitle{ font-size: 11px; }
+  .eventModalReqText{ font-size: 12px; margin-top: 6px; }
+  .eventModalMini{ font-size: 11px; margin-top: 6px; }
+  .miniMeter{ margin-top: 6px; height: 8px; }
+
+  /* Actions más compactas */
+  .eventModalActions{
+    gap: 8px;
+    padding-top: 8px;
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
+  }
+  .eventModalActions .eventFightBtn{
+    min-width: 140px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* Shade más oscuro en la parte inferior para legibilidad */
+  .eventModalImgShade{
+    background: linear-gradient(to bottom,
+      rgba(0,0,0,0.00) 0%,
+      rgba(0,0,0,0.08) 40%,
+      rgba(0,0,0,0.55) 75%,
+      rgba(0,0,0,0.78) 100%);
+  }
+}
+
+/* --- Teléfonos (≤ 560px) --- */
+@media (max-width: 560px){
+  /* evModalPills: solo mostrar los que quepan */
+  .evModalPills{
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .evModalPills .pill--mini{
+    font-size: 10px;
+    padding: 4px 8px;
+    min-height: 24px;
+  }
+
+  /* Event cards: imagen con aspect-ratio más cuadrado en pantallas pequeñas */
+  .evCard__img{
+    aspect-ratio: 4/5;
+  }
+
+  /* Req grid: 1 columna, más compacto */
+  .eventModalReqGrid{
+    gap: 8px;
+  }
+
+  /* Modal actions: usar toda la anchura */
+  .eventModalActions{
+    justify-content: stretch;
+  }
+  .eventModalActions .btn{
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* --- Teléfonos muy pequeños (≤ 380px) --- */
+@media (max-width: 380px){
+  .evCard{ padding: 8px; gap: 8px; }
+  .evCard__media{ border-radius: 12px; }
+  .evCard__titleOnArt{
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
+  .evCard__title{ font-size: 13px; }
+  .evCard__chev{ width: 24px; height: 24px; font-size: 14px; }
+  .evReqText{ font-size: 12px; }
+  .evReqIcon{ width: 22px; height: 22px; font-size: 11px; }
+
+  /* Modal info: más compacto */
   .eventModalInfo{
     left: 8px;
     right: 8px;
     bottom: max(8px, env(safe-area-inset-bottom, 8px));
     padding: 8px;
   }
-  .eventModalReqTitle{ font-size: 11px; }
-  .eventModalReqText{ font-size: 12px; margin-top: 4px; }
-  .eventModalMini{ font-size: 11px; margin-top: 6px; }
-  .miniMeter{ height: 8px; margin-top: 6px; }
+  .eventModalReqBox{
+    padding: 8px !important;
+    border-radius: 12px;
+  }
+}
+
+/* --- Landscape en móvil para el modal --- */
+@media (max-height: 500px) and (orientation: landscape){
+  .eventModalGrid{
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .eventModalInfo{
+    bottom: 8px;
+  }
+  .eventModalReqGrid{
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .eventModalReqBox{
+    padding: 8px !important;
+  }
+  .eventModalActions .eventFightBtn{
+    min-width: 120px;
+    padding: 8px 12px;
+  }
 }
 
 /* Boss battle full-screen modal */
