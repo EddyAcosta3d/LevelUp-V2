@@ -601,34 +601,57 @@
 
 /* --- DESAFÍOS: jerarquía visual de botones --- */
 @media (max-width: 430px) {
-  /* challengeTop: layout compacto con jerarquía visual */
   .challengeTop {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 10px !important;
     margin: 4px 0 10px !important;
+    border-radius: 14px !important;
+    background: linear-gradient(180deg, rgba(10, 18, 37, 0.9), rgba(5, 11, 26, 0.85)) !important;
+    border: 1px solid rgba(34, 211, 238, 0.22) !important;
   }
 
-  /* Dropdown de materia: más destaque como filtro principal */
-  .challengeTop .dropdown .pill {
+  .challengeTop__main,
+  .challengeTop__actions {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .challengeTop__actions {
+    justify-content: space-between !important;
+  }
+
+  #subjectDropdown {
+    flex: 1 1 42% !important;
+  }
+
+  #subjectDropdown .pill {
+    width: 100% !important;
+    justify-content: space-between !important;
     font-size: 13px !important;
-    padding: 8px 14px !important;
-    min-height: 36px !important;
-    min-width: 0 !important;
+    padding: 9px 12px !important;
+    min-height: 38px !important;
     border-color: rgba(34, 211, 238, 0.45) !important;
     background: rgba(34, 211, 238, 0.08) !important;
   }
 
-  /* Dificultad: row compacta, aspecto "segmented control" */
+  .challengeTop__main .diffPills {
+    flex: 1 1 55% !important;
+    min-width: 0 !important;
+  }
+
   .diffPills {
     display: flex !important;
     gap: 0 !important;
     width: 100% !important;
-    order: 1 !important;
     border-radius: 12px !important;
     overflow: hidden !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: rgba(4, 8, 18, 0.55) !important;
   }
 
   .diffPills .pill {
@@ -653,26 +676,43 @@
     background: rgba(34, 211, 238, 0.14) !important;
   }
 
-  /* Botones secundarios (admin): más discretos */
-  #btnAddChallenge,
-  #btnManageSubjects,
-  #btnHistory {
-    font-size: 12px !important;
-    padding: 6px 10px !important;
-    min-height: 32px !important;
-    min-width: 0 !important;
-    opacity: 0.85 !important;
+  .diffPills .pill[data-diff="easy"] {
+    background: rgba(0, 210, 255, 0.1) !important;
+    color: rgba(163, 240, 255, 0.96) !important;
   }
 
-  /* Admin buttons: fila compacta, orden al final */
-  #btnAddChallenge {
-    order: 2 !important;
+  .diffPills .pill[data-diff="medium"] {
+    background: rgba(114, 26, 255, 0.12) !important;
+    color: rgba(214, 188, 255, 0.97) !important;
   }
-  #btnManageSubjects {
-    order: 3 !important;
+
+  .diffPills .pill[data-diff="hard"] {
+    background: rgba(255, 90, 90, 0.1) !important;
+    color: rgba(255, 196, 196, 0.97) !important;
   }
+
+  .diffPills .pill.is-active[data-diff="easy"] {
+    background: rgba(0, 210, 255, 0.2) !important;
+  }
+
+  .diffPills .pill.is-active[data-diff="medium"] {
+    background: rgba(114, 26, 255, 0.23) !important;
+  }
+
+  .diffPills .pill.is-active[data-diff="hard"] {
+    background: rgba(255, 90, 90, 0.2) !important;
+  }
+
+  #btnHistory,
+  #btnChallengeAdminMenu {
+    font-size: 12px !important;
+    padding: 7px 10px !important;
+    min-height: 34px !important;
+    min-width: 0 !important;
+  }
+
   #btnHistory {
-    order: 4 !important;
+    flex: 1 1 auto !important;
   }
 
   /* Challenge items: edit/delete buttons inline */
@@ -707,13 +747,11 @@
     min-width: auto !important;
   }
 
-  /* Desafíos cards: stack vertical */
   .cards2--ch {
     grid-template-columns: 1fr !important;
     gap: 10px !important;
   }
 
-  /* Card head del bloque Desafíos */
   .cardHead--ch {
     flex-direction: column !important;
     align-items: flex-start !important;
@@ -724,7 +762,6 @@
     width: 100% !important;
   }
 
-  /* Challenge detail: más compacto */
   .challengeDetailHead {
     flex-direction: column !important;
     align-items: flex-start !important;
@@ -737,7 +774,6 @@
     padding: 10px !important;
   }
 }
-
 
 /* --- TIENDA: ocultar título redundante, fix admin buttons --- */
 @media (max-width: 430px) {
