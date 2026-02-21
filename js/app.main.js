@@ -10,7 +10,6 @@ import { state, logger } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
-import { initProjectorMode, isProjectorMode } from './modules/projector.js';
 import { getSession } from './modules/hero_session.js';
 import { startAssignmentSync, loadAllAssignmentsIntoState, preloadStudentAssignments } from './modules/realtime_sync.js';
 
@@ -52,13 +51,10 @@ export async function init(){
 
     const urlParams = new URLSearchParams(location.search);
     const DEBUG = urlParams.has('debug');
-    const IS_PROJECTOR = urlParams.has('mode') && urlParams.get('mode') === 'projector';
-
-    // Admin: URL param ?admin=true  O  sesion con isAdmin:true (cuenta de Eddy)
+    // Admin solo por sesión real (cuenta de Eddy)
     // Usar window.__LU_SESSION__ que ya fue parseado sin bloquear en index.html
     const _sess = window.__LU_SESSION__ || getSession();
-    const IS_ADMIN = (urlParams.has('admin') && urlParams.get('admin') === 'true')
-                  || (_sess && _sess.isAdmin === true);
+    const IS_ADMIN = !!(_sess && _sess.isAdmin === true);
 
     // Captura errores para que en iPhone no se sienta "se rompió" sin pista
     window.addEventListener('error', (ev)=>{
@@ -77,15 +73,12 @@ export async function init(){
     // Configuración inicial (antes de cargar datos)
     preventIOSDoubleTapZoom();
 
-    // Rol inicial: detectar desde URL
-    // ?admin=true → teacher (puede editar)
-    // Sin parámetro → viewer (solo lectura)
+    // Rol inicial: solo por sesión
     try{
       state.role = IS_ADMIN ? 'teacher' : 'viewer';
       // Agregar clase al body para estilos condicionales
       document.body.classList.toggle('viewer-mode', !IS_ADMIN);
       document.body.classList.toggle('admin-mode', IS_ADMIN);
-      document.body.classList.toggle('projector-mode', IS_PROJECTOR);
     }catch(_e){}
 
     setActiveRoute(state.route);
@@ -125,16 +118,10 @@ export async function init(){
       await preloadStudentAssignments(_sess.heroId);
     }
 
-    // Check if we're in projector mode
-    if (IS_PROJECTOR) {
-      // Projector mode: don't bind, just show leaderboard
-      initProjectorMode();
-    } else {
-      // Normal mode: bind everything
-      bind();
-      setRole(IS_ADMIN ? 'teacher' : 'viewer');
-      syncDetailsUI();
-    }
+    // Modo normal: bind siempre (se eliminó modo proyector por URL)
+    bind();
+    setRole(IS_ADMIN ? 'teacher' : 'viewer');
+    syncDetailsUI();
 
     // Sincronización de asignaciones con Supabase
     if (IS_ADMIN) {
