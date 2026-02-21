@@ -158,17 +158,17 @@ export function renderTienda(){
               </div>
               <div class="tiendaItem__status ${statusClass}">${status}</div>
             </div>
+            ${state.role === 'teacher' ? `
+              <div class="tiendaItem__adminBtns">
+                <button class="iconBtn iconBtn--small" data-action="edit" title="Editar">✎</button>
+                <button class="iconBtn iconBtn--small iconBtn--danger" data-action="delete" title="Eliminar">🗑</button>
+              </div>
+            ` : ''}
           </div>
           ${canClaim ? `
             <button class="tiendaItem__claimBtn pill pill--small" data-action="claim">
               Canjear
             </button>
-          ` : ''}
-          ${state.role === 'teacher' ? `
-            <div class="tiendaItem__adminBtns">
-              <button class="iconBtn iconBtn--small" data-action="edit" title="Editar">✎</button>
-              <button class="iconBtn iconBtn--small iconBtn--danger" data-action="delete" title="Eliminar">🗑</button>
-            </div>
           ` : ''}
         </div>
       `;

@@ -275,17 +275,12 @@
 
 /* Botones de admin */
 .tiendaItem__adminBtns {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
   display: flex;
   gap: 8px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.tiendaItem:hover .tiendaItem__adminBtns {
-  opacity: 1;
+  justify-content: flex-end;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(34,211,238,0.16);
 }
 
 /* Estado vacío */
@@ -342,8 +337,6 @@
   }
   
   .tiendaItem__adminBtns {
-    position: static;
-    opacity: 1;
     margin-top: 12px;
     justify-content: center;
   }
