@@ -37,7 +37,22 @@
       var params = new URLSearchParams(location.search);
       var isAdmin = params.has('admin');
       var isProjector = params.has('mode');
+      var isGuest = params.get('guest') === '1';
       if (isAdmin || isProjector) return; // modo admin/proyector: no verificar
+
+      if (isGuest) {
+        var guestSession = {
+          access_token: 'guest-mode',
+          refresh_token: '',
+          email: 'invitado@levelup.local',
+          heroId: null,
+          isAdmin: false,
+          savedAt: Date.now(),
+          guest: true
+        };
+        window.__LU_SESSION__ = guestSession;
+        return;
+      }
 
       try {
         var raw = sessionStorage.getItem(SESSION_KEY);
@@ -70,6 +85,10 @@
       };
 
       function applySession() {
+        if (session.guest) {
+          document.body.classList.add('guest-mode');
+        }
+
         // Ocultar elementos admin-only para alumnos
         if (!session.isAdmin) {
           document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(function(el) {
@@ -106,7 +125,8 @@
           if (badge) {
             badge.hidden = false;
             badge.style.cssText = '';
-            badge.innerHTML = '<button class="sessionPill" onclick="window.LevelUp.logout()"><span class="sessionPill__icon">⚔️</span><span class="sessionPill__name">' + name + '</span><span class="sessionPill__hint">· salir</span></button>';
+            var label = session.guest ? 'Invitado' : name;
+            badge.innerHTML = '<button class="sessionPill" onclick="window.LevelUp.logout()"><span class="sessionPill__icon">⚔️</span><span class="sessionPill__name">' + label + '</span><span class="sessionPill__hint">· salir</span></button>';
           }
           if (!hero && n > 0) setTimeout(function() { fillName(n - 1); }, 500);
         }
