@@ -978,7 +978,8 @@
     padding-top: 8px !important;
   }
 
-  .eventModalActions .btn {
+  .eventModalActions .eventFightBtn,
+  .eventModalActions #btnEventFight {
     flex: 1 !important;
     text-align: center !important;
     justify-content: center !important;
