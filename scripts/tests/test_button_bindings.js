@@ -20,7 +20,8 @@ const EXPECTED_BUTTON_BINDINGS = [
 ];
 
 // Leer todos los archivos JS
-const jsDir = path.join(__dirname, 'js');
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
+const jsDir = path.join(REPO_ROOT, 'js');
 
 function searchInFiles(dir, pattern) {
   const results = [];

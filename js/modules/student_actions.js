@@ -46,7 +46,7 @@ export function initStudentActions() {
 // ============================================
 function autoSelectHero(heroId) {
   const trySelect = () => {
-    const hero = state.data?.heroes?.find(h => h.id === heroId);
+    const hero = state.data?.heroes?.find(h => String(h.id) === String(heroId));
     if (!hero) { setTimeout(trySelect, 500); return; }
 
     // Cambiar al grupo correcto
@@ -72,15 +72,16 @@ export function renderSubmitButton(session, challengeId) {
 
   if (!challengeId) return;
 
-  const hero = state.data?.heroes?.find(h => h.id === session.heroId);
+  const hero = state.data?.heroes?.find(h => String(h.id) === String(session.heroId));
   if (!hero) return;
 
-  const challenge = state.data?.challenges?.find(c => c.id === challengeId);
+  const challenge = state.data?.challenges?.find(c => String(c.id) === String(challengeId));
   if (!challenge) return;
 
   // Regla actual: solo permitir envío en desafíos explícitamente asignados.
   const assigned = hero.assignedChallenges;
-  const isUnlocked = Array.isArray(assigned) && assigned.includes(String(challengeId));
+  const challengeKey = String(challengeId);
+  const isUnlocked = Array.isArray(assigned) && assigned.some(id => String(id) === challengeKey);
   if (!isUnlocked) return;
 
   // Verificar si ya fue enviado
@@ -154,8 +155,8 @@ if (typeof window !== 'undefined') {
     btn.textContent = '⏳ Enviando...';
 
     try {
-      const hero = state.data?.heroes?.find(h => h.id === heroId);
-      const challenge = state.data?.challenges?.find(c => c.id === challengeId);
+      const hero = state.data?.heroes?.find(h => String(h.id) === String(heroId));
+      const challenge = state.data?.challenges?.find(c => String(c.id) === String(challengeId));
 
       let fileUrl = null;
       let fileName = null;
@@ -200,7 +201,7 @@ if (typeof window !== 'undefined') {
 // CANJE DE TIENDA — intercepta el canje del alumno
 // ============================================
 export async function handleStoreClaim(session, item) {
-  const hero = state.data?.heroes?.find(h => h.id === session.heroId);
+  const hero = state.data?.heroes?.find(h => String(h.id) === String(session.heroId));
   if (!hero) return;
 
   if (Number(hero.medals) < Number(item.cost)) {

@@ -62,7 +62,8 @@ function isChallengeUnlockedForHero(hero, challengeId){
   const assigned = hero.assignedChallenges;
   // Regla actual: por defecto NO está asignado hasta que el profe lo habilita.
   if (!Array.isArray(assigned)) return false;
-  return assigned.includes(String(challengeId));
+  const targetId = String(challengeId);
+  return assigned.some(id => String(id) === targetId);
 }
 
 export function renderChallenges(){
