@@ -23,11 +23,29 @@ create table if not exists public.hero_accounts (
   hero_id text not null unique
 );
 
-create policy "hero_assignments_select_admin"
+-- Tabla puente email -> hero_id para RLS de alumnos.
+-- Puedes mantenerla sincronizada con tu HERO_MAP del frontend.
+create table if not exists public.hero_accounts (
+  email text primary key,
+  hero_id text not null unique
+);
+
+drop policy if exists "hero_accounts_select_self" on public.hero_accounts;
+
+create policy "hero_assignments_select_admin_or_student"
 on public.hero_assignments
 for select
 using (
+  -- Admin
   auth.jwt() ->> 'email' = 'eddy@levelup.mx'
+  or
+  -- Alumno: solo puede leer filas de su propio hero_id
+  exists (
+    select 1
+    from public.hero_accounts ha
+    where lower(ha.email) = lower(auth.jwt() ->> 'email')
+      and ha.hero_id = hero_assignments.hero_id
+  )
 );
 
 create policy "hero_assignments_insert_admin"
