@@ -39,6 +39,42 @@ function clearSessionToken() {
   } catch (_) {}
 }
 
+function updateSessionTokens(tokens = {}) {
+  try {
+    const session = getSession();
+    if (!session) return;
+    if (tokens.access_token) session.token = tokens.access_token;
+    if (tokens.refresh_token) session.refreshToken = tokens.refresh_token;
+    session.savedAt = Date.now();
+    sessionStorage.setItem('levelup:session', JSON.stringify(session));
+  } catch (_) {}
+}
+
+async function refreshSessionToken() {
+  const session = getSession();
+  const refreshToken = session?.refreshToken;
+  if (!refreshToken) return null;
+
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ refresh_token: refreshToken })
+  });
+
+  if (!res.ok) {
+    clearSessionToken();
+    return null;
+  }
+
+  const data = await res.json();
+  if (!data?.access_token) return null;
+  updateSessionTokens(data);
+  return data.access_token;
+}
+
 function getSessionToken() {
   const session = getSession();
   const token = session?.token || null;
@@ -47,7 +83,6 @@ function getSessionToken() {
   const payload = decodeJwtPayload(token);
   const exp = Number(payload?.exp || 0);
   if (exp && (Date.now() >= exp * 1000)) {
-    clearSessionToken();
     return null;
   }
 
@@ -55,7 +90,15 @@ function getSessionToken() {
 }
 
 export function hasActiveSessionToken() {
-  return !!getSessionToken();
+  const session = getSession();
+  if (!session) return false;
+  return !!(getSessionToken() || session.refreshToken);
+}
+
+async function getUsableSessionToken() {
+  const current = getSessionToken();
+  if (current) return current;
+  return await refreshSessionToken();
 }
 
 async function parseError(res, fallback) {
@@ -74,25 +117,34 @@ async function throwIfNotOk(res, fallback) {
   throw new Error(msg);
 }
 
-const buildHeaders = ({ useAnon = false } = {}) => ({
+const buildHeaders = ({ useAnon = false, token = null } = {}) => ({
   'apikey': SUPABASE_ANON_KEY,
-  'Authorization': `Bearer ${useAnon ? SUPABASE_ANON_KEY : (getSessionToken() || SUPABASE_ANON_KEY)}`,
+  'Authorization': `Bearer ${useAnon ? SUPABASE_ANON_KEY : (token || SUPABASE_ANON_KEY)}`,
   'Content-Type': 'application/json',
   'Prefer': 'return=representation'
 });
 
 async function supabaseFetch(path, init = {}, { retryWithAnon = true } = {}) {
   const customHeaders = init.headers || {};
-  const doFetch = (useAnon = false) => fetch(`${SUPABASE_URL}${path}`, {
+  const doFetch = async (useAnon = false, forcedToken = null) => {
+    const token = useAnon ? SUPABASE_ANON_KEY : (forcedToken || await getUsableSessionToken() || SUPABASE_ANON_KEY);
+    return await fetch(`${SUPABASE_URL}${path}`, {
     ...init,
     headers: {
-      ...buildHeaders({ useAnon }),
+      ...buildHeaders({ useAnon, token }),
       ...customHeaders
     }
-  });
+    });
+  };
 
   let res = await doFetch(false);
-  if (retryWithAnon && res.status === 401 && getSessionToken()) {
+  if (res.status === 401) {
+    const refreshedToken = await refreshSessionToken();
+    if (refreshedToken) {
+      res = await doFetch(false, refreshedToken);
+    }
+  }
+  if (retryWithAnon && res.status === 401) {
     clearSessionToken();
     res = await doFetch(true);
   }
