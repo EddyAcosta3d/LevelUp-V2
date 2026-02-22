@@ -17,7 +17,7 @@ import { getHeroAssignments, getAllHeroAssignments } from './supabase_client.js'
 import { state } from './core_globals.js';
 import { saveLocal } from './store.js';
 
-const POLL_INTERVAL_MS = 5000;
+const POLL_INTERVAL_MS = 1200;
 
 let _pollTimer = null;
 let _lastSnapshot = null; // JSON stringificado de asignaciones, para detectar cambios
