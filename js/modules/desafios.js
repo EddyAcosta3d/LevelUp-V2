@@ -37,11 +37,6 @@ import {
   difficultyLabel
 } from './fichas.js';
 
-import {
-  markAssignmentMutationPending,
-  clearAssignmentMutationPending
-} from './realtime_sync.js';
-
 let _assignmentSyncInFlight = new Set();
 
 function getChallengeContextHero(){

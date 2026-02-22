@@ -25,47 +25,6 @@ let _lastSnapshot = null; // JSON stringificado de asignaciones, para detectar c
 let _lastAllSnapshot = null;
 let _warnedStudentSync = false;
 let _warnedTeacherSync = false;
-const _pendingAssignmentMutations = new Map();
-const PENDING_MUTATION_TTL_MS = 5000;
-
-function _pendingKey(heroId, challengeId) {
-  return `${String(heroId)}::${String(challengeId)}`;
-}
-
-function _cleanupExpiredPendingMutations(now = Date.now()) {
-  for (const [key, value] of _pendingAssignmentMutations.entries()) {
-    if (!value || Number(value.expiresAt || 0) <= now) {
-      _pendingAssignmentMutations.delete(key);
-    }
-  }
-}
-
-function _applyPendingMutations(heroId, remoteIds) {
-  const base = new Set((Array.isArray(remoteIds) ? remoteIds : []).map(x => String(x)));
-  const now = Date.now();
-  _cleanupExpiredPendingMutations(now);
-
-  for (const [key, value] of _pendingAssignmentMutations.entries()) {
-    const [hId, chId] = key.split('::');
-    if (String(hId) !== String(heroId)) continue;
-    if (!value || Number(value.expiresAt || 0) <= now) continue;
-    if (value.assigning) base.add(String(chId));
-    else base.delete(String(chId));
-  }
-
-  return Array.from(base);
-}
-
-export function markAssignmentMutationPending(heroId, challengeId, assigning) {
-  _pendingAssignmentMutations.set(_pendingKey(heroId, challengeId), {
-    assigning: !!assigning,
-    expiresAt: Date.now() + PENDING_MUTATION_TTL_MS
-  });
-}
-
-export function clearAssignmentMutationPending(heroId, challengeId) {
-  _pendingAssignmentMutations.delete(_pendingKey(heroId, challengeId));
-}
 
 // ============================================
 // Sync para ALUMNO — solo carga su propio héroe
@@ -129,11 +88,6 @@ export function startAllAssignmentsSync(onUpdate) {
         byHero[heroId].push(String(challenge_id));
       });
 
-      const heroes = state.data?.heroes || [];
-      heroes.forEach(hero => {
-        byHero[hero.id] = _applyPendingMutations(hero.id, byHero[hero.id] || []);
-      });
-
       const snapshot = JSON.stringify(
         Object.keys(byHero)
           .sort()
@@ -142,8 +96,9 @@ export function startAllAssignmentsSync(onUpdate) {
       if (snapshot === _lastAllSnapshot) return;
       _lastAllSnapshot = snapshot;
 
+      const heroes = state.data?.heroes || [];
       heroes.forEach(hero => {
-        hero.assignedChallenges = _applyPendingMutations(hero.id, Array.isArray(byHero[hero.id]) ? byHero[hero.id] : []);
+        hero.assignedChallenges = Array.isArray(byHero[hero.id]) ? byHero[hero.id] : [];
       });
       saveLocal(state.data);
       if (typeof onUpdate === 'function') onUpdate();
