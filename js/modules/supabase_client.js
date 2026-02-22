@@ -170,7 +170,7 @@ export async function updateStoreClaim(id, data) {
 
 export async function upsertHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
-  const res = await supabaseFetch('/rest/v1/hero_assignments', {
+  const res = await supabaseFetch('/rest/v1/hero_assignments?on_conflict=hero_id,challenge_id', {
     method: 'POST',
     headers: { 'Prefer': 'return=minimal' },
     body: JSON.stringify({ hero_id: heroId, challenge_id: String(challengeId) })
@@ -197,13 +197,17 @@ export async function getHeroAssignments(heroId) {
   );
   if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones: ${res.status}`));
   const rows = await res.json();
-  return rows.map(r => r.challenge_id);
+  return rows.map(r => String(r.challenge_id));
 }
 
 export async function getAllHeroAssignments() {
   const res = await supabaseFetch('/rest/v1/hero_assignments?select=hero_id,challenge_id');
   if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones: ${res.status}`));
-  return await res.json();
+  const rows = await res.json();
+  return rows.map(row => ({
+    ...row,
+    challenge_id: String(row.challenge_id)
+  }));
 }
 
 // ============================================

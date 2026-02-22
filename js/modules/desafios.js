@@ -37,6 +37,8 @@ import {
   difficultyLabel
 } from './fichas.js';
 
+let _assignmentSyncInFlight = new Set();
+
 function getChallengeContextHero(){
   // Contexto principal: héroe actualmente seleccionado.
   const hero = currentHero();
@@ -371,6 +373,8 @@ export function renderChallengeDetail(){
       : 'Este desafío está bloqueado para el alumno seleccionado.';
     assignBtn.addEventListener('click', ()=>{
       const targetHero = getChallengeContextHero();
+      const syncKey = `${targetHero?.id || 'none'}::${String(ch.id)}`;
+      if (_assignmentSyncInFlight.has(syncKey)) return;
       if (!targetHero){
         window.toast?.('⚠️ No hay alumno seleccionado');
         return;
@@ -401,6 +405,9 @@ export function renderChallengeDetail(){
         return;
       }
 
+      _assignmentSyncInFlight.add(syncKey);
+      assignBtn.disabled = true;
+
       const fn = assigning
         ? upsertHeroAssignment(targetHero.id, chId)
         : deleteHeroAssignment(targetHero.id, chId);
@@ -425,6 +432,9 @@ export function renderChallengeDetail(){
           ? 'Tu sesión expiró. Inicia sesión de nuevo para sincronizar.'
           : (err.message || 'revisa tu conexión');
         window.toast?.(`⚠️ No se guardó en la nube: ${msg}`);
+      }).finally(() => {
+        _assignmentSyncInFlight.delete(syncKey);
+        assignBtn.disabled = false;
       });
     });
     badgesEl.appendChild(assignBtn);
