@@ -20,7 +20,11 @@ import { saveLocal } from './store.js';
 const POLL_INTERVAL_MS = 1200;
 
 let _pollTimer = null;
+let _pollAllTimer = null;
 let _lastSnapshot = null; // JSON stringificado de asignaciones, para detectar cambios
+let _lastAllSnapshot = null;
+let _warnedStudentSync = false;
+let _warnedTeacherSync = false;
 
 // ============================================
 // Sync para ALUMNO — solo carga su propio héroe
@@ -46,8 +50,11 @@ export function startAssignmentSync(heroId, onUpdate) {
           if (typeof onUpdate === 'function') onUpdate();
         }
       }
-    } catch (_e) {
-      // Fallo silencioso — no romper la UI si no hay conexión
+    } catch (e) {
+      if (!_warnedStudentSync) {
+        _warnedStudentSync = true;
+        console.warn('[Sync alumno] No se pudo leer asignaciones.', e?.message || e);
+      }
     }
   }
 
@@ -62,6 +69,56 @@ export function stopAssignmentSync() {
     _pollTimer = null;
   }
   _lastSnapshot = null;
+}
+
+export function startAllAssignmentsSync(onUpdate) {
+  if (_pollAllTimer) return;
+
+  async function pollAll() {
+    try {
+      const rows = await getAllHeroAssignments();
+      if (!Array.isArray(rows)) return;
+
+      const byHero = {};
+      rows.forEach(({ hero_id, challenge_id }) => {
+        const heroId = String(hero_id || '');
+        if (!heroId) return;
+        if (!byHero[heroId]) byHero[heroId] = [];
+        byHero[heroId].push(String(challenge_id));
+      });
+
+      const snapshot = JSON.stringify(
+        Object.keys(byHero)
+          .sort()
+          .map(heroId => [heroId, byHero[heroId].slice().sort()])
+      );
+      if (snapshot === _lastAllSnapshot) return;
+      _lastAllSnapshot = snapshot;
+
+      const heroes = state.data?.heroes || [];
+      heroes.forEach(hero => {
+        hero.assignedChallenges = Array.isArray(byHero[hero.id]) ? byHero[hero.id] : [];
+      });
+      saveLocal(state.data);
+      if (typeof onUpdate === 'function') onUpdate();
+    } catch (e) {
+      if (!_warnedTeacherSync) {
+        _warnedTeacherSync = true;
+        console.warn('[Sync profe] No se pudo leer hero_assignments. Revisa RLS/credenciales.', e?.message || e);
+      }
+    }
+  }
+
+  pollAll();
+  _pollAllTimer = setInterval(pollAll, POLL_INTERVAL_MS);
+}
+
+export function stopAllAssignmentsSync() {
+  if (_pollAllTimer) {
+    clearInterval(_pollAllTimer);
+    _pollAllTimer = null;
+  }
+  _lastAllSnapshot = null;
 }
 
 // ============================================
@@ -109,7 +166,10 @@ export async function loadAllAssignmentsIntoState() {
     });
 
     saveLocal(state.data);
-  } catch (_e) {
-    // Fallo silencioso — usar las asignaciones del JSON local
+  } catch (e) {
+    if (!_warnedTeacherSync) {
+      _warnedTeacherSync = true;
+      console.warn('[Sync inicial profe] Falló carga de hero_assignments. Se mantienen datos locales.', e?.message || e);
+    }
   }
 }

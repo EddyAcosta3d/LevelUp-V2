@@ -67,6 +67,13 @@ async function parseError(res, fallback) {
   }
 }
 
+async function throwIfNotOk(res, fallback) {
+  if (res.ok) return;
+  const msg = await parseError(res, fallback);
+  if (res.status === 403) throw new Error(`RLS_DENIED: ${msg}`);
+  throw new Error(msg);
+}
+
 const buildHeaders = ({ useAnon = false } = {}) => ({
   'apikey': SUPABASE_ANON_KEY,
   'Authorization': `Bearer ${useAnon ? SUPABASE_ANON_KEY : (getSessionToken() || SUPABASE_ANON_KEY)}`,
@@ -187,7 +194,7 @@ export async function deleteHeroAssignment(heroId, challengeId) {
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
     { method: 'DELETE' }
   );
-  if (!res.ok) throw new Error(await parseError(res, `Error al desasignar: ${res.status}`));
+  await throwIfNotOk(res, `Error al desasignar: ${res.status}`);
   return true;
 }
 
@@ -195,7 +202,7 @@ export async function getHeroAssignments(heroId) {
   const res = await supabaseFetch(
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&select=challenge_id`
   );
-  if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones: ${res.status}`));
+  await throwIfNotOk(res, `Error al leer asignaciones: ${res.status}`);
   const rows = await res.json();
   return rows.map(r => String(r.challenge_id));
 }
