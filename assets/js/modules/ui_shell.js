@@ -72,7 +72,12 @@
       b.setAttribute('aria-disabled', String(locked));
     });
 
-    // Stats: se bloquean (sin cambiar brillo) vía pointer-events en CSS
+    // Stats: disable range sliders in viewer mode
+    $$(FICHA_LOCK.statsRangeSelector).forEach(el => {
+      try { el.disabled = locked; } catch(e){}
+      el.setAttribute('aria-disabled', String(locked));
+      el.style.pointerEvents = locked ? 'none' : '';
+    });
   }
 
 // Drawer
@@ -139,6 +144,10 @@
     const next = (typeof open === 'boolean') ? open : !isOpen;
     dd.classList.toggle('is-open', next);
     $('#btnDatos').setAttribute('aria-expanded', String(next));
+    // En tablet, topbar__right tiene overflow-x:auto que recorta el dropdown.
+    // Cambiar a visible mientras esté abierto para que el menú no quede cortado.
+    const topbarRight = $('#btnDatos')?.closest?.('.topbar__right');
+    if (topbarRight) topbarRight.style.overflow = next ? 'visible' : '';
   }
   function closeDatos(){ toggleDatos(false); }
   // Textarea auto-grow (prevents inner scrollbars)

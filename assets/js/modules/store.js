@@ -112,7 +112,22 @@ import {
       try{
         logger.info('Intentando cargar datos desde GitHub...');
         const d = await fetchRemote();
-        state.data = normalizeData(d); state.dataSource = 'remote'; state.loadedFrom = 'remote';
+        const normalized = normalizeData(d);
+        // Preserve local assignedChallenges so a GitHub reload doesn't wipe
+        // assignments that are saved locally but haven't synced yet to Supabase.
+        try {
+          const local = loadLocal();
+          if (local?.heroes) {
+            const localByHeroId = new Map(local.heroes.map(h => [h.id, h]));
+            normalized.heroes.forEach(hero => {
+              const localHero = localByHeroId.get(hero.id);
+              if (Array.isArray(localHero?.assignedChallenges) && localHero.assignedChallenges.length > 0) {
+                hero.assignedChallenges = localHero.assignedChallenges;
+              }
+            });
+          }
+        } catch(_mergeErr) {}
+        state.data = normalized; state.dataSource = 'remote'; state.loadedFrom = 'remote';
         saveLocal(state.data);
         if (typeof toast === 'function') toast('Cargado desde GitHub');
         if (typeof updateDataDebug === 'function') updateDataDebug();
@@ -127,7 +142,22 @@ import {
       try{
         logger.info('Intentando cargar datos desde GitHub...');
         const d = await fetchRemote();
-        state.data = normalizeData(d); state.dataSource = 'remote'; state.loadedFrom = 'remote';
+        const normalized = normalizeData(d);
+        // Preserve local assignedChallenges so a GitHub reload doesn't wipe
+        // assignments that are saved locally but haven't synced yet to Supabase.
+        try {
+          const local = loadLocal();
+          if (local?.heroes) {
+            const localByHeroId = new Map(local.heroes.map(h => [h.id, h]));
+            normalized.heroes.forEach(hero => {
+              const localHero = localByHeroId.get(hero.id);
+              if (Array.isArray(localHero?.assignedChallenges) && localHero.assignedChallenges.length > 0) {
+                hero.assignedChallenges = localHero.assignedChallenges;
+              }
+            });
+          }
+        } catch(_mergeErr) {}
+        state.data = normalized; state.dataSource = 'remote'; state.loadedFrom = 'remote';
         saveLocal(state.data);
         if (typeof updateDataDebug === 'function') updateDataDebug();
         if (typeof renderAll === 'function') renderAll();
