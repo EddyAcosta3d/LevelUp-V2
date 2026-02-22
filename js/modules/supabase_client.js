@@ -172,9 +172,7 @@ export async function upsertHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch('/rest/v1/hero_assignments?on_conflict=hero_id,challenge_id', {
     method: 'POST',
-    headers: {
-      'Prefer': 'resolution=ignore-duplicates,return=minimal'
-    },
+    headers: { 'Prefer': 'return=minimal' },
     body: JSON.stringify({ hero_id: heroId, challenge_id: String(challengeId) })
   });
   // Si ya existe la asignación, se considera éxito idempotente.
