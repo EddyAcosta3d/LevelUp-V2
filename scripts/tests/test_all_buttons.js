@@ -22,7 +22,8 @@ const ALL_BUTTONS = [
 ];
 
 function searchInAllJS(buttonId) {
-  const jsDir = path.join(__dirname, 'js');
+  const REPO_ROOT = path.resolve(__dirname, '..', '..');
+  const jsDir = path.join(REPO_ROOT, 'js');
   let found = false;
   let locations = [];
 
@@ -45,9 +46,9 @@ function searchInAllJS(buttonId) {
 
         if (hasListener) {
           found = true;
-          locations.push({ file: path.relative(__dirname, fullPath), hasListener: true });
+          locations.push({ file: path.relative(REPO_ROOT, fullPath), hasListener: true });
         } else if (hasReference) {
-          locations.push({ file: path.relative(__dirname, fullPath), hasListener: false });
+          locations.push({ file: path.relative(REPO_ROOT, fullPath), hasListener: false });
         }
       }
     }
