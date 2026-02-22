@@ -380,6 +380,7 @@ export function renderChallengeDetail(){
         return;
       }
       if (!Array.isArray(targetHero.assignedChallenges)) targetHero.assignedChallenges = [];
+      targetHero.assignedChallenges = targetHero.assignedChallenges.map(x => String(x));
       const chId = String(ch.id);
       const prevAssignments = targetHero.assignedChallenges.slice();
       const i = targetHero.assignedChallenges.indexOf(chId);
@@ -393,11 +394,13 @@ export function renderChallengeDetail(){
         window.toast?.(`🔓 ${targetHero.name || 'Alumno'}: desafío desbloqueado`);
         assigning = true;
       }
+      markAssignmentMutationPending(targetHero.id, chId, assigning);
       saveLocal(state.data);
       renderChallenges();
 
       // Sincronizar con Supabase en segundo plano (no bloquea la UI)
       if (!hasActiveSessionToken()){
+        clearAssignmentMutationPending(targetHero.id, chId);
         targetHero.assignedChallenges = prevAssignments;
         saveLocal(state.data);
         renderChallenges();
@@ -412,6 +415,7 @@ export function renderChallengeDetail(){
         ? upsertHeroAssignment(targetHero.id, chId)
         : deleteHeroAssignment(targetHero.id, chId);
       fn.then(async ()=> {
+        clearAssignmentMutationPending(targetHero.id, chId);
         // Releer desde Supabase para confirmar el estado real guardado.
         try {
           const remoteAssignments = await getHeroAssignments(targetHero.id);
@@ -422,6 +426,7 @@ export function renderChallengeDetail(){
           // Si falla la lectura, mantenemos el estado local optimista.
         }
       }).catch(err => {
+        clearAssignmentMutationPending(targetHero.id, chId);
         targetHero.assignedChallenges = prevAssignments;
         saveLocal(state.data);
         renderChallenges();

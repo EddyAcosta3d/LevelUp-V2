@@ -36,7 +36,8 @@ export function startAssignmentSync(heroId, onUpdate) {
   async function poll() {
     try {
       const challengeIds = await getHeroAssignments(heroId);
-      const snapshot = JSON.stringify(challengeIds.slice().sort());
+      const effectiveIds = _applyPendingMutations(heroId, challengeIds);
+      const snapshot = JSON.stringify(effectiveIds.slice().sort());
 
       if (snapshot !== _lastSnapshot) {
         _lastSnapshot = snapshot;
@@ -45,7 +46,7 @@ export function startAssignmentSync(heroId, onUpdate) {
         const heroes = state.data?.heroes || [];
         const hero = heroes.find(h => h.id === heroId);
         if (hero) {
-          hero.assignedChallenges = challengeIds;
+          hero.assignedChallenges = effectiveIds;
           saveLocal(state.data);
           if (typeof onUpdate === 'function') onUpdate();
         }
@@ -132,7 +133,7 @@ export async function preloadStudentAssignments(heroId) {
     const heroes = state.data?.heroes || [];
     const hero = heroes.find(h => h.id === heroId);
     if (hero) {
-      hero.assignedChallenges = challengeIds;
+      hero.assignedChallenges = _applyPendingMutations(heroId, challengeIds);
       saveLocal(state.data);
     }
   } catch(_e) {
@@ -162,7 +163,7 @@ export async function loadAllAssignmentsIntoState() {
     // Supabase es la fuente de verdad: si un héroe no tiene filas,
     // su lista debe quedar vacía (desafíos bloqueados).
     heroes.forEach(hero => {
-      hero.assignedChallenges = Array.isArray(byHero[hero.id]) ? byHero[hero.id] : [];
+      hero.assignedChallenges = _applyPendingMutations(hero.id, Array.isArray(byHero[hero.id]) ? byHero[hero.id] : []);
     });
 
     saveLocal(state.data);
