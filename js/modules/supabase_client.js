@@ -67,6 +67,13 @@ async function parseError(res, fallback) {
   }
 }
 
+async function throwIfNotOk(res, fallback) {
+  if (res.ok) return;
+  const msg = await parseError(res, fallback);
+  if (res.status === 403) throw new Error(`RLS_DENIED: ${msg}`);
+  throw new Error(msg);
+}
+
 const buildHeaders = ({ useAnon = false } = {}) => ({
   'apikey': SUPABASE_ANON_KEY,
   'Authorization': `Bearer ${useAnon ? SUPABASE_ANON_KEY : (getSessionToken() || SUPABASE_ANON_KEY)}`,
@@ -170,14 +177,16 @@ export async function updateStoreClaim(id, data) {
 
 export async function upsertHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
-  const res = await supabaseFetch('/rest/v1/hero_assignments', {
+  const res = await supabaseFetch('/rest/v1/hero_assignments?on_conflict=hero_id,challenge_id', {
     method: 'POST',
     headers: {
-      'Prefer': 'resolution=merge-duplicates,return=minimal'
+      'Prefer': 'resolution=ignore-duplicates,return=minimal'
     },
     body: JSON.stringify({ hero_id: heroId, challenge_id: String(challengeId) })
   });
-  if (!res.ok) throw new Error(await parseError(res, `Error al asignar: ${res.status}`));
+  // Si ya existe la asignación, se considera éxito idempotente.
+  if (res.status === 409) return true;
+  await throwIfNotOk(res, `Error al asignar: ${res.status}`);
   return true;
 }
 
@@ -187,7 +196,7 @@ export async function deleteHeroAssignment(heroId, challengeId) {
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
     { method: 'DELETE' }
   );
-  if (!res.ok) throw new Error(await parseError(res, `Error al desasignar: ${res.status}`));
+  await throwIfNotOk(res, `Error al desasignar: ${res.status}`);
   return true;
 }
 
@@ -195,15 +204,19 @@ export async function getHeroAssignments(heroId) {
   const res = await supabaseFetch(
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&select=challenge_id`
   );
-  if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones: ${res.status}`));
+  await throwIfNotOk(res, `Error al leer asignaciones: ${res.status}`);
   const rows = await res.json();
-  return rows.map(r => r.challenge_id);
+  return rows.map(r => String(r.challenge_id));
 }
 
 export async function getAllHeroAssignments() {
   const res = await supabaseFetch('/rest/v1/hero_assignments?select=hero_id,challenge_id');
-  if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones: ${res.status}`));
-  return await res.json();
+  await throwIfNotOk(res, `Error al leer asignaciones: ${res.status}`);
+  const rows = await res.json();
+  return rows.map(row => ({
+    ...row,
+    challenge_id: String(row.challenge_id)
+  }));
 }
 
 // ============================================

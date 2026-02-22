@@ -11,7 +11,7 @@ import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
 import { getSession } from './modules/hero_session.js';
-import { startAssignmentSync, loadAllAssignmentsIntoState, preloadStudentAssignments } from './modules/realtime_sync.js';
+import { startAssignmentSync, loadAllAssignmentsIntoState, preloadStudentAssignments, startAllAssignmentsSync } from './modules/realtime_sync.js';
 
 
 const setActiveRoute = (...args) => {
@@ -130,8 +130,13 @@ export async function init(){
         // Re-renderizar si ya había algo en pantalla
         if (typeof window.renderChallenges === 'function') window.renderChallenges();
       }).catch(() => {});
+
+      // Profe: sincronización continua para reflejar cambios remotos rápido
+      startAllAssignmentsSync(() => {
+        if (typeof window.renderChallenges === 'function') window.renderChallenges();
+      });
     } else if (_sess && _sess.heroId) {
-      // Alumno: polling cada 5s para detectar nuevas asignaciones
+      // Alumno: polling para detectar nuevas asignaciones
       startAssignmentSync(_sess.heroId, () => {
         if (typeof window.renderChallenges === 'function') window.renderChallenges();
       });

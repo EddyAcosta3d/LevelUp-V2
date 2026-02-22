@@ -17,10 +17,55 @@ import { getHeroAssignments, getAllHeroAssignments } from './supabase_client.js'
 import { state } from './core_globals.js';
 import { saveLocal } from './store.js';
 
-const POLL_INTERVAL_MS = 5000;
+const POLL_INTERVAL_MS = 1200;
 
 let _pollTimer = null;
+let _pollAllTimer = null;
 let _lastSnapshot = null; // JSON stringificado de asignaciones, para detectar cambios
+let _lastAllSnapshot = null;
+let _warnedStudentSync = false;
+let _warnedTeacherSync = false;
+const _pendingAssignmentMutations = new Map();
+const PENDING_MUTATION_TTL_MS = 5000;
+
+function _pendingKey(heroId, challengeId) {
+  return `${String(heroId)}::${String(challengeId)}`;
+}
+
+function _cleanupExpiredPendingMutations(now = Date.now()) {
+  for (const [key, value] of _pendingAssignmentMutations.entries()) {
+    if (!value || Number(value.expiresAt || 0) <= now) {
+      _pendingAssignmentMutations.delete(key);
+    }
+  }
+}
+
+function _applyPendingMutations(heroId, remoteIds) {
+  const base = new Set((Array.isArray(remoteIds) ? remoteIds : []).map(x => String(x)));
+  const now = Date.now();
+  _cleanupExpiredPendingMutations(now);
+
+  for (const [key, value] of _pendingAssignmentMutations.entries()) {
+    const [hId, chId] = key.split('::');
+    if (String(hId) !== String(heroId)) continue;
+    if (!value || Number(value.expiresAt || 0) <= now) continue;
+    if (value.assigning) base.add(String(chId));
+    else base.delete(String(chId));
+  }
+
+  return Array.from(base);
+}
+
+export function markAssignmentMutationPending(heroId, challengeId, assigning) {
+  _pendingAssignmentMutations.set(_pendingKey(heroId, challengeId), {
+    assigning: !!assigning,
+    expiresAt: Date.now() + PENDING_MUTATION_TTL_MS
+  });
+}
+
+export function clearAssignmentMutationPending(heroId, challengeId) {
+  _pendingAssignmentMutations.delete(_pendingKey(heroId, challengeId));
+}
 
 // ============================================
 // Sync para ALUMNO — solo carga su propio héroe
@@ -32,7 +77,8 @@ export function startAssignmentSync(heroId, onUpdate) {
   async function poll() {
     try {
       const challengeIds = await getHeroAssignments(heroId);
-      const snapshot = JSON.stringify(challengeIds.slice().sort());
+      const effectiveIds = _applyPendingMutations(heroId, challengeIds);
+      const snapshot = JSON.stringify(effectiveIds.slice().sort());
 
       if (snapshot !== _lastSnapshot) {
         _lastSnapshot = snapshot;
@@ -41,13 +87,16 @@ export function startAssignmentSync(heroId, onUpdate) {
         const heroes = state.data?.heroes || [];
         const hero = heroes.find(h => h.id === heroId);
         if (hero) {
-          hero.assignedChallenges = challengeIds;
+          hero.assignedChallenges = effectiveIds;
           saveLocal(state.data);
           if (typeof onUpdate === 'function') onUpdate();
         }
       }
-    } catch (_e) {
-      // Fallo silencioso — no romper la UI si no hay conexión
+    } catch (e) {
+      if (!_warnedStudentSync) {
+        _warnedStudentSync = true;
+        console.warn('[Sync alumno] No se pudo leer asignaciones.', e?.message || e);
+      }
     }
   }
 
@@ -64,6 +113,60 @@ export function stopAssignmentSync() {
   _lastSnapshot = null;
 }
 
+export function startAllAssignmentsSync(onUpdate) {
+  if (_pollAllTimer) return;
+
+  async function pollAll() {
+    try {
+      const rows = await getAllHeroAssignments();
+      if (!Array.isArray(rows)) return;
+
+      const byHero = {};
+      rows.forEach(({ hero_id, challenge_id }) => {
+        const heroId = String(hero_id || '');
+        if (!heroId) return;
+        if (!byHero[heroId]) byHero[heroId] = [];
+        byHero[heroId].push(String(challenge_id));
+      });
+
+      const heroes = state.data?.heroes || [];
+      heroes.forEach(hero => {
+        byHero[hero.id] = _applyPendingMutations(hero.id, byHero[hero.id] || []);
+      });
+
+      const snapshot = JSON.stringify(
+        Object.keys(byHero)
+          .sort()
+          .map(heroId => [heroId, byHero[heroId].slice().sort()])
+      );
+      if (snapshot === _lastAllSnapshot) return;
+      _lastAllSnapshot = snapshot;
+
+      heroes.forEach(hero => {
+        hero.assignedChallenges = _applyPendingMutations(hero.id, Array.isArray(byHero[hero.id]) ? byHero[hero.id] : []);
+      });
+      saveLocal(state.data);
+      if (typeof onUpdate === 'function') onUpdate();
+    } catch (e) {
+      if (!_warnedTeacherSync) {
+        _warnedTeacherSync = true;
+        console.warn('[Sync profe] No se pudo leer hero_assignments. Revisa RLS/credenciales.', e?.message || e);
+      }
+    }
+  }
+
+  pollAll();
+  _pollAllTimer = setInterval(pollAll, POLL_INTERVAL_MS);
+}
+
+export function stopAllAssignmentsSync() {
+  if (_pollAllTimer) {
+    clearInterval(_pollAllTimer);
+    _pollAllTimer = null;
+  }
+  _lastAllSnapshot = null;
+}
+
 // ============================================
 // Carga inicial para ALUMNO — antes del primer render
 // Evita que el alumno vea "bloqueado" hasta que llega el primer poll
@@ -75,7 +178,7 @@ export async function preloadStudentAssignments(heroId) {
     const heroes = state.data?.heroes || [];
     const hero = heroes.find(h => h.id === heroId);
     if (hero) {
-      hero.assignedChallenges = challengeIds;
+      hero.assignedChallenges = _applyPendingMutations(heroId, challengeIds);
       saveLocal(state.data);
     }
   } catch(_e) {
@@ -105,11 +208,14 @@ export async function loadAllAssignmentsIntoState() {
     // Supabase es la fuente de verdad: si un héroe no tiene filas,
     // su lista debe quedar vacía (desafíos bloqueados).
     heroes.forEach(hero => {
-      hero.assignedChallenges = Array.isArray(byHero[hero.id]) ? byHero[hero.id] : [];
+      hero.assignedChallenges = _applyPendingMutations(hero.id, Array.isArray(byHero[hero.id]) ? byHero[hero.id] : []);
     });
 
     saveLocal(state.data);
-  } catch (_e) {
-    // Fallo silencioso — usar las asignaciones del JSON local
+  } catch (e) {
+    if (!_warnedTeacherSync) {
+      _warnedTeacherSync = true;
+      console.warn('[Sync inicial profe] Falló carga de hero_assignments. Se mantienen datos locales.', e?.message || e);
+    }
   }
 }
