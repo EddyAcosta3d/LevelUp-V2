@@ -13,7 +13,7 @@
  *   stopAssignmentSync(); // al logout o unmount
  */
 
-import { getHeroAssignments, getAllHeroAssignments } from './supabase_client.js';
+import { getHeroAssignments } from './supabase_client.js';
 import { state } from './core_globals.js';
 import { saveLocal } from './store.js';
 
@@ -25,6 +25,36 @@ let _lastSnapshot = null; // JSON stringificado de asignaciones, para detectar c
 let _lastAllSnapshot = null;
 let _warnedStudentSync = false;
 let _warnedTeacherSync = false;
+const _pendingAssignmentMutations = new Map();
+
+function _mutationKey(heroId, challengeId){
+  return `${String(heroId || '')}::${String(challengeId || '')}`;
+}
+
+export function markAssignmentMutationPending(heroId, challengeId, assigning){
+  if (!heroId || !challengeId) return;
+  _pendingAssignmentMutations.set(_mutationKey(heroId, challengeId), !!assigning);
+}
+
+export function clearAssignmentMutationPending(heroId, challengeId){
+  if (!heroId || !challengeId) return;
+  _pendingAssignmentMutations.delete(_mutationKey(heroId, challengeId));
+}
+
+function _applyPendingMutations(heroId, challengeIds){
+  const effective = new Set((Array.isArray(challengeIds) ? challengeIds : []).map(x => String(x)));
+  const prefix = `${String(heroId || '')}::`;
+
+  _pendingAssignmentMutations.forEach((assigning, key) => {
+    if (!key.startsWith(prefix)) return;
+    const challengeId = key.slice(prefix.length);
+    if (!challengeId) return;
+    if (assigning) effective.add(challengeId);
+    else effective.delete(challengeId);
+  });
+
+  return Array.from(effective);
+}
 
 // ============================================
 // Sync para ALUMNO — solo carga su propio héroe
@@ -77,28 +107,39 @@ export function startAllAssignmentsSync(onUpdate) {
 
   async function pollAll() {
     try {
-      const rows = await getAllHeroAssignments();
-      if (!Array.isArray(rows)) return;
+      const heroes = state.data?.heroes || [];
+      const heroIds = heroes.map(h => String(h.id || '')).filter(Boolean);
+      if (!heroIds.length) return;
 
+      // Leer asignaciones por héroe evita inconsistencias de RLS/SELECT global.
+      const settled = await Promise.allSettled(heroIds.map(heroId => getHeroAssignments(heroId)));
       const byHero = {};
-      rows.forEach(({ hero_id, challenge_id }) => {
-        const heroId = String(hero_id || '');
-        if (!heroId) return;
-        if (!byHero[heroId]) byHero[heroId] = [];
-        byHero[heroId].push(String(challenge_id));
+      settled.forEach((res, idx) => {
+        const heroId = heroIds[idx];
+        if (res.status !== 'fulfilled') return;
+        byHero[heroId] = Array.isArray(res.value) ? res.value.map(x => String(x)) : [];
       });
 
       const snapshot = JSON.stringify(
-        Object.keys(byHero)
+        heroIds
           .sort()
-          .map(heroId => [heroId, byHero[heroId].slice().sort()])
+          .map(heroId => {
+            const hero = heroes.find(h => String(h.id) === heroId);
+            const base = Object.prototype.hasOwnProperty.call(byHero, heroId)
+              ? byHero[heroId]
+              : (Array.isArray(hero?.assignedChallenges) ? hero.assignedChallenges : []);
+            return [heroId, base.slice().sort()];
+          })
       );
       if (snapshot === _lastAllSnapshot) return;
       _lastAllSnapshot = snapshot;
 
-      const heroes = state.data?.heroes || [];
       heroes.forEach(hero => {
-        hero.assignedChallenges = Array.isArray(byHero[hero.id]) ? byHero[hero.id] : [];
+        if (!Object.prototype.hasOwnProperty.call(byHero, hero.id)) return;
+        hero.assignedChallenges = _applyPendingMutations(
+          hero.id,
+          Array.isArray(byHero[hero.id]) ? byHero[hero.id] : []
+        );
       });
       saveLocal(state.data);
       if (typeof onUpdate === 'function') onUpdate();
@@ -148,21 +189,23 @@ export async function preloadStudentAssignments(heroId) {
 
 export async function loadAllAssignmentsIntoState() {
   try {
-    const rows = await getAllHeroAssignments();
-    if (!Array.isArray(rows)) return;
-
     const heroes = state.data?.heroes || [];
+    const heroIds = heroes.map(h => String(h.id || '')).filter(Boolean);
+    if (!heroIds.length) return;
 
-    // Agrupar por hero_id
     const byHero = {};
-    rows.forEach(({ hero_id, challenge_id }) => {
-      if (!byHero[hero_id]) byHero[hero_id] = [];
-      byHero[hero_id].push(String(challenge_id));
+    const settled = await Promise.allSettled(heroIds.map(heroId => getHeroAssignments(heroId)));
+    settled.forEach((res, idx) => {
+      if (res.status !== 'fulfilled') return;
+      const heroId = heroIds[idx];
+      byHero[heroId] = Array.isArray(res.value) ? res.value.map(x => String(x)) : [];
     });
 
     // Supabase es la fuente de verdad: si un héroe no tiene filas,
-    // su lista debe quedar vacía (desafíos bloqueados).
+    // su lista debe quedar vacía (desafíos bloqueados), pero solo
+    // cuando logramos leer ese héroe en esta ronda.
     heroes.forEach(hero => {
+      if (!Object.prototype.hasOwnProperty.call(byHero, hero.id)) return;
       hero.assignedChallenges = _applyPendingMutations(hero.id, Array.isArray(byHero[hero.id]) ? byHero[hero.id] : []);
     });
 
