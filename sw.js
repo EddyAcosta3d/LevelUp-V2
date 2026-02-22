@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-007';
+const SW_VERSION = 'levelup-v2-sw-008';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -104,7 +104,13 @@ self.addEventListener('fetch', (event) => {
           safeCachePut(req, res.clone());
           return res;
         })
-        .catch(() => caches.match(req))   // fallback offline: caché
+        .catch(async () => {
+          return (
+            (await caches.match(req, { ignoreSearch: true })) ||
+            (await caches.match('./index.html')) ||
+            (await caches.match('./login.html'))
+          );
+        })
     );
     return;
   }
@@ -132,6 +138,26 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
         .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Google Fonts: cache-first permitiendo respuestas opaque (CORS).
+  const isGoogleFont =
+    url.hostname === 'fonts.googleapis.com' ||
+    url.hostname === 'fonts.gstatic.com';
+
+  if (isGoogleFont) {
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        if (cached) return cached;
+        return fetch(req).then((res) => {
+          if (res && (res.ok || res.type === 'opaque')) {
+            caches.open(SW_VERSION).then((cache) => cache.put(req, res.clone())).catch(() => {});
+          }
+          return res;
+        });
+      })
     );
     return;
   }
