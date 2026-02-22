@@ -70,7 +70,7 @@ export function selectHero(heroId) {
   }
 }
 
-  export function renderHeroList(){
+export function renderHeroList(){
     const list = $('#heroList');
     list.innerHTML = '';
     const isEdit = state.role === 'teacher';
@@ -82,6 +82,15 @@ export function selectHero(heroId) {
       list.innerHTML = '<div class="muted" style="padding:10px 6px;">No hay personajes.</div>';
       return;
     }
+    // Si hay sesión de alumno, forzar su héroe antes de que se seleccione el primero
+    try {
+      const _s = window.LevelUp?.getSession?.() || null;
+      if (_s && !_s.isAdmin && _s.heroId) {
+        const sessionHero = heroes.find(h => h.id === _s.heroId);
+        if (sessionHero) state.selectedHeroId = sessionHero.id;
+      }
+    } catch(_e) {}
+
     if (!state.selectedHeroId || !heroes.some(h => h.id === state.selectedHeroId)){
       state.selectedHeroId = heroes[0].id;
     }

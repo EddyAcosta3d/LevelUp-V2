@@ -11,6 +11,8 @@
 
 // Import dependencies
 import {
+  $,
+  $$,
   state,
   escapeHtml,
   normalizeDifficulty,
@@ -23,10 +25,37 @@ import {
 } from './store.js';
 
 import {
+  upsertHeroAssignment,
+  deleteHeroAssignment,
+  getHeroAssignments,
+  hasActiveSessionToken
+} from './supabase_client.js';
+
+import {
   currentHero,
   ensureChallengeUI,
   difficultyLabel
 } from './fichas.js';
+
+function getChallengeContextHero(){
+  // Contexto principal: héroe actualmente seleccionado.
+  const hero = currentHero();
+  if (hero) return hero;
+
+  // Fallback defensivo: en sesión admin sin selección previa,
+  // tomar el primer héroe del grupo actual para habilitar asignación.
+  const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
+  const inGroup = heroes.filter(h => String(h.group || '2D') === String(state.group || '2D'));
+  return inGroup[0] || heroes[0] || null;
+}
+
+function isChallengeUnlockedForHero(hero, challengeId){
+  if (!hero) return false;
+  const assigned = hero.assignedChallenges;
+  // Regla actual: por defecto NO está asignado hasta que el profe lo habilita.
+  if (!Array.isArray(assigned)) return false;
+  return assigned.includes(String(challengeId));
+}
 
 export function renderChallenges(){
     // Ensure default filters: one subject + easy difficulty
@@ -35,13 +64,13 @@ export function renderChallenges(){
     if (!state.challengeFilter.diff) state.challengeFilter.diff = 'easy';
     if (!state.challengeFilter.subjectId && subjectsAll.length) state.challengeFilter.subjectId = subjectsAll[0].id;
 
-  ensureChallengeUI();
+  ensureChallengeUI(renderChallenges);
 
   const list = $('#challengeList');
   if (!list) return;
   list.innerHTML = '';
 
-  const hero = currentHero();
+  const hero = getChallengeContextHero();
 
   // --- Level-up medal hint (near end of level) ---
   try{
@@ -134,6 +163,7 @@ export function renderChallenges(){
 
   sorted.forEach(ch=>{
     const done = isChallengeDone(hero, ch.id);
+    const unlocked = isChallengeUnlockedForHero(hero, ch.id);
     const item = document.createElement('div');
     item.className = 'challengeItem' + (done ? ' is-done' : '') + (state.selectedChallengeId===ch.id ? ' is-selected' : '');
     item.dataset.diff = String(ch.difficulty || '').toLowerCase();
@@ -157,18 +187,18 @@ export function renderChallenges(){
 
     const canEdit = document.documentElement.classList.contains('is-edit');
     item.innerHTML = `
-      ${canEdit ? `
-        <div class="chItemActions" data-edit-only="1">
-          <button class="chIconBtn" type="button" data-act="edit" title="Editar" aria-label="Editar">✎</button>
-          <button class="chIconBtn chIconBtn--danger" type="button" data-act="del" title="Eliminar" aria-label="Eliminar">🗑</button>
-        </div>
-      ` : ''}
-
       <div class="challengeRow">
         <div class="challengeName">${escapeHtml(displayTitle)}</div>
         <div class="challengeMetaRow">
           <span class="chPill chPill--${escapeHtml(String(ch.difficulty||'').toLowerCase())}"><span class="i">⚡</span>${escapeHtml(diffLabel)}</span>
           <span class="chPill chPill--xp"><span class="i">⭐</span>${escapeHtml(String(pts))} XP</span>
+          ${!canEdit && !unlocked ? `<span class="chPill"><span class="i">🔒</span>Bloqueado</span>` : ''}
+          ${canEdit ? `
+            <div class="chItemActions" data-edit-only="1">
+              <button class="chIconBtn" type="button" data-act="edit" title="Editar" aria-label="Editar">✎</button>
+              <button class="chIconBtn chIconBtn--danger" type="button" data-act="del" title="Eliminar" aria-label="Eliminar">🗑</button>
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
@@ -192,6 +222,9 @@ export function renderChallenges(){
     item.addEventListener('click', ()=>{
       state.selectedChallengeId = ch.id;
       renderChallengeDetail();
+      document.dispatchEvent(new CustomEvent('challengeSelected', {
+        detail: { challengeId: state.selectedChallengeId }
+      }));
       // update selected state without rerendering whole list later
       $$('#challengeList .challengeItem').forEach(el=> el.classList.toggle('is-selected', el === item));
     });
@@ -200,6 +233,9 @@ export function renderChallenges(){
   });
 
   renderChallengeDetail();
+  document.dispatchEvent(new CustomEvent('challengeSelected', {
+    detail: { challengeId: state.selectedChallengeId }
+  }));
 }
 
 
@@ -208,7 +244,7 @@ export function renderChallengeDetail(){
   const bodyEl = $('#challengeBody');
   const btnComplete = $('#btnChallengeComplete');
 
-  const hero = currentHero();
+  const hero = getChallengeContextHero();
   const ch = (state.data?.challenges || []).find(x => x.id === state.selectedChallengeId);
 
   const titleEl = $('#challengeDetailTitle');
@@ -251,7 +287,7 @@ export function renderChallengeDetail(){
     if (subEl) subEl.textContent = 'Selecciona un desafío para ver instrucciones.';
     if (badgesEl) badgesEl.innerHTML = '';
     if (hintEl) hintEl.textContent = 'Selecciona un desafío.';
-    if (bodyEl) bodyEl.innerHTML = '';
+    if (bodyEl){ bodyEl.hidden = false; bodyEl.innerHTML = ''; }
     if (btnComplete){
       btnComplete.disabled = true;
       btnComplete.classList.remove('is-active','is-done');
@@ -267,8 +303,9 @@ export function renderChallengeDetail(){
   }
 
   const subj = ch.subject || (state.data?.subjects || []).find(s=>s.id === ch.subjectId)?.name || '—';
-  const pts = Number(ch.points ?? 0);
   const done = isChallengeDone(hero, ch.id);
+  const canEditView = document.documentElement.classList.contains('is-edit');
+  const unlocked = isChallengeUnlockedForHero(hero, ch.id);
   // doneAt se guarda internamente, pero no lo mostramos en UI (se veía como un número largo).
 
   const stripSubjectPrefix = (title, subjectName)=>{
@@ -281,7 +318,15 @@ export function renderChallengeDetail(){
   const displayTitle = stripSubjectPrefix(ch.title, subj) || 'Desafío';
 
   if (titleEl) titleEl.textContent = displayTitle;
-  if (subEl) subEl.textContent = `${subj}`;
+  if (subEl) {
+    if (canEditView){
+      const heroName = String(hero?.name || 'Sin alumno seleccionado');
+      const lockState = unlocked ? 'Desbloqueado' : 'Bloqueado';
+      subEl.textContent = `${subj} · Alumno: ${heroName} · Estado: ${lockState}`;
+    } else {
+      subEl.textContent = '';
+    }
+  }
 
   // En el detalle NO repetimos dificultad/XP en la esquina (ya se ven claro en la tarjeta del centro).
   // Aquí solo dejamos el control de estado (Pendiente/Completado) en modo edición, justo en la esquina.
@@ -297,7 +342,12 @@ export function renderChallengeDetail(){
   }
 
   if (bodyEl){
-    bodyEl.innerHTML = `<div class="chInstrLabel">Instrucciones</div>` + formatBody(ch.body);
+    bodyEl.hidden = false;
+    if (!canEditView && !unlocked){
+      bodyEl.innerHTML = '<div class="muted">🔒 Este desafío está bloqueado. Pídele a tu profe que te lo asigne para ver las instrucciones.</div>';
+    } else {
+      bodyEl.innerHTML = (canEditView ? '<div class="chInstrLabel">Instrucciones</div>' : '') + formatBody(ch.body);
+    }
   }
 
   if (btnComplete){
@@ -308,6 +358,78 @@ export function renderChallengeDetail(){
     btnComplete.dataset.state = done ? 'done' : 'pending';
   }
 
+  if (canEditView && hero && badgesEl){
+    const assignBtn = document.createElement('button');
+    assignBtn.type = 'button';
+    assignBtn.className = 'pill pill--ghost challengeAssignBtn';
+    assignBtn.textContent = unlocked ? 'Asignado' : 'Asignar';
+    assignBtn.setAttribute('aria-pressed', String(unlocked));
+    assignBtn.dataset.state = unlocked ? 'assigned' : 'locked';
+    assignBtn.classList.toggle('is-active', unlocked);
+    assignBtn.title = unlocked
+      ? 'Este desafío está desbloqueado para el alumno seleccionado.'
+      : 'Este desafío está bloqueado para el alumno seleccionado.';
+    assignBtn.addEventListener('click', ()=>{
+      const targetHero = getChallengeContextHero();
+      if (!targetHero){
+        window.toast?.('⚠️ No hay alumno seleccionado');
+        return;
+      }
+      if (!Array.isArray(targetHero.assignedChallenges)) targetHero.assignedChallenges = [];
+      const chId = String(ch.id);
+      const prevAssignments = targetHero.assignedChallenges.slice();
+      const i = targetHero.assignedChallenges.indexOf(chId);
+      let assigning;
+      if (i >= 0){
+        targetHero.assignedChallenges.splice(i, 1);
+        window.toast?.(`🔒 ${targetHero.name || 'Alumno'}: desafío bloqueado`);
+        assigning = false;
+      } else {
+        targetHero.assignedChallenges.push(chId);
+        window.toast?.(`🔓 ${targetHero.name || 'Alumno'}: desafío desbloqueado`);
+        assigning = true;
+      }
+      saveLocal(state.data);
+      renderChallenges();
+
+      // Sincronizar con Supabase en segundo plano (no bloquea la UI)
+      if (!hasActiveSessionToken()){
+        targetHero.assignedChallenges = prevAssignments;
+        saveLocal(state.data);
+        renderChallenges();
+        window.toast?.('⚠️ Tu sesión expiró. Inicia sesión de nuevo para sincronizar en la nube.');
+        return;
+      }
+
+      const fn = assigning
+        ? upsertHeroAssignment(targetHero.id, chId)
+        : deleteHeroAssignment(targetHero.id, chId);
+      fn.then(async ()=> {
+        // Releer desde Supabase para confirmar el estado real guardado.
+        try {
+          const remoteAssignments = await getHeroAssignments(targetHero.id);
+          targetHero.assignedChallenges = remoteAssignments;
+          saveLocal(state.data);
+          renderChallenges();
+        } catch (_e) {
+          // Si falla la lectura, mantenemos el estado local optimista.
+        }
+      }).catch(err => {
+        targetHero.assignedChallenges = prevAssignments;
+        saveLocal(state.data);
+        renderChallenges();
+        if (String(err?.message || '') !== 'AUTH_REQUIRED'){
+          console.warn('[Sync] Error al sincronizar asignación:', err);
+        }
+        const msg = String(err?.message || '') === 'AUTH_REQUIRED'
+          ? 'Tu sesión expiró. Inicia sesión de nuevo para sincronizar.'
+          : (err.message || 'revisa tu conexión');
+        window.toast?.(`⚠️ No se guardó en la nube: ${msg}`);
+      });
+    });
+    badgesEl.appendChild(assignBtn);
+  }
+
   // Esconde la fila de acciones (ya movimos el botón arriba) para dar más espacio a instrucciones.
   const headRow = document.querySelector('.challengeDetailHead');
   const actions = document.querySelector('.challengeDetailActions');
@@ -316,6 +438,184 @@ export function renderChallengeDetail(){
     const hasHint = (hintEl && hintEl.textContent && hintEl.textContent.trim().length);
     headRow.style.display = hasHint ? '' : 'none';
   }
+}
+
+export function openChallengeModal(mode = 'create', challenge = null){
+  const modal = document.getElementById('challengeModal');
+  if (!modal) return;
+
+  const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
+  const titleEl = document.getElementById('challengeModalTitle');
+  const inTitle = document.getElementById('inChTitle');
+  const inBody = document.getElementById('inChBody');
+  const inPoints = document.getElementById('inChPoints');
+  const inSubject = document.getElementById('inChSubject');
+  const inDiff = document.getElementById('inChDiff');
+  const btnSubject = document.getElementById('btnChModalSubject');
+  const subjectMenu = document.getElementById('chModalSubjectMenu');
+  const diffPick = document.getElementById('inChDiffPick');
+
+  const editing = mode === 'edit' && challenge;
+  state.editingChallengeId = editing ? challenge.id : null;
+
+  if (titleEl) titleEl.textContent = editing ? 'Editar desafío' : 'Nuevo desafío';
+  if (inTitle) inTitle.value = editing ? String(challenge.title || '') : '';
+  if (inBody) inBody.value = editing ? String(challenge.body || '') : '';
+  if (inPoints) inPoints.value = editing ? String(Number(challenge.points ?? 10)) : '10';
+
+  const initialSubjectId = editing
+    ? String(challenge.subjectId || '')
+    : String(state.challengeFilter?.subjectId || subjects[0]?.id || '');
+  if (inSubject) inSubject.value = initialSubjectId;
+
+  const initialDiff = normalizeDifficulty(editing ? challenge.difficulty : state.challengeFilter?.diff || 'easy');
+  if (inDiff) inDiff.value = initialDiff;
+
+  const refreshSubjectLabel = ()=>{
+    if (!btnSubject) return;
+    const selectedId = inSubject?.value;
+    const subj = subjects.find(s => String(s.id) === String(selectedId));
+    btnSubject.textContent = `${subj?.name || 'Materia'} ▾`;
+  };
+
+  if (subjectMenu){
+    subjectMenu.innerHTML = subjects.map(s =>
+      `<button class="menuitem" type="button" data-id="${escapeHtml(String(s.id))}">${escapeHtml(String(s.name || 'Materia'))}</button>`
+    ).join('') || '<div class="menuitem muted">Sin materias</div>';
+
+    subjectMenu.querySelectorAll('[data-id]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if (inSubject) inSubject.value = btn.dataset.id || '';
+        refreshSubjectLabel();
+        subjectMenu.classList.remove('is-open');
+      });
+    });
+  }
+
+  btnSubject?.addEventListener('click', ()=> subjectMenu?.classList.toggle('is-open'));
+  diffPick?.querySelectorAll('[data-diff]').forEach(btn=>{
+    btn.classList.toggle('is-active', btn.dataset.diff === initialDiff);
+    btn.addEventListener('click', ()=>{
+      const diff = normalizeDifficulty(btn.dataset.diff || 'easy');
+      if (inDiff) inDiff.value = diff;
+      diffPick.querySelectorAll('[data-diff]').forEach(x=> x.classList.toggle('is-active', x === btn));
+    });
+  });
+
+  refreshSubjectLabel();
+  modal.hidden = false;
+}
+
+export function closeChallengeModal(){
+  const modal = document.getElementById('challengeModal');
+  if (modal) modal.hidden = true;
+}
+
+export function saveNewChallenge(){
+  try {
+    const title = String(document.getElementById('inChTitle')?.value || '').trim();
+    const body = String(document.getElementById('inChBody')?.value || '').trim();
+    const pointsInput = document.getElementById('inChPoints')?.value;
+    const points = Number.parseInt(pointsInput, 10);
+    const subjectId = String(document.getElementById('inChSubject')?.value || '').trim();
+    const difficulty = normalizeDifficulty(document.getElementById('inChDiff')?.value || 'easy');
+
+    // Enhanced validations
+    if (!title){
+      window.toast?.('❌ Ingresa un título para el desafío');
+      document.getElementById('inChTitle')?.focus();
+      return false;
+    }
+
+    if (!subjectId){
+      window.toast?.('❌ Selecciona una materia');
+      return false;
+    }
+
+    if (isNaN(points) || points < 0){
+      window.toast?.('❌ Ingresa un valor válido de puntos (número mayor o igual a 0)');
+      document.getElementById('inChPoints')?.focus();
+      return false;
+    }
+
+    // Ensure data structure exists
+    if (!state.data) state.data = {};
+    if (!Array.isArray(state.data.challenges)) {
+      state.data.challenges = [];
+    }
+
+    const editingId = state.editingChallengeId;
+    const existing = editingId
+      ? state.data.challenges.find(c => String(c.id) === String(editingId))
+      : null;
+
+    if (existing){
+      // Verify that editingId hasn't changed (race condition protection)
+      if (state.editingChallengeId !== editingId) {
+        window.toast?.('❌ El desafío cambió. Intenta de nuevo.');
+        closeChallengeModal();
+        return false;
+      }
+
+      existing.title = title;
+      existing.body = body;
+      existing.points = points;
+      existing.subjectId = subjectId;
+      existing.difficulty = difficulty;
+      window.toast?.('✅ Desafío actualizado');
+    } else {
+      state.data.challenges.push({
+        id: 'ch_' + Date.now(),
+        title,
+        body,
+        points,
+        subjectId,
+        difficulty,
+        createdAt: new Date().toISOString()
+      });
+      window.toast?.(`✅ Desafío "${title}" creado`);
+    }
+
+    saveLocal(state.data);
+    closeChallengeModal();
+    state.editingChallengeId = null;
+
+    if (typeof renderChallenges === 'function') {
+      renderChallenges();
+    }
+
+    return true;
+
+  } catch (err) {
+    console.error('Error al guardar desafío:', err);
+    window.toast?.('❌ Error al guardar el desafío. Intenta de nuevo.');
+    return false;
+  }
+}
+
+export async function deleteSelectedChallenge(){
+  const id = state.selectedChallengeId;
+  if (!id || !Array.isArray(state.data?.challenges)) return false;
+
+  const ch = state.data.challenges.find(x => x.id === id);
+  if (!ch) return false;
+
+  const ok = window.openConfirmModal
+    ? await window.openConfirmModal({
+      title: 'Eliminar desafío',
+      message: `¿Seguro que quieres eliminar "${ch.title || 'Desafío'}"?`,
+      okText: 'Eliminar',
+      cancelText: 'Cancelar'
+    })
+    : window.confirm(`¿Seguro que quieres eliminar "${ch.title || 'Desafío'}"?`);
+  if (!ok) return false;
+
+  state.data.challenges = state.data.challenges.filter(x => x.id !== id);
+  state.selectedChallengeId = null;
+  saveLocal(state.data);
+  window.toast?.('Desafío eliminado');
+  renderChallenges();
+  return true;
 }
 
 

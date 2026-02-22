@@ -12,6 +12,7 @@
 // Import dependencies
 import {
   state,
+  DEFAULT_WEEK_XP_MAX,
   CONFIG,
   DIFFICULTY,
   POINTS_BY_DIFFICULTY,
@@ -40,7 +41,7 @@ import {
 } from './store.js';
 
 
-import { renderHeroList, renderHeroDetail } from './fichas.js';
+import { renderHeroList, renderHeroDetail, currentHero } from './fichas.js';
 import { renderChallenges, renderChallengeDetail } from './desafios.js';
 import { renderEvents } from './eventos.js';
 import { renderTienda } from './tienda.js';
@@ -112,6 +113,8 @@ export function setRole(nextRole){
     try{ if (typeof renderChallenges === 'function') renderChallenges(); }catch(e){}
     try{ if (typeof renderChallengeDetail === 'function') renderChallengeDetail(); }catch(e){}
     try{ if (typeof renderEvents === 'function') renderEvents(); }catch(e){}
+    // Re-render hero list so adminOnly heroes appear/disappear with edit mode
+    try{ renderHeroList(); renderHeroDetail(currentHero()); }catch(e){}
     toast(state.role === 'teacher' ? 'Edición activada' : 'Modo solo ver');
   }
 
@@ -119,6 +122,25 @@ export function setRole(nextRole){
   function bumpHeroXp(delta, opts={}){
     const hero = currentHero();
     if (!hero) return;
+
+    const source = opts && typeof opts === 'object' ? opts.source : null;
+    const isWeeklyCappedActivity = source === 'activity';
+
+    if (isWeeklyCappedActivity && delta > 0){
+      hero.weekXp = Number(hero.weekXp ?? 0);
+      hero.weekXpMax = Number(hero.weekXpMax ?? DEFAULT_WEEK_XP_MAX);
+
+      const remainingWeekXp = Math.max(0, hero.weekXpMax - hero.weekXp);
+      if (remainingWeekXp <= 0){
+        toast('Límite semanal alcanzado');
+        return;
+      }
+
+      if (delta > remainingWeekXp){
+        delta = remainingWeekXp;
+        toast('Se aplicó solo el XP restante del límite semanal');
+      }
+    }
 
     // Apply one-time XP multiplier (only for challenge awards)
     let multiplierUsed = 1;
@@ -146,6 +168,11 @@ export function setRole(nextRole){
     }
 
     if (hero.xp < 0) hero.xp = 0;
+
+    if (isWeeklyCappedActivity && delta > 0){
+      hero.weekXp = Number(hero.weekXp ?? 0) + Number(delta || 0);
+      if (hero.weekXp > hero.weekXpMax) hero.weekXp = hero.weekXpMax;
+    }
 
     const computeLevelCtx = ()=>{
       const since = Number(hero.levelStartAt || 0);

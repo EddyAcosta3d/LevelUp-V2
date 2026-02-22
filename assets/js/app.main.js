@@ -10,6 +10,8 @@ import { state, logger } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
+import { getSession } from './modules/hero_session.js';
+import { startAssignmentSync, loadAllAssignmentsIntoState, preloadStudentAssignments } from './modules/realtime_sync.js';
 
 
 const setActiveRoute = (...args) => {
@@ -49,7 +51,9 @@ export async function init(){
 
     const urlParams = new URLSearchParams(location.search);
     const DEBUG = urlParams.has('debug');
-    const _sess = window.__LU_SESSION__ || null;
+    // Admin solo por sesión real (cuenta de Eddy)
+    // Usar window.__LU_SESSION__ que ya fue parseado sin bloquear en index.html
+    const _sess = window.__LU_SESSION__ || getSession();
     const IS_ADMIN = !!(_sess && _sess.isAdmin === true);
 
     // Captura errores para que en iPhone no se sienta "se rompió" sin pista
@@ -81,13 +85,57 @@ export async function init(){
     updateDeviceDebug();
     syncDetailsUI();
 
+    // Exponer getSession globalmente para que fichas.js pueda usarlo
+    window.LevelUp = window.LevelUp || {};
+    window.LevelUp.getSession = getSession;
+
     // CARGAR DATOS PRIMERO (crítico para que los bindings tengan datos disponibles)
     await loadData({forceRemote:false});
+
+    // DESPUÉS de cargar datos: pre-seleccionar el héroe de la sesión
+    // IMPORTANTE: debe hacerse ANTES de bind() para que renderHeroList
+    // ya encuentre el selectedHeroId correcto en su primera ejecución
+    if (_sess && !_sess.isAdmin && _sess.heroId) {
+      const heroes = state.data?.heroes || [];
+      const sessionHero = heroes.find(h => h.id === _sess.heroId);
+      if (sessionHero) {
+        state.selectedHeroId = _sess.heroId;
+        state.group = sessionHero.group || '2D';
+        // Sincronizar el tab de grupo en la UI antes de que bind() renderice
+        try {
+          document.querySelectorAll('.segmented__btn[data-group]').forEach(btn => {
+            const isActive = btn.dataset.group === state.group;
+            btn.classList.toggle('is-active', isActive);
+            btn.setAttribute('aria-selected', String(isActive));
+          });
+        } catch(_e) {}
+      }
+    }
+
+    // ALUMNO: pre-cargar asignaciones de Supabase ANTES del primer render,
+    // para que los desafíos asignados aparezcan desbloqueados desde el inicio.
+    if (!IS_ADMIN && _sess && _sess.heroId) {
+      await preloadStudentAssignments(_sess.heroId);
+    }
 
     // Modo normal: bind siempre (se eliminó modo proyector por URL)
     bind();
     setRole(IS_ADMIN ? 'teacher' : 'viewer');
     syncDetailsUI();
+
+    // Sincronización de asignaciones con Supabase
+    if (IS_ADMIN) {
+      // Profe: cargar asignaciones de todos los alumnos al arrancar
+      loadAllAssignmentsIntoState().then(() => {
+        // Re-renderizar si ya había algo en pantalla
+        if (typeof window.renderChallenges === 'function') window.renderChallenges();
+      }).catch(() => {});
+    } else if (_sess && _sess.heroId) {
+      // Alumno: polling cada 5s para detectar nuevas asignaciones
+      startAssignmentSync(_sess.heroId, () => {
+        if (typeof window.renderChallenges === 'function') window.renderChallenges();
+      });
+    }
   }
   (async()=>{ try{ await init(); } finally { hideSplash(); } })();
 
@@ -142,3 +190,60 @@ export async function init(){
     const btn = document.getElementById('btnEventClose');
     if (btn) btn.addEventListener('click', ()=>{ const m=document.getElementById('eventModal'); if(m) m.hidden=true; });
   })();
+
+
+let _deferredInstallPrompt = null;
+
+function setupPWAInstallPrompt(){
+  const installButtons = Array.from(document.querySelectorAll('[data-install-app="1"]'));
+  if (!installButtons.length) return;
+
+  const setButtonsHidden = (hidden)=>{
+    installButtons.forEach((btn)=>{ btn.hidden = !!hidden; });
+  };
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  setButtonsHidden(!!isStandalone);
+
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    _deferredInstallPrompt = e;
+    setButtonsHidden(false);
+  });
+
+  window.addEventListener('appinstalled', ()=>{
+    _deferredInstallPrompt = null;
+    setButtonsHidden(true);
+    try{ window.toast?.('✅ App instalada'); }catch(_e){}
+  });
+
+  installButtons.forEach((btn)=>{
+    btn.addEventListener('click', async ()=>{
+      try{
+        if (_deferredInstallPrompt){
+          _deferredInstallPrompt.prompt();
+          await _deferredInstallPrompt.userChoice;
+          _deferredInstallPrompt = null;
+          return;
+        }
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
+        if (isIOS){
+          window.toast?.('En iPhone/iPad: Compartir → Añadir a pantalla de inicio');
+        } else {
+          window.toast?.('Si no aparece el diálogo, usa el menú del navegador → Instalar app');
+        }
+      }catch(_e){}
+    });
+  });
+}
+
+function registerServiceWorker(){
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch((err)=>{
+      console.warn('[PWA] No se pudo registrar service worker', err);
+    });
+  });
+}
+
+setupPWAInstallPrompt();
+registerServiceWorker();

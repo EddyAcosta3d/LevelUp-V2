@@ -121,7 +121,8 @@ export function renderTienda(){
       const canAfford = heroMedals >= cost;
       
       // Can claim?
-      const canClaim = available && hasStock && canAfford && !hasClaimed && state.role === 'teacher';
+      // Alumnos y admin pueden canjear (si cumplen reglas de costo/stock).
+      const canClaim = available && hasStock && canAfford && !hasClaimed;
       
       // Status
       let status = '';
@@ -330,6 +331,21 @@ async function claimStoreItem(itemId){
 
     // Celebration
     toast(`🎉 ¡${heroNow.name} canjeó "${item.name}"!`);
+
+    // Notificar flujo de alumno (Supabase/admin panel) sin acoplar este módulo.
+    try {
+      document.dispatchEvent(new CustomEvent('storeItemAction', {
+        detail: {
+          action: 'claim',
+          item: {
+            id: item.id,
+            name: item.name,
+            cost: cost
+          }
+        }
+      }));
+    } catch (_e) {}
+
     showBigReward({
       title: '¡Item Canjeado!',
       subtitle: item.name,

@@ -49,9 +49,9 @@ window.__PARALLAX_MANIFEST__ = {
     "bg": "assets/hero_layers/lizeth_bg.webp",
     "mid": ""
   },
-  "leslie": {
-    "fg": "assets/hero_layers/leslie_fg.webp",
-    "bg": "assets/hero_layers/leslie_bg.webp",
+  "leslye": {
+    "fg": "assets/hero_layers/leslye_fg.webp",
+    "bg": "assets/hero_layers/leslye_bg.webp",
     "mid": ""
   },
   "ana_brenda": {

@@ -38,7 +38,7 @@ window.LevelUp = window.LevelUp || {};
 
   export const CONFIG = {
     remoteUrl: './data/data.json',
-    remoteTimeoutMs: 3500,
+    remoteTimeoutMs: 1500,
     storageKey: 'levelup:data:v1'
   };
 
@@ -278,6 +278,7 @@ export function makeBlankHero(group){
     medals: 0,
     tokens: 0,
     storeClaims: [],
+    assignedChallenges: [],
     rewardsHistory: [],
     challengeCompletions: {},
     challengeHistory: [],
@@ -573,13 +574,29 @@ export function getFilteredChallenges(){
   const challenges = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
   const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
   const f = state.challengeFilter || {};
+  const validSubjectIds = new Set(subjects.map(s => String(s.id || '')));
+
   let sub = f.subjectId ? String(f.subjectId) : '';
-  const diff = f.diff ? String(f.diff) : '';
+  let diff = normalizeDifficulty(f.diff ? String(f.diff) : '');
+
+  // Recuperación defensiva: si el filtro apunta a una materia que ya no existe,
+  // usar la primera materia disponible para evitar vistas vacías.
+  if (sub && !validSubjectIds.has(sub)) {
+    sub = '';
+  }
+
   if (!sub && subjects.length){
     sub = subjects[0].id;
     state.challengeFilter = state.challengeFilter || {};
     state.challengeFilter.subjectId = sub;
   }
+
+  // Normaliza también la dificultad guardada (ej: "Fácil" -> "easy").
+  if (f.diff && f.diff !== diff){
+    state.challengeFilter = state.challengeFilter || {};
+    state.challengeFilter.diff = diff || 'easy';
+  }
+
   return challenges.filter(ch=>{
     if (sub && String(ch.subjectId || '') !== String(sub)) return false;
     if (diff && String(ch.difficulty || '') !== diff) return false;
@@ -988,6 +1005,9 @@ d.heroes.forEach(h=>{
       h.goal = h.goal || '';
       h.medals = Number(h.medals ?? 0); // Sistema de medallas
       h.storeClaims = Array.isArray(h.storeClaims) ? h.storeClaims : []; // Historial de canjes
+      h.assignedChallenges = Array.isArray(h.assignedChallenges)
+        ? h.assignedChallenges.map(x => String(x))
+        : [];
 
       // OPTIMIZATION: Limit history arrays to prevent unbounded growth
       const MAX_HISTORY = 200; // Keep last 200 entries
@@ -1028,4 +1048,3 @@ d.heroes.forEach(h=>{
     });
     return d;
   }
-

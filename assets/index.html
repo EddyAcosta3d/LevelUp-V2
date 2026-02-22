@@ -5,19 +5,140 @@
   <!-- iOS: evita zoom raro al rotar y mantiene el layout estable -->
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <!-- LevelUp STABLE_RESET_v15_CLEAN -->
 <title>LevelUp</title>
   <!-- Icono de la pestaña (pon tu archivo en assets/logo.png o cambia la ruta) -->
   <link rel="icon" href="assets/logo.png" type="image/png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
-  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.069" />
-  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.069" />
-  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.069" />
-  <link rel="stylesheet" href="css/styles.levelup.css?v=LevelUP_V2_00.069" />
-  <link rel="stylesheet" href="css/styles.tienda.css?v=LevelUP_V2_00.069" />
-  <link rel="stylesheet" href="css/styles.celebrations.css?v=LevelUP_V2_00.069" />
-  <link rel="stylesheet" href="css/styles.viewmode.css?v=LevelUP_V2_00.069" />
-  <link rel="stylesheet" href="css/styles.mobile.css?v=LevelUP_V2_00.069" />
+  <!-- Google Fonts: Inter (body) + Oxanium (brand/gaming headings) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oxanium:wght@600;700;800&display=swap" />
+  <link rel="stylesheet" href="css/styles.base.css?v=LevelUP_V2_00.070" />
+  <link rel="stylesheet" href="css/styles.challenges.css?v=LevelUP_V2_00.070" />
+  <link rel="stylesheet" href="css/styles.splash.css?v=LevelUP_V2_00.070" />
+  <link rel="stylesheet" href="css/styles.levelup.css?v=LevelUP_V2_00.070" />
+  <link rel="stylesheet" href="css/styles.tienda.css?v=LevelUP_V2_00.070" />
+  <link rel="stylesheet" href="css/styles.celebrations.css?v=LevelUP_V2_00.070" />
+  <link rel="stylesheet" href="css/styles.viewmode.css?v=LevelUP_V2_00.070" />
+  <link rel="stylesheet" href="css/styles.mobile.css?v=LevelUP_V2_00.070" />
+
+  <!-- Verificación de sesión: NO bloquea el render -->
+  <script>
+    // Verificación rápida sin imports — usa sessionStorage directamente
+    (function() {
+      var SESSION_KEY = 'levelup:session';
+      var params = new URLSearchParams(location.search);
+      var isAdmin = params.has('admin');
+      var isProjector = params.has('mode');
+      var isGuest = params.get('guest') === '1';
+      if (isAdmin || isProjector) return; // modo admin/proyector: no verificar
+
+      if (isGuest) {
+        var guestSession = {
+          access_token: 'guest-mode',
+          refresh_token: '',
+          email: 'invitado@levelup.local',
+          heroId: null,
+          isAdmin: false,
+          savedAt: Date.now(),
+          guest: true
+        };
+        window.__LU_SESSION__ = guestSession;
+        return;
+      }
+
+      try {
+        var raw = sessionStorage.getItem(SESSION_KEY);
+        if (!raw) { window.location.replace('login.html'); return; }
+        var s = JSON.parse(raw);
+        // Sesión válida por 8 horas
+        if (!s || (Date.now() - s.savedAt) > 8 * 60 * 60 * 1000) {
+          sessionStorage.removeItem(SESSION_KEY);
+          window.location.replace('login.html');
+          return;
+        }
+        // Guardar sesión en window para que otros módulos la lean sin import
+        window.__LU_SESSION__ = s;
+      } catch(e) {
+        window.location.replace('login.html');
+      }
+    })();
+  </script>
+  <!-- UI de sesión: 100% inline, sin imports, sin bloqueos -->
+  <script>
+    (function() {
+      var session = window.__LU_SESSION__;
+      if (!session) return;
+
+      // Logout: no necesita import, es solo limpiar storage y redirigir
+      window.LevelUp = window.LevelUp || {};
+      window.LevelUp.logout = function() {
+        try { sessionStorage.removeItem('levelup:session'); } catch(e) {}
+        window.location.replace('login.html');
+      };
+
+      function applySession() {
+        if (session.guest) {
+          document.body.classList.add('guest-mode');
+        }
+
+        // Ocultar elementos admin-only para alumnos
+        if (!session.isAdmin) {
+          document.querySelectorAll('[data-admin-only="1"], [data-edit-only="1"]').forEach(function(el) {
+            el.hidden = true;
+            el.style.display = 'none';
+          });
+        }
+
+        // Botón salir en sidebar (solo móvil ≤900px)
+        var sideLogout = document.getElementById('sidebarLogoutBtn');
+        var sideLogoutName = document.getElementById('sidebarLogoutName');
+        if (sideLogout) {
+          function showIfMobile() {
+            sideLogout.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+          }
+          showIfMobile();
+          window.addEventListener('resize', showIfMobile);
+        }
+
+        // Badge en topbar (desktop)
+        var badge = document.getElementById('studentSessionBadge');
+
+        // Llenar nombre cuando los datos del juego carguen
+        function fillName(n) {
+          var heroes = (window.state && window.state.data && window.state.data.heroes) || [];
+          var hero = heroes.find(function(h) { return h.id === session.heroId; });
+          var name = (hero && hero.name) || session.email.split('@')[0];
+
+          if (sideLogoutName) {
+            sideLogoutName.textContent = '⚔️';
+            var nameSpan = sideLogoutName.nextElementSibling;
+            if (nameSpan) nameSpan.textContent = name;
+          }
+          if (badge) {
+            badge.hidden = false;
+            badge.style.cssText = '';
+            var label = session.guest ? 'Invitado' : name;
+            badge.innerHTML = '<button class="sessionPill" onclick="window.LevelUp.logout()"><span class="sessionPill__icon">⚔️</span><span class="sessionPill__name">' + label + '</span><span class="sessionPill__hint">· salir</span></button>';
+          }
+          if (!hero && n > 0) setTimeout(function() { fillName(n - 1); }, 500);
+        }
+        setTimeout(function() { fillName(8); }, 200);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applySession);
+      } else {
+        applySession();
+      }
+    })();
+  </script>
 </head>
 <body>
   <!-- Splash: cambia la variante con la clase:
@@ -89,17 +210,22 @@
       </nav>
 
       <div class="topbar__right">
-        <!-- Reemplaza "Presentación" por acceso directo a Recompensas (pantalla separada por ahora) -->
+        <!-- Badge sesión alumno: se rellena desde hero_session.js -->
+        <div id="studentSessionBadge" hidden></div>
+
+        <!-- Solo admin -->
         <button class="pill pill--ghost" id="btnRecompensas" data-route="recompensas">🏆 Recompensas</button>
-        <button class="pill pill--ghost" id="btnDebugPanel" aria-pressed="false">🧪 Estado</button>
+        <button class="pill pill--ghost" id="btnInstallApp" data-install-app="1" type="button" title="Instalar app">📲 Instalar app</button>
+        <button class="pill pill--ghost" id="btnDebugPanel" aria-pressed="false" data-admin-only="1">🧪 Estado</button>
 
         <div class="dropdown">
-          <button class="pill pill--ghost" id="btnDatos" aria-haspopup="menu" aria-expanded="false">💾 Datos ▾</button>
+          <button class="pill pill--ghost" id="btnDatos" aria-haspopup="menu" aria-expanded="false" data-admin-only="1">💾 Datos ▾</button>
           <div class="dropdown__menu" role="menu" aria-label="Datos" id="menuDatos">
             <button class="menuitem" role="menuitem" id="btnSaveToGitHub" data-edit-only="1">💾 Guardar a GitHub</button>
             <button class="menuitem" role="menuitem" id="btnConfigGitHub" data-edit-only="1">⚙️ Configurar GitHub</button>
             <div class="menudivider"></div>
             <button class="menuitem" role="menuitem" id="btnReloadRemote">Recargar desde GitHub</button>
+            <button class="menuitem" role="menuitem" id="btnAdminPanel">📎 Revisar evidencias</button>
             <button class="menuitem" role="menuitem" id="btnImportJson">Importar JSON…</button>
             <button class="menuitem" role="menuitem" id="btnExportJson">Exportar JSON</button>
             <div class="menudivider"></div>
@@ -107,7 +233,7 @@
           </div>
         </div>
 
-        <button class="pill pill--danger" id="btnEdicion">🔒 Edición</button>
+        <button class="pill pill--danger" id="btnEdicion" data-admin-only="1">🔒 Edición</button>
       </div>
     </header>
 
@@ -123,7 +249,22 @@
           <button class="pill pill--small" id="btnNuevoHeroe" data-edit-only="1">+ Nuevo</button>
         </div>
 
+        <!-- Botón salir: visible solo en móvil (en desktop está en el header) -->
+        <div id="sidebarLogoutBtn" class="sidebarLogoutWrap">
+          <button onclick="window.LevelUp?.logout()" class="sidebarLogoutBtn">
+            <span id="sidebarLogoutName">⚔️</span>
+            <span class="sidebarLogoutBtn__name"></span>
+            <span class="sidebarLogoutBtn__hint">Cerrar sesión ✕</span>
+          </button>
+        </div>
+
+        
+        <div id="sidebarInstallAppWrap" class="sidebarInstallWrap">
+          <button class="pill pill--small pill--ghost sidebarInstallBtn" id="btnInstallAppSidebar" data-install-app="1" type="button">📲 Instalar app</button>
+        </div>
+
         <div class="list" id="heroList"></div>
+
       </aside>
 
       <section class="content" id="content" aria-label="Contenido principal">
@@ -216,7 +357,7 @@
                   <div class="xpBar"><div class="xpFill" id="xpFill" style="width:0%"></div></div>
 
                   <div class="xpFooter">
-                    <div class="subCard">
+                    <div class="subCard" data-admin-only="1">
                       <div class="chipRow" id="actChips">
                         <button class="pill pill--small" data-xp="2">+2 Participación</button>
                         <button class="pill pill--small" data-xp="5">+5 Trabajos</button>
@@ -266,20 +407,31 @@
 
           <article class="page" data-page="desafios">
             <div class="challengeTop">
-              <div class="dropdown" id="subjectDropdown">
-                <button class="pill" id="btnSubject" type="button">Materia ▾</button>
-                <div class="dropdown__menu" id="subjectMenu" role="menu" aria-label="Materias"></div>
+              <div class="challengeTop__main">
+                <div class="dropdown" id="subjectDropdown">
+                  <button class="pill" id="btnSubject" type="button">Materia ▾</button>
+                  <div class="dropdown__menu" id="subjectMenu" role="menu" aria-label="Materias"></div>
+                </div>
+
+                <div class="diffPills" id="diffPills" role="group" aria-label="Dificultad">
+                  <button class="pill pill--ghost" id="btnDiffEasy" type="button" data-diff="easy">Fácil</button>
+                  <button class="pill pill--ghost" id="btnDiffMed" type="button" data-diff="medium">Medio</button>
+                  <button class="pill pill--ghost" id="btnDiffHard" type="button" data-diff="hard">Difícil</button>
+                </div>
               </div>
 
-              <div class="diffPills" id="diffPills" role="group" aria-label="Dificultad">
-                <button class="pill pill--ghost" id="btnDiffEasy" type="button" data-diff="easy">Fácil</button>
-                <button class="pill pill--ghost" id="btnDiffMed" type="button" data-diff="medium">Medio</button>
-                <button class="pill pill--ghost" id="btnDiffHard" type="button" data-diff="hard">Difícil</button>
+              <div class="challengeTop__actions">
+                <button class="pill pill--ghost" id="btnHistory" type="button">📜 Historial</button>
+                <div class="dropdown" data-admin-only="1">
+                  <button class="pill" id="btnChallengeAdminMenu" type="button" aria-haspopup="menu" aria-expanded="false">⚙️ Gestionar ▾</button>
+                  <div class="dropdown__menu" id="challengeAdminMenu" role="menu" aria-label="Acciones de desafíos">
+                    <button class="menuitem" role="menuitem" id="btnAddChallengeMenu" data-edit-only="1">+ Crear desafío</button>
+                    <button class="menuitem" role="menuitem" id="btnManageSubjectsMenu" data-edit-only="1">✎ Editar materias</button>
+                    <div class="menudivider"></div>
+                    <button class="menuitem" role="menuitem" id="btnAdminPanelChallenges">📎 Revisar evidencias</button>
+                  </div>
+                </div>
               </div>
-
-              <button class="pill" id="btnAddChallenge" type="button" data-edit-only="1">+ Desafío</button>
-              <button class="pill pill--ghost" id="btnManageSubjects" type="button" data-edit-only="1">✎ Materias</button>
-              <button class="pill pill--ghost" id="btnHistory" type="button">📜 Historial</button>
             </div>
 
             
@@ -371,10 +523,22 @@
     </main>
 
     <nav class="bottomNav" id="bottomNav" aria-label="Navegación inferior">
-      <button class="bottomNav__btn is-active" data-route="fichas">Fichas</button>
-      <button class="bottomNav__btn" data-route="desafios">Desafíos</button>
-      <button class="bottomNav__btn" data-route="eventos">Eventos</button>
-      <button class="bottomNav__btn" data-route="tienda">Tienda</button>
+      <button class="bottomNav__btn is-active" data-route="fichas">
+        <span class="bottomNav__icon">👤</span>
+        <span class="bottomNav__label">Fichas</span>
+      </button>
+      <button class="bottomNav__btn" data-route="desafios">
+        <span class="bottomNav__icon">⚔️</span>
+        <span class="bottomNav__label">Desafíos</span>
+      </button>
+      <button class="bottomNav__btn" data-route="eventos">
+        <span class="bottomNav__icon">🎉</span>
+        <span class="bottomNav__label">Eventos</span>
+      </button>
+      <button class="bottomNav__btn" data-route="tienda">
+        <span class="bottomNav__icon">🛒</span>
+        <span class="bottomNav__label">Tienda</span>
+      </button>
     </nav>
 
     <div class="modal" id="roleModal" hidden>
@@ -433,8 +597,8 @@
         </div>
         <div class="modal__body">
           <div class="confirmMsg" id="confirmMessage">¿Seguro?</div>
-          <div style="height:14px"></div>
-          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+          <div class="modalSpacer modalSpacer--md"></div>
+          <div class="modalActions">
             <button class="pill pill--small pill--ghost" id="btnConfirmCancel" type="button">Cancelar</button>
             <button class="pill pill--small pill--danger" id="btnConfirmOk" type="button">Aceptar</button>
           </div>
@@ -453,15 +617,15 @@
         <div class="modal__body">
           <div class="formCard">
             <label class="label">Nueva materia</label>
-            <div style="display:flex; gap:10px; align-items:center;">
+            <div class="rowInline rowInline--center">
               <input class="input" id="inNewSubject" placeholder="Ej: Ciencias" />
               <button class="pill pill--small" id="btnAddSubject" type="button">Agregar</button>
             </div>
           </div>
 
-          <div style="height:12px"></div>
+          <div class="modalSpacer"></div>
 
-          <div class="cardTitle" style="margin:6px 0 10px;">Lista</div>
+          <div class="cardTitle cardTitle--section">Lista</div>
           <div class="subjectsList" id="subjectsList"></div>
         </div>
       </div>
@@ -507,15 +671,15 @@
             <input class="input" id="inChTitle" placeholder="Ej: Problemas de fracciones" />
           </div>
 
-          <div style="height:10px"></div>
+          <div class="modalSpacer modalSpacer--sm"></div>
 
           <div class="field">
             <label class="label">Instrucciones</label>
             <textarea class="textarea" id="inChBody" placeholder="Escribe instrucciones simples..."></textarea>
           </div>
 
-          <div style="height:14px"></div>
-          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+          <div class="modalSpacer modalSpacer--md"></div>
+          <div class="modalActions">
             <button class="pill pill--small pill--ghost" id="btnCancelChallenge" type="button">Cancelar</button>
             <button class="pill pill--small" id="btnSaveChallenge" type="button">Guardar</button>
           </div>
@@ -563,22 +727,22 @@
             </div>
           </div>
 
-          <div style="height:10px"></div>
+          <div class="modalSpacer modalSpacer--sm"></div>
 
           <div class="field">
             <div class="labelSmall">Estado de conexión</div>
-            <div id="githubStatusText" class="muted" style="padding:8px; background:rgba(255,255,255,0.03); border-radius:6px;">
+            <div id="githubStatusText" class="muted githubStatusText">
               No configurado
             </div>
           </div>
 
-          <div style="height:14px"></div>
+          <div class="modalSpacer modalSpacer--md"></div>
 
-          <details style="margin-bottom:14px;">
-            <summary style="cursor:pointer; color:rgba(0,210,255,0.8); margin-bottom:8px;">
+          <details class="helpDetails">
+            <summary class="helpDetails__summary">
               ¿Cómo obtener un token?
             </summary>
-            <div class="muted" style="font-size:13px; line-height:1.6;">
+            <div class="muted helpDetails__content">
               1. Ve a <a href="https://github.com/settings/tokens" target="_blank" style="color:rgba(0,210,255,1);">github.com/settings/tokens</a><br/>
               2. Click en "Generate new token" → "Tokens (classic)"<br/>
               3. Dale un nombre (ej: "LevelUp Auto-Save")<br/>
@@ -589,7 +753,7 @@
             </div>
           </details>
 
-          <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+          <div class="modalActions">
             <button class="pill pill--small pill--ghost" id="btnTestGitHub" type="button">Probar Conexión</button>
             <button class="pill pill--small pill--ghost" id="btnClearGitHubToken" type="button">Borrar Token</button>
             <button class="pill pill--small" id="btnSaveGitHubToken" type="button">Guardar</button>
@@ -609,15 +773,14 @@
     <div class="modal__card modal__card--event" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
       <div class="modal__head evModalHead">
         <div class="evModalHead__left">
-          <h3 id="eventModalTitle">Evento</h3>
+          <h3 id="eventModalTitle" class="eventModalTitleSr">Evento</h3>
           <div class="evModalSubtitle" id="eventModalSubtitle">—</div>
-          <div class="evModalPills">
-            <span class="pill pill--mini" id="eventModalKind">EVENTO</span>
-            <span class="pill pill--mini" id="eventModalState">—</span>
-            <span class="pill pill--mini" id="eventModalElig">—</span>
-          </div>
         </div>
-        <div class="evModalStamp" id="eventModalStamp" aria-hidden="true">?????</div>
+        <div class="evModalPills" aria-label="Estado del evento">
+          <span class="pill pill--mini" id="eventModalKind">EVENTO</span>
+          <span class="pill pill--mini" id="eventModalState">—</span>
+          <span class="pill pill--mini" id="eventModalElig">—</span>
+        </div>
         <button class="iconBtn" id="btnEventClose" title="Cerrar" aria-label="Cerrar">✕</button>
       </div>
 
@@ -646,12 +809,84 @@
             </div>
 
             <div class="eventModalActions">
-              <button class="btn btnPrimary" id="btnEventFight">⚔️ Retar</button>
+              <button class="pill pill--small eventFightBtn" id="btnEventFight">⚔️ Pelear</button>
               <button class="pill pill--small pill--ghost" id="btnEventToggleUnlock" type="button" data-edit-only="1">Desbloquear</button>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+
+  <!-- Modal de duelo contra jefe -->
+  <div class="modal bossBattle" id="bossBattleModal" hidden>
+    <!-- Layer 1: Fondo/Escenario -->
+    <div class="bossBattle__sceneBg" id="bossBattleSceneBg" aria-hidden="true"></div>
+
+    <!-- Layer 2: Personaje del Jefe -->
+    <img class="bossBattle__jefe" id="bossBattleJefe" alt="Jefe" aria-hidden="true" />
+
+    <!-- Layer 3: Shade (oscurecimiento) -->
+    <div class="bossBattle__shade" aria-hidden="true"></div>
+
+    <!-- Layer 4: HUD (interfaz de usuario) -->
+    <div class="bossBattle__hud" role="dialog" aria-modal="true" aria-labelledby="bossBattleTitle">
+      <button class="bossBattle__close" id="btnBossBattleClose" type="button" aria-label="Cerrar duelo">✕</button>
+
+      <!-- Nameplate del héroe (esquina superior izquierda) -->
+      <div class="bossBattle__heroPlate">
+        <span class="bossBattle__heroIcon">⚔️</span>
+        <span class="bossBattle__heroName" id="bossBattleHeroName">Héroe</span>
+      </div>
+
+      <!-- Nombre + HP del jefe, flotando cerca de la imagen del jefe -->
+      <div class="bossBattle__bossInfo">
+        <div class="bossBattle__bossName" id="bossBattleTitle">Jefe</div>
+        <div class="bossBattle__health">
+          <span class="bossBattle__healthLabel">HP</span>
+          <div class="bossBattle__healthBar">
+            <div class="bossBattle__healthFill" id="bossBattleHealthFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pregunta con número de pregunta integrado como badge -->
+      <div class="bossBattle__questionBox">
+        <span class="bossBattle__counter" id="bossBattleCounter">1/4</span>
+        <div class="bossBattle__question" id="bossBattleQuestion">¿Cuál es la respuesta correcta?</div>
+      </div>
+
+      <!-- Opciones en 2 columnas (A/B arriba, C/D abajo) -->
+      <div class="bossBattle__options" id="bossBattleOptions">
+        <!-- Se llenarán dinámicamente con JS -->
+      </div>
+
+      <!-- Botón siguiente: solo flecha -->
+      <button class="bossBattle__next" id="btnBossBattleNext" type="button" disabled aria-label="Siguiente pregunta">→</button>
+    </div>
+  </div>
+
+  <!-- Modal de resultado del duelo contra jefe -->
+  <div class="modal bossResult" id="bossResultModal" hidden>
+    <div class="bossResult__backdrop" aria-hidden="true"></div>
+    <div class="bossResult__panel" role="dialog" aria-modal="true" aria-labelledby="bossResultTitle">
+      <div class="bossResult__glow" aria-hidden="true"></div>
+
+      <div class="bossResult__icon" id="bossResultIcon" aria-hidden="true">🏆</div>
+      <div class="bossResult__outcome" id="bossResultTitle">¡Victoria!</div>
+      <div class="bossResult__vs" id="bossResultVs"></div>
+
+      <div class="bossResult__scoreWrap">
+        <span class="bossResult__score" id="bossResultScore">4 / 4</span>
+        <span class="bossResult__scoreLabel">respuestas correctas</span>
+      </div>
+
+      <div class="bossResult__rewards" id="bossResultRewards"></div>
+
+      <p class="bossResult__quote" id="bossResultQuote"></p>
+
+      <button class="bossResult__cta" id="btnBossResultContinue" type="button">Continuar</button>
     </div>
   </div>
 

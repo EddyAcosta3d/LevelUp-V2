@@ -2,7 +2,7 @@
   "meta": {
     "app": "LevelUp",
     "version": "LevelUP_V2_00.033",
-    "updatedAt": "2026-02-13T19:29:08.168Z",
+    "updatedAt": "2026-02-17T07:06:28.246Z",
     "build": "LevelUP_V2_00.050"
   },
   "heroes": [
@@ -43,7 +43,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "levelStartAt": 1771310725169
     },
     {
       "id": "h_2d_2",
@@ -508,7 +509,7 @@
       "age": 13,
       "role": "Artista",
       "level": 1,
-      "xp": 0,
+      "xp": 10,
       "xpMax": 100,
       "weekXp": 0,
       "weekXpMax": 40,
@@ -532,12 +533,18 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {},
+      "challengeCompletions": {
+        "ch-tech-01": {
+          "at": 1771311366461,
+          "points": 10
+        }
+      },
       "statsCap": 20,
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "levelStartAt": 1771311366462
     },
     {
       "id": "h_3d_1",
@@ -1334,6 +1341,42 @@
       "subjectId": "sub-tech",
       "difficulty": "hard",
       "points": 40
+    },
+    {
+      "id": "ch_1771310918664",
+      "title": "Calcula la velocidad",
+      "body": "Usa la fórmula:\n\nVelocidad = distancia ÷ tiempo\n\n3️⃣ Calcula:\n\na)\nUn alumno camina 20 m en 10 s\nVelocidad = ______ m/s\n\nb)\nUn ciclista recorre 100 m en 20 s\nVelocidad = ______ m/s",
+      "points": 40,
+      "subjectId": "sub-fis",
+      "difficulty": "hard",
+      "createdAt": "2026-02-17T06:48:38.664Z"
+    },
+    {
+      "id": "ch_1771311551445",
+      "title": "Exposición Internet",
+      "body": "Apoyado con media catulina haz una exposición sobre como funciona el internet.",
+      "points": 40,
+      "subjectId": "sub-tech",
+      "difficulty": "hard",
+      "createdAt": "2026-02-17T06:59:11.445Z"
+    },
+    {
+      "id": "ch_1771311672486",
+      "title": "Historia básica",
+      "body": "Contesta las siguientes preguntas:\n\n1.¿Qué es la historia?\n\n2.¿Para que sirve estudiar historia?",
+      "points": 10,
+      "subjectId": "sub-his",
+      "difficulty": "easy",
+      "createdAt": "2026-02-17T07:01:12.486Z"
+    },
+    {
+      "id": "ch_1771311785442",
+      "title": "Ecuaciones y porcentajes",
+      "body": "7️⃣ Ecuaciones sencillas\n\nResuelve:\n\na) x + 7 = 15\nb) 3x = 18\nc) x − 9 = 4\n\n8️⃣ Porcentajes fáciles\n\na) 10% de 50 = ____\nb) 25% de 20 = ____\nc) 50% de 80 = ____",
+      "points": 20,
+      "subjectId": "sub-mat",
+      "difficulty": "medium",
+      "createdAt": "2026-02-17T07:03:05.442Z"
     }
   ],
   "events": [
@@ -1363,6 +1406,62 @@
       "image": "assets/jefes/garbanzo__unlocked__modal.webp",
       "lockedImage": "assets/jefes/garbanzo__locked__modal.webp",
       "celebrationImage": "assets/celebrations/garbanzo_challenger_vertical.png",
+      "battleSprites": {
+        "bg": "assets/jefes/batalla/boss02_garbanzo_bg.webp",
+        "idle": "assets/jefes/batalla/boss02_garbanzo_idle.webp",
+        "mock": "assets/jefes/batalla/boss02_garbanzo_mock.webp",
+        "hit": "assets/jefes/batalla/boss02_garbanzo_hit.webp"
+      },
+      "battleQuestions": [
+        {
+          "question": "¿Cuántos continentes hay en el mundo?",
+          "options": [
+            "7 continentes",
+            "5 continentes",
+            "6 continentes",
+            "8 continentes"
+          ],
+          "correctIndex": 0,
+          "category": "general",
+          "difficulty": "easy"
+        },
+        {
+          "question": "¿Qué deporte se juega con una pelota redonda y no se puede usar las manos?",
+          "options": [
+            "Fútbol",
+            "Basketball",
+            "Volleyball",
+            "Tennis"
+          ],
+          "correctIndex": 0,
+          "category": "general",
+          "difficulty": "easy"
+        },
+        {
+          "question": "¿Cuál es la fórmula para calcular el área de un rectángulo?",
+          "options": [
+            "base × altura",
+            "lado × lado",
+            "π × radio²",
+            "base × altura ÷ 2"
+          ],
+          "correctIndex": 0,
+          "category": "matematicas",
+          "difficulty": "easy"
+        },
+        {
+          "question": "How do you say 'perro' in English?",
+          "options": [
+            "Dog",
+            "Cat",
+            "Bird",
+            "Fish"
+          ],
+          "correctIndex": 0,
+          "category": "ingles",
+          "difficulty": "easy"
+        }
+      ],
       "unlock": {
         "scope": "any",
         "type": "anyStatAtLeast",
@@ -1689,7 +1788,7 @@
         "name": "Clase con juegos de mesa",
         "description": "Una clase completa jugando juegos de mesa educativos",
         "icon": "🎲",
-        "cost": 6,
+        "cost": 8,
         "stock": 1,
         "available": true
       },
@@ -1698,17 +1797,8 @@
         "name": "Quitar 1 pregunta del examen",
         "description": "Elimina una pregunta de tu próximo examen",
         "icon": "📝",
-        "cost": 4,
+        "cost": 6,
         "stock": 999,
-        "available": true
-      },
-      {
-        "id": "store_demo_3",
-        "name": "Elegir tema de exposición",
-        "description": "Escoge el tema que quieras para tu exposición",
-        "icon": "🎤",
-        "cost": 3,
-        "stock": 5,
         "available": true
       },
       {
@@ -1716,8 +1806,80 @@
         "name": "Día libre de tarea",
         "description": "Un día sin tarea (aplica una vez)",
         "icon": "🎉",
+        "cost": 7,
+        "stock": 3,
+        "available": true
+      },
+      {
+        "id": "store_5",
+        "name": "10 min de Clash Royale",
+        "description": "Juega Clash Royale durante 10 minutos en el recreo",
+        "icon": "👑",
+        "cost": 5,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_6",
+        "name": "Música mientras trabajas",
+        "description": "Usa audífonos mientras haces trabajo individual",
+        "icon": "🎧",
+        "cost": 3,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_7",
+        "name": "Clase con UNO",
+        "description": "Jugar UNO mientras repasan conceptos de la materia",
+        "icon": "🃏",
+        "cost": 6,
+        "stock": 2,
+        "available": true
+      },
+      {
+        "id": "store_8",
+        "name": "Lotería educativa",
+        "description": "Jugar lotería con conceptos del tema",
+        "icon": "🎰",
         "cost": 5,
         "stock": 3,
+        "available": true
+      },
+      {
+        "id": "store_9",
+        "name": "Sentarse donde quieras",
+        "description": "Escoge tu lugar favorito durante 1 semana",
+        "icon": "🪑",
+        "cost": 6,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_10",
+        "name": "Clase al aire libre",
+        "description": "Tener clase afuera del salón en un lugar agradable",
+        "icon": "🌳",
+        "cost": 10,
+        "stock": 1,
+        "available": true
+      },
+      {
+        "id": "store_11",
+        "name": "Elige música para la clase",
+        "description": "Selecciona la música de fondo para trabajar durante la clase",
+        "icon": "🎵",
+        "cost": 4,
+        "stock": 999,
+        "available": true
+      },
+      {
+        "id": "store_12",
+        "name": "Tarjeta de regalo para tu juego favorito",
+        "description": "Tarjeta de regalo para Roblox, Free Fire, Fortnite u otro juego",
+        "icon": "🎁",
+        "cost": 15,
+        "stock": 5,
         "available": true
       }
     ]
