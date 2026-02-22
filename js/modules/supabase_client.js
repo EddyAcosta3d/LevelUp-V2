@@ -179,14 +179,12 @@ export async function upsertHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch('/rest/v1/hero_assignments?on_conflict=hero_id,challenge_id', {
     method: 'POST',
-    headers: {
-      'Prefer': 'resolution=ignore-duplicates,return=minimal'
-    },
+    headers: { 'Prefer': 'return=minimal' },
     body: JSON.stringify({ hero_id: heroId, challenge_id: String(challengeId) })
   });
   // Si ya existe la asignación, se considera éxito idempotente.
   if (res.status === 409) return true;
-  await throwIfNotOk(res, `Error al asignar: ${res.status}`);
+  if (!res.ok) throw new Error(await parseError(res, `Error al asignar: ${res.status}`));
   return true;
 }
 
@@ -211,7 +209,7 @@ export async function getHeroAssignments(heroId) {
 
 export async function getAllHeroAssignments() {
   const res = await supabaseFetch('/rest/v1/hero_assignments?select=hero_id,challenge_id');
-  await throwIfNotOk(res, `Error al leer asignaciones: ${res.status}`);
+  if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones: ${res.status}`));
   const rows = await res.json();
   return rows.map(row => ({
     ...row,
