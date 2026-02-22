@@ -37,7 +37,13 @@ import {
   difficultyLabel
 } from './fichas.js';
 
-let _assignmentSyncInFlight = new Set();
+import {
+  markAssignmentMutationPending,
+  clearAssignmentMutationPending
+} from './realtime_sync.js';
+
+const ASSIGNMENT_SYNC_STALE_MS = 12000;
+let _assignmentSyncInFlight = new Map();
 
 function getChallengeContextHero(){
   // Contexto principal: héroe actualmente seleccionado.
@@ -374,7 +380,9 @@ export function renderChallengeDetail(){
     assignBtn.addEventListener('click', ()=>{
       const targetHero = getChallengeContextHero();
       const syncKey = `${targetHero?.id || 'none'}::${String(ch.id)}`;
-      if (_assignmentSyncInFlight.has(syncKey)) return;
+      const startedAt = Number(_assignmentSyncInFlight.get(syncKey) || 0);
+      if (startedAt && (Date.now() - startedAt) < ASSIGNMENT_SYNC_STALE_MS) return;
+      if (startedAt) _assignmentSyncInFlight.delete(syncKey);
       if (!targetHero){
         window.toast?.('⚠️ No hay alumno seleccionado');
         return;
@@ -408,7 +416,7 @@ export function renderChallengeDetail(){
         return;
       }
 
-      _assignmentSyncInFlight.add(syncKey);
+      _assignmentSyncInFlight.set(syncKey, Date.now());
       assignBtn.disabled = true;
 
       const fn = assigning
