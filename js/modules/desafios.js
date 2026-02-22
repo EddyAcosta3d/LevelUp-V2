@@ -158,7 +158,13 @@ export function renderChallenges(){
   }
 
   if (!state.selectedChallengeId || !filtered.some(c=>c.id === state.selectedChallengeId)){
-    state.selectedChallengeId = filtered[0].id;
+    const canEditView = document.documentElement.classList.contains('is-edit');
+    if (!canEditView){
+      const firstUnlocked = filtered.find(ch => isChallengeUnlockedForHero(hero, ch.id));
+      state.selectedChallengeId = (firstUnlocked || filtered[0]).id;
+    } else {
+      state.selectedChallengeId = filtered[0].id;
+    }
   }
 
   // Render: pendientes primero, luego completados
