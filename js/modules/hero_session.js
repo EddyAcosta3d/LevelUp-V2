@@ -84,6 +84,7 @@ export async function loginHero(email, password) {
     heroId,
     isAdmin: heroId === 'admin',
     token: data.access_token,
+    refreshToken: data.refresh_token || null,
     savedAt: Date.now()
   };
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
