@@ -113,7 +113,8 @@ import {
         logger.info('Intentando cargar datos desde GitHub...');
         const d = await fetchRemote();
         const normalized = normalizeData(d);
-        state.data = normalized; state.dataSource = 'remote'; state.loadedFrom = 'remote';
+        const merged = mergeLocalAssignments(normalized, loadLocal());
+        state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
         saveLocal(state.data);
         if (typeof toast === 'function') toast('Cargado desde GitHub');
         if (typeof updateDataDebug === 'function') updateDataDebug();
@@ -129,7 +130,8 @@ import {
         logger.info('Intentando cargar datos desde GitHub...');
         const d = await fetchRemote();
         const normalized = normalizeData(d);
-        state.data = normalized; state.dataSource = 'remote'; state.loadedFrom = 'remote';
+        const merged = mergeLocalAssignments(normalized, loadLocal());
+        state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
         saveLocal(state.data);
         if (typeof updateDataDebug === 'function') updateDataDebug();
         if (typeof renderAll === 'function') renderAll();
@@ -159,6 +161,34 @@ import {
       if (typeof renderAll === 'function') renderAll();
     }
   }
+
+function mergeLocalAssignments(remoteData, localData){
+  const remote = normalizeData(remoteData);
+  if (!localData || !Array.isArray(localData.heroes)) return remote;
+
+  const localById = new Map(
+    localData.heroes
+      .filter(h => h && h.id)
+      .map(h => [String(h.id), h])
+  );
+
+  remote.heroes = (remote.heroes || []).map((hero) => {
+    const localHero = localById.get(String(hero.id || ''));
+    if (!localHero) return hero;
+
+    const assigned = Array.isArray(localHero.assignedChallenges)
+      ? localHero.assignedChallenges.map(x => String(x))
+      : null;
+
+    if (!assigned) return hero;
+    return {
+      ...hero,
+      assignedChallenges: assigned
+    };
+  });
+
+  return remote;
+}
 
   // Render helpers
   export function heroLabel(hero){
