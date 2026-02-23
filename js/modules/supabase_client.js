@@ -151,6 +151,33 @@ async function supabaseFetch(path, init = {}, { retryWithAnon = true } = {}) {
   return res;
 }
 
+function isRpcMissingError(status, msg) {
+  const text = String(msg || '');
+  if (status === 404) return true;
+  return (
+    status === 400 && (
+      text.includes('Could not find the function') ||
+      text.includes('function') && text.includes('does not exist')
+    )
+  );
+}
+
+async function callAssignmentRpc(functionName, payload) {
+  const res = await supabaseFetch(`/rest/v1/rpc/${functionName}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+
+  if (res.ok) return { ok: true, missing: false };
+
+  const msg = await parseError(res, `RPC ${functionName} error: ${res.status}`);
+  if (isRpcMissingError(res.status, msg)) {
+    return { ok: false, missing: true };
+  }
+
+  throw new Error(msg);
+}
+
 // ============================================
 // SUBMISSIONS — Evidencias de desafíos
 // ============================================
