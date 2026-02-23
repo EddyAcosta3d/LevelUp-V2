@@ -19,7 +19,7 @@
  * - normalizeData, totalCompletedAcrossHeroes
  */
 
-const BUILD_ID = 'LevelUP_V2_00.070';
+const BUILD_ID = 'LevelUP_V2_01.00';
 window.LEVELUP_BUILD = BUILD_ID;
 
 // Initialize LevelUp namespace for better organization
@@ -500,7 +500,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
 
   function demoData(){
     return {
-      meta: { app: 'LevelUp', version: 'hybrid-skeleton-v1', updatedAt: new Date().toISOString() },
+      meta: { app: 'LevelUp', version: '01.00', updatedAt: new Date().toISOString() },
       heroes: [
         { id:'h1', group:'2D', name:'Eddy', age:12, role:'Analista', level:3, xp:28, xpMax:100,
           stats:{ INT:5, SAB:6, CAR:5, RES:7, CRE:8 }, weekXp:40, weekXpMax:40, desc:'', goal:'', goodAt:'', improve:'' },

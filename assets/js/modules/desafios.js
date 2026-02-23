@@ -37,6 +37,14 @@ import {
   difficultyLabel
 } from './fichas.js';
 
+import {
+  markAssignmentMutationPending,
+  clearAssignmentMutationPending
+} from './realtime_sync.js';
+
+const ASSIGNMENT_SYNC_STALE_MS = 12000;
+let _assignmentSyncInFlight = new Map();
+
 function getChallengeContextHero(){
   // Contexto principal: héroe actualmente seleccionado.
   const hero = currentHero();
@@ -54,7 +62,8 @@ function isChallengeUnlockedForHero(hero, challengeId){
   const assigned = hero.assignedChallenges;
   // Regla actual: por defecto NO está asignado hasta que el profe lo habilita.
   if (!Array.isArray(assigned)) return false;
-  return assigned.includes(String(challengeId));
+  const targetId = String(challengeId);
+  return assigned.some(id => String(id) === targetId);
 }
 
 export function renderChallenges(){
@@ -377,11 +386,16 @@ export function renderChallengeDetail(){
       : 'Este desafío está bloqueado para el alumno seleccionado.';
     assignBtn.addEventListener('click', ()=>{
       const targetHero = getChallengeContextHero();
+      const syncKey = `${targetHero?.id || 'none'}::${String(ch.id)}`;
+      const startedAt = Number(_assignmentSyncInFlight.get(syncKey) || 0);
+      if (startedAt && (Date.now() - startedAt) < ASSIGNMENT_SYNC_STALE_MS) return;
+      if (startedAt) _assignmentSyncInFlight.delete(syncKey);
       if (!targetHero){
         window.toast?.('⚠️ No hay alumno seleccionado');
         return;
       }
       if (!Array.isArray(targetHero.assignedChallenges)) targetHero.assignedChallenges = [];
+      targetHero.assignedChallenges = targetHero.assignedChallenges.map(x => String(x));
       const chId = String(ch.id);
       const prevAssignments = targetHero.assignedChallenges.slice();
       const i = targetHero.assignedChallenges.indexOf(chId);
@@ -395,11 +409,13 @@ export function renderChallengeDetail(){
         window.toast?.(`🔓 ${targetHero.name || 'Alumno'}: desafío desbloqueado`);
         assigning = true;
       }
+      markAssignmentMutationPending(targetHero.id, chId, assigning);
       saveLocal(state.data);
       renderChallenges();
 
       // Sincronizar con Supabase en segundo plano (no bloquea la UI)
       if (!hasActiveSessionToken()){
+        clearAssignmentMutationPending(targetHero.id, chId);
         targetHero.assignedChallenges = prevAssignments;
         saveLocal(state.data);
         renderChallenges();
@@ -407,10 +423,14 @@ export function renderChallengeDetail(){
         return;
       }
 
+      _assignmentSyncInFlight.set(syncKey, Date.now());
+      assignBtn.disabled = true;
+
       const fn = assigning
         ? upsertHeroAssignment(targetHero.id, chId)
         : deleteHeroAssignment(targetHero.id, chId);
       fn.then(async ()=> {
+        clearAssignmentMutationPending(targetHero.id, chId);
         // Releer desde Supabase para confirmar el estado real guardado.
         try {
           const remoteAssignments = await getHeroAssignments(targetHero.id);
@@ -421,16 +441,25 @@ export function renderChallengeDetail(){
           // Si falla la lectura, mantenemos el estado local optimista.
         }
       }).catch(err => {
+        clearAssignmentMutationPending(targetHero.id, chId);
         targetHero.assignedChallenges = prevAssignments;
         saveLocal(state.data);
         renderChallenges();
         if (String(err?.message || '') !== 'AUTH_REQUIRED'){
           console.warn('[Sync] Error al sincronizar asignación:', err);
         }
-        const msg = String(err?.message || '') === 'AUTH_REQUIRED'
+        const rawMsg = String(err?.message || '');
+        const msg = rawMsg === 'AUTH_REQUIRED'
           ? 'Tu sesión expiró. Inicia sesión de nuevo para sincronizar.'
-          : (err.message || 'revisa tu conexión');
+          : (rawMsg === 'DELETE_NOOP'
+            ? 'Supabase no borró filas (RLS o filtros). Revisa policy DELETE en hero_assignments para eddy@levelup.mx.'
+          : (rawMsg.startsWith('RLS_DENIED:')
+            ? 'Permiso denegado por Supabase (RLS). Revisa políticas INSERT/DELETE/SELECT en hero_assignments para el admin autenticado.'
+            : (err.message || 'revisa tu conexión')));
         window.toast?.(`⚠️ No se guardó en la nube: ${msg}`);
+      }).finally(() => {
+        _assignmentSyncInFlight.delete(syncKey);
+        assignBtn.disabled = false;
       });
     });
     badgesEl.appendChild(assignBtn);
