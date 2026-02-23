@@ -5,8 +5,8 @@
  * @description Conexión a Supabase para LevelUp V2
  */
 
-const SUPABASE_URL = 'https://nptbobvstfjpytnvzfil.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdGJvYnZzdGZqcHl0bnZ6ZmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MzczOTMsImV4cCI6MjA4NzExMzM5M30.NwUtbFjMwz52fj_TDa8T10TsqEPwbK2h5VS_JGr8i7k';
+export const SUPABASE_URL = 'https://nptbobvstfjpytnvzfil.supabase.co';
+export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdGJvYnZzdGZqcHl0bnZ6ZmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MzczOTMsImV4cCI6MjA4NzExMzM5M30.NwUtbFjMwz52fj_TDa8T10TsqEPwbK2h5VS_JGr8i7k';
 
 function getSession() {
   try {
@@ -270,10 +270,9 @@ export async function deleteHeroAssignment(heroId, challengeId) {
 
   const qHero = encodeURIComponent(heroId);
   const qChallenge = encodeURIComponent(String(challengeId));
-  const filter = `hero_id=eq.${qHero}&challenge_id=eq.${qChallenge}`;
 
   const res = await supabaseFetch(
-    `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
+    `/rest/v1/hero_assignments?hero_id=eq.${qHero}&challenge_id=eq.${qChallenge}`,
     {
       method: 'DELETE',
       headers: { 'Prefer': 'return=representation' }

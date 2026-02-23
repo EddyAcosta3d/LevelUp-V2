@@ -108,36 +108,23 @@ import {
     // toast, updateDataDebug, renderAll, demoData
     // We'll keep them as global calls for now (backward compat)
 
-    if (forceRemote){
-      try{
-        logger.info('Intentando cargar datos desde GitHub...');
-        const d = await fetchRemote();
-        const normalized = normalizeData(d);
-        const merged = mergeLocalAssignments(normalized, loadLocal());
-        state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
-        saveLocal(state.data);
-        if (typeof toast === 'function') toast('Cargado desde GitHub');
-        if (typeof updateDataDebug === 'function') updateDataDebug();
-        if (typeof renderAll === 'function') renderAll();
-        logger.info('Datos cargados desde GitHub correctamente');
-        return;
-      }catch(e){
+    try{
+      logger.info('Intentando cargar datos desde GitHub...');
+      const d = await fetchRemote();
+      const normalized = normalizeData(d);
+      const merged = mergeLocalAssignments(normalized, loadLocal());
+      state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
+      saveLocal(state.data);
+      if (forceRemote && typeof toast === 'function') toast('Cargado desde GitHub');
+      if (typeof updateDataDebug === 'function') updateDataDebug();
+      if (typeof renderAll === 'function') renderAll();
+      logger.info('Datos cargados desde GitHub correctamente');
+      return;
+    }catch(e){
+      if (forceRemote){
         logger.warn('No se pudo cargar desde GitHub', e.message);
         if (typeof toast === 'function') toast('No se pudo cargar GitHub. Usando copia local.');
-      }
-    }else{
-      try{
-        logger.info('Intentando cargar datos desde GitHub...');
-        const d = await fetchRemote();
-        const normalized = normalizeData(d);
-        const merged = mergeLocalAssignments(normalized, loadLocal());
-        state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
-        saveLocal(state.data);
-        if (typeof updateDataDebug === 'function') updateDataDebug();
-        if (typeof renderAll === 'function') renderAll();
-        logger.info('Datos cargados desde GitHub correctamente');
-        return;
-      }catch(e){
+      } else {
         logger.debug('Carga remota falló, usando copia local', e.message);
       }
     }
