@@ -451,9 +451,11 @@ export function renderChallengeDetail(){
         const rawMsg = String(err?.message || '');
         const msg = rawMsg === 'AUTH_REQUIRED'
           ? 'Tu sesión expiró. Inicia sesión de nuevo para sincronizar.'
+          : (rawMsg === 'DELETE_NOOP'
+            ? 'Supabase no borró filas (RLS o filtros). Revisa policy DELETE en hero_assignments para eddy@levelup.mx.'
           : (rawMsg.startsWith('RLS_DENIED:')
             ? 'Permiso denegado por Supabase (RLS). Revisa políticas INSERT/DELETE/SELECT en hero_assignments para el admin autenticado.'
-            : (err.message || 'revisa tu conexión'));
+            : (err.message || 'revisa tu conexión')));
         window.toast?.(`⚠️ No se guardó en la nube: ${msg}`);
       }).finally(() => {
         _assignmentSyncInFlight.delete(syncKey);

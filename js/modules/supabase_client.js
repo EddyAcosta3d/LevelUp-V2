@@ -231,11 +231,9 @@ export async function upsertHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch('/rest/v1/hero_assignments?on_conflict=hero_id,challenge_id', {
     method: 'POST',
-    headers: { 'Prefer': 'return=minimal' },
+    headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' },
     body: JSON.stringify({ hero_id: heroId, challenge_id: String(challengeId) })
   });
-  // Si ya existe la asignación, se considera éxito idempotente.
-  if (res.status === 409) return true;
   if (!res.ok) throw new Error(await parseError(res, `Error al asignar: ${res.status}`));
   return true;
 }
@@ -244,9 +242,25 @@ export async function deleteHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch(
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
-    { method: 'DELETE' }
+    {
+      method: 'DELETE',
+      headers: { 'Prefer': 'return=representation' }
+    }
   );
   await throwIfNotOk(res, `Error al desasignar: ${res.status}`);
+
+  // Importante: con RLS un DELETE puede devolver 200 pero afectar 0 filas.
+  // En ese caso tratamos la operación como fallo explícito para evitar
+  // que la UI quede "oscilando" (optimista -> revertida en el siguiente poll).
+  try {
+    const deletedRows = await res.json();
+    if (Array.isArray(deletedRows) && deletedRows.length === 0) {
+      throw new Error('DELETE_NOOP');
+    }
+  } catch (e) {
+    if (String(e?.message || '') === 'DELETE_NOOP') throw e;
+  }
+
   return true;
 }
 
