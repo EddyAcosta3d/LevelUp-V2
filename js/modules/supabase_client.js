@@ -231,23 +231,44 @@ export async function upsertHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
   const res = await supabaseFetch('/rest/v1/hero_assignments?on_conflict=hero_id,challenge_id', {
     method: 'POST',
-    headers: { 'Prefer': 'return=minimal' },
+    headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' },
     body: JSON.stringify({ hero_id: heroId, challenge_id: String(challengeId) })
   });
-  // Si ya existe la asignación, se considera éxito idempotente.
-  if (res.status === 409) return true;
   if (!res.ok) throw new Error(await parseError(res, `Error al asignar: ${res.status}`));
   return true;
 }
 
 export async function deleteHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
+
+  const qHero = encodeURIComponent(heroId);
+  const qChallenge = encodeURIComponent(String(challengeId));
+  const filter = `hero_id=eq.${qHero}&challenge_id=eq.${qChallenge}`;
+
   const res = await supabaseFetch(
-    `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
-    { method: 'DELETE' }
+    `/rest/v1/hero_assignments?${filter}`,
+    {
+      method: 'DELETE',
+      headers: { 'Prefer': 'return=representation' }
+    }
   );
   await throwIfNotOk(res, `Error al desasignar: ${res.status}`);
-  return true;
+
+  // Con algunas combinaciones de PostgREST/RLS, DELETE puede responder 200 + []
+  // aunque sí haya aplicado el borrado. Verificamos el estado final en servidor.
+  // Si la fila sigue existiendo tras varias lecturas, marcamos DELETE_NOOP real.
+  const verifyPath = `/rest/v1/hero_assignments?${filter}&select=challenge_id&limit=1`;
+  for (let i = 0; i < 3; i++) {
+    const check = await supabaseFetch(verifyPath, {}, { retryWithAnon: false });
+    await throwIfNotOk(check, `Error al verificar desasignación: ${check.status}`);
+    const rows = await check.json();
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return true;
+    }
+    if (i < 2) await new Promise(r => setTimeout(r, 180));
+  }
+
+  throw new Error('DELETE_NOOP');
 }
 
 export async function getHeroAssignments(heroId) {
