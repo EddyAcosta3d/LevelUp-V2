@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-009';
+const SW_VERSION = 'levelup-v2-sw-010';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -88,6 +88,17 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (!/^https?:$/.test(url.protocol)) return;
   const path = url.pathname;
+
+  // Supabase API/Auth/Storage: siempre red (sin caché) para evitar
+  // estado stale en asignaciones, sesiones y evidencias.
+  const isSupabaseApi =
+    url.hostname.endsWith('supabase.co') &&
+    (path.startsWith('/rest/v1/') || path.startsWith('/auth/v1/') || path.startsWith('/storage/v1/'));
+
+  if (isSupabaseApi) {
+    event.respondWith(fetch(req));
+    return;
+  }
 
   // HTML y JS: network-first → nunca sirve archivos rotos del caché
   // mientras haya conexión.
