@@ -570,35 +570,39 @@ export function isChallengeDone(hero, challengeId){
   return !!hero.challengeCompletions[String(challengeId || '')];
 }
 
-export function getFilteredChallenges(){
-  const challenges = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
+/**
+ * Normaliza state.challengeFilter para que apunte a una materia y
+ * dificultad válidas. Debe llamarse una vez después de cargar o cambiar
+ * state.data, NO durante el render.
+ */
+export function normalizeFilter(){
   const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
-  const f = state.challengeFilter || {};
+  if (!subjects.length) return;
+
   const validSubjectIds = new Set(subjects.map(s => String(s.id || '')));
+  const f = state.challengeFilter || {};
 
   let sub = f.subjectId ? String(f.subjectId) : '';
-  let diff = normalizeDifficulty(f.diff ? String(f.diff) : '');
+  // Si el filtro apunta a una materia que ya no existe, resetear.
+  if (sub && !validSubjectIds.has(sub)) sub = '';
+  // Asegurar que siempre haya una materia seleccionada.
+  if (!sub) sub = String(subjects[0].id);
 
-  // Recuperación defensiva: si el filtro apunta a una materia que ya no existe,
-  // usar la primera materia disponible para evitar vistas vacías.
-  if (sub && !validSubjectIds.has(sub)) {
-    sub = '';
-  }
+  // Normalizar dificultad (ej: "Fácil" -> "easy").
+  const diff = normalizeDifficulty(f.diff ? String(f.diff) : '') || 'easy';
 
-  if (!sub && subjects.length){
-    sub = subjects[0].id;
-    state.challengeFilter = state.challengeFilter || {};
-    state.challengeFilter.subjectId = sub;
-  }
+  state.challengeFilter = { ...f, subjectId: sub, diff };
+}
 
-  // Normaliza también la dificultad guardada (ej: "Fácil" -> "easy").
-  if (f.diff && f.diff !== diff){
-    state.challengeFilter = state.challengeFilter || {};
-    state.challengeFilter.diff = diff || 'easy';
-  }
+export function getFilteredChallenges(){
+  const challenges = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
+  const f = state.challengeFilter || {};
+
+  const sub  = f.subjectId ? String(f.subjectId) : '';
+  const diff = normalizeDifficulty(f.diff ? String(f.diff) : '');
 
   return challenges.filter(ch=>{
-    if (sub && String(ch.subjectId || '') !== String(sub)) return false;
+    if (sub  && String(ch.subjectId  || '') !== sub)  return false;
     if (diff && String(ch.difficulty || '') !== diff) return false;
     return true;
   });
