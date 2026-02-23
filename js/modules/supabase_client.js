@@ -240,6 +240,11 @@ export async function upsertHeroAssignment(heroId, challengeId) {
 
 export async function deleteHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
+
+  const qHero = encodeURIComponent(heroId);
+  const qChallenge = encodeURIComponent(String(challengeId));
+  const filter = `hero_id=eq.${qHero}&challenge_id=eq.${qChallenge}`;
+
   const res = await supabaseFetch(
     `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
     {
