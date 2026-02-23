@@ -1099,6 +1099,10 @@
     {
       "id": "sub-tech",
       "name": "Tecnología"
+    },
+    {
+      "id": "sub-esp",
+      "name": "Español"
     }
   ],
   "challenges": [
@@ -1377,6 +1381,54 @@
       "subjectId": "sub-mat",
       "difficulty": "medium",
       "createdAt": "2026-02-17T07:03:05.442Z"
+    },
+    {
+      "id": "ch-esp-01",
+      "title": "Español · Fácil 1: Caza-errores en un texto corto",
+      "body": "Dificultad: Fácil\n\nObjetivo: detectar y corregir errores comunes (acentos, letras y palabras frecuentes).\n\nIndicaciones:\n• Lee el texto completo una vez (sin corregir).\n• En la segunda lectura, identifica las palabras que creas mal escritas o sin acento.\n• Reescribe el texto completo ya corregido en tu cuaderno.\n• Al final, haz una lista de 10 palabras que corregiste y escribe su forma correcta.\n\nTexto:\nAyer fuimos al cine con mis primos y la pasamos super. Mi mamá dijo que ivamos a llegar temprano pero salimos tarde por que mi hermano no encontraba sus llaves. Cuando llegamos, habia mucha jente y casi no avia boletos. Yo queria ver la pelicula de accion, pero mis primos querian una de comedia. Al final vimos la de comedia y si me gusto, aunque me dio un poco de verguenza reirme tan fuerte. Despues compramos palomitas y refresco, y nos sentamos asta atras. Mi primo me pregunto si ya habia hecho la tarea; yo le dije que “aun no”, y el se burlo por que dijo que siempre dejo todo para el ultimo. En la salida, mi tia nos invito una nieve y caminamos por el parque. Me senti cansado, pero feliz.",
+      "subjectId": "sub-esp",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-esp-02",
+      "title": "Español · Fácil 2: Puntuación para que el texto respire",
+      "body": "Dificultad: Fácil\n\nObjetivo: usar punto, coma y mayúsculas para separar ideas y mejorar la claridad.\n\nIndicaciones:\n• Copia el texto tal como está.\n• Coloca puntos y comas donde correspondan.\n• Corrige mayúsculas al inicio de oración y en nombres propios si aparecen.\n• Lee en voz baja el texto final: si te quedas sin aire, falta puntuación.\n\nTexto sin puntuación:\nel sábado pasado en la escuela hicimos un proyecto de ciencias teníamos que construir un puente con popotes y cinta al principio pensamos que sería fácil pero cuando empezamos a pegar todo se caía una y otra vez entonces mi equipo se desesperó yo les dije que si nos organizábamos saldría mejor decidimos que una persona mediría otra cortaría y otra pegaría también anotamos lo que funcionaba y lo que no al final logramos un puente que aguantó muchas monedas y la maestra nos felicitó porque trabajamos en equipo",
+      "subjectId": "sub-esp",
+      "difficulty": "easy",
+      "points": 10
+    },
+    {
+      "id": "ch-esp-03",
+      "title": "Español · Medio 1: Banco de errores comunes",
+      "body": "Dificultad: Medio\n\nObjetivo: corregir y clasificar errores (acentuación, b/v, h, g/j, separación o unión, puntuación).\n\nIndicaciones:\n• Corrige cada oración.\n• Reescribe 6 palabras ya corregidas (las que más te costaron).\n\nOraciones:\n1. A ver si mañana hablo con mi abuela, haber que me cuenta.\n2. No se si valla a la fiesta, tal vez valla un rato.\n3. El niño no halla su cuaderno y dice que lo dejo ay.\n4. Me dijieron que hiban a llegar temprano, pero no llegaron.\n5. Por que no viniste ayer si quedamos en eso.\n6. No quiero helado, si no fruta.\n7. Aun no e terminado la tarea; pero ya casi.\n8. El examen estuvo fasil, pero varios se les hiso dificil.\n9. Mi amigo tubo una idea buenisima y la compartio.\n10. Cuando salimos, vimos un buho en el arbol del patio.",
+      "subjectId": "sub-esp",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-esp-04",
+      "title": "Español · Medio 2: Taller de porque/por qué/porqué/por que",
+      "body": "Dificultad: Medio\n\nObjetivo: usar correctamente las 4 formas y puntuar preguntas.\n\nIndicaciones:\n• Completa los espacios usando: porque, por qué, porqué, por que.\n• Revisa la puntuación: agrega signos de interrogación cuando correspondan y comas si hacen falta.\n\nEnunciados:\n1. No fui ________ me sentía mal.\n2. ________ no me contestaste el mensaje?\n3. No entiendo el ________ de tu enojo.\n4. Lo hice ________ tú me lo pediste.\n5. ¿Me puedes decir ________ llegaste tan tarde?\n6. A veces peleamos ________ no nos escuchamos.\n7. El ________ de su risa era contagioso.\n8. No sé ________ gritan si nadie los está atacando.\n9. Me regañaron ________ llegué sin uniforme.\n10. Explícame ________ estás tan serio, por favor.",
+      "subjectId": "sub-esp",
+      "difficulty": "medium",
+      "points": 20
+    },
+    {
+      "id": "ch-esp-05",
+      "title": "Español · Difícil 1: Edición completa de un texto",
+      "body": "Dificultad: Difícil\n\nObjetivo: corregir ortografía y puntuación, y mejorar el estilo sin cambiar el sentido.\n\nIndicaciones:\n• Corrige el texto (acentos, letras, palabras mal escritas y puntuación).\n• Haz mínimo 8 mejoras de estilo (evita repeticiones, mejora conectores, une o separa oraciones cuando convenga).\n• Subraya (o marca) 10 correcciones importantes y explica por qué las hiciste (1 línea cada una).\n\nTexto para editar:\nHoy en la mañana me levante tarde y sali corriendo a la escuela no desayune por que no habia tiempo y cuando iba en el camino me acorde que tenia que llevar una cartulina para el trabajo de historia. regrese a mi casa rapido pero mi mama se enojo y me dijo que siempre ando con prisas y que por eso se me olvidan las cosas. le dije que no era mi culpa si no del despertador que no sono. al final encontre la cartulina pero estaba arrugada y sucia, de todas formas me la lleve. en la escuela el profesor nos dijo que el equipo que presentara mejor iba a ganar puntos extra yo me puse nervioso porque mi equipo no se organizo bien y cada quien hizo algo diferente. cuando nos toco exponer me confundi con las fechas y dije unas cosas mal. mis compañeros se rieron un poco y yo senti feo, pero despues el profe nos dijo que lo importante era intentarlo y mejorar. en el recreo un amigo me dijo que no me preocupara que a todos nos pasa y que mañana podríamos practicar.",
+      "subjectId": "sub-esp",
+      "difficulty": "hard",
+      "points": 40
+    },
+    {
+      "id": "ch-esp-06",
+      "title": "Español · Difícil 2: Dictamen de corrección",
+      "body": "Dificultad: Difícil\n\nObjetivo: corregir y justificar con regla (acentuación, b/v, h, puntuación, mayúsculas).\n\nIndicaciones:\n• Escribe en tu libreta el texto como está y marca los errores (puedes numerarlos).\n• Reescribe el texto corregido.\n• Elige 12 errores y elabora un escrito donde expliques cuál fue el error, cuál fue la corrección y qué regla o razón explica cómo escribirlo bien.\n\nTexto con errores:\nel viernes fui con mis amigos al centro y vimos que avia un letrero que decia “se renta abitacion” yo me rei por que estaba mal escrito pero luego pense que yo tambien e escrito asi alguna ves. despues entramos a una tienda y la señora nos dijo que no tocaramos nada, yo le dije que nomas estabamos viendo y me contesto “pues miren pero no agarren” al rato un amigo pregunto que cuanto costaba un juego y ella dijo que era “baratisimo” mi amigo le contesto que si estaba tan barato por que no lo compraba ella. todos nos reimos y nos fuimos. en la plaza vimos un perro que paresia perdido y le dimos agua, luego llego su dueño y nos dijo grasias. al final me sente a pensar que aunque nos reimos de los errores de otros lo mejor es aprender y ayudar.",
+      "subjectId": "sub-esp",
+      "difficulty": "hard",
+      "points": 40
     }
   ],
   "events": [
