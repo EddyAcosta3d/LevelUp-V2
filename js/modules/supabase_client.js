@@ -151,6 +151,33 @@ async function supabaseFetch(path, init = {}, { retryWithAnon = true } = {}) {
   return res;
 }
 
+function isRpcMissingError(status, msg) {
+  const text = String(msg || '');
+  if (status === 404) return true;
+  return (
+    status === 400 && (
+      text.includes('Could not find the function') ||
+      text.includes('function') && text.includes('does not exist')
+    )
+  );
+}
+
+async function callAssignmentRpc(functionName, payload) {
+  const res = await supabaseFetch(`/rest/v1/rpc/${functionName}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+
+  if (res.ok) return { ok: true, missing: false };
+
+  const msg = await parseError(res, `RPC ${functionName} error: ${res.status}`);
+  if (isRpcMissingError(res.status, msg)) {
+    return { ok: false, missing: true };
+  }
+
+  throw new Error(msg);
+}
+
 // ============================================
 // SUBMISSIONS — Evidencias de desafíos
 // ============================================
@@ -229,25 +256,26 @@ export async function updateStoreClaim(id, data) {
 
 export async function upsertHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
-  const res = await supabaseFetch('/rest/v1/hero_assignments?on_conflict=hero_id,challenge_id', {
-    method: 'POST',
-    headers: { 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ hero_id: heroId, challenge_id: String(challengeId) })
+
+  // Ruta principal: RPC con SECURITY DEFINER para evitar efectos de RLS
+  // en escrituras de asignaciones.
+  const rpc = await callAssignmentRpc('lu_assign_challenge', {
+    p_hero_id: String(heroId),
+    p_challenge_id: String(challengeId)
   });
-  // Si ya existe la asignación, se considera éxito idempotente.
-  if (res.status === 409) return true;
-  if (!res.ok) throw new Error(await parseError(res, `Error al asignar: ${res.status}`));
-  return true;
+  if (rpc.ok) return true;
+  throw new Error('RPC_MISSING');
 }
 
 export async function deleteHeroAssignment(heroId, challengeId) {
   if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
-  const res = await supabaseFetch(
-    `/rest/v1/hero_assignments?hero_id=eq.${encodeURIComponent(heroId)}&challenge_id=eq.${encodeURIComponent(String(challengeId))}`,
-    { method: 'DELETE' }
-  );
-  await throwIfNotOk(res, `Error al desasignar: ${res.status}`);
-  return true;
+
+  const rpc = await callAssignmentRpc('lu_unassign_challenge', {
+    p_hero_id: String(heroId),
+    p_challenge_id: String(challengeId)
+  });
+  if (rpc.ok) return true;
+  throw new Error('RPC_MISSING');
 }
 
 export async function getHeroAssignments(heroId) {
