@@ -3,16 +3,18 @@
 /**
  * @module hero_session
  * @description Mapeo correo → hero_id y gestión de sesión del alumno
- * 
+ *
  * CÓMO FUNCIONA:
  * - El alumno entra con su correo y contraseña
  * - El correo está mapeado a su hero_id en HERO_MAP
  * - No hay tabla de usuarios en Supabase, todo es local + sessionStorage
- * 
+ *
  * PARA AGREGAR UN ALUMNO:
  * - Agrega su correo y hero_id al HERO_MAP de abajo
  * - El alumno puede crear su cuenta en login.html con ese mismo correo
  */
+
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase_client.js';
 
 // ============================================
 // MAPA CORREO → HERO_ID
@@ -55,8 +57,6 @@ const HERO_MAP = {
 };
 
 const SESSION_KEY = 'levelup:session';
-const SUPABASE_URL = 'https://nptbobvstfjpytnvzfil.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdGJvYnZzdGZqcHl0bnZ6ZmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MzczOTMsImV4cCI6MjA4NzExMzM5M30.NwUtbFjMwz52fj_TDa8T10TsqEPwbK2h5VS_JGr8i7k';
 
 // ============================================
 // AUTH — Login / Logout / Registro
