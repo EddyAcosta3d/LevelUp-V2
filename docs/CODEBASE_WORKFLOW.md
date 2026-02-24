@@ -25,6 +25,14 @@ python scripts/mirror_sync.py sync
 
 Copia archivos declarados en `scripts/mirror_manifest.txt` desde raíz hacia `assets/`.
 
+### 1.5) Regenerar manifest de personajes (cuando agregues imágenes nuevas)
+
+```bash
+python scripts/generate_parallax_manifest.py
+```
+
+Detecta automáticamente archivos en `assets/hero_layers` con patrón `<slug>_{fg|bg|mid}.<ext>` y actualiza `js/modules/parallax_manifest.js` (raíz + espejo).
+
 ### 2) Verificar consistencia
 
 ```bash
