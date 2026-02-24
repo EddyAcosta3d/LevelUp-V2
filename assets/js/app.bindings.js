@@ -9,7 +9,7 @@ import { state } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { renderAll, handleImportJson, handleExportJson, bumpHeroXp, setRole } from './modules/app_actions.js';
 import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
-import { toggleSubjectDropdown, currentHero } from './modules/fichas.js';
+import { toggleSubjectDropdown, currentHero, renderHeroDetail } from './modules/fichas.js';
 import { bindTiendaEvents } from './modules/tienda.js';
 import { saveToGitHub, testGitHubConnection, setGitHubToken, clearGitHubToken } from './modules/github_sync.js';
 import { initStudentActions } from './modules/student_actions.js';
@@ -285,8 +285,10 @@ function bindHeroManagementButtons() {
 
     toast('XP semanal reiniciado');
 
-    if (typeof window.renderHeroDetail === 'function') {
-      window.renderHeroDetail();
+    if (typeof renderHeroDetail === 'function') {
+      renderHeroDetail(hero);
+    } else if (typeof window.renderHeroDetail === 'function') {
+      window.renderHeroDetail(hero);
     }
   });
 }
