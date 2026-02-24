@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-011';
+const SW_VERSION = 'levelup-v2-sw-013';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -175,7 +175,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Imágenes y otros assets estáticos: cache-first
+  // Todas las imágenes del mismo origen: network-first para que, al reemplazar
+  // archivos en el repo con la misma ruta, se refresquen en cualquier dispositivo.
+  const isSameOriginImage = url.origin === self.location.origin && req.destination === 'image';
+
+  if (isSameOriginImage) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          safeCachePut(req, res.clone());
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Otros assets estáticos: cache-first
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
