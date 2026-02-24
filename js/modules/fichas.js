@@ -361,6 +361,23 @@ export function renderHeroAvatar(hero){
     return String(heroAssets?.fg || heroAssets?.bg || '').trim();
   }
 
+  function resolveHeroSceneAssets(hero){
+    if (!hero || !hero.name || !window.__PARALLAX_MANIFEST__) return null;
+
+    const cleanName = stripDiacritics(String(hero.name || '').trim())
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+
+    const heroAssets = cleanName ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    if (!heroAssets) return null;
+
+    return {
+      bg: String(heroAssets.bg || '').trim(),
+      fg: String(heroAssets.fg || '').trim()
+    };
+  }
+
   export function applyHeroSceneLayers(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
@@ -592,7 +609,7 @@ export function renderHeroAvatar(hero){
           const hero = currentHero();
           const src = (avatarBox?.dataset.fullPhotoSrc || resolveHeroPhotoSource(hero) || '').trim();
           if (!src) return;
-          openHeroPhotoModal(src, hero?.name || '');
+          openHeroPhotoModal(src, hero?.name || '', resolveHeroSceneAssets(hero));
         });
       }
 
