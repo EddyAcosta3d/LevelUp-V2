@@ -16,7 +16,8 @@ import {
   state,
   CONFIG,
   logger,
-  normalizeData
+  normalizeData,
+  normalizeFilter
 } from './core_globals.js';
 
   // Storage
@@ -103,41 +104,45 @@ import {
     }
   }
 
-  export async function loadData({forceRemote=false} = {}){
-    // Note: These functions are expected to be globally available (from app.bindings.js)
-    // toast, updateDataDebug, renderAll, demoData
-    // We'll keep them as global calls for now (backward compat)
+  /**
+   * @param {object}   [opts]
+   * @param {boolean}  [opts.forceRemote=false] - Muestra toast si la carga remota falla.
+   * @param {Function} [opts.toast]             - Función de notificación. Fallback: window.toast.
+   * @param {Function} [opts.updateDataDebug]   - Actualiza panel de debug. Fallback: window.updateDataDebug.
+   * @param {Function} [opts.renderAll]         - Re-renderiza la UI. Fallback: window.renderAll.
+   * @param {Function} [opts.demoData]          - Genera datos demo. Fallback: window.demoData.
+   */
+  export async function loadData({
+    forceRemote    = false,
+    toast          = null,
+    updateDataDebug = null,
+    renderAll      = null,
+    demoData       = null,
+  } = {}){
+    // Resolver callbacks: parámetro explícito → window global → noop
+    const _toast           = toast           ?? (typeof window.toast           === 'function' ? window.toast           : null);
+    const _updateDataDebug = updateDataDebug ?? (typeof window.updateDataDebug === 'function' ? window.updateDataDebug : null);
+    const _renderAll       = renderAll       ?? (typeof window.renderAll       === 'function' ? window.renderAll       : null);
+    const _demoData        = demoData        ?? (typeof window.demoData        === 'function' ? window.demoData        : null);
 
-    if (forceRemote){
-      try{
-        logger.info('Intentando cargar datos desde GitHub...');
-        const d = await fetchRemote();
-        const normalized = normalizeData(d);
-        const merged = mergeLocalAssignments(normalized, loadLocal());
-        state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
-        saveLocal(state.data);
-        if (typeof toast === 'function') toast('Cargado desde GitHub');
-        if (typeof updateDataDebug === 'function') updateDataDebug();
-        if (typeof renderAll === 'function') renderAll();
-        logger.info('Datos cargados desde GitHub correctamente');
-        return;
-      }catch(e){
+    try{
+      logger.info('Intentando cargar datos desde GitHub...');
+      const d = await fetchRemote();
+      const normalized = normalizeData(d);
+      const merged = mergeLocalAssignments(normalized, loadLocal());
+      state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
+      normalizeFilter();
+      saveLocal(state.data);
+      if (forceRemote) _toast?.('Cargado desde GitHub');
+      _updateDataDebug?.();
+      _renderAll?.();
+      logger.info('Datos cargados desde GitHub correctamente');
+      return;
+    }catch(e){
+      if (forceRemote){
         logger.warn('No se pudo cargar desde GitHub', e.message);
-        if (typeof toast === 'function') toast('No se pudo cargar GitHub. Usando copia local.');
-      }
-    }else{
-      try{
-        logger.info('Intentando cargar datos desde GitHub...');
-        const d = await fetchRemote();
-        const normalized = normalizeData(d);
-        const merged = mergeLocalAssignments(normalized, loadLocal());
-        state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
-        saveLocal(state.data);
-        if (typeof updateDataDebug === 'function') updateDataDebug();
-        if (typeof renderAll === 'function') renderAll();
-        logger.info('Datos cargados desde GitHub correctamente');
-        return;
-      }catch(e){
+        _toast?.('No se pudo cargar GitHub. Usando copia local.');
+      } else {
         logger.debug('Carga remota falló, usando copia local', e.message);
       }
     }
@@ -146,19 +151,20 @@ import {
     if (local){
       logger.info('Usando datos de copia local');
       state.data = normalizeData(local); state.dataSource = 'local'; state.loadedFrom = 'local';
-      if (typeof updateDataDebug === 'function') updateDataDebug();
-      if (typeof renderAll === 'function') renderAll();
+      normalizeFilter();
+      _updateDataDebug?.();
+      _renderAll?.();
       return;
     }
 
     logger.warn('No hay datos locales ni remotos, usando datos demo');
-    // demoData() is expected to be globally available
-    if (typeof demoData === 'function') {
-      state.data = normalizeData(demoData());
+    if (_demoData) {
+      state.data = normalizeData(_demoData());
       state.dataSource = 'demo';
       state.loadedFrom = 'demo';
-      if (typeof updateDataDebug === 'function') updateDataDebug();
-      if (typeof renderAll === 'function') renderAll();
+      normalizeFilter();
+      _updateDataDebug?.();
+      _renderAll?.();
     }
   }
 
