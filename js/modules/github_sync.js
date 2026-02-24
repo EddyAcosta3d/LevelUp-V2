@@ -176,13 +176,14 @@ async function resolveWorkingBranch(token) {
  */
 function toBase64(data) {
   try {
-    // Convert to JSON string
     const jsonString = JSON.stringify(data, null, 2);
 
-    // Encode to UTF-8 then Base64
-    // For UTF-8 support, we need to encode using encodeURIComponent
-    const utf8String = unescape(encodeURIComponent(jsonString));
-    return btoa(utf8String);
+    // TextEncoder produces correct UTF-8 bytes for any Unicode character
+    // (emojis, accented letters, CJK, etc.). The deprecated unescape() trick
+    // only worked for codepoints ≤ U+00FF and is removed in strict mode.
+    const bytes = new TextEncoder().encode(jsonString);
+    const binary = Array.from(bytes, (b) => String.fromCodePoint(b)).join('');
+    return btoa(binary);
   } catch (e) {
     console.error('Failed to encode to Base64:', e);
     throw e;
