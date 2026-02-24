@@ -388,7 +388,7 @@ function bindChallengeButtons() {
       const multiplier = Math.max(1, Number(hero.nextChallengeMultiplier || 1));
       const awarded = basePoints * multiplier;
       hero.challengeCompletions[key] = { at: Date.now(), points: awarded };
-      bumpHeroXp(basePoints, { source: 'challenge' });
+      bumpHeroXp(awarded, { source: 'challenge' });
 
       // Award medal for hard challenges
       const difficulty = String(challenge.difficulty || '').toLowerCase();
