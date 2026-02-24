@@ -240,6 +240,7 @@
   <div class="tabs">
     <div class="tab active" id="tabLogin" onclick="switchTab('login')">Iniciar sesión</div>
     <div class="tab" id="tabRegister" onclick="switchTab('register')">Crear cuenta</div>
+    <div class="tab" id="tabPassword" onclick="switchTab('password')">Cambiar contraseña</div>
   </div>
 
   <!-- LOGIN -->
@@ -275,10 +276,32 @@
     <button type="submit" class="btn" id="btnRegister">Crear mi cuenta</button>
     <p class="hint">Solo funciona con el correo que te dio tu profe</p>
   </form>
+
+  <!-- CAMBIAR CONTRASEÑA -->
+  <form class="form" id="formPassword" onsubmit="handlePasswordChange(event)">
+    <div id="passwordMsg" class="msg"></div>
+    <label>
+      CORREO
+      <input type="email" id="passwordEmail" placeholder="tu@levelup.mx" required autocomplete="email">
+    </label>
+    <label>
+      CONTRASEÑA ACTUAL
+      <input type="password" id="currentPassword" placeholder="••••••••" required autocomplete="current-password">
+    </label>
+    <label>
+      NUEVA CONTRASEÑA (mínimo 6 caracteres)
+      <input type="password" id="newPassword" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+    </label>
+    <label>
+      CONFIRMAR NUEVA CONTRASEÑA
+      <input type="password" id="confirmPassword" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+    </label>
+    <button type="submit" class="btn" id="btnPassword">Actualizar contraseña</button>
+  </form>
 </div>
 
 <script type="module">
-  import { loginHero, registerHero, getSession, loginGuest } from './js/modules/hero_session.js';
+  import { loginHero, registerHero, changeHeroPassword, getSession, loginGuest } from './js/modules/hero_session.js';
 
   // Si ya hay sesión activa, redirigir directo
   const existing = getSession();
@@ -290,10 +313,13 @@
   window.switchTab = function(tab) {
     document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
     document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('tabPassword').classList.toggle('active', tab === 'password');
     document.getElementById('formLogin').classList.toggle('active', tab === 'login');
     document.getElementById('formRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('formPassword').classList.toggle('active', tab === 'password');
     document.getElementById('loginMsg').className = 'msg';
     document.getElementById('registerMsg').className = 'msg';
+    document.getElementById('passwordMsg').className = 'msg';
   };
 
   window.handleLogin = async function(e) {
@@ -349,6 +375,41 @@
       msg.textContent = err.message;
       btn.disabled = false;
       btn.textContent = 'Crear mi cuenta';
+    }
+  };
+
+  window.handlePasswordChange = async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnPassword');
+    const msg = document.getElementById('passwordMsg');
+    const email = document.getElementById('passwordEmail').value;
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (newPassword !== confirmPassword) {
+      msg.className = 'msg error';
+      msg.textContent = 'La nueva contraseña y su confirmación no coinciden.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Actualizando...';
+    msg.className = 'msg';
+
+    try {
+      await changeHeroPassword(email, currentPassword, newPassword);
+      msg.className = 'msg success';
+      msg.textContent = '¡Contraseña actualizada! Ya puedes iniciar sesión con la nueva contraseña.';
+      document.getElementById('formPassword').reset();
+      btn.disabled = false;
+      btn.textContent = 'Actualizar contraseña';
+      setTimeout(() => window.switchTab('login'), 1500);
+    } catch (err) {
+      msg.className = 'msg error';
+      msg.textContent = err.message;
+      btn.disabled = false;
+      btn.textContent = 'Actualizar contraseña';
     }
   };
 
