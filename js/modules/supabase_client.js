@@ -2,11 +2,12 @@
 
 /**
  * @module supabase_client
- * @description Conexión a Supabase para LevelUp V2
+ * @description Conexión a Supabase para LevelUp V2.
+ * Las credenciales están centralizadas en js/config.js.
  */
 
-export const SUPABASE_URL = 'https://nptbobvstfjpytnvzfil.supabase.co';
-export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdGJvYnZzdGZqcHl0bnZ6ZmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MzczOTMsImV4cCI6MjA4NzExMzM5M30.NwUtbFjMwz52fj_TDa8T10TsqEPwbK2h5VS_JGr8i7k';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
+export { SUPABASE_URL, SUPABASE_ANON_KEY };
 
 function getSession() {
   try {

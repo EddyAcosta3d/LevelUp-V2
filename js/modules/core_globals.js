@@ -130,7 +130,20 @@ export function sanitizeFileName(str){
   return s;
 }
 
-// Escape HTML para prevenir XSS
+/**
+ * Escapa HTML para prevenir XSS.
+ *
+ * POLÍTICA DE SEGURIDAD — innerHTML:
+ * ─────────────────────────────────────────────────────────────────────────
+ * Toda cadena proveniente de datos externos (data.json, Supabase, input del
+ * usuario) DEBE pasar por escapeHtml() antes de insertarse con innerHTML.
+ * Las únicas excepciones válidas son strings literales hardcodeados en el
+ * código fuente (no datos externos).
+ *
+ * Correcto:  el.innerHTML = `<span>${escapeHtml(hero.name)}</span>`;
+ * Incorrecto: el.innerHTML = `<span>${hero.name}</span>`;   // ← XSS
+ * ─────────────────────────────────────────────────────────────────────────
+ */
 export function escapeHtml(s){
   return String(s ?? '')
     .replaceAll('&','&amp;')

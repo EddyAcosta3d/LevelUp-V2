@@ -11,9 +11,30 @@
  * - Status feedback
  *
  * USAGE:
- * 1. User provides GitHub Personal Access Token (PAT) with 'repo' scope
+ * 1. User provides GitHub Personal Access Token (PAT)
  * 2. Token is stored in localStorage (only on teacher's device)
  * 3. saveToGitHub() pushes data.json to GitHub
+ *
+ * SEGURIDAD — TOKEN DE GITHUB:
+ * ─────────────────────────────────────────────────────────────────────────
+ * El token se guarda en localStorage del dispositivo del profesor.
+ * Para minimizar el riesgo si el navegador es comprometido, se recomienda
+ * usar un Fine-Grained Personal Access Token (FGPAT) en lugar del clásico.
+ *
+ * Cómo crear un Fine-Grained PAT con permisos mínimos:
+ * 1. GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
+ * 2. Resource owner: tu usuario
+ * 3. Repository access: "Only select repositories" → elige solo este repo
+ * 4. Permissions → Repository permissions → Contents: "Read and write"
+ *    (ningún otro permiso es necesario)
+ * 5. Expiration: elige una fecha razonable (90 días o menos recomendado)
+ *
+ * Con este enfoque, aunque el token sea robado, el atacante solo puede
+ * modificar el contenido de este repositorio específico.
+ *
+ * Token clásico mínimo (si prefieres clásico): scope 'public_repo' para repos
+ * públicos, o 'repo' si el repositorio es privado.
+ * ─────────────────────────────────────────────────────────────────────────
  */
 
 import { state, CONFIG } from './core_globals.js';
