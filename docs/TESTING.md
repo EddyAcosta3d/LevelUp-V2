@@ -17,3 +17,5 @@ node scripts/tests/test_corrections.js
 node scripts/tests/test_all_buttons.js
 node scripts/tests/test_button_bindings.js
 ```
+Checklist operativo de estabilización: `docs/PHASE1_CHECKLIST.md`.
+Checklist de hardening de acceso/sesión: `docs/PHASE2_CHECKLIST.md`.
