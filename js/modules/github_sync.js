@@ -176,13 +176,14 @@ async function resolveWorkingBranch(token) {
  */
 function toBase64(data) {
   try {
-    // Convert to JSON string
     const jsonString = JSON.stringify(data, null, 2);
 
-    // Encode to UTF-8 then Base64
-    // For UTF-8 support, we need to encode using encodeURIComponent
-    const utf8String = unescape(encodeURIComponent(jsonString));
-    return btoa(utf8String);
+    // TextEncoder produces correct UTF-8 bytes for any Unicode character
+    // (emojis, accented letters, CJK, etc.). The deprecated unescape() trick
+    // only worked for codepoints ≤ U+00FF and is removed in strict mode.
+    const bytes = new TextEncoder().encode(jsonString);
+    const binary = Array.from(bytes, (b) => String.fromCodePoint(b)).join('');
+    return btoa(binary);
   } catch (e) {
     console.error('Failed to encode to Base64:', e);
     throw e;
@@ -263,6 +264,37 @@ export async function saveToGitHub(options = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+
+      // 409 Conflict means our SHA is stale (another commit landed between our
+      // GET and PUT). Fetch a fresh SHA and retry exactly once before giving up.
+      if (response.status === 409) {
+        if (onProgress) onProgress('Conflicto detectado, reintentando...');
+        const freshSha = await getCurrentFileSHA(token, branch);
+        if (freshSha) {
+          const retryResponse = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: commitMessage, content, sha: freshSha, branch })
+          });
+          if (retryResponse.ok) {
+            const retryResult = await retryResponse.json();
+            if (onProgress) onProgress('¡Guardado exitoso!');
+            return {
+              success: true,
+              message: `Datos guardados en GitHub correctamente (${branch})`,
+              commit: retryResult.commit,
+              url: retryResult.content?.html_url
+            };
+          }
+          const retryErr = await retryResponse.json().catch(() => ({}));
+          throw new Error(`GitHub API error (retry): ${retryResponse.status} - ${retryErr.message || retryResponse.statusText}`);
+        }
+      }
+
       throw new Error(`GitHub API error: ${response.status} - ${errorData.message || response.statusText}`);
     }
 

@@ -53,7 +53,10 @@ import {
       const raw = localStorage.getItem(CONFIG.storageKey);
       if (!raw) return null;
       return JSON.parse(raw);
-    }catch(e){ return null; }
+    }catch(e){
+      console.warn('loadLocal: JSON parse failed, discarding corrupted data', e);
+      return null;
+    }
   }
 
   export function clearLocal(){

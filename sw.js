@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-013';
+const SW_VERSION = 'levelup-v2-sw-014';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -45,6 +45,7 @@ const APP_SHELL = [
   './js/modules/student_actions.js',
   './js/modules/github_sync.js',
   './js/modules/supabase_client.js',
+  './js/config.js',
   './assets/logo.png',
   './assets/logo_small.png',
   './assets/icons/icon-192.png',
@@ -81,6 +82,15 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Race a fetch against a timeout so network-first handlers never hang forever.
+// 5 s is enough for a slow campus WiFi; cached fallback kicks in after that.
+function fetchOrTimeout(req, ms = 5000) {
+  return Promise.race([
+    fetch(req),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('sw-timeout')), ms))
+  ]);
+}
+
 // ─── FETCH ──────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
   const req = event.request;
@@ -112,7 +122,7 @@ self.addEventListener('fetch', (event) => {
 
   if (isHtmlOrJs) {
     event.respondWith(
-      fetch(req)
+      fetchOrTimeout(req)
         .then((res) => {
           safeCachePut(req, res.clone());
           return res;
@@ -132,7 +142,7 @@ self.addEventListener('fetch', (event) => {
   // de cache-busting manual en cada release.
   if (path.endsWith('.css')) {
     event.respondWith(
-      fetch(req)
+      fetchOrTimeout(req)
         .then((res) => {
           safeCachePut(req, res.clone());
           return res;
@@ -145,7 +155,7 @@ self.addEventListener('fetch', (event) => {
   // data.json: network-first con fallback a caché
   if (path.endsWith('/data/data.json') || path === '/data/data.json') {
     event.respondWith(
-      fetch(req)
+      fetchOrTimeout(req)
         .then((res) => {
           safeCachePut(req, res.clone());
           return res;
@@ -181,7 +191,7 @@ self.addEventListener('fetch', (event) => {
 
   if (isSameOriginImage) {
     event.respondWith(
-      fetch(req)
+      fetchOrTimeout(req)
         .then((res) => {
           safeCachePut(req, res.clone());
           return res;
