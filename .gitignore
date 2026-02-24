@@ -1,0 +1,33 @@
+# Dependencias y entornos locales
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Configuración local de credenciales
+# NOTA: js/config.js se INCLUYE en el repo porque GitHub Pages lo necesita
+# para funcionar sin un build step. Si adoptas un pipeline CI/CD, agrega
+# js/config.js aquí e inyecta las credenciales como secretos en GitHub Actions.
+# js/config.js   ← descomenta esta línea si usas CI/CD
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
