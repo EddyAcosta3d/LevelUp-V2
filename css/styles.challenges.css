@@ -1726,10 +1726,11 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   75% { transform: translateX(10px); }
 }
 
-/* Botón siguiente — círculo compacto con flecha, alineado a la derecha */
+/* Botón siguiente — círculo compacto con flecha gruesa, centrado */
 .bossBattle__next{
   margin-top: clamp(12px, 1.8vh, 20px);
   margin-left: auto;
+  margin-right: auto;
   width: 54px;
   height: 54px;
   flex-shrink: 0;
@@ -1737,7 +1738,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   border: 2px solid rgba(255,255,255,.28);
   background: linear-gradient(135deg, #ffd25d, #ff9f3b 50%, #ff6a2a);
   color: #1a0e00;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 900;
   cursor: pointer;
   transition: all 0.2s;
@@ -1906,9 +1907,9 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   /* === Botón siguiente: mantenemos el círculo compacto === */
   .bossBattle__next {
     margin-top: 8px;
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
   }
 }
 
@@ -1979,9 +1980,9 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 
   .bossBattle__next {
     margin-top: 6px;
-    width: 44px;
-    height: 44px;
-    font-size: 18px;
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
   }
 }
 
@@ -2008,10 +2009,10 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
 
   .bossBattle__next {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     margin-top: 6px;
-    font-size: 18px;
+    font-size: 22px;
   }
 }
 

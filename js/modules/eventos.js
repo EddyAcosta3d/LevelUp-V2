@@ -316,7 +316,9 @@ const DEFAULT_BOSS_QUIZ = [
     const rewardsEl = q('bossResultRewards');
     if (rewardsEl){
       let chips = `<span class="bossResult__chip bossResult__chip--xp">⭐ +${xpEarned} XP</span>`;
-      if (medalsEarned > 0){
+      if (xpEarned <= 0 && medalsEarned <= 0){
+        chips = `<span class="bossResult__chip">🎯 Modo práctica (sin recompensas nuevas)</span>`;
+      } else if (medalsEarned > 0){
         chips += `<span class="bossResult__chip bossResult__chip--medals">🏅 +${medalsEarned} medalla${medalsEarned !== 1 ? 's' : ''}</span>`;
       }
       rewardsEl.innerHTML = chips;
@@ -345,10 +347,37 @@ const DEFAULT_BOSS_QUIZ = [
     return src
       .map((q)=>({
         question: String(q?.question || '').trim(),
+        category: String(q?.category || '').trim(),
         options: Array.isArray(q?.options) ? q.options.map(o=>String(o ?? '')) : [],
         correctIndex: Number(q?.correctIndex ?? -1)
       }))
       .filter((q)=> q.question && q.options.length === 4 && q.correctIndex >= 0 && q.correctIndex < 4);
+  }
+
+  function _shuffleArray(items){
+    const arr = Array.isArray(items) ? [...items] : [];
+    for (let i = arr.length - 1; i > 0; i -= 1){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function _prepareBattleQuestions(ev){
+    const baseQuestions = _getBattleQuestions(ev);
+    const shuffledQuestions = _shuffleArray(baseQuestions);
+    return shuffledQuestions.map((question)=>{
+      const optionsWithMeta = question.options.map((option, index)=>({
+        option,
+        isCorrect: index === question.correctIndex
+      }));
+      const shuffledOptions = _shuffleArray(optionsWithMeta);
+      return {
+        ...question,
+        options: shuffledOptions.map((entry)=>entry.option),
+        correctIndex: shuffledOptions.findIndex((entry)=>entry.isCorrect)
+      };
+    });
   }
 
   function openBossBattleModal(ev, hero){
@@ -365,7 +394,7 @@ const DEFAULT_BOSS_QUIZ = [
     const sceneBgEl = $('#bossBattleSceneBg');
     const jefeImg = $('#bossBattleJefe');
 
-    const questions = _getBattleQuestions(ev);
+    const questions = _prepareBattleQuestions(ev);
     if (!questions.length){
       toast('Este jefe aún no tiene preguntas configuradas.');
       return;
@@ -409,6 +438,8 @@ const DEFAULT_BOSS_QUIZ = [
     let answered = false;
     let correctCount = 0;
     const totalQuestions = questions.length;
+    const defeatedBosses = Array.isArray(hero?.defeatedBosses) ? hero.defeatedBosses : [];
+    const isRematch = defeatedBosses.includes(ev.id);
 
     // SFX helpers de batalla
     const _playSfx = (audio)=>{
@@ -470,7 +501,7 @@ const DEFAULT_BOSS_QUIZ = [
       if (nextBtn){
         nextBtn.disabled = true;
         const isLastQuestion = index >= questions.length - 1;
-        nextBtn.textContent = isLastQuestion ? '⚔️' : '→';
+        nextBtn.textContent = isLastQuestion ? '⚔️' : '➜';
         nextBtn.setAttribute('aria-label', isLastQuestion ? 'Finalizar duelo' : 'Siguiente pregunta');
       }
 
@@ -541,11 +572,16 @@ const DEFAULT_BOSS_QUIZ = [
         outcome = 'defeat';
       }
 
-      // Otorgar recompensas
-      if (hero && medalsEarned > 0){
+      if (isRematch){
+        medalsEarned = 0;
+        xpEarned = 0;
+      }
+
+      // Otorgar recompensas (solo la primera vez que derrotas al jefe)
+      if (!isRematch && hero && medalsEarned > 0){
         hero.medals = Number(hero.medals ?? 0) + medalsEarned;
       }
-      if (hero && xpEarned > 0){
+      if (!isRematch && hero && xpEarned > 0){
         hero.xp = Number(hero.xp ?? 0) + xpEarned;
         if (typeof window.bumpHeroXp === 'function'){
           window.bumpHeroXp(0);
