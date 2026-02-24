@@ -149,6 +149,45 @@ export async function registerHero(email, password) {
   return true;
 }
 
+export async function changeHeroPassword(email, currentPassword, newPassword) {
+  const normalizedEmail = email.toLowerCase().trim();
+  const heroId = HERO_MAP[normalizedEmail];
+  if (!heroId) {
+    throw new Error('Este correo no está en la lista de LevelUp.');
+  }
+
+  const loginRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email: normalizedEmail, password: currentPassword })
+  });
+
+  const loginData = await loginRes.json();
+  if (!loginRes.ok || !loginData.access_token) {
+    throw new Error(loginData.error_description || 'La contraseña actual no es correcta.');
+  }
+
+  const updateRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${loginData.access_token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ password: newPassword })
+  });
+
+  const updateData = await updateRes.json();
+  if (!updateRes.ok) {
+    throw new Error(updateData.error_description || updateData.msg || 'No se pudo actualizar la contraseña.');
+  }
+
+  return true;
+}
+
 export function getSession() {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
