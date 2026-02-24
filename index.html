@@ -93,12 +93,12 @@
           });
         }
 
-        // Botón salir en sidebar (solo móvil ≤900px)
+        // Botón salir en sidebar (móvil/tablet; coincide con breakpoint del drawer)
         var sideLogout = document.getElementById('sidebarLogoutBtn');
         var sideLogoutName = document.getElementById('sidebarLogoutName');
         if (sideLogout) {
           function showIfMobile() {
-            sideLogout.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+            sideLogout.style.display = window.innerWidth <= 980 ? 'block' : 'none';
           }
           showIfMobile();
           window.addEventListener('resize', showIfMobile);
