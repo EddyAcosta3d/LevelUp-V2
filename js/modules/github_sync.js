@@ -264,6 +264,37 @@ export async function saveToGitHub(options = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+
+      // 409 Conflict means our SHA is stale (another commit landed between our
+      // GET and PUT). Fetch a fresh SHA and retry exactly once before giving up.
+      if (response.status === 409) {
+        if (onProgress) onProgress('Conflicto detectado, reintentando...');
+        const freshSha = await getCurrentFileSHA(token, branch);
+        if (freshSha) {
+          const retryResponse = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: commitMessage, content, sha: freshSha, branch })
+          });
+          if (retryResponse.ok) {
+            const retryResult = await retryResponse.json();
+            if (onProgress) onProgress('¡Guardado exitoso!');
+            return {
+              success: true,
+              message: `Datos guardados en GitHub correctamente (${branch})`,
+              commit: retryResult.commit,
+              url: retryResult.content?.html_url
+            };
+          }
+          const retryErr = await retryResponse.json().catch(() => ({}));
+          throw new Error(`GitHub API error (retry): ${retryResponse.status} - ${retryErr.message || retryResponse.statusText}`);
+        }
+      }
+
       throw new Error(`GitHub API error: ${response.status} - ${errorData.message || response.statusText}`);
     }
 

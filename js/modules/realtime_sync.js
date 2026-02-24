@@ -81,6 +81,8 @@ export function startAssignmentSync(heroId, onUpdate) {
           if (typeof onUpdate === 'function') onUpdate();
         }
       }
+      // Reset on every successful network call so future errors get logged again
+      _warnedStudentSync = false;
     } catch (e) {
       if (!_warnedStudentSync) {
         _warnedStudentSync = true;
@@ -100,6 +102,7 @@ export function stopAssignmentSync() {
     _pollTimer = null;
   }
   _lastSnapshot = null;
+  _warnedStudentSync = false; // reset so errors show again on next sync start
 }
 
 export function startAllAssignmentsSync(onUpdate) {
@@ -143,6 +146,8 @@ export function startAllAssignmentsSync(onUpdate) {
       });
       saveLocal(state.data);
       if (typeof onUpdate === 'function') onUpdate();
+      // Reset on every successful round so future errors get logged again
+      _warnedTeacherSync = false;
     } catch (e) {
       if (!_warnedTeacherSync) {
         _warnedTeacherSync = true;
@@ -161,6 +166,7 @@ export function stopAllAssignmentsSync() {
     _pollAllTimer = null;
   }
   _lastAllSnapshot = null;
+  _warnedTeacherSync = false; // reset so errors show again on next sync start
 }
 
 // ============================================
@@ -177,8 +183,9 @@ export async function preloadStudentAssignments(heroId) {
       hero.assignedChallenges = _applyPendingMutations(heroId, challengeIds);
       saveLocal(state.data);
     }
-  } catch(_e) {
-    // Fallo silencioso — usará los datos locales
+  } catch(e) {
+    // Non-fatal: the app will use locally cached assignments until the next poll
+    console.warn('[preload alumno] Falló carga inicial de asignaciones, se usarán datos locales.', e?.message || e);
   }
 }
 
