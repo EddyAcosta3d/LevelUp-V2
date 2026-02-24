@@ -47,39 +47,22 @@ import { renderEvents } from './eventos.js';
 import { renderTienda } from './tienda.js';
 
 
-const toast = (...args) => { if (typeof window.toast === 'function') return window.toast(...args); };
-const updateDataDebug = (...args) => { if (typeof window.updateDataDebug === 'function') return window.updateDataDebug(...args); };
-const updateEditButton = (...args) => { if (typeof window.updateEditButton === 'function') return window.updateEditButton(...args); };
-const applyFichaLock = (...args) => { if (typeof window.applyFichaLock === 'function') return window.applyFichaLock(...args); };
+// Factory for window.* proxy functions (silent no-op when fn not ready yet)
+const _windowProxy = (fnName) => (...args) =>
+  typeof window[fnName] === 'function' ? window[fnName](...args) : undefined;
+
+const toast              = _windowProxy('toast');
+const updateDataDebug    = _windowProxy('updateDataDebug');
+const updateEditButton   = _windowProxy('updateEditButton');
+const applyFichaLock     = _windowProxy('applyFichaLock');
+const syncModalOpenState = _windowProxy('syncModalOpenState');
+// closeAllModals needs a DOM fallback, so it can't use the generic proxy
 const closeAllModals = (...args) => {
   if (typeof window.closeAllModals === 'function') return window.closeAllModals(...args);
   document.querySelectorAll('.modal').forEach(m=>{ if (!args[0] || m.id!==args[0]) m.hidden = true; });
 };
-const syncModalOpenState = (...args) => { if (typeof window.syncModalOpenState === 'function') return window.syncModalOpenState(...args); };
 
-  function renderPeopleTable(){
-    const box = $('#peopleTable');
-    const heroes = state.data?.heroes || [];
-    box.innerHTML = '';
-    const header = document.createElement('div');
-    header.className = 'tr th';
-    header.innerHTML = '<div>Nombre</div><div>Nivel</div><div>Rol</div><div>XP</div>';
-    box.appendChild(header);
-
-    heroes.forEach(h=>{
-      const tr = document.createElement('div');
-      tr.className = 'tr';
-      tr.innerHTML = `
-        <div>${escapeHtml(h.name || '—')}</div>
-        <div>${escapeHtml(String(h.level ?? '—'))}</div>
-        <div>${escapeHtml((h.role && h.role.trim()) ? h.role : '—')}</div>
-        <div>${escapeHtml(String((h.xp ?? 0) + '/' + (h.xpMax ?? 100)))}</div>
-      `;
-      box.appendChild(tr);
-    });
-  }
-
-  function renderAll(){
+function renderAll(){
     const safe = (name, fn) => {
       try { fn(); }
       catch (err) {
@@ -145,9 +128,8 @@ export function setRole(nextRole){
     // Apply one-time XP multiplier (only for challenge awards)
     let multiplierUsed = 1;
     try{
-      const src = opts && typeof opts === 'object' ? opts.source : null;
       const mult = Number(hero.nextChallengeMultiplier ?? 1);
-      if (src === 'challenge' && delta > 0 && mult > 1){
+      if (source === 'challenge' && delta > 0 && mult > 1){
         multiplierUsed = mult;
         delta = delta * mult;
         hero.nextChallengeMultiplier = 1;
@@ -174,80 +156,11 @@ export function setRole(nextRole){
       if (hero.weekXp > hero.weekXpMax) hero.weekXp = hero.weekXpMax;
     }
 
-    const computeLevelCtx = ()=>{
-      const since = Number(hero.levelStartAt || 0);
-      const comp = (hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
-      const chList = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
-      const byId = new Map(chList.map(c=>[String(c.id), c]));
-
-      let total=0, hasMed=false, hasHard=false;
-      const subjCount = new Map();
-
-      for (const cid in comp){
-        const rec = comp[cid];
-        const at = Number(rec?.at || 0);
-        if (!at || at < since) continue;
-        const ch = byId.get(String(cid));
-        if (!ch) continue;
-        total += 1;
-        const d = String(ch.difficulty||'').toLowerCase();
-        if (d === 'medium') hasMed = true;
-        if (d === 'hard') hasHard = true;
-        const sid = String(ch.subjectId || ch.subject || '');
-        if (sid){ subjCount.set(sid, (subjCount.get(sid)||0) + 1); }
-      }
-
-      const eligible = (total >= 3 && hasMed && hasHard);
-
-      // Determine top subjects by number of challenges in this level
-      let maxN = 0;
-      subjCount.forEach(v=>{ if (v>maxN) maxN=v; });
-      const topSubjectIds = [];
-      subjCount.forEach((v,k)=>{ if (v===maxN && v>0) topSubjectIds.push(k); });
-
-      // subjectId -> linked stats (fallback heuristic)
-      const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
-      const subjById = new Map(subjects.map(s=>[String(s.id), s]));
-      const guessStats = (name)=>{
-        const n = String(name||'').toLowerCase();
-        if (/(mat|mate|matem)/.test(n)) return ['INT'];
-        if (/(tec|tecnolog)/.test(n)) return ['INT','CRE'];
-        if (/(art|arte|diseñ|disen)/.test(n)) return ['CRE'];
-        if (/(españ|espan|lect|redac|leng)/.test(n)) return ['SAB'];
-        if (/(ingl|english)/.test(n)) return ['CAR'];
-        if (/(tutor|civ|conviv)/.test(n)) return ['CAR','SAB'];
-        return ['SAB'];
-      };
-      const normStat = (k)=>{
-        const u = String(k||'').toUpperCase();
-        return (u==='INT'||u==='SAB'||u==='CAR'||u==='RES'||u==='CRE') ? u : null;
-      };
-
-      const allowed = new Set();
-      topSubjectIds.forEach(sid=>{
-        const subj = subjById.get(String(sid));
-        const linked = Array.isArray(subj?.linkedStats) ? subj.linkedStats : guessStats(subj?.name);
-        linked.forEach(x=>{ const nk = normStat(x); if (nk) allowed.add(nk); });
-      });
-
-      // Fallback: if none detected, allow all
-      if (!allowed.size){ ['INT','SAB','CAR','RES','CRE'].forEach(x=>allowed.add(x)); }
-
-      return {
-        eligibleForLevelMedal: eligible,
-        totalChallenges: total,
-        needTotal: Math.max(0, 3-total),
-        needMedium: !hasMed,
-        needHard: !hasHard,
-        allowedStats: Array.from(allowed)
-      };
-    };
-
     // Level-up loop (in case someone adds lots of XP)
     let leveledUp = false;
     while (hero.xpMax > 0 && hero.xp >= hero.xpMax){
       // Capture context for the level we are finishing
-      const ctx = computeLevelCtx();
+      const ctx = _computeLevelCtx(hero);
 
       hero.xp -= hero.xpMax;
       hero.level += 1;
@@ -354,6 +267,76 @@ export function setRole(nextRole){
   }
   // Bind
   
+  // --- Level-up context: determines eligibility for bonus medal and which stats can be upgraded ---
+  function _computeLevelCtx(hero){
+    const since = Number(hero.levelStartAt || 0);
+    const comp = (hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
+    const chList = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
+    const byId = new Map(chList.map(c=>[String(c.id), c]));
+
+    let total=0, hasMed=false, hasHard=false;
+    const subjCount = new Map();
+
+    for (const cid in comp){
+      const rec = comp[cid];
+      const at = Number(rec?.at || 0);
+      if (!at || at < since) continue;
+      const ch = byId.get(String(cid));
+      if (!ch) continue;
+      total += 1;
+      const d = String(ch.difficulty||'').toLowerCase();
+      if (d === 'medium') hasMed = true;
+      if (d === 'hard') hasHard = true;
+      const sid = String(ch.subjectId || ch.subject || '');
+      if (sid){ subjCount.set(sid, (subjCount.get(sid)||0) + 1); }
+    }
+
+    const eligible = (total >= 3 && hasMed && hasHard);
+
+    // Determine top subjects by number of challenges completed this level
+    let maxN = 0;
+    subjCount.forEach(v=>{ if (v>maxN) maxN=v; });
+    const topSubjectIds = [];
+    subjCount.forEach((v,k)=>{ if (v===maxN && v>0) topSubjectIds.push(k); });
+
+    // subjectId -> linked stats (fallback heuristic when linkedStats not configured)
+    const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
+    const subjById = new Map(subjects.map(s=>[String(s.id), s]));
+    const guessStats = (name)=>{
+      const n = String(name||'').toLowerCase();
+      if (/(mat|mate|matem)/.test(n)) return ['INT'];
+      if (/(tec|tecnolog)/.test(n)) return ['INT','CRE'];
+      if (/(art|arte|diseñ|disen)/.test(n)) return ['CRE'];
+      if (/(españ|espan|lect|redac|leng)/.test(n)) return ['SAB'];
+      if (/(ingl|english)/.test(n)) return ['CAR'];
+      if (/(tutor|civ|conviv)/.test(n)) return ['CAR','SAB'];
+      return ['SAB'];
+    };
+    const normStat = (k)=>{
+      const u = String(k||'').toUpperCase();
+      return (u==='INT'||u==='SAB'||u==='CAR'||u==='RES'||u==='CRE') ? u : null;
+    };
+
+    const allowed = new Set();
+    topSubjectIds.forEach(sid=>{
+      const subj = subjById.get(String(sid));
+      const linked = Array.isArray(subj?.linkedStats) ? subj.linkedStats : guessStats(subj?.name);
+      linked.forEach(x=>{ const nk = normStat(x); if (nk) allowed.add(nk); });
+    });
+
+    // Fallback: if none detected, allow all stats
+    if (!allowed.size){ ['INT','SAB','CAR','RES','CRE'].forEach(x=>allowed.add(x)); }
+
+    return {
+      eligibleForLevelMedal: eligible,
+      totalChallenges: total,
+      needTotal: Math.max(0, 3-total),
+      needMedium: !hasMed,
+      needHard: !hasHard,
+      allowedStats: Array.from(allowed)
+    };
+  }
+
   // --- Level Up Modal + reward claiming ---
   state.ui = state.ui || {};
   state.ui.levelUpOpen = false;
@@ -416,12 +399,6 @@ export function setRole(nextRole){
     ]);
   }
 
-
-// Back-compat helper: some parts of the app still call this name.
-// We prefer returning FG first (resolveHeroArtUrls already does).
-function _heroArtCandidates(hero){
-  return resolveHeroArtUrls(hero);
-}
 
   function setBgWithFallback(el, urls){
     if (!el) return;
@@ -621,6 +598,25 @@ function _heroArtCandidates(hero){
     }, 220);
   }
 
+  // Shared HTML for a stat row button (used in autoStat and statExtra modes)
+  function _buildStatRowHtml(k, curVal, pct){
+    return `
+      <span class="levelUpStatRow__name">${k}</span>
+      <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
+      <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain" aria-hidden="true">+1</span></span>
+    `;
+  }
+
+  // Animate stat fill bars inside a container using requestAnimationFrame
+  function _animateStatFills(container){
+    requestAnimationFrame(()=>{
+      container.querySelectorAll('.levelUpStatRow__fill').forEach((fill)=>{
+        const target = Number(fill.dataset.fillTarget || 0);
+        fill.style.setProperty('--fill-width', `${Math.max(0, Math.min(100, target))}%`);
+      });
+    });
+  }
+
   function renderLevelUpChoices(mode){
     const hero = currentHero();
     if (!hero) return;
@@ -685,11 +681,7 @@ function _heroArtCandidates(hero){
         const row = document.createElement('button');
         row.type = 'button';
         row.className = 'levelUpStatRow stat-row levelUpStatBtn';
-        row.innerHTML = `
-          <span class="levelUpStatRow__name">${k}</span>
-          <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
-          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain" aria-hidden="true">+1</span></span>
-        `;
+        row.innerHTML = _buildStatRowHtml(k, curVal, pct);
         row.addEventListener('click', ()=>{
           setSelected(row, {kind:'autoStat', stat:k});
           popValue(row);
@@ -704,13 +696,7 @@ function _heroArtCandidates(hero){
         wrap.appendChild(row);
       });
 
-      requestAnimationFrame(()=>{
-        wrap.querySelectorAll('.levelUpStatRow__fill').forEach((fill)=>{
-          const target = Number(fill.dataset.fillTarget || 0);
-          fill.style.setProperty('--fill-width', `${Math.max(0, Math.min(100, target))}%`);
-        });
-      });
-
+      _animateStatFills(wrap);
       return;
     }
 
@@ -737,11 +723,7 @@ function _heroArtCandidates(hero){
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'levelUpStatRow stat-row levelUpStatBtn';
-        btn.innerHTML = `
-          <span class="levelUpStatRow__name">${k}</span>
-          <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
-          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain" aria-hidden="true">+1</span></span>
-        `;
+        btn.innerHTML = _buildStatRowHtml(k, curVal, pct);
         btn.addEventListener('click', ()=>{
           setSelected(btn, {kind:'statExtra', stat:k});
           popValue(btn);
@@ -751,13 +733,7 @@ function _heroArtCandidates(hero){
         wrap2.appendChild(btn);
       });
 
-      requestAnimationFrame(()=>{
-        wrap2.querySelectorAll('.levelUpStatRow__fill').forEach((fill)=>{
-          const target = Number(fill.dataset.fillTarget || 0);
-          fill.style.setProperty('--fill-width', `${Math.max(0, Math.min(100, target))}%`);
-        });
-      });
-
+      _animateStatFills(wrap2);
       return;
     }
 
