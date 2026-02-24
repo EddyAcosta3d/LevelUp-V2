@@ -346,6 +346,21 @@ export function renderHeroAvatar(hero){
     // Sin foto: se oculta la capa para que se vean las capas de escena (parallax/demo).
   }
 
+  function resolveHeroPhotoSource(hero){
+    if (!hero) return '';
+
+    const direct = String(hero.photo || hero.img || hero.image || hero.photoSrc || '').trim();
+    if (direct) return direct;
+
+    const cleanName = stripDiacritics(String(hero.name || '').trim())
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+
+    const heroAssets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    return String(heroAssets?.fg || heroAssets?.bg || '').trim();
+  }
+
   export function applyHeroSceneLayers(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
@@ -562,12 +577,13 @@ export function renderHeroAvatar(hero){
       }
 
       const avatarBox = document.getElementById('avatarBox');
-      if (avatarBox && !avatarBox.dataset.photoModalBound){
-        avatarBox.dataset.photoModalBound = '1';
-        avatarBox.addEventListener('click', ()=>{
-          const src = avatarBox.dataset.fullPhotoSrc || '';
-          if (!src) return;
+      const heroScene = document.getElementById('heroScene');
+      if (heroScene && !heroScene.dataset.photoModalBound){
+        heroScene.dataset.photoModalBound = '1';
+        heroScene.addEventListener('click', ()=>{
           const hero = currentHero();
+          const src = (avatarBox?.dataset.fullPhotoSrc || resolveHeroPhotoSource(hero) || '').trim();
+          if (!src) return;
           openHeroPhotoModal(src, hero?.name || '');
         });
       }
@@ -581,12 +597,19 @@ export function renderHeroAvatar(hero){
     }catch(_e){}
   })();
 
-  export function renderHeroDetail(){
-    const hero = currentHero();
-    if (!hero) return;
+export function renderHeroDetail(){
+  const hero = currentHero();
+  if (!hero) return;
 
-    // Capas de escena (parallax demo)
-    applyHeroSceneLayers(hero);
+  try{
+    const scene = document.getElementById('heroScene');
+    if (scene){
+      scene.style.cursor = resolveHeroPhotoSource(hero) ? 'zoom-in' : '';
+    }
+  }catch(_e){}
+
+  // Capas de escena (parallax demo)
+  applyHeroSceneLayers(hero);
 
     // Foto del héroe (si existe). En este layout ocupa TODO el panel izquierdo.
     renderHeroAvatar(hero);
