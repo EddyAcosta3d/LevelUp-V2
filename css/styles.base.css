@@ -341,10 +341,22 @@ body{
   padding: 10px 12px;
   color: rgba(255,255,255,0.82);
   border-color: rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
+  background: rgba(8,12,24,0.62);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.03);
 }
 .sidebarLogoutBtn__name{ flex:1; text-align:left; }
-.sidebarInstallBtn{ width:100%; }
+.sidebarInstallBtn{
+  width:100%;
+  justify-content: center;
+  border-color: rgba(34,211,238,0.42);
+  background: linear-gradient(180deg, rgba(34,211,238,0.22), rgba(34,211,238,0.11));
+  color: #c8f8ff;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+.sidebarInstallBtn:hover{
+  border-color: rgba(34,211,238,0.68);
+  background: linear-gradient(180deg, rgba(34,211,238,0.30), rgba(34,211,238,0.16));
+}
 
 .challengeAssignBtn{
   margin-left: 8px;
