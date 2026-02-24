@@ -78,7 +78,7 @@ export function bind(){
     document.getElementById('btnChallengeAdminMenu')?.setAttribute('aria-expanded', String(next));
   });
 
-  document.getElementById('btnReloadRemote')?.addEventListener('click', ()=> loadData({ forceRemote: true }));
+  document.getElementById('btnReloadRemote')?.addEventListener('click', ()=> loadData({ forceRemote: true, renderAll }));
   document.getElementById('btnAdminPanel')?.addEventListener('click', ()=> {
     window.location.href = 'admin_panel.html';
   });
