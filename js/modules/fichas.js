@@ -541,16 +541,20 @@ export function renderHeroAvatar(hero){
   }
 
 
-  export function openHeroPhotoModal(src, heroName=''){
+  export function openHeroPhotoModal(src, heroName='', sceneAssets=null){
     const modal = document.getElementById('heroPhotoModal');
     const img = document.getElementById('heroPhotoModalImg');
-    const title = document.getElementById('heroPhotoTitle');
+    const bgLayer = document.getElementById('heroPhotoModalBg');
+    const fgLayer = document.getElementById('heroPhotoModalFg');
     if (!modal || !img || !src) return;
 
     closeAllModals('heroPhotoModal');
     img.src = String(src);
-    title.textContent = heroName ? `Foto de ${heroName}` : 'Foto del personaje';
     img.alt = heroName ? `Foto completa de ${heroName}` : 'Foto del personaje en tamaño completo';
+    const bg = String(sceneAssets?.bg || '').trim();
+    const fg = String(sceneAssets?.fg || '').trim();
+    if (bgLayer) bgLayer.style.backgroundImage = bg ? `url("${bg}")` : 'none';
+    if (fgLayer) fgLayer.style.backgroundImage = fg ? `url("${fg}")` : 'none';
     modal.hidden = false;
     try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(_e){}
   }
@@ -558,9 +562,13 @@ export function renderHeroAvatar(hero){
   export function closeHeroPhotoModal(){
     const modal = document.getElementById('heroPhotoModal');
     const img = document.getElementById('heroPhotoModalImg');
+    const bgLayer = document.getElementById('heroPhotoModalBg');
+    const fgLayer = document.getElementById('heroPhotoModalFg');
     if (!modal || modal.hidden) return;
     modal.hidden = true;
     if (img) img.removeAttribute('src');
+    if (bgLayer) bgLayer.style.backgroundImage = 'none';
+    if (fgLayer) fgLayer.style.backgroundImage = 'none';
     try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(_e){}
   }
 
