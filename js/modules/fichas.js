@@ -361,20 +361,6 @@ export function renderHeroAvatar(hero){
     return String(heroAssets?.fg || heroAssets?.bg || '').trim();
   }
 
-  function resolveHeroSceneAssets(hero){
-    if (!hero) return { bg:'', fg:'' };
-
-    const cleanName = stripDiacritics(String(hero.name || '').trim())
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-    const heroAssets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
-
-    const bg = String(heroAssets?.bg || '').trim();
-    const fg = String(heroAssets?.fg || hero.photo || hero.img || hero.image || hero.photoSrc || '').trim();
-    return { bg, fg };
-  }
-
   export function applyHeroSceneLayers(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
@@ -602,14 +588,11 @@ export function renderHeroAvatar(hero){
       const heroScene = document.getElementById('heroScene');
       if (heroScene && !heroScene.dataset.photoModalBound){
         heroScene.dataset.photoModalBound = '1';
-        heroScene.addEventListener('click', (ev)=>{
-          const target = ev.target instanceof Element ? ev.target : null;
-          if (target && target.closest('button, a, input, textarea, select, .heroNotesOverlay')) return;
+        heroScene.addEventListener('click', ()=>{
           const hero = currentHero();
           const src = (avatarBox?.dataset.fullPhotoSrc || resolveHeroPhotoSource(hero) || '').trim();
           if (!src) return;
-          const sceneAssets = resolveHeroSceneAssets(hero);
-          openHeroPhotoModal(src, hero?.name || '', sceneAssets);
+          openHeroPhotoModal(src, hero?.name || '');
         });
       }
 
