@@ -682,29 +682,25 @@ function _heroArtCandidates(hero){
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
         const pct = Math.max(0, Math.min(100, (curVal / 20) * 100));
-        const row = document.createElement('div');
-        row.className = 'levelUpStatRow stat-row';
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'levelUpStatRow stat-row levelUpStatBtn';
         row.innerHTML = `
           <span class="levelUpStatRow__name">${k}</span>
           <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
-          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain"><button type="button" class="pill pill--small levelUpPlusBtn">+1</button></span></span>
+          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain" aria-hidden="true">+1</span></span>
         `;
-        const plusBtn = row.querySelector('.levelUpPlusBtn');
-        if (plusBtn){
-          plusBtn.addEventListener('click', (ev)=>{
-            ev.preventDefault();
-            ev.stopPropagation();
-            setSelected(row, {kind:'autoStat', stat:k});
-            popValue(row);
-            incStat(k, 1);
-            pending.autoStat.applied = true;
-            pending.autoStat.chosen = k;
-            saveData();
-            // Mantener el modal abierto y pasar directo a recompensas.
-            renderLevelUpChoices('main');
-            toast(`+1 ${k} aplicado. Ahora elige tu recompensa`);
-          });
-        }
+        row.addEventListener('click', ()=>{
+          setSelected(row, {kind:'autoStat', stat:k});
+          popValue(row);
+          incStat(k, 1);
+          pending.autoStat.applied = true;
+          pending.autoStat.chosen = k;
+          saveData();
+          // Mantener el modal abierto y pasar directo a recompensas.
+          renderLevelUpChoices('main');
+          toast(`+1 ${k} aplicado. Ahora elige tu recompensa`);
+        });
         wrap.appendChild(row);
       });
 
@@ -738,24 +734,20 @@ function _heroArtCandidates(hero){
         const lowKey = k.toLowerCase();
         const curVal = Number((hero.stats?.[lowKey] ?? hero.stats?.[k] ?? 0));
         const pct = Math.max(0, Math.min(100, (curVal / 20) * 100));
-        const btn = document.createElement('div');
-        btn.className = 'levelUpStatRow stat-row';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'levelUpStatRow stat-row levelUpStatBtn';
         btn.innerHTML = `
           <span class="levelUpStatRow__name">${k}</span>
           <span class="levelUpStatRow__meter"><span class="levelUpStatRow__track"><span class="levelUpStatRow__fill" style="--fill-width:0%" data-fill-target="${pct}"></span></span></span>
-          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain"><button type="button" class="pill pill--small levelUpPlusBtn">+1</button></span></span>
+          <span class="levelUpStatRow__right"><span class="levelUpStatRow__value">${curVal}</span><span class="levelUpStatRow__gain" aria-hidden="true">+1</span></span>
         `;
-        const plusBtn = btn.querySelector('.levelUpPlusBtn');
-        if (plusBtn){
-          plusBtn.addEventListener('click', (ev)=>{
-            ev.preventDefault();
-            ev.stopPropagation();
-            setSelected(btn, {kind:'statExtra', stat:k});
-            popValue(btn);
-            incStat(k, 1);
-            claimPendingReward({ rewardId: 'stat+1', title: `+1 ${k}`, badge: '+1 stat' });
-          });
-        }
+        btn.addEventListener('click', ()=>{
+          setSelected(btn, {kind:'statExtra', stat:k});
+          popValue(btn);
+          incStat(k, 1);
+          claimPendingReward({ rewardId: 'stat+1', title: `+1 ${k}`, badge: '+1 stat' });
+        });
         wrap2.appendChild(btn);
       });
 
