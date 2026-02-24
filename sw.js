@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-014';
+const SW_VERSION = 'levelup-v2-sw-015';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -68,6 +68,12 @@ self.addEventListener('install', (event) => {
       );
     }).then(() => self.skipWaiting())   // toma control de inmediato
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event?.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // ─── ACTIVATE ───────────────────────────────────────────────────────────────

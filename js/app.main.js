@@ -245,8 +245,28 @@ function setupPWAInstallPrompt(){
 function registerServiceWorker(){
   if (!('serviceWorker' in navigator)) return;
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js').catch((err)=>{
+    navigator.serviceWorker.register('./sw.js').then((registration)=>{
+      if (registration.waiting){
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      registration.addEventListener('updatefound', ()=>{
+        const worker = registration.installing;
+        if (!worker) return;
+        worker.addEventListener('statechange', ()=>{
+          if (worker.state === 'installed' && navigator.serviceWorker.controller){
+            worker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+    }).catch((err)=>{
       console.warn('[PWA] No se pudo registrar service worker', err);
+    });
+
+    let reloadedBySW = false;
+    navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+      if (reloadedBySW) return;
+      reloadedBySW = true;
+      window.location.reload();
     });
   });
 }

@@ -346,6 +346,35 @@ export function renderHeroAvatar(hero){
     // Sin foto: se oculta la capa para que se vean las capas de escena (parallax/demo).
   }
 
+  function resolveHeroPhotoSource(hero){
+    if (!hero) return '';
+
+    const direct = String(hero.photo || hero.img || hero.image || hero.photoSrc || '').trim();
+    if (direct) return direct;
+
+    const cleanName = stripDiacritics(String(hero.name || '').trim())
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+
+    const heroAssets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    return String(heroAssets?.fg || heroAssets?.bg || '').trim();
+  }
+
+  function resolveHeroSceneAssets(hero){
+    if (!hero) return { bg:'', fg:'' };
+
+    const cleanName = stripDiacritics(String(hero.name || '').trim())
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    const heroAssets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+
+    const bg = String(heroAssets?.bg || '').trim();
+    const fg = String(heroAssets?.fg || hero.photo || hero.img || hero.image || hero.photoSrc || '').trim();
+    return { bg, fg };
+  }
+
   export function applyHeroSceneLayers(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
@@ -526,16 +555,20 @@ export function renderHeroAvatar(hero){
   }
 
 
-  export function openHeroPhotoModal(src, heroName=''){
+  export function openHeroPhotoModal(src, heroName='', sceneAssets=null){
     const modal = document.getElementById('heroPhotoModal');
     const img = document.getElementById('heroPhotoModalImg');
-    const title = document.getElementById('heroPhotoTitle');
+    const bgLayer = document.getElementById('heroPhotoModalBg');
+    const fgLayer = document.getElementById('heroPhotoModalFg');
     if (!modal || !img || !src) return;
 
     closeAllModals('heroPhotoModal');
     img.src = String(src);
-    title.textContent = heroName ? `Foto de ${heroName}` : 'Foto del personaje';
     img.alt = heroName ? `Foto completa de ${heroName}` : 'Foto del personaje en tamaño completo';
+    const bg = String(sceneAssets?.bg || '').trim();
+    const fg = String(sceneAssets?.fg || '').trim();
+    if (bgLayer) bgLayer.style.backgroundImage = bg ? `url("${bg}")` : 'none';
+    if (fgLayer) fgLayer.style.backgroundImage = fg ? `url("${fg}")` : 'none';
     modal.hidden = false;
     try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(_e){}
   }
@@ -543,9 +576,13 @@ export function renderHeroAvatar(hero){
   export function closeHeroPhotoModal(){
     const modal = document.getElementById('heroPhotoModal');
     const img = document.getElementById('heroPhotoModalImg');
+    const bgLayer = document.getElementById('heroPhotoModalBg');
+    const fgLayer = document.getElementById('heroPhotoModalFg');
     if (!modal || modal.hidden) return;
     modal.hidden = true;
     if (img) img.removeAttribute('src');
+    if (bgLayer) bgLayer.style.backgroundImage = 'none';
+    if (fgLayer) fgLayer.style.backgroundImage = 'none';
     try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(_e){}
   }
 
@@ -562,13 +599,17 @@ export function renderHeroAvatar(hero){
       }
 
       const avatarBox = document.getElementById('avatarBox');
-      if (avatarBox && !avatarBox.dataset.photoModalBound){
-        avatarBox.dataset.photoModalBound = '1';
-        avatarBox.addEventListener('click', ()=>{
-          const src = avatarBox.dataset.fullPhotoSrc || '';
-          if (!src) return;
+      const heroScene = document.getElementById('heroScene');
+      if (heroScene && !heroScene.dataset.photoModalBound){
+        heroScene.dataset.photoModalBound = '1';
+        heroScene.addEventListener('click', (ev)=>{
+          const target = ev.target instanceof Element ? ev.target : null;
+          if (target && target.closest('button, a, input, textarea, select, .heroNotesOverlay')) return;
           const hero = currentHero();
-          openHeroPhotoModal(src, hero?.name || '');
+          const src = (avatarBox?.dataset.fullPhotoSrc || resolveHeroPhotoSource(hero) || '').trim();
+          if (!src) return;
+          const sceneAssets = resolveHeroSceneAssets(hero);
+          openHeroPhotoModal(src, hero?.name || '', sceneAssets);
         });
       }
 
@@ -581,12 +622,19 @@ export function renderHeroAvatar(hero){
     }catch(_e){}
   })();
 
-  export function renderHeroDetail(){
-    const hero = currentHero();
-    if (!hero) return;
+export function renderHeroDetail(){
+  const hero = currentHero();
+  if (!hero) return;
 
-    // Capas de escena (parallax demo)
-    applyHeroSceneLayers(hero);
+  try{
+    const scene = document.getElementById('heroScene');
+    if (scene){
+      scene.style.cursor = resolveHeroPhotoSource(hero) ? 'zoom-in' : '';
+    }
+  }catch(_e){}
+
+  // Capas de escena (parallax demo)
+  applyHeroSceneLayers(hero);
 
     // Foto del héroe (si existe). En este layout ocupa TODO el panel izquierdo.
     renderHeroAvatar(hero);
