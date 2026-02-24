@@ -475,7 +475,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   window.LevelUp.uiLock = uiLock;
 
   // Modal helper (evita que un modal quede debajo de otro)
-  const MODAL_IDS = ['roleModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal', 'historyModal', 'storeItemModal'];
+  const MODAL_IDS = ['roleModal','heroPhotoModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal', 'historyModal', 'storeItemModal'];
   const getModal = (id) => document.getElementById(id);
   export function closeAllModals(exceptId=null){
     MODAL_IDS.forEach(id=>{

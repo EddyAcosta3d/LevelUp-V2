@@ -327,6 +327,8 @@ export function renderHeroAvatar(hero){
     if (url){
       box.classList.remove('is-empty');
       box.removeAttribute('aria-hidden');
+      box.dataset.fullPhotoSrc = String(url);
+      box.style.cursor = 'zoom-in';
       const img = document.createElement('img');
       img.src = String(url);
       img.alt = heroName ? `Foto de ${heroName}` : 'Foto del héroe';
@@ -338,6 +340,8 @@ export function renderHeroAvatar(hero){
     // Sin foto: oculta la capa de foto para que se vean las capas de prueba.
     box.classList.add('is-empty');
     box.setAttribute('aria-hidden','true');
+    box.removeAttribute('data-full-photo-src');
+    box.style.cursor = '';
 
     // Sin foto: se oculta la capa para que se vean las capas de escena (parallax/demo).
   }
@@ -521,6 +525,30 @@ export function renderHeroAvatar(hero){
     modal.hidden = true;
   }
 
+
+  export function openHeroPhotoModal(src, heroName=''){
+    const modal = document.getElementById('heroPhotoModal');
+    const img = document.getElementById('heroPhotoModalImg');
+    const title = document.getElementById('heroPhotoTitle');
+    if (!modal || !img || !src) return;
+
+    closeAllModals('heroPhotoModal');
+    img.src = String(src);
+    title.textContent = heroName ? `Foto de ${heroName}` : 'Foto del personaje';
+    img.alt = heroName ? `Foto completa de ${heroName}` : 'Foto del personaje en tamaño completo';
+    modal.hidden = false;
+    try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(_e){}
+  }
+
+  export function closeHeroPhotoModal(){
+    const modal = document.getElementById('heroPhotoModal');
+    const img = document.getElementById('heroPhotoModalImg');
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    if (img) img.removeAttribute('src');
+    try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(_e){}
+  }
+
   // Binding de #inRol (input de solo lectura) → abre el modal de roles al hacer click
   // Se ejecuta una sola vez al cargar el módulo; el input vive en el HTML estático.
   (function(){
@@ -532,6 +560,24 @@ export function renderHeroAvatar(hero){
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRoleModal(); }
         });
       }
+
+      const avatarBox = document.getElementById('avatarBox');
+      if (avatarBox && !avatarBox.dataset.photoModalBound){
+        avatarBox.dataset.photoModalBound = '1';
+        avatarBox.addEventListener('click', ()=>{
+          const src = avatarBox.dataset.fullPhotoSrc || '';
+          if (!src) return;
+          const hero = currentHero();
+          openHeroPhotoModal(src, hero?.name || '');
+        });
+      }
+
+      const closeHeroPhoto = ()=> closeHeroPhotoModal();
+      document.getElementById('btnCloseHeroPhotoModal')?.addEventListener('click', closeHeroPhoto);
+      document.getElementById('heroPhotoBackdrop')?.addEventListener('click', closeHeroPhoto);
+      document.addEventListener('keydown', (e)=>{
+        if (e.key === 'Escape') closeHeroPhoto();
+      });
     }catch(_e){}
   })();
 

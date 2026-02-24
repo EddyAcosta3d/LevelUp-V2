@@ -2501,6 +2501,29 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{ width:0; height:0; }
    Historial de desafíos
    =============================== */
 #historyModal .modal__card{ max-width: 900px; }
+
+/* Modal de foto completa (fichas) */
+#heroPhotoModal .modal__card--photo{
+  width: min(92vw, 960px);
+  max-width: 960px;
+  background: rgba(10, 12, 22, 0.96);
+}
+#heroPhotoModal .modal__header--photo{
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+#heroPhotoModal .modal__body--photo{
+  display: grid;
+  place-items: center;
+  padding: 14px;
+}
+#heroPhotoModalImg{
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(78vh, 820px);
+  object-fit: contain;
+  border-radius: 12px;
+}
 .historyList{ display:flex; flex-direction:column; gap:10px; }
 .historyRow{ display:grid; grid-template-columns: 1.1fr .8fr 2fr 1fr; gap:10px; align-items:center;
   padding:10px 12px;
