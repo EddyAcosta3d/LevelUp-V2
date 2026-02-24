@@ -21,15 +21,14 @@
     body {
       min-height: 100dvh;
       background: #07080b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: block;
       font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      padding: 1rem;
+      padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     /* Ambient background glows */
@@ -60,6 +59,7 @@
         0 0 40px rgba(34,211,238,0.06);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+      margin: 0 auto;
     }
 
     .logo {
@@ -111,8 +111,8 @@
 
     .tab {
       flex: 1;
-      padding: 0.5rem;
-      text-align: center;
+      min-height: 2.5rem;
+      padding: 0.45rem 0.3rem;
       font-size: 0.83rem;
       font-weight: 500;
       color: rgba(255,255,255,0.38);
@@ -120,6 +120,13 @@
       cursor: pointer;
       transition: all 0.2s;
       user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.12;
+      white-space: normal;
+      text-wrap: balance;
     }
 
     .tab.active {
@@ -238,8 +245,8 @@
   </div>
 
   <div class="tabs">
-    <div class="tab active" id="tabLogin" onclick="switchTab('login')">Iniciar sesión</div>
-    <div class="tab" id="tabRegister" onclick="switchTab('register')">Crear cuenta</div>
+    <div class="tab active" id="tabLogin" onclick="switchTab('login')">Iniciar<br>sesión</div>
+    <div class="tab" id="tabRegister" onclick="switchTab('register')">Crear<br>cuenta</div>
     <div class="tab" id="tabPassword" onclick="switchTab('password')">Cambiar contraseña</div>
   </div>
 
