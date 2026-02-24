@@ -534,30 +534,23 @@ function bindChallengeButtons() {
 // MODAL CLOSE BINDINGS
 // ========================================================================
 
+function bindModalClose(btnId, modalId) {
+  const close = () => {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.hidden = true;
+  };
+
+  document.getElementById(btnId)?.addEventListener('click', close);
+
+  const backdrop = document.getElementById(modalId.replace('Modal', 'Backdrop'));
+  backdrop?.addEventListener('click', close);
+}
+
 function bindModalCloseButtons() {
-  // Close buttons for various modals
-  const modalCloseBtns = [
-    { btnId: 'btnCloseRoleModal', modalId: 'roleModal' },
-    { btnId: 'btnCloseChallengeModal', modalId: 'challengeModal' },
-    { btnId: 'btnCloseHistoryModal', modalId: 'historyModal' },
-    { btnId: 'btnCloseSubjects', modalId: 'subjectsModal' }
-  ];
-
-  modalCloseBtns.forEach(({ btnId, modalId }) => {
-    document.getElementById(btnId)?.addEventListener('click', () => {
-      const modal = document.getElementById(modalId);
-      if (modal) modal.hidden = true;
-    });
-
-    // Also bind backdrop clicks
-    const backdrop = document.getElementById(modalId.replace('Modal', 'Backdrop'));
-    if (backdrop) {
-      backdrop.addEventListener('click', () => {
-        const modal = document.getElementById(modalId);
-        if (modal) modal.hidden = true;
-      });
-    }
-  });
+  bindModalClose('btnCloseRoleModal', 'roleModal');
+  bindModalClose('btnCloseChallengeModal', 'challengeModal');
+  bindModalClose('btnCloseHistoryModal', 'historyModal');
+  bindModalClose('btnCloseSubjects', 'subjectsModal');
 }
 
 // ========================================================================

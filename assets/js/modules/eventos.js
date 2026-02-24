@@ -27,6 +27,40 @@ import {
 import { saveLocal } from './store.js';
 import { currentHero } from './fichas.js';
 
+
+
+function resetAndBindClick(buttonEl, handler) {
+  if (!buttonEl) return null;
+  const freshBtn = buttonEl.cloneNode(true);
+  buttonEl.replaceWith(freshBtn);
+  freshBtn.addEventListener('click', handler);
+  return freshBtn;
+}
+
+function bindEventModalActions({ btnFight, btnToggleUnlock, unlocked, eligible, ev, hero, modal, eventId }) {
+  const boundFight = resetAndBindClick(btnFight, () => {
+    if (!(unlocked && eligible)) return;
+    if (String(ev?.kind || '') === 'boss') {
+      openBossBattleModal(ev, hero);
+      modal.hidden = true;
+      return;
+    }
+    toast(`⚔️ ${hero?.name || 'Héroe'} reta a ${ev.title || 'este evento'}!`);
+    modal.hidden = true;
+  });
+
+  const boundToggle = resetAndBindClick(btnToggleUnlock, () => {
+    ev.unlocked = !isEventUnlocked(ev);
+    saveLocal(state.data);
+    if (state.dataSource === 'remote') state.dataSource = 'local';
+    renderEvents();
+    openEventModal(eventId);
+    toast(ev.unlocked ? 'Evento desbloqueado' : 'Evento bloqueado');
+  });
+
+  return { boundFight, boundToggle };
+}
+
 const DEFAULT_BOSS_QUIZ = [
   {
     question: '¿Qué debes hacer primero al enfrentar un problema difícil?',
@@ -230,31 +264,16 @@ const DEFAULT_BOSS_QUIZ = [
       btnToggleUnlock.dataset.eventId = eventId;
     }
 
-    // Bind fight button (one-time per modal open)
-    if (btnFight){
-      btnFight.onclick = ()=>{
-        if (!(unlocked && eligible)) return;
-        if (String(ev?.kind || '') === 'boss'){
-          openBossBattleModal(ev, hero);
-          modal.hidden = true;
-          return;
-        }
-        toast(`⚔️ ${hero?.name || 'Héroe'} reta a ${ev.title || 'este evento'}!`);
-        modal.hidden = true;
-      };
-    }
-
-    // Bind toggle-unlock button (teacher only)
-    if (btnToggleUnlock){
-      btnToggleUnlock.onclick = ()=>{
-        ev.unlocked = !isEventUnlocked(ev);
-        saveLocal(state.data);
-        if (state.dataSource === 'remote') state.dataSource = 'local';
-        renderEvents();
-        openEventModal(eventId);
-        toast(ev.unlocked ? 'Evento desbloqueado' : 'Evento bloqueado');
-      };
-    }
+    bindEventModalActions({
+      btnFight,
+      btnToggleUnlock,
+      unlocked,
+      eligible,
+      ev,
+      hero,
+      modal,
+      eventId
+    });
 
     modal.hidden = false;
   }
