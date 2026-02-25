@@ -1021,7 +1021,11 @@
 
   #eventModal .eventModalImg {
     background-size: cover !important;
-    background-position: center top !important;
+    background-position: center center !important;
+  }
+
+  #eventModal .eventModalImg.is-locked {
+    background-position: center center !important;
   }
 
   #eventModal .evModalHead {
