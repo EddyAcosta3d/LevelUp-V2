@@ -183,8 +183,9 @@
       el.style.border = '1px solid rgba(0,210,255,0.22)';
       el.style.color = 'rgba(255,255,255,0.92)';
       el.style.boxShadow = '0 14px 40px rgba(0,0,0,0.55)';
-      el.style.zIndex = '9999';
+      el.style.zIndex = '120000';
       el.style.fontSize = '13px';
+      el.style.pointerEvents = 'none';
       document.body.appendChild(el);
     }
     el.textContent = msg;
