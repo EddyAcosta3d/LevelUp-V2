@@ -1017,6 +1017,21 @@
     flex: 1 1 auto !important;
     min-height: 0 !important;
     height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding-top: max(60px, calc(52px + env(safe-area-inset-top, 0px))) !important;
+  }
+
+  /* Evita el gran vacío en móviles: imagen arriba + panel abajo. */
+  #eventModal .eventModalImgWrap {
+    position: relative !important;
+    inset: auto !important;
+    min-height: clamp(220px, 42dvh, 380px) !important;
+    height: clamp(220px, 42dvh, 380px) !important;
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
   }
 
   #eventModal .eventModalImg {
@@ -1031,11 +1046,17 @@
   }
 
   #eventModal .eventModalInfo {
-    left: 10px !important;
-    right: 10px !important;
-    bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
-    max-height: 52dvh !important;
-    overflow: auto !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 10px 10px max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  #eventModal .eventModalReqGrid {
+    grid-template-columns: 1fr !important;
   }
 }
 
