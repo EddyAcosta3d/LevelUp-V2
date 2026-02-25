@@ -190,7 +190,7 @@ const DEFAULT_BOSS_QUIZ = [
 
     // Defaults
     if (unlockText) unlockText.textContent = ev.unlock?.label || '—';
-    if (eligReq) eligReq.textContent = unlocked ? (ev.eligibility?.label || '—') : '???';
+    if (eligReq) eligReq.textContent = unlocked ? (ev.eligibility?.label || '—') : '';
     if (unlockMini) unlockMini.textContent = '';
     if (eligMini) eligMini.textContent = '';
     if (unlockMeter) unlockMeter.style.width = '0%';
