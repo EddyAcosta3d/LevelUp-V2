@@ -14,7 +14,8 @@ import {
   $$,
   state,
   escapeHtml,
-  uid
+  uid,
+  ROLE
 } from './core_globals.js';
 
 import { saveLocal } from './store.js';
@@ -83,7 +84,7 @@ export function renderTienda(){
           <div class="medalLabel">Medallas disponibles para canjear</div>
         </div>
       </div>
-      ${state.role === 'teacher' ? `
+      ${state.role === ROLE.TEACHER ? `
         <button class="pill pill--small" id="btnAddStoreItem" type="button">+ Agregar Item</button>
       ` : ''}
     </div>
@@ -98,7 +99,7 @@ export function renderTienda(){
         <div class="tiendaEmpty__icon">🏪</div>
         <div class="tiendaEmpty__title">La tienda está vacía</div>
         <div class="muted">
-          ${state.role === 'teacher' 
+          ${state.role === ROLE.TEACHER 
             ? 'Agrega items para que los alumnos puedan canjear sus medallas.' 
             : 'Aún no hay items disponibles.'}
         </div>
@@ -159,7 +160,7 @@ export function renderTienda(){
               </div>
               <div class="tiendaItem__status ${statusClass}">${status}</div>
             </div>
-            ${state.role === 'teacher' ? `
+            ${state.role === ROLE.TEACHER ? `
               <div class="tiendaItem__adminBtns">
                 <button class="iconBtn iconBtn--small" data-action="edit" title="Editar">✎</button>
                 <button class="iconBtn iconBtn--small iconBtn--danger" data-action="delete" title="Eliminar">🗑</button>

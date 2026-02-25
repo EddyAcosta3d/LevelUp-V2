@@ -267,8 +267,9 @@ body.is-modal-open .dropdown__menu{
 .challengeTop__actions{display:flex;align-items:center;gap:10px;min-width:0}
 .challengeTop__main{flex-wrap:wrap}
 .challengeTop__actions{justify-content:flex-end}
-#subjectDropdown{flex:0 0 auto}
+#subjectDropdown{flex:0 0 auto; z-index: 20090;}
 #subjectDropdown .pill{font-weight:700}
+#subjectDropdown .dropdown__menu{ z-index: 20100; }
 .challengeTop__main .diffPills{flex:1 1 320px;min-width:220px}
 .challengeTop__actions #btnHistory{border-style:dashed;opacity:0.92}
 #subjectMenu{min-width:220px}
@@ -292,6 +293,18 @@ body.is-modal-open .dropdown__menu{
 }
 @media (max-width:640px){
   .challengeBody{min-height:180px}
+
+  /* Evita que las acciones se monten sobre el menú de materias en móviles */
+  .challengeTop__actions{
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  #subjectMenu .menuitem{
+    font-size: 16px;
+    line-height: 1.35;
+    padding: 12px 14px;
+  }
 }
 
 
@@ -1726,10 +1739,11 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   75% { transform: translateX(10px); }
 }
 
-/* Botón siguiente — círculo compacto con flecha, alineado a la derecha */
+/* Botón siguiente — círculo compacto con flecha gruesa, centrado */
 .bossBattle__next{
   margin-top: clamp(12px, 1.8vh, 20px);
   margin-left: auto;
+  margin-right: auto;
   width: 54px;
   height: 54px;
   flex-shrink: 0;
@@ -1737,7 +1751,7 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   border: 2px solid rgba(255,255,255,.28);
   background: linear-gradient(135deg, #ffd25d, #ff9f3b 50%, #ff6a2a);
   color: #1a0e00;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 900;
   cursor: pointer;
   transition: all 0.2s;
@@ -1906,9 +1920,9 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   /* === Botón siguiente: mantenemos el círculo compacto === */
   .bossBattle__next {
     margin-top: 8px;
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
   }
 }
 
@@ -1979,9 +1993,9 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
 
   .bossBattle__next {
     margin-top: 6px;
-    width: 44px;
-    height: 44px;
-    font-size: 18px;
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
   }
 }
 
@@ -2008,10 +2022,10 @@ html.is-edit .chItemActions{ opacity: 1; pointer-events:auto; transform: transla
   }
 
   .bossBattle__next {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     margin-top: 6px;
-    font-size: 18px;
+    font-size: 22px;
   }
 }
 

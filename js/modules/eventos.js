@@ -20,6 +20,8 @@ import {
   countCompletedForHeroByDifficulty,
   normalizeDifficulty,
   closeAllModals,
+  DATA_SOURCE,
+  EVENT_KIND,
   $,
   $$
 } from './core_globals.js';
@@ -40,7 +42,7 @@ function resetAndBindClick(buttonEl, handler) {
 function bindEventModalActions({ btnFight, btnToggleUnlock, unlocked, eligible, ev, hero, modal, eventId }) {
   const boundFight = resetAndBindClick(btnFight, () => {
     if (!(unlocked && eligible)) return;
-    if (String(ev?.kind || '') === 'boss') {
+    if (String(ev?.kind || '') === EVENT_KIND.BOSS) {
       openBossBattleModal(ev, hero);
       modal.hidden = true;
       return;
@@ -52,7 +54,7 @@ function bindEventModalActions({ btnFight, btnToggleUnlock, unlocked, eligible, 
   const boundToggle = resetAndBindClick(btnToggleUnlock, () => {
     ev.unlocked = !isEventUnlocked(ev);
     saveLocal(state.data);
-    if (state.dataSource === 'remote') state.dataSource = 'local';
+    if (state.dataSource === DATA_SOURCE.REMOTE) state.dataSource = DATA_SOURCE.LOCAL;
     renderEvents();
     openEventModal(eventId);
     toast(ev.unlocked ? 'Evento desbloqueado' : 'Evento bloqueado');
@@ -143,7 +145,7 @@ const DEFAULT_BOSS_QUIZ = [
     const unlocked = isEventUnlocked(ev);
     const eligible = hero ? isHeroEligibleForEvent(hero, ev) : false;
 
-    const kindLabel = ev.kind === 'boss' ? 'JEFE' : 'EVENTO';
+    const kindLabel = ev.kind === EVENT_KIND.BOSS ? 'JEFE' : 'EVENTO';
     const stateLabel = unlocked ? (eligible ? 'LISTO' : 'DESBLOQ.') : '';
     const eligLabel = unlocked ? (eligible ? 'ELEGIBLE' : 'NO ELEGIBLE') : '';
 
@@ -658,7 +660,7 @@ const DEFAULT_BOSS_QUIZ = [
       const btn = e.target.closest('button[data-event-tab]');
       if (!btn) return;
       const tab = btn.getAttribute('data-event-tab');
-      state.eventsTab = tab || 'boss';
+      state.eventsTab = tab || EVENT_KIND.BOSS;
       renderEvents();
     });
   }
@@ -668,8 +670,8 @@ const DEFAULT_BOSS_QUIZ = [
 
     ensureEventTabs();
 
-    const tab = 'boss';
-    state.eventsTab = 'boss';
+    const tab = EVENT_KIND.BOSS;
+    state.eventsTab = EVENT_KIND.BOSS;
     // Header simplificado: sin título/subtítulo (solo tabs)
 
     const tabsWrap = $('#eventTabs');
@@ -684,10 +686,10 @@ const DEFAULT_BOSS_QUIZ = [
 
     const hero = currentHero();
     const evs = Array.isArray(state.data?.events) ? state.data.events : [];
-    const list = evs.filter(ev => (ev.kind || 'event') === 'boss');
+    const list = evs.filter(ev => (ev.kind || EVENT_KIND.EVENT) === EVENT_KIND.BOSS);
 
     if (!list.length){
-      grid.innerHTML = `<div class="muted">Sin ${(tab === 'boss') ? 'jefes' : 'eventos'}.</div>`;
+      grid.innerHTML = `<div class="muted">Sin ${(tab === EVENT_KIND.BOSS) ? 'jefes' : 'eventos'}.</div>`;
       return;
     }
 
@@ -705,9 +707,9 @@ const DEFAULT_BOSS_QUIZ = [
       div.className = 'evCard' + (unlocked ? ' is-unlocked' : ' is-locked') + (eligible ? ' is-eligible' : '');
 
       // Pills removed from cards (design simplification). Keep labels only for internal logic if needed later.
-      const kindLabel = (ev.kind === 'boss') ? 'JEFE' : 'EVENTO';
+      const kindLabel = (ev.kind === EVENT_KIND.BOSS) ? 'JEFE' : 'EVENTO';
       const stateLabel = unlocked ? (eligible ? 'LISTO' : 'DESBLOQ.') : 'BLOQUEADO';
-      const titleText = unlocked ? (ev.title || (ev.kind === 'boss' ? 'Jefe' : 'Evento')) : '?????';
+      const titleText = unlocked ? (ev.title || (ev.kind === EVENT_KIND.BOSS ? 'Jefe' : 'Evento')) : '?????';
       const reqText = unlocked ? (ev.eligibility?.label || 'Cumple los requisitos para retarlo.')
                                : (ev.unlock?.label || 'Requisito para desbloquear');
 
@@ -757,9 +759,9 @@ const DEFAULT_BOSS_QUIZ = [
     };
     const go = ()=>{
       const targetId = String(ov.dataset.eventId || '').trim();
-      const targetKind = String(ov.dataset.eventKind || 'boss').trim() || 'boss';
+      const targetKind = String(ov.dataset.eventKind || EVENT_KIND.BOSS).trim() || EVENT_KIND.BOSS;
       close();
-      try{ state.eventsTab = targetKind === 'event' ? 'event' : 'boss'; }catch(_e){}
+      try{ state.eventsTab = targetKind === EVENT_KIND.EVENT ? EVENT_KIND.EVENT : EVENT_KIND.BOSS; }catch(_e){}
       try{ if (typeof setActiveRoute === 'function') setActiveRoute('eventos'); }catch(_e){}
       try{ if (typeof renderEvents === 'function') renderEvents(); }catch(_e){}
       if (targetId){
@@ -799,13 +801,13 @@ const DEFAULT_BOSS_QUIZ = [
     const sub = ov.querySelector('[data-boss-unlock-sub]');
     const img = ov.querySelector('[data-boss-unlock-img]');
 
-    const kind = (ev && ev.kind === 'boss') ? 'JEFE' : 'EVENTO';
+    const kind = (ev && ev.kind === EVENT_KIND.BOSS) ? 'JEFE' : 'EVENTO';
     const t = (ev && ev.title) ? ev.title : kind;
     if (title) title.textContent = `¡Un nuevo ${kind.toLowerCase()} apareció!`;
     if (sub) sub.textContent = t;
     try{
       ov.dataset.eventId = String(ev?.id || '');
-      ov.dataset.eventKind = String(ev?.kind || 'boss');
+      ov.dataset.eventKind = String(ev?.kind || EVENT_KIND.BOSS);
     }catch(_e){}
 
     const isPortraitViewport = (()=>{
@@ -906,7 +908,7 @@ const DEFAULT_BOSS_QUIZ = [
       if (!window.__bossUnlockPrev){
         window.__bossUnlockPrev = {};
         list.forEach(ev=>{
-          if (ev && (ev.kind === 'boss')){
+          if (ev && (ev.kind === EVENT_KIND.BOSS)){
             window.__bossUnlockPrev[String(ev.id)] = !!isEventUnlocked(ev);
           }
         });
@@ -920,7 +922,7 @@ const DEFAULT_BOSS_QUIZ = [
 
       // Find newly unlocked bosses
       for (const ev of list){
-        if (!ev || ev.kind !== 'boss') continue;
+        if (!ev || ev.kind !== EVENT_KIND.BOSS) continue;
         const id = String(ev.id);
 
         // If this boss wasn't tracked yet (e.g. data loaded after init),

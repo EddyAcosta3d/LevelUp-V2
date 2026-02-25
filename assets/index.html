@@ -93,12 +93,12 @@
           });
         }
 
-        // Botón salir en sidebar (solo móvil ≤900px)
+        // Botón salir en sidebar (móvil/tablet; coincide con breakpoint del drawer)
         var sideLogout = document.getElementById('sidebarLogoutBtn');
         var sideLogoutName = document.getElementById('sidebarLogoutName');
         if (sideLogout) {
           function showIfMobile() {
-            sideLogout.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+            sideLogout.style.display = window.innerWidth <= 980 ? 'block' : 'none';
           }
           showIfMobile();
           window.addEventListener('resize', showIfMobile);
@@ -202,7 +202,7 @@
       <nav class="topnav" aria-label="Navegación principal">
         <button class="pill is-active" data-route="fichas">Fichas</button>
         <button class="pill" data-route="desafios">Desafíos</button>
-        <button class="pill" data-route="eventos">Eventos</button>
+        <button class="pill" data-route="eventos">Jefes</button>
         <button class="pill" data-route="tienda">Tienda</button>
       </nav>
 
@@ -478,9 +478,8 @@
             <!-- Nota: header simplificado (sin título/subtítulo). Solo tabs centrados. -->
             <div class="pageIntro pageIntro--events">
               <div class="pageIntro__row">
-                <div class="eventTabs" id="eventTabs" role="tablist" aria-label="Jefes y eventos">
+                <div class="eventTabs" id="eventTabs" role="tablist" aria-label="Jefes" hidden>
                   <button class="pill pill--ghost is-active" type="button" data-event-tab="boss">Jefes</button>
-                  <button class="pill pill--ghost" type="button" data-event-tab="event">Eventos</button>
                 </div>
               </div>
             </div>
@@ -529,8 +528,8 @@
         <span class="bottomNav__label">Desafíos</span>
       </button>
       <button class="bottomNav__btn" data-route="eventos">
-        <span class="bottomNav__icon">🎉</span>
-        <span class="bottomNav__label">Eventos</span>
+        <span class="bottomNav__icon">👑</span>
+        <span class="bottomNav__label">Jefes</span>
       </button>
       <button class="bottomNav__btn" data-route="tienda">
         <span class="bottomNav__icon">🛒</span>
@@ -547,6 +546,20 @@
         </div>
         <div class="modal__body">
           <div class="roleList" id="roleList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="heroPhotoModal" hidden>
+      <div class="modal__backdrop" id="heroPhotoBackdrop"></div>
+      <div class="modal__card modal__card--photo" role="dialog" aria-modal="true" aria-label="Foto del personaje en tamaño completo">
+        <button class="pill pill--small pill--ghost" id="btnCloseHeroPhotoModal" type="button" aria-label="Cerrar foto">✕</button>
+        <div class="modal__body modal__body--photo">
+          <div class="heroPhotoModalScene" id="heroPhotoModalScene" aria-hidden="true">
+            <div class="heroPhotoModalLayer heroPhotoModalLayer--bg" id="heroPhotoModalBg"></div>
+            <img id="heroPhotoModalImg" alt="Foto del personaje en tamaño completo" />
+            <div class="heroPhotoModalLayer heroPhotoModalLayer--fg" id="heroPhotoModalFg"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -899,7 +912,7 @@
 <script src="js/modules/parallax_manifest.js?v=LevelUP_V2_01.00" defer></script>
 
 <!-- Main ES6 module entry point (loads all other modules via imports) -->
-<script type="module" src="js/app.main.js?v=LevelUP_V2_01.00"></script>
+<script type="module" src="js/app.main.js?v=LevelUP_V2_01.01"></script>
 
 <!-- Legacy fallback for old browsers (optional) -->
 <script nomodule>

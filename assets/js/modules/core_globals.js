@@ -19,6 +19,123 @@
  * - normalizeData, totalCompletedAcrossHeroes
  */
 
+// === TYPEDEFS ===
+
+/**
+ * @typedef {Object} HeroStats
+ * @property {number} int
+ * @property {number} sab
+ * @property {number} car
+ * @property {number} res
+ * @property {number} cre
+ * @property {number} INT
+ * @property {number} SAB
+ * @property {number} CAR
+ * @property {number} RES
+ * @property {number} CRE
+ */
+
+/**
+ * @typedef {Object} Hero
+ * @property {string}  id
+ * @property {string}  group
+ * @property {string}  name
+ * @property {string|number} age
+ * @property {string}  role
+ * @property {number}  level
+ * @property {number}  xp
+ * @property {number}  xpMax
+ * @property {number}  weekXp
+ * @property {number}  weekXpMax
+ * @property {number}  statsCap
+ * @property {string}  photo
+ * @property {string}  photoSrc
+ * @property {string}  desc
+ * @property {string}  goal
+ * @property {string}  goodAt
+ * @property {string}  improve
+ * @property {number}  medals
+ * @property {number}  tokens
+ * @property {HeroStats} stats
+ * @property {string[]} assignedChallenges
+ * @property {Object.<string,*>} challengeCompletions
+ * @property {Array}   challengeHistory
+ * @property {Array}   rewardsHistory
+ * @property {Array}   storeClaims
+ * @property {Array}   pendingRewards
+ */
+
+/**
+ * @typedef {Object} Challenge
+ * @property {string}  id
+ * @property {string}  title
+ * @property {string}  [body]
+ * @property {string}  difficulty - 'easy' | 'medium' | 'hard'
+ * @property {number}  points
+ * @property {string}  subjectId
+ * @property {string}  [subject]
+ */
+
+/**
+ * @typedef {Object} Subject
+ * @property {string} id
+ * @property {string} name
+ */
+
+/**
+ * @typedef {Object} AppEvent
+ * @property {string}  id
+ * @property {string}  kind       - 'boss' | 'event'
+ * @property {string}  title
+ * @property {boolean} unlocked
+ * @property {Object}  unlock
+ * @property {Object}  eligibility
+ */
+
+/**
+ * @typedef {Object} StoreItem
+ * @property {string}  id
+ * @property {string}  name
+ * @property {string}  description
+ * @property {string}  icon
+ * @property {number}  cost
+ * @property {number}  stock
+ * @property {boolean} available
+ */
+
+/**
+ * @typedef {Object} AppData
+ * @property {Object}     meta
+ * @property {Hero[]}     heroes
+ * @property {Challenge[]} challenges
+ * @property {Subject[]}  subjects
+ * @property {AppEvent[]} events
+ * @property {{ items: StoreItem[] }} store
+ */
+
+/**
+ * @typedef {Object} ChallengeFilter
+ * @property {string|null} subjectId
+ * @property {string}      diff
+ */
+
+/**
+ * @typedef {Object} AppState
+ * @property {string}           route
+ * @property {string}           role
+ * @property {string}           group
+ * @property {string|null}      selectedHeroId
+ * @property {string|null}      selectedChallengeId
+ * @property {ChallengeFilter}  challengeFilter
+ * @property {string}           eventsTab
+ * @property {boolean}          isDetailsOpen
+ * @property {AppData|null}     data
+ * @property {string}           dataSource
+ * @property {{ pendingToastHeroId: string|null }} ui
+ */
+
+// === FIN TYPEDEFS ===
+
 const BUILD_ID = 'LevelUP_V2_01.00';
 window.LEVELUP_BUILD = BUILD_ID;
 
@@ -59,6 +176,34 @@ window.LevelUp = window.LevelUp || {};
     [DIFFICULTY.HARD]: 40
   });
 
+  /** @enum {string} Roles de usuario para state.role */
+  export const ROLE = Object.freeze({
+    VIEWER:  'viewer',
+    TEACHER: 'teacher'
+  });
+
+  /** @enum {string} Rutas de la app — deben coincidir con data-page en el HTML */
+  export const ROUTE = Object.freeze({
+    FICHAS:      'fichas',
+    DESAFIOS:    'desafios',
+    EVENTOS:     'eventos',
+    TIENDA:      'tienda',
+    RECOMPENSAS: 'recompensas'
+  });
+
+  /** @enum {string} Origen de los datos para state.dataSource / state.loadedFrom */
+  export const DATA_SOURCE = Object.freeze({
+    REMOTE: 'remote',
+    LOCAL:  'local',
+    DEMO:   'demo'
+  });
+
+  /** @enum {string} Tipo de evento — coincide con el campo kind en AppEvent */
+  export const EVENT_KIND = Object.freeze({
+    BOSS:  'boss',
+    EVENT: 'event'
+  });
+
   // === SISTEMA DE LOGGING ===
   export const logger = {
     _enabled: new URLSearchParams(location.search).has('debug'),
@@ -90,7 +235,10 @@ window.LevelUp = window.LevelUp || {};
   // === UTILIDADES ===
 
   /**
-   * Debounce: retrasa la ejecución hasta que pasen X ms sin llamadas
+   * Retrasa la ejecución hasta que pasen X ms sin llamadas.
+   * @param {Function} func - Función a ejecutar con retraso.
+   * @param {number}   wait - Milisegundos de espera.
+   * @returns {Function} Función con debounce aplicado.
    */
   export function debounce(func, wait) {
     let timeout;
@@ -102,7 +250,10 @@ window.LevelUp = window.LevelUp || {};
   }
 
   /**
-   * Throttle: ejecuta como máximo una vez cada X ms
+   * Ejecuta como máximo una vez cada X ms.
+   * @param {Function} func  - Función a limitar.
+   * @param {number}   limit - Milisegundos mínimos entre ejecuciones.
+   * @returns {Function} Función con throttle aplicado.
    */
   export function throttle(func, limit) {
     let inThrottle;
@@ -116,7 +267,11 @@ window.LevelUp = window.LevelUp || {};
     };
   }
 
-// Convierte texto a un nombre seguro de archivo (sin perder mayúsculas/minúsculas)
+/**
+ * Convierte texto a un nombre seguro de archivo (sin perder mayúsculas/minúsculas).
+ * @param {*}      str - Cadena a normalizar.
+ * @returns {string} Nombre de archivo saneado.
+ */
 export function sanitizeFileName(str){
   const raw = String(str || '').trim();
   if(!raw) return '';
@@ -130,7 +285,22 @@ export function sanitizeFileName(str){
   return s;
 }
 
-// Escape HTML para prevenir XSS
+/**
+ * Escapa HTML para prevenir XSS.
+ *
+ * POLÍTICA DE SEGURIDAD — innerHTML:
+ * ─────────────────────────────────────────────────────────────────────────
+ * Toda cadena proveniente de datos externos (data.json, Supabase, input del
+ * usuario) DEBE pasar por escapeHtml() antes de insertarse con innerHTML.
+ * Las únicas excepciones válidas son strings literales hardcodeados en el
+ * código fuente (no datos externos).
+ *
+ * Correcto:  el.innerHTML = `<span>${escapeHtml(hero.name)}</span>`;
+ * Incorrecto: el.innerHTML = `<span>${hero.name}</span>`;   // ← XSS
+ * ─────────────────────────────────────────────────────────────────────────
+ * @param {*}      s - Valor a escapar (se convierte a string si no lo es).
+ * @returns {string} HTML con caracteres especiales escapados.
+ */
 export function escapeHtml(s){
   return String(s ?? '')
     .replaceAll('&','&amp;')
@@ -140,7 +310,11 @@ export function escapeHtml(s){
     .replaceAll("'",'&#039;');
 }
 
-// Escape HTML attributes (alias of escapeHtml for clarity in attribute context)
+/**
+ * Escapa cadenas para uso seguro en atributos HTML (alias de escapeHtml).
+ * @param {*}      s - Valor a escapar.
+ * @returns {string} Cadena escapada.
+ */
 export function escapeAttr(s){
   return escapeHtml(s);
 }
@@ -247,15 +421,29 @@ if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', () => timeoutManager.cleanup());
 }
 
+/**
+ * Genera un ID único con prefijo, timestamp y aleatoriedad.
+ * @param {string} [prefix='h'] - Prefijo del ID.
+ * @returns {string} ID único en formato `{prefix}_{base36}_{random}`.
+ */
 export function makeId(prefix='h'){
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
 }
 
-// Compat / util: algunos bloques usan uid('x') en lugar de makeId('x')
+/**
+ * Alias de makeId. Algunos módulos usan uid() en lugar de makeId().
+ * @param {string} [prefix='id'] - Prefijo del ID.
+ * @returns {string} ID único.
+ */
 export function uid(prefix='id'){
   return makeId(prefix);
 }
 
+/**
+ * Crea un objeto Hero vacío con todos los campos inicializados a sus valores por defecto.
+ * @param {string} [group] - Grupo al que pertenece el héroe (ej: '2D').
+ * @returns {Hero} Nuevo héroe listo para insertar en state.data.heroes.
+ */
 export function makeBlankHero(group){
   return {
     id: makeId('h'),
@@ -286,8 +474,12 @@ export function makeBlankHero(group){
   };
 }
 
-// Demo de desafíos (2 por dificultad) para probar layout/UI.
-// Se inyecta SOLO si el JSON viene vacío y aún no se ha marcado meta.seededDemo.
+/**
+ * Genera desafíos demo (2 por dificultad) para probar layout/UI.
+ * Se inyecta SOLO si el JSON viene vacío y aún no se ha marcado meta.seededDemo.
+ * @param {Object} [S] - Mapa de materias con { id, name }. Si no se provee, usa defaults.
+ * @returns {Challenge[]} Array de desafíos demo.
+ */
 export function seedChallengesDemo(S){
   const safe = (x, fallback) => (x && typeof x === 'object') ? x : fallback;
   S = safe(S, {
@@ -417,13 +609,13 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
 
   // Global application state (exported for modules)
   export const state = {
-    route: 'fichas',
-    role: 'viewer',      // futuro: 'teacher' con PIN
+    route: ROUTE.FICHAS,
+    role: ROLE.VIEWER,
     group: '2D',
     selectedHeroId: null,
     selectedChallengeId: null,
     challengeFilter: { subjectId: null, diff: 'easy' },
-    eventsTab: 'boss',
+    eventsTab: EVENT_KIND.BOSS,
     isDetailsOpen: false,
     data: null,
     dataSource: '—',     // remote | local | demo
@@ -441,7 +633,10 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   // NOTE: DOM helpers `$`/`$$` are already defined and exported above.
   // Avoid redeclaration here (it breaks module evaluation in browsers).
 
-  // Selected hero helper (used across modules/bindings)
+  /**
+   * Retorna el héroe actualmente seleccionado según state.selectedHeroId.
+   * @returns {Hero|null} Héroe seleccionado o null si no hay ninguno.
+   */
   export function getSelectedHero(){
     const heroes = state?.data?.heroes || [];
     return heroes.find(h=>h.id===state.selectedHeroId) || null;
@@ -449,7 +644,16 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   window.getSelectedHero = getSelectedHero;
   window.LevelUp.getSelectedHero = getSelectedHero;
 
-  // UI lock helper: prevents double clicks / repeated actions consistently
+  /**
+   * Bloquea o desbloquea controles interactivos dentro de un contenedor.
+   * Útil para prevenir doble-click y acciones repetidas.
+   * @param {Element|null} root            - Elemento raíz a bloquear.
+   * @param {boolean}      [locked=true]   - true para bloquear, false para desbloquear.
+   * @param {Object}       [opts={}]       - Opciones adicionales.
+   * @param {string}       [opts.selector] - Selector CSS de elementos a afectar.
+   * @param {boolean}      [opts.pointerEvents] - Si se modifica pointerEvents (default true).
+   * @returns {void}
+   */
   export function uiLock(root, locked=true, opts={}){
     if (!root) return;
     const selector = opts.selector || 'button, [role="button"], a, input, select, textarea';
@@ -475,8 +679,13 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   window.LevelUp.uiLock = uiLock;
 
   // Modal helper (evita que un modal quede debajo de otro)
-  const MODAL_IDS = ['roleModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal', 'historyModal', 'storeItemModal'];
+  const MODAL_IDS = ['roleModal','heroPhotoModal','levelUpModal','confirmModal','subjectsModal','challengeModal', 'eventModal', 'historyModal', 'storeItemModal'];
   const getModal = (id) => document.getElementById(id);
+  /**
+   * Cierra todos los modales conocidos, excepto el indicado.
+   * @param {string|null} [exceptId=null] - ID del modal que NO se debe cerrar.
+   * @returns {void}
+   */
   export function closeAllModals(exceptId=null){
     MODAL_IDS.forEach(id=>{
       if (exceptId && id === exceptId) return;
@@ -486,6 +695,10 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
     try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(e){}
   }
 
+  /**
+   * Sincroniza la clase 'is-modal-open' en body según si hay modales visibles.
+   * @returns {void}
+   */
   export function syncModalOpenState(){
     try{
       const anyOpen = !!document.querySelector('.modal:not([hidden])');
@@ -516,11 +729,16 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
   }
 
   
+/**
+ * Genera eventos/bosses demo para probar la sección de Eventos.
+ * Se inyecta solo si no hay eventos en el JSON (meta.seededEvents no está marcado).
+ * @returns {AppEvent[]} Array de eventos demo.
+ */
 export function seedEventsDemo(){
   return [
     {
       id:'ev_loquito',
-      kind:'boss',
+      kind: EVENT_KIND.BOSS,
       title:'El Loquito del Centro',
       unlocked:false,
       unlock:{ type:'completions_total', count:3, label:'Completa 3 desafíos (en total)' },
@@ -528,7 +746,7 @@ export function seedEventsDemo(){
     },
     {
       id:'ev_garbanzo',
-      kind:'boss',
+      kind: EVENT_KIND.BOSS,
       title:'El Garbanzo Coqueto',
       unlocked:false,
       unlock:{ type:'level_any', min:2, label:'Algún héroe llega a Nivel 2' },
@@ -536,7 +754,7 @@ export function seedEventsDemo(){
     },
     {
       id:'ev_bonus',
-      kind:'event',
+      kind: EVENT_KIND.EVENT,
       title:'Evento: Cofre Misterioso',
       unlocked:false,
       unlock:{ type:'completions_total', count:6, label:'Completa 6 desafíos (en total)' },
@@ -545,6 +763,10 @@ export function seedEventsDemo(){
   ];
 }
 
+/**
+ * Cuenta el total de desafíos completados por todos los héroes en state.data.
+ * @returns {number} Suma de challengeCompletions de todos los héroes.
+ */
 export function totalCompletedAcrossHeroes(){
   const heroes = Array.isArray(state.data?.heroes) ? state.data.heroes : [];
   let n = 0;
@@ -555,6 +777,12 @@ export function totalCompletedAcrossHeroes(){
   return n;
 }
 
+/**
+ * Normaliza un valor de dificultad a 'easy', 'medium' o 'hard'.
+ * Acepta variantes en español e inglés ('fácil', 'medio', 'difícil', etc.).
+ * @param {*}      diff - Valor de dificultad en cualquier formato.
+ * @returns {string} Dificultad normalizada o la cadena original si no se reconoce.
+ */
 export function normalizeDifficulty(diff){
   const d = String(diff||'').toLowerCase().trim();
   if (!d) return '';
@@ -564,6 +792,12 @@ export function normalizeDifficulty(diff){
   return d;
 }
 
+/**
+ * Verifica si un héroe ha completado un desafío específico.
+ * @param {Hero}          hero        - Héroe a verificar.
+ * @param {string|number} challengeId - ID del desafío.
+ * @returns {boolean} true si el desafío está en challengeCompletions del héroe.
+ */
 export function isChallengeDone(hero, challengeId){
   if (!hero) return false;
   hero.challengeCompletions = (hero.challengeCompletions && typeof hero.challengeCompletions === 'object') ? hero.challengeCompletions : {};
@@ -594,6 +828,10 @@ export function normalizeFilter(){
   state.challengeFilter = { ...f, subjectId: sub, diff };
 }
 
+/**
+ * Retorna los desafíos filtrados según state.challengeFilter (materia + dificultad).
+ * @returns {Challenge[]} Array de desafíos que coinciden con el filtro activo.
+ */
 export function getFilteredChallenges(){
   const challenges = Array.isArray(state.data?.challenges) ? state.data.challenges : [];
   const f = state.challengeFilter || {};
@@ -608,6 +846,12 @@ export function getFilteredChallenges(){
   });
 }
 
+/**
+ * Cuenta cuántos desafíos de una dificultad específica ha completado un héroe.
+ * @param {Hero}   hero       - Héroe a evaluar.
+ * @param {string} difficulty - Dificultad a contar ('easy' | 'medium' | 'hard').
+ * @returns {number} Cantidad de desafíos completados para esa dificultad.
+ */
 export function countCompletedForHeroByDifficulty(hero, difficulty){
   if (!hero) return 0;
   const diff = normalizeDifficulty(difficulty);
@@ -619,6 +863,11 @@ export function countCompletedForHeroByDifficulty(hero, difficulty){
   }, 0);
 }
 
+/**
+ * Cuenta el total de desafíos completados por un héroe.
+ * @param {Hero} hero - Héroe a evaluar.
+ * @returns {number} Número total de entradas en challengeCompletions.
+ */
 export function countCompletedForHero(hero){
   if (!hero) return 0;
   const c = (hero.challengeCompletions && typeof hero.challengeCompletions==='object') ? hero.challengeCompletions : {};
@@ -635,6 +884,11 @@ function _activeGroup(){
   }catch(e){ return '2D'; }
 }
 
+/**
+ * Retorna el valor más alto entre todas las estadísticas de un héroe.
+ * @param {Hero} hero - Héroe a evaluar.
+ * @returns {number} Valor máximo de stat (0 si no tiene stats).
+ */
 export function heroMaxStat(hero){
   const s = (hero && hero.stats && typeof hero.stats==='object') ? hero.stats : {};
   let m = 0;
@@ -755,6 +1009,11 @@ function _rulePassesForHero(hero, u){
   return false;
 }
 
+/**
+ * Determina si un evento/boss está desbloqueado según el progreso del grupo.
+ * @param {AppEvent} ev - Evento a evaluar.
+ * @returns {boolean} true si el evento está desbloqueado.
+ */
 export function isEventUnlocked(ev){
   if (!ev) return false;
   if (ev.unlocked) return true;
@@ -792,7 +1051,11 @@ export function isEventUnlocked(ev){
   return heroes.some(h=>_rulePassesForHero(h, u));
 }
 
-// Helper for UI: progress numbers for unlock rules (group-based)
+/**
+ * Calcula el progreso de desbloqueo de un evento para mostrarlo en la UI.
+ * @param {AppEvent} ev - Evento a evaluar.
+ * @returns {{ text: string, pct: number, cur: number, need: number, scope: string, group: string }}
+ */
 export function getEventUnlockProgress(ev){
   const u = ev?.unlock || {};
   const scope = String(u.scope || 'any').trim();
@@ -850,6 +1113,12 @@ export function getEventUnlockProgress(ev){
 }
 
 
+/**
+ * Determina si un héroe cumple los requisitos de elegibilidad para un evento.
+ * @param {Hero}     hero - Héroe a evaluar.
+ * @param {AppEvent} ev   - Evento con reglas de elegibilidad.
+ * @returns {boolean} true si el héroe puede participar en el evento.
+ */
 export function isHeroEligibleForEvent(hero, ev){
   if (!hero || !ev) return false;
   const r = ev.eligibility || {};
@@ -877,6 +1146,13 @@ export function isHeroEligibleForEvent(hero, ev){
 
   return true;
 }
+/**
+ * Normaliza y valida el objeto de datos de la aplicación.
+ * Garantiza que heroes, challenges, subjects, events y store existan como arrays.
+ * Inyecta datos demo si el JSON está vacío (solo la primera vez).
+ * @param {*} data - Datos a normalizar (puede ser cualquier valor; se protege de nulls).
+ * @returns {AppData} Datos normalizados y completos.
+ */
 export function normalizeData(data){
     const d = data && typeof data === 'object' ? data : {};
     d.meta = (d.meta && typeof d.meta === 'object') ? d.meta : {};

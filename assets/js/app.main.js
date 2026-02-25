@@ -6,7 +6,7 @@
  */
 
 // Import all dependencies
-import { state, logger } from './modules/core_globals.js';
+import { state, logger, ROLE } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
@@ -75,7 +75,7 @@ export async function init(){
 
     // Rol inicial: solo por sesión
     try{
-      state.role = IS_ADMIN ? 'teacher' : 'viewer';
+      state.role = IS_ADMIN ? ROLE.TEACHER : ROLE.VIEWER;
       // Agregar clase al body para estilos condicionales
       document.body.classList.toggle('viewer-mode', !IS_ADMIN);
       document.body.classList.toggle('admin-mode', IS_ADMIN);
@@ -120,7 +120,7 @@ export async function init(){
 
     // Modo normal: bind siempre (se eliminó modo proyector por URL)
     bind();
-    setRole(IS_ADMIN ? 'teacher' : 'viewer');
+    setRole(IS_ADMIN ? ROLE.TEACHER : ROLE.VIEWER);
     syncDetailsUI();
 
     // Sincronización de asignaciones con Supabase
@@ -245,8 +245,28 @@ function setupPWAInstallPrompt(){
 function registerServiceWorker(){
   if (!('serviceWorker' in navigator)) return;
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js').catch((err)=>{
+    navigator.serviceWorker.register('./sw.js').then((registration)=>{
+      if (registration.waiting){
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      registration.addEventListener('updatefound', ()=>{
+        const worker = registration.installing;
+        if (!worker) return;
+        worker.addEventListener('statechange', ()=>{
+          if (worker.state === 'installed' && navigator.serviceWorker.controller){
+            worker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+    }).catch((err)=>{
       console.warn('[PWA] No se pudo registrar service worker', err);
+    });
+
+    let reloadedBySW = false;
+    navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+      if (reloadedBySW) return;
+      reloadedBySW = true;
+      window.location.reload();
     });
   });
 }

@@ -15,12 +15,17 @@
 import {
   state,
   CONFIG,
+  DATA_SOURCE,
   logger,
   normalizeData,
   normalizeFilter
 } from './core_globals.js';
 
-  // Storage
+  /**
+   * Guarda los datos en localStorage.
+   * @param {AppData} [data] - Datos a guardar. Si se omite, usa state.data.
+   * @returns {boolean} true si se guardó exitosamente, false en caso de error.
+   */
   export function saveLocal(data){
     try{
       const payload = (data !== undefined) ? data : state.data;
@@ -48,19 +53,34 @@ import {
     }
   }
 
+  /**
+   * Carga los datos guardados en localStorage.
+   * @returns {AppData|null} Datos guardados o null si no hay nada o el JSON es inválido.
+   */
   export function loadLocal(){
     try{
       const raw = localStorage.getItem(CONFIG.storageKey);
       if (!raw) return null;
       return JSON.parse(raw);
-    }catch(e){ return null; }
+    }catch(e){
+      console.warn('loadLocal: JSON parse failed, discarding corrupted data', e);
+      return null;
+    }
   }
 
+  /**
+   * Elimina los datos guardados en localStorage.
+   * @returns {void}
+   */
   export function clearLocal(){
     try{ localStorage.removeItem(CONFIG.storageKey); }catch(e){}
   }
 
-  // Remote fetch timeout
+  /**
+   * Obtiene los datos remotos desde data.json con cache-buster y timeout.
+   * @returns {Promise<AppData>} Datos remotos parseados.
+   * @throws {Error} Si hay error de red, timeout o JSON inválido.
+   */
   export async function fetchRemote(){
     const ctrl = new AbortController();
     const t = setTimeout(()=> ctrl.abort(), CONFIG.remoteTimeoutMs);
@@ -130,7 +150,7 @@ import {
       const d = await fetchRemote();
       const normalized = normalizeData(d);
       const merged = mergeLocalAssignments(normalized, loadLocal());
-      state.data = merged; state.dataSource = 'remote'; state.loadedFrom = 'remote';
+      state.data = merged; state.dataSource = DATA_SOURCE.REMOTE; state.loadedFrom = DATA_SOURCE.REMOTE;
       normalizeFilter();
       saveLocal(state.data);
       if (forceRemote) _toast?.('Cargado desde GitHub');
@@ -150,7 +170,7 @@ import {
     const local = loadLocal();
     if (local){
       logger.info('Usando datos de copia local');
-      state.data = normalizeData(local); state.dataSource = 'local'; state.loadedFrom = 'local';
+      state.data = normalizeData(local); state.dataSource = DATA_SOURCE.LOCAL; state.loadedFrom = DATA_SOURCE.LOCAL;
       normalizeFilter();
       _updateDataDebug?.();
       _renderAll?.();
@@ -160,14 +180,21 @@ import {
     logger.warn('No hay datos locales ni remotos, usando datos demo');
     if (_demoData) {
       state.data = normalizeData(_demoData());
-      state.dataSource = 'demo';
-      state.loadedFrom = 'demo';
+      state.dataSource = DATA_SOURCE.DEMO;
+      state.loadedFrom = DATA_SOURCE.DEMO;
       normalizeFilter();
       _updateDataDebug?.();
       _renderAll?.();
     }
   }
 
+/**
+ * Combina datos remotos con las asignaciones locales de cada héroe.
+ * Preserva assignedChallenges del localStorage para no perder asignaciones offline.
+ * @param {AppData}      remoteData - Datos frescos del servidor.
+ * @param {AppData|null} localData  - Datos guardados en localStorage.
+ * @returns {AppData} Datos remotos con assignedChallenges actualizados desde local.
+ */
 function mergeLocalAssignments(remoteData, localData){
   const remote = normalizeData(remoteData);
   if (!localData || !Array.isArray(localData.heroes)) return remote;
@@ -196,7 +223,11 @@ function mergeLocalAssignments(remoteData, localData){
   return remote;
 }
 
-  // Render helpers
+  /**
+   * Genera una etiqueta legible para un héroe (nombre · rol · nivel).
+   * @param {Hero} hero - Héroe a describir.
+   * @returns {string} Etiqueta formateada.
+   */
   export function heroLabel(hero){
     const role = (hero.role && hero.role.trim()) ? hero.role.trim() : 'Sin rol';
     return `${hero.name || 'Sin nombre'} · ${role} · Nivel ${hero.level ?? 1}`;
@@ -207,11 +238,16 @@ function mergeLocalAssignments(remoteData, localData){
 // Compat layer: some modules still call saveData() (legacy name).
 // Keep it as a thin wrapper over saveLocal(state.data).
 // ------------------------------------------------------------------
+/**
+ * Wrapper de compatibilidad. Guarda state.data en localStorage.
+ * @deprecated Usar saveLocal(state.data) directamente.
+ * @returns {void}
+ */
 export function saveData(){
   try{
     // state is imported from core_globals
     saveLocal(state.data);
-    if (state.dataSource === 'remote') state.dataSource = 'local';
+    if (state.dataSource === DATA_SOURCE.REMOTE) state.dataSource = DATA_SOURCE.LOCAL;
   }catch(err){
     console.warn('saveData() wrapper failed', err);
   }

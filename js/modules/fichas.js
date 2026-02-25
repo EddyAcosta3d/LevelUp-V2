@@ -18,7 +18,9 @@ import {
   state,
   escapeHtml,
   getSelectedHero,
-  CONFIG
+  CONFIG,
+  ROLE,
+  DATA_SOURCE
 } from './core_globals.js';
 
 import {
@@ -73,7 +75,7 @@ export function selectHero(heroId) {
 export function renderHeroList(){
     const list = $('#heroList');
     list.innerHTML = '';
-    const isEdit = state.role === 'teacher';
+    const isEdit = state.role === ROLE.TEACHER;
     const heroes = (state.data?.heroes || []).filter(h =>
       (h.group || '2D') === state.group && (!h.adminOnly || isEdit)
     );
@@ -534,7 +536,7 @@ export function renderHeroAvatar(hero){
         hero.role = role.name;
         $('#inRol').value = role.name;
         saveLocal(state.data);
-        if (state.dataSource === 'remote') state.dataSource = 'local';
+        if (state.dataSource === DATA_SOURCE.REMOTE) state.dataSource = DATA_SOURCE.LOCAL;
         updateDataDebug();
         renderHeroList();
         closeRoleModal();

@@ -5,7 +5,7 @@
  * @description Event bindings and UI orchestration
  */
 
-import { state } from './modules/core_globals.js';
+import { state, ROUTE } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { renderAll, handleImportJson, handleExportJson, bumpHeroXp, setRole } from './modules/app_actions.js';
 import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
@@ -92,15 +92,15 @@ export function bind(){
   });
 
   // Rewards button - toggle between rewards and previous route
-  let previousRoute = 'fichas'; // Default fallback route
+  let previousRoute = ROUTE.FICHAS; // Default fallback route
 
   const handleRewardsToggle = ()=> {
-    if (state.route === 'recompensas') {
+    if (state.route === ROUTE.RECOMPENSAS) {
       // If we're already on rewards, go back to previous route
       activateRoute(previousRoute);
     } else {
       // Save current route before switching to rewards
-      previousRoute = state.route || 'fichas';
+      previousRoute = state.route || ROUTE.FICHAS;
       activateRoute('recompensas');
     }
   };

@@ -16,6 +16,8 @@ import {
   CONFIG,
   DIFFICULTY,
   POINTS_BY_DIFFICULTY,
+  ROLE,
+  DATA_SOURCE,
   logger,
   escapeHtml,
   makeId,
@@ -88,7 +90,7 @@ function renderAll(){
   // Modo público: SOLO VER (sin PIN, sin edición dentro de la app)
 export function setRole(nextRole){
     state.role = nextRole;
-    try{ document.documentElement.classList.toggle('is-edit', state.role === 'teacher'); }catch(_e){}
+    try{ document.documentElement.classList.toggle('is-edit', state.role === ROLE.TEACHER); }catch(_e){}
     updateEditButton();
     applyFichaLock();
     updateDataDebug();
@@ -98,7 +100,7 @@ export function setRole(nextRole){
     try{ if (typeof renderEvents === 'function') renderEvents(); }catch(e){}
     // Re-render hero list so adminOnly heroes appear/disappear with edit mode
     try{ renderHeroList(); renderHeroDetail(currentHero()); }catch(e){}
-    toast(state.role === 'teacher' ? 'Edición activada' : 'Modo solo ver');
+    toast(state.role === ROLE.TEACHER ? 'Edición activada' : 'Modo solo ver');
   }
 
 
@@ -190,7 +192,7 @@ export function setRole(nextRole){
     }
 
     saveLocal(state.data);
-    if (state.dataSource === 'remote') state.dataSource = 'local';
+    if (state.dataSource === DATA_SOURCE.REMOTE) state.dataSource = DATA_SOURCE.LOCAL;
     updateDataDebug();
     renderHeroList();
     renderHeroDetail();
@@ -237,7 +239,7 @@ export function setRole(nextRole){
       data.meta.updatedAt = data.meta.updatedAt || new Date().toISOString();
 
       state.data = normalizeData(data);
-      state.dataSource = 'local';
+      state.dataSource = DATA_SOURCE.LOCAL;
       saveLocal(state.data);
 
       updateDataDebug();
@@ -849,7 +851,7 @@ export function setRole(nextRole){
       });
 
       saveLocal(state.data);
-      if (state.dataSource === 'remote') state.dataSource = 'local';
+      if (state.dataSource === DATA_SOURCE.REMOTE) state.dataSource = DATA_SOURCE.LOCAL;
       updateDataDebug();
       renderAll();
 

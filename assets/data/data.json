@@ -2,7 +2,7 @@
   "meta": {
     "app": "LevelUp",
     "version": "LevelUP_V2_00.033",
-    "updatedAt": "2026-02-17T07:06:28.246Z",
+    "updatedAt": "2026-02-25T06:21:02.832Z",
     "build": "LevelUP_V2_00.050"
   },
   "heroes": [
@@ -44,7 +44,8 @@
       "medals": 0,
       "storeClaims": [],
       "challengeHistory": [],
-      "levelStartAt": 1771310725169
+      "levelStartAt": 1771310725169,
+      "assignedChallenges": []
     },
     {
       "id": "h_2d_2",
@@ -82,7 +83,10 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-tech-04"
+      ]
     },
     {
       "id": "h_2d_3",
@@ -120,7 +124,10 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-mat-01"
+      ]
     },
     {
       "id": "h_2d_4",
@@ -158,7 +165,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_2d_5",
@@ -196,7 +204,10 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-tech-06"
+      ]
     },
     {
       "id": "h_2d_6",
@@ -234,7 +245,10 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-tech-05"
+      ]
     },
     {
       "id": "h_2d_7",
@@ -272,7 +286,10 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-esp-06"
+      ]
     },
     {
       "id": "h_2d_8",
@@ -310,7 +327,10 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-mat-03"
+      ]
     },
     {
       "id": "h_2d_9",
@@ -319,7 +339,7 @@
       "age": 14,
       "role": "Explorador",
       "level": 1,
-      "xp": 0,
+      "xp": 20,
       "xpMax": 100,
       "weekXp": 0,
       "weekXpMax": 40,
@@ -343,12 +363,23 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {},
+      "challengeCompletions": {
+        "ch_1771311785442": {
+          "at": 1772000157330,
+          "points": 20
+        }
+      },
       "statsCap": 20,
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch_1771311785442",
+        "ch-mat-03"
+      ],
+      "levelStartAt": 1772000157330,
+      "subjectMedals": {}
     },
     {
       "id": "h_2d_10",
@@ -357,7 +388,7 @@
       "age": 13,
       "role": "Investigador",
       "level": 1,
-      "xp": 0,
+      "xp": 10,
       "xpMax": 100,
       "weekXp": 0,
       "weekXpMax": 40,
@@ -381,12 +412,22 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {},
+      "challengeCompletions": {
+        "ch_1771311672486": {
+          "at": 1772000138482,
+          "points": 10
+        }
+      },
       "statsCap": 20,
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch_1771311672486"
+      ],
+      "levelStartAt": 1772000138482,
+      "subjectMedals": {}
     },
     {
       "id": "h_2d_11",
@@ -424,7 +465,10 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-mat-03"
+      ]
     },
     {
       "id": "h_2d_12",
@@ -462,7 +506,10 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-esp-03"
+      ]
     },
     {
       "id": "h_2d_13",
@@ -471,7 +518,7 @@
       "age": 13,
       "role": "Creador",
       "level": 1,
-      "xp": 0,
+      "xp": 40,
       "xpMax": 100,
       "weekXp": 0,
       "weekXpMax": 40,
@@ -495,12 +542,23 @@
       "tokens": 0,
       "rewardsHistory": [],
       "pendingRewards": [],
-      "challengeCompletions": {},
+      "challengeCompletions": {
+        "ch-mat-06": {
+          "at": 1772000115122,
+          "points": 40
+        }
+      },
       "statsCap": 20,
       "photoSrc": "",
-      "medals": 0,
+      "medals": 1,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": [
+        "ch-mat-06",
+        "ch-mat-05"
+      ],
+      "levelStartAt": 1772000115123,
+      "subjectMedals": {}
     },
     {
       "id": "h_2d_14",
@@ -509,7 +567,7 @@
       "age": 13,
       "role": "Artista",
       "level": 1,
-      "xp": 10,
+      "xp": 20,
       "xpMax": 100,
       "weekXp": 0,
       "weekXpMax": 40,
@@ -537,6 +595,10 @@
         "ch-tech-01": {
           "at": 1771311366461,
           "points": 10
+        },
+        "ch-esp-01": {
+          "at": 1772000396235,
+          "points": 10
         }
       },
       "statsCap": 20,
@@ -544,7 +606,13 @@
       "medals": 0,
       "storeClaims": [],
       "challengeHistory": [],
-      "levelStartAt": 1771311366462
+      "levelStartAt": 1771311366462,
+      "assignedChallenges": [
+        "ch-tech-03",
+        "ch-esp-03",
+        "ch-esp-01"
+      ],
+      "subjectMedals": {}
     },
     {
       "id": "h_3d_1",
@@ -582,7 +650,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_2",
@@ -620,7 +689,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_3",
@@ -658,7 +728,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_4",
@@ -696,7 +767,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_5",
@@ -734,7 +806,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_6",
@@ -772,7 +845,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_7",
@@ -810,7 +884,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_8",
@@ -848,7 +923,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_9",
@@ -886,7 +962,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_10",
@@ -924,7 +1001,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_11",
@@ -962,7 +1040,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_12",
@@ -1000,7 +1079,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_13",
@@ -1038,7 +1118,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     },
     {
       "id": "h_3d_14",
@@ -1076,7 +1157,8 @@
       "photoSrc": "",
       "medals": 0,
       "storeClaims": [],
-      "challengeHistory": []
+      "challengeHistory": [],
+      "assignedChallenges": []
     }
   ],
   "subjects": [
