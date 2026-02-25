@@ -188,7 +188,7 @@ const DEFAULT_BOSS_QUIZ = [
     const eligMeter = $('#eventModalEligMeter');
 
     // Defaults
-    if (unlockText) unlockText.textContent = unlocked ? (ev.unlock?.label || '—') : '';
+    if (unlockText) unlockText.textContent = ev.unlock?.label || '—';
     if (eligReq) eligReq.textContent = unlocked ? (ev.eligibility?.label || '—') : '';
     if (unlockMini) unlockMini.textContent = '';
     if (eligMini) eligMini.textContent = '';

@@ -812,13 +812,13 @@ export function getEventUnlockProgress(ev){
       const need = Number(u.perHero ?? 0);
       const cur = heroes.reduce((m,h)=>Math.max(m, countCompletedForHero(h)), 0);
       const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
-      return { text:`Mejor del grupo: ${cur} / ${need} desafíos`, pct, cur, need, scope, group };
+      return { text:`Desafíos completados por un héroe: ${cur} / ${need}`, pct, cur, need, scope, group };
     }
     if (type==='anyStatAtLeast'){
       const need = Number(u.threshold ?? 0);
       const cur = heroes.reduce((m,h)=>Math.max(m, heroMaxStat(h)), 0);
       const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
-      return { text:`Mejor stat del grupo: ${cur} / ${need}`, pct, cur, need, scope, group };
+      return { text:`Stat más alta de un héroe: ${cur} / ${need}`, pct, cur, need, scope, group };
     }
     if (type==='hasDifficulty'){
       const diff = String(u.difficulty||'').toLowerCase();
@@ -826,7 +826,7 @@ export function getEventUnlockProgress(ev){
       const cur = heroes.reduce((m,h)=>Math.max(m, countCompletedForHeroByDifficulty(h, diff)), 0);
       const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
       const tag = diff==='hard' ? 'difíciles' : (diff==='medium' ? 'medios' : diff);
-      return { text:`Mejor del grupo: ${cur} / ${need} desafíos ${tag}`, pct, cur, need, scope, group };
+      return { text:`Desafíos ${tag} de un héroe: ${cur} / ${need}`, pct, cur, need, scope, group };
     }
     return { text:'Progreso del grupo', pct:0, cur:0, need:1, scope, group };
   }
