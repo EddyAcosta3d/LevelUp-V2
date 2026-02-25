@@ -668,11 +668,13 @@ const DEFAULT_BOSS_QUIZ = [
 
     ensureEventTabs();
 
-    const tab = (state.eventsTab || 'boss');
+    const tab = 'boss';
+    state.eventsTab = 'boss';
     // Header simplificado: sin título/subtítulo (solo tabs)
 
     const tabsWrap = $('#eventTabs');
     if (tabsWrap){
+      tabsWrap.hidden = true;
       tabsWrap.querySelectorAll('button[data-event-tab]').forEach(b=>{
         b.classList.toggle('is-active', b.getAttribute('data-event-tab') === tab);
       });
@@ -682,7 +684,7 @@ const DEFAULT_BOSS_QUIZ = [
 
     const hero = currentHero();
     const evs = Array.isArray(state.data?.events) ? state.data.events : [];
-    const list = evs.filter(ev => (ev.kind || 'event') === tab);
+    const list = evs.filter(ev => (ev.kind || 'event') === 'boss');
 
     if (!list.length){
       grid.innerHTML = `<div class="muted">Sin ${(tab === 'boss') ? 'jefes' : 'eventos'}.</div>`;
