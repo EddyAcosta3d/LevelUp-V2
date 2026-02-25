@@ -186,14 +186,16 @@ const DEFAULT_BOSS_QUIZ = [
     const eligReq = $('#eventModalReq');
     const eligMini = $('#eventModalEligMini');
     const eligMeter = $('#eventModalEligMeter');
+    const eligBox = $('#eventModalEligBox');
 
     // Defaults
-    if (unlockText) unlockText.textContent = unlocked ? (ev.unlock?.label || '—') : '';
-    if (eligReq) eligReq.textContent = unlocked ? (ev.eligibility?.label || '—') : '';
+    if (unlockText) unlockText.textContent = ev.unlock?.label || '—';
+    if (eligReq) eligReq.textContent = unlocked ? (ev.eligibility?.label || '—') : '???';
     if (unlockMini) unlockMini.textContent = '';
     if (eligMini) eligMini.textContent = '';
     if (unlockMeter) unlockMeter.style.width = '0%';
     if (eligMeter) eligMeter.style.width = '0%';
+    if (eligBox) eligBox.hidden = !unlocked;
 
     // Unlock progress
     try{
