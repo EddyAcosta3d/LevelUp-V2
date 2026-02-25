@@ -20,6 +20,7 @@ import {
   countCompletedForHeroByDifficulty,
   normalizeDifficulty,
   closeAllModals,
+  DATA_SOURCE,
   $,
   $$
 } from './core_globals.js';
@@ -52,7 +53,7 @@ function bindEventModalActions({ btnFight, btnToggleUnlock, unlocked, eligible, 
   const boundToggle = resetAndBindClick(btnToggleUnlock, () => {
     ev.unlocked = !isEventUnlocked(ev);
     saveLocal(state.data);
-    if (state.dataSource === 'remote') state.dataSource = 'local';
+    if (state.dataSource === DATA_SOURCE.REMOTE) state.dataSource = DATA_SOURCE.LOCAL;
     renderEvents();
     openEventModal(eventId);
     toast(ev.unlocked ? 'Evento desbloqueado' : 'Evento bloqueado');
