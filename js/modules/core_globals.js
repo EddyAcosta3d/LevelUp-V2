@@ -198,6 +198,12 @@ window.LevelUp = window.LevelUp || {};
     DEMO:   'demo'
   });
 
+  /** @enum {string} Tipo de evento — coincide con el campo kind en AppEvent */
+  export const EVENT_KIND = Object.freeze({
+    BOSS:  'boss',
+    EVENT: 'event'
+  });
+
   // === SISTEMA DE LOGGING ===
   export const logger = {
     _enabled: new URLSearchParams(location.search).has('debug'),
@@ -609,7 +615,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
     selectedHeroId: null,
     selectedChallengeId: null,
     challengeFilter: { subjectId: null, diff: 'easy' },
-    eventsTab: 'boss',
+    eventsTab: EVENT_KIND.BOSS,
     isDetailsOpen: false,
     data: null,
     dataSource: '—',     // remote | local | demo
@@ -732,7 +738,7 @@ export function seedEventsDemo(){
   return [
     {
       id:'ev_loquito',
-      kind:'boss',
+      kind: EVENT_KIND.BOSS,
       title:'El Loquito del Centro',
       unlocked:false,
       unlock:{ type:'completions_total', count:3, label:'Completa 3 desafíos (en total)' },
@@ -740,7 +746,7 @@ export function seedEventsDemo(){
     },
     {
       id:'ev_garbanzo',
-      kind:'boss',
+      kind: EVENT_KIND.BOSS,
       title:'El Garbanzo Coqueto',
       unlocked:false,
       unlock:{ type:'level_any', min:2, label:'Algún héroe llega a Nivel 2' },
@@ -748,7 +754,7 @@ export function seedEventsDemo(){
     },
     {
       id:'ev_bonus',
-      kind:'event',
+      kind: EVENT_KIND.EVENT,
       title:'Evento: Cofre Misterioso',
       unlocked:false,
       unlock:{ type:'completions_total', count:6, label:'Completa 6 desafíos (en total)' },
