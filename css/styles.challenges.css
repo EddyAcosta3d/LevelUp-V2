@@ -267,8 +267,9 @@ body.is-modal-open .dropdown__menu{
 .challengeTop__actions{display:flex;align-items:center;gap:10px;min-width:0}
 .challengeTop__main{flex-wrap:wrap}
 .challengeTop__actions{justify-content:flex-end}
-#subjectDropdown{flex:0 0 auto}
+#subjectDropdown{flex:0 0 auto; z-index: 20090;}
 #subjectDropdown .pill{font-weight:700}
+#subjectDropdown .dropdown__menu{ z-index: 20100; }
 .challengeTop__main .diffPills{flex:1 1 320px;min-width:220px}
 .challengeTop__actions #btnHistory{border-style:dashed;opacity:0.92}
 #subjectMenu{min-width:220px}
@@ -292,6 +293,18 @@ body.is-modal-open .dropdown__menu{
 }
 @media (max-width:640px){
   .challengeBody{min-height:180px}
+
+  /* Evita que las acciones se monten sobre el menú de materias en móviles */
+  .challengeTop__actions{
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  #subjectMenu .menuitem{
+    font-size: 16px;
+    line-height: 1.35;
+    padding: 12px 14px;
+  }
 }
 
 
