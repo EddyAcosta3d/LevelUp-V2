@@ -5,7 +5,7 @@
  * @description Event bindings and UI orchestration
  */
 
-import { state, ROUTE } from './modules/core_globals.js';
+import { state, ROUTE, DIFFICULTY } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { renderAll, handleImportJson, handleExportJson, bumpHeroXp, setRole } from './modules/app_actions.js';
 import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
@@ -381,7 +381,7 @@ function bindChallengeButtons() {
 
       // Remove medal if it was a hard challenge
       const difficulty = String(challenge.difficulty || '').toLowerCase();
-      if (difficulty === 'hard') {
+      if (difficulty === DIFFICULTY.HARD) {
         hero.medals = Math.max(0, Number(hero.medals ?? 0) - 1);
       }
 
@@ -394,7 +394,7 @@ function bindChallengeButtons() {
 
       // Award medal for hard challenges
       const difficulty = String(challenge.difficulty || '').toLowerCase();
-      if (difficulty === 'hard') {
+      if (difficulty === DIFFICULTY.HARD) {
         hero.medals = Number(hero.medals ?? 0) + 1;
         toast('🏅 ¡Desafío difícil completado! +1 medalla');
       } else {
@@ -415,9 +415,9 @@ function bindChallengeButtons() {
   // Difficulty filter buttons
   const difficultyButtons = ['btnDiffEasy', 'btnDiffMed', 'btnDiffHard'];
   const difficultyMap = {
-    'btnDiffEasy': 'easy',
-    'btnDiffMed': 'medium',
-    'btnDiffHard': 'hard'
+    'btnDiffEasy': DIFFICULTY.EASY,
+    'btnDiffMed':  DIFFICULTY.MEDIUM,
+    'btnDiffHard': DIFFICULTY.HARD
   };
 
   difficultyButtons.forEach(btnId => {
@@ -654,7 +654,7 @@ function renderChallengeHistory() {
     if (!challenge) return;
 
     const subjectName = subjectMap.get(challenge.subjectId) || challenge.subject || '—';
-    const difficulty = challenge.difficulty || 'easy';
+    const difficulty = challenge.difficulty || DIFFICULTY.EASY;
     const date = comp.at ? new Date(comp.at).toLocaleDateString('es-MX') : '—';
 
     const div = document.createElement('div');

@@ -287,8 +287,8 @@ export function setRole(nextRole){
       if (!ch) continue;
       total += 1;
       const d = String(ch.difficulty||'').toLowerCase();
-      if (d === 'medium') hasMed = true;
-      if (d === 'hard') hasHard = true;
+      if (d === DIFFICULTY.MEDIUM) hasMed = true;
+      if (d === DIFFICULTY.HARD) hasHard = true;
       const sid = String(ch.subjectId || ch.subject || '');
       if (sid){ subjCount.set(sid, (subjCount.get(sid)||0) + 1); }
     }

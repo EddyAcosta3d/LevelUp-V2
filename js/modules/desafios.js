@@ -17,7 +17,8 @@ import {
   escapeHtml,
   normalizeDifficulty,
   isChallengeDone,
-  getFilteredChallenges
+  getFilteredChallenges,
+  DIFFICULTY
 } from './core_globals.js';
 
 import {
@@ -69,8 +70,8 @@ function isChallengeUnlockedForHero(hero, challengeId){
 export function renderChallenges(){
     // Ensure default filters: one subject + easy difficulty
     const subjectsAll = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
-    if (!state.challengeFilter) state.challengeFilter = { subjectId: null, diff: 'easy' };
-    if (!state.challengeFilter.diff) state.challengeFilter.diff = 'easy';
+    if (!state.challengeFilter) state.challengeFilter = { subjectId: null, diff: DIFFICULTY.EASY };
+    if (!state.challengeFilter.diff) state.challengeFilter.diff = DIFFICULTY.EASY;
     if (!state.challengeFilter.subjectId && subjectsAll.length) state.challengeFilter.subjectId = subjectsAll[0].id;
 
   ensureChallengeUI(renderChallenges);
@@ -104,8 +105,8 @@ export function renderChallenges(){
           if (!ch) continue;
           total++;
           const d = String(ch.difficulty||'').toLowerCase();
-          if (d==='medium') hasMed = true;
-          if (d==='hard') hasHard = true;
+          if (d===DIFFICULTY.MEDIUM) hasMed = true;
+          if (d===DIFFICULTY.HARD) hasHard = true;
         }
         const needTotal = Math.max(0, 3-total);
         const needM = !hasMed;
@@ -503,7 +504,7 @@ export function openChallengeModal(mode = 'create', challenge = null){
     : String(state.challengeFilter?.subjectId || subjects[0]?.id || '');
   if (inSubject) inSubject.value = initialSubjectId;
 
-  const initialDiff = normalizeDifficulty(editing ? challenge.difficulty : state.challengeFilter?.diff || 'easy');
+  const initialDiff = normalizeDifficulty(editing ? challenge.difficulty : state.challengeFilter?.diff || DIFFICULTY.EASY);
   if (inDiff) inDiff.value = initialDiff;
 
   const refreshSubjectLabel = ()=>{
@@ -531,7 +532,7 @@ export function openChallengeModal(mode = 'create', challenge = null){
   diffPick?.querySelectorAll('[data-diff]').forEach(btn=>{
     btn.classList.toggle('is-active', btn.dataset.diff === initialDiff);
     btn.addEventListener('click', ()=>{
-      const diff = normalizeDifficulty(btn.dataset.diff || 'easy');
+      const diff = normalizeDifficulty(btn.dataset.diff || DIFFICULTY.EASY);
       if (inDiff) inDiff.value = diff;
       diffPick.querySelectorAll('[data-diff]').forEach(x=> x.classList.toggle('is-active', x === btn));
     });
@@ -553,7 +554,7 @@ export function saveNewChallenge(){
     const pointsInput = document.getElementById('inChPoints')?.value;
     const points = Number.parseInt(pointsInput, 10);
     const subjectId = String(document.getElementById('inChSubject')?.value || '').trim();
-    const difficulty = normalizeDifficulty(document.getElementById('inChDiff')?.value || 'easy');
+    const difficulty = normalizeDifficulty(document.getElementById('inChDiff')?.value || DIFFICULTY.EASY);
 
     // Enhanced validations
     if (!title){
