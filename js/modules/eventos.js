@@ -186,6 +186,7 @@ const DEFAULT_BOSS_QUIZ = [
     const eligReq = $('#eventModalReq');
     const eligMini = $('#eventModalEligMini');
     const eligMeter = $('#eventModalEligMeter');
+    const eligBox = $('#eventModalEligBox');
 
     // Defaults
     if (unlockText) unlockText.textContent = ev.unlock?.label || '—';
@@ -194,6 +195,7 @@ const DEFAULT_BOSS_QUIZ = [
     if (eligMini) eligMini.textContent = '';
     if (unlockMeter) unlockMeter.style.width = '0%';
     if (eligMeter) eligMeter.style.width = '0%';
+    if (eligBox) eligBox.hidden = !unlocked;
 
     // Unlock progress
     try{

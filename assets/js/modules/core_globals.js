@@ -809,13 +809,13 @@ export function getEventUnlockProgress(ev){
     // For any, show best current value vs threshold
     const type = String(u.type||'').trim();
     if (type==='minChallenges'){
-      const need = Number(u.perHero ?? 0);
+      const need = Number(u.perHero ?? u.value ?? u.count ?? 0);
       const cur = heroes.reduce((m,h)=>Math.max(m, countCompletedForHero(h)), 0);
       const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
       return { text:`Desafíos completados por un héroe: ${cur} / ${need}`, pct, cur, need, scope, group };
     }
     if (type==='anyStatAtLeast'){
-      const need = Number(u.threshold ?? 0);
+      const need = Number(u.threshold ?? u.value ?? u.min ?? 0);
       const cur = heroes.reduce((m,h)=>Math.max(m, heroMaxStat(h)), 0);
       const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
       return { text:`Stat más alta de un héroe: ${cur} / ${need}`, pct, cur, need, scope, group };
