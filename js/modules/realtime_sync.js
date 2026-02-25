@@ -4,9 +4,13 @@
  * @module realtime_sync
  * @description Sincronización en tiempo real de asignaciones de desafíos.
  *
- * Usa polling cada POLL_INTERVAL_MS contra Supabase (tabla hero_assignments).
- * Cuando detecta cambios en las asignaciones del héroe activo, actualiza el
- * estado local y llama al callback proporcionado (típicamente renderChallenges).
+ * Usa polling contra Supabase (tabla hero_assignments) con intervalos distintos
+ * según el rol para no saturar la API:
+ *   - Alumno: cada POLL_INTERVAL_STUDENT_MS (5s) — necesita detectar nuevas asignaciones
+ *   - Profe:  cada POLL_INTERVAL_TEACHER_MS  (8s) — ya ve actualizaciones optimistas
+ *             inmediatas al asignar; el polling solo confirma el estado remoto.
+ *             Con N alumnos, cada tick dispara N requests en paralelo (Promise.allSettled),
+ *             por lo que un intervalo corto multiplica el costo de red rápidamente.
  *
  * USO:
  *   startAssignmentSync('h_2d_3', () => renderChallenges());
@@ -17,7 +21,12 @@ import { getHeroAssignments } from './supabase_client.js';
 import { state } from './core_globals.js';
 import { saveLocal } from './store.js';
 
-const POLL_INTERVAL_MS = 1200;
+// Alumno: 5 s — suficiente para notar una nueva asignación sin saturar Supabase.
+const POLL_INTERVAL_STUDENT_MS = 5000;
+// Profe: 8 s — cada tick hace N peticiones paralelas (una por alumno), así que
+// un intervalo largo reduce el costo de red sin afectar la experiencia, ya que
+// la UI del profe usa actualizaciones optimistas inmediatas.
+const POLL_INTERVAL_TEACHER_MS = 8000;
 
 let _pollTimer = null;
 let _pollAllTimer = null;
@@ -93,7 +102,7 @@ export function startAssignmentSync(heroId, onUpdate) {
 
   // Primera llamada inmediata para que el alumno vea asignaciones al abrir la app
   poll();
-  _pollTimer = setInterval(poll, POLL_INTERVAL_MS);
+  _pollTimer = setInterval(poll, POLL_INTERVAL_STUDENT_MS);
 }
 
 export function stopAssignmentSync() {
@@ -157,7 +166,7 @@ export function startAllAssignmentsSync(onUpdate) {
   }
 
   pollAll();
-  _pollAllTimer = setInterval(pollAll, POLL_INTERVAL_MS);
+  _pollAllTimer = setInterval(pollAll, POLL_INTERVAL_TEACHER_MS);
 }
 
 export function stopAllAssignmentsSync() {

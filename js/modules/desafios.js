@@ -528,14 +528,18 @@ export function openChallengeModal(mode = 'create', challenge = null){
     });
   }
 
-  btnSubject?.addEventListener('click', ()=> subjectMenu?.classList.toggle('is-open'));
+  // Usamos `.onclick = ...` en lugar de `.addEventListener` porque btnSubject y los
+  // botones de diffPick son elementos permanentes del DOM (no se recrean con innerHTML).
+  // Con addEventListener cada apertura del modal añadiría un handler extra acumulado;
+  // con onclick la asignación reemplaza cualquier handler previo.
+  if (btnSubject) btnSubject.onclick = () => subjectMenu?.classList.toggle('is-open');
   diffPick?.querySelectorAll('[data-diff]').forEach(btn=>{
     btn.classList.toggle('is-active', btn.dataset.diff === initialDiff);
-    btn.addEventListener('click', ()=>{
+    btn.onclick = ()=>{
       const diff = normalizeDifficulty(btn.dataset.diff || DIFFICULTY.EASY);
       if (inDiff) inDiff.value = diff;
       diffPick.querySelectorAll('[data-diff]').forEach(x=> x.classList.toggle('is-active', x === btn));
-    });
+    };
   });
 
   refreshSubjectLabel();
