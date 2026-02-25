@@ -20,7 +20,8 @@ import {
   getSelectedHero,
   CONFIG,
   ROLE,
-  DATA_SOURCE
+  DATA_SOURCE,
+  DIFFICULTY
 } from './core_globals.js';
 
 import {
@@ -854,9 +855,9 @@ function getRewardDescriptor(item){
   
 export function difficultyLabel(diff){
   const d = String(diff || '').toLowerCase();
-  if (d === 'easy') return 'Fácil';
-  if (d === 'medium') return 'Medio';
-  if (d === 'hard') return 'Difícil';
+  if (d === DIFFICULTY.EASY)   return 'Fácil';
+  if (d === DIFFICULTY.MEDIUM) return 'Medio';
+  if (d === DIFFICULTY.HARD)   return 'Difícil';
   return '—';
 }
 

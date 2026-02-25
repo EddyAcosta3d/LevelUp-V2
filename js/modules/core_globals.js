@@ -493,7 +493,7 @@ export function seedChallengesDemo(S){
   // Desafíos de Tecnología (los que definiste)
   return [
     {
-      id:'ch-tech-01', subjectId: S.tec.id, subject: S.tec.name, difficulty:'easy', points:10,
+      id:'ch-tech-01', subjectId: S.tec.id, subject: S.tec.name, difficulty: DIFFICULTY.EASY, points:10,
       title:'Ejercicio 1 – ¿Tecnología o no?',
       body:`Dificultad: Fácil
 
@@ -513,7 +513,7 @@ Incluye: tecnología + energía + infraestructura
 Evalúa: comprensión básica, romper la idea “solo lo electrónico”.`
     },
     {
-      id:'ch-tech-02', subjectId: S.tec.id, subject: S.tec.name, difficulty:'easy', points:10,
+      id:'ch-tech-02', subjectId: S.tec.id, subject: S.tec.name, difficulty: DIFFICULTY.EASY, points:10,
       title:'Ejercicio 2 – ¿Seguro o no seguro?',
       body:`Dificultad: Fácil
 
@@ -528,7 +528,7 @@ Incluye: internet + seguridad
 Evalúa: criterio básico, sentido común digital.`
     },
     {
-      id:'ch-tech-03', subjectId: S.tec.id, subject: S.tec.name, difficulty:'medium', points:20,
+      id:'ch-tech-03', subjectId: S.tec.id, subject: S.tec.name, difficulty: DIFFICULTY.MEDIUM, points:20,
       title:'Ejercicio 3 – El camino de la energía',
       body:`Dificultad: Media
 
@@ -544,7 +544,7 @@ Incluye al menos:
 Evalúa: comprensión de energía, procesos técnicos, orden lógico.`
     },
     {
-      id:'ch-tech-04', subjectId: S.tec.id, subject: S.tec.name, difficulty:'medium', points:20,
+      id:'ch-tech-04', subjectId: S.tec.id, subject: S.tec.name, difficulty: DIFFICULTY.MEDIUM, points:20,
       title:'Ejercicio 4 – Internet como sistema técnico',
       body:`Dificultad: Media
 
@@ -565,7 +565,7 @@ Después responde:
 Evalúa: concepto de sistema técnico, relación entre partes.`
     },
     {
-      id:'ch-tech-05', subjectId: S.tec.id, subject: S.tec.name, difficulty:'hard', points:40,
+      id:'ch-tech-05', subjectId: S.tec.id, subject: S.tec.name, difficulty: DIFFICULTY.HARD, points:40,
       title:'Ejercicio 5 – Exposición: Riesgos y seguridad en Internet',
       body:`Dificultad: Difícil
 Modalidad: Exposición individual o en equipo
@@ -585,7 +585,7 @@ Conexión directa: Manual de Seguridad en Internet
 Evalúa: análisis, claridad, expresión oral.`
     },
     {
-      id:'ch-tech-06', subjectId: S.tec.id, subject: S.tec.name, difficulty:'hard', points:40,
+      id:'ch-tech-06', subjectId: S.tec.id, subject: S.tec.name, difficulty: DIFFICULTY.HARD, points:40,
       title:'Ejercicio 6 – Exposición: Energía y tecnología en la vida diaria',
       body:`Dificultad: Difícil
 Modalidad: Exposición en equipo
@@ -614,7 +614,7 @@ Evalúa: relación energía–tecnología, explicación clara, trabajo en equipo
     group: '2D',
     selectedHeroId: null,
     selectedChallengeId: null,
-    challengeFilter: { subjectId: null, diff: 'easy' },
+    challengeFilter: { subjectId: null, diff: DIFFICULTY.EASY },
     eventsTab: EVENT_KIND.BOSS,
     isDetailsOpen: false,
     data: null,
@@ -823,7 +823,7 @@ export function normalizeFilter(){
   if (!sub) sub = String(subjects[0].id);
 
   // Normalizar dificultad (ej: "Fácil" -> "easy").
-  const diff = normalizeDifficulty(f.diff ? String(f.diff) : '') || 'easy';
+  const diff = normalizeDifficulty(f.diff ? String(f.diff) : '') || DIFFICULTY.EASY;
 
   state.challengeFilter = { ...f, subjectId: sub, diff };
 }
@@ -1088,7 +1088,7 @@ export function getEventUnlockProgress(ev){
       const need = Number(u.perHero ?? 1);
       const cur = heroes.reduce((m,h)=>Math.max(m, countCompletedForHeroByDifficulty(h, diff)), 0);
       const pct = need<=0 ? 100 : Math.max(0, Math.min(100, Math.round((cur/need)*100)));
-      const tag = diff==='hard' ? 'difíciles' : (diff==='medium' ? 'medios' : diff);
+      const tag = diff===DIFFICULTY.HARD ? 'difíciles' : (diff===DIFFICULTY.MEDIUM ? 'medios' : diff);
       return { text:`Desafíos ${tag} de un héroe: ${cur} / ${need}`, pct, cur, need, scope, group };
     }
     return { text:'Progreso del grupo', pct:0, cur:0, need:1, scope, group };
