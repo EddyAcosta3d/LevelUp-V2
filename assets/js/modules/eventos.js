@@ -605,6 +605,19 @@ const DEFAULT_BOSS_QUIZ = [
         }
       }
 
+      // Guardar historial de victoria (solo primera vez)
+      if (isVictory && !isRematch && hero){
+        if (!Array.isArray(hero.bossVictories)) hero.bossVictories = [];
+        hero.bossVictories.push({
+          bossId: String(ev.id),
+          bossName: bossName,
+          outcome: outcome,
+          medalsEarned: medalsEarned,
+          xpEarned: xpEarned,
+          date: new Date().toISOString()
+        });
+      }
+
       // Cerrar batalla y mostrar resultado
       modal.hidden = true;
       _showBossResultModal({ outcome, correctCount, totalQuestions, bossName, medalsEarned, xpEarned });

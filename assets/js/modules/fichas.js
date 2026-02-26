@@ -792,12 +792,70 @@ function getRewardDescriptor(item){
   const emptyEl = document.querySelector('#rewardsHistoryEmpty');
   const subtitle = document.querySelector('#rewardsHistorySubtitle');
   const genList = document.querySelector('#rewardsGeneralList');
+  const bossListEl = document.querySelector('#bossVictoriesList');
+  const bossEmptyEl = document.querySelector('#bossVictoriesEmpty');
+  const storeListEl = document.querySelector('#storeClaimsList');
+  const storeEmptyEl = document.querySelector('#storeClaimsEmpty');
 
-  // Historial del héroe seleccionado (por fecha)
+  const hero = currentHero();
+  if (subtitle) subtitle.textContent = hero ? `Historial de ${hero.name || '—'}` : 'Selecciona un personaje para ver su historial.';
+
+  // Sección 1: Recompensas de nivel
   if(listEl && emptyEl){
-    const hero = currentHero();
-    if (subtitle) subtitle.textContent = hero ? `Historial de ${hero.name || '—'}` : 'Selecciona un personaje para ver su historial.';
     renderHeroRewardsList(hero || {}, listEl, emptyEl);
+  }
+
+  // Sección 2: Victorias de jefes
+  if(bossListEl && bossEmptyEl){
+    const victories = Array.isArray((hero || {}).bossVictories) ? (hero || {}).bossVictories : [];
+    bossListEl.innerHTML = '';
+    if(!victories.length){
+      bossEmptyEl.hidden = false;
+    } else {
+      bossEmptyEl.hidden = true;
+      victories.slice().reverse().forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'rewardItem';
+        const isPerfect = v.outcome === 'perfect';
+        const badge = isPerfect ? '🏆' : '⚔️';
+        const title = escapeHtml(v.bossName || 'Jefe');
+        const desc = isPerfect ? 'Victoria perfecta' : 'Victoria';
+        const medals = Number(v.medalsEarned || 0);
+        const xp = Number(v.xpEarned || 0);
+        const date = v.date ? formatDateMX(v.date) : '—';
+        div.innerHTML =
+          '<div class="rewardItem__left">' +
+            '<div class="rewardItem__title">' + title + '</div>' +
+            '<div class="rewardItem__desc">' + escapeHtml(desc) + '</div>' +
+            '<div class="rewardItem__meta">+' + medals + ' medallas · +' + xp + ' XP · ' + escapeHtml(date) + '</div>' +
+          '</div>' +
+          '<div class="rewardItem__badge">' + badge + '</div>';
+        bossListEl.appendChild(div);
+      });
+    }
+  }
+
+  // Sección 3: Canjes de tienda
+  if(storeListEl && storeEmptyEl){
+    const claims = Array.isArray((hero || {}).storeClaims) ? (hero || {}).storeClaims : [];
+    storeListEl.innerHTML = '';
+    if(!claims.length){
+      storeEmptyEl.hidden = false;
+    } else {
+      storeEmptyEl.hidden = true;
+      claims.slice().reverse().forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'rewardItem';
+        const date = c.claimedAt ? formatDateMX(new Date(c.claimedAt).toISOString()) : '—';
+        div.innerHTML =
+          '<div class="rewardItem__left">' +
+            '<div class="rewardItem__title">' + escapeHtml(c.itemName || c.itemId || '—') + '</div>' +
+            '<div class="rewardItem__meta">−' + Number(c.cost || 0) + ' medallas · ' + escapeHtml(date) + '</div>' +
+          '</div>' +
+          '<div class="rewardItem__badge">🛒</div>';
+        storeListEl.appendChild(div);
+      });
+    }
   }
 
   // Columna derecha: catálogo de recompensas (más detallado)

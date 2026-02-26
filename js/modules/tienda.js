@@ -70,7 +70,7 @@ export function renderTienda(){
   const header = `
     <div class="tiendaHeader">
       <div class="tiendaHeader__info">
-        <div class="tiendaHeader__eyebrow">RECOMPENSAS</div>
+
 
         <div class="tiendaHeader__medals">
           <div class="medalBadgeLarge">
