@@ -470,7 +470,8 @@ export function makeBlankHero(group){
     rewardsHistory: [],
     challengeCompletions: {},
     challengeHistory: [],
-    pendingRewards: []
+    pendingRewards: [],
+    bossVictories: []
   };
 }
 

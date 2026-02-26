@@ -381,24 +381,47 @@
 
         <article class="page" data-page="recompensas">
           <div class="rewardsGrid">
-            <section class="card" aria-label="Historial de recompensas">
-              <div class="cardHead">
-                <h3 class="h3">Historial</h3>
-                <div class="muted small" id="rewardsHistorySubtitle">Selecciona un personaje para ver su historial.</div>
-              </div>
-              <div class="cardBody">
-                <div id="rewardsHistoryList" class="rewardsList"></div>
-                <div id="rewardsHistoryEmpty" class="muted" style="padding:8px;">Aún no hay recompensas reclamadas.</div>
-              </div>
-            </section>
+            <div class="rewardsHistoryCol">
+              <div class="muted small" id="rewardsHistorySubtitle" style="padding:4px 0 8px;">Selecciona un personaje para ver su historial.</div>
 
-            <section class="card" aria-label="Recompensas generales">
+              <section class="card" aria-label="Recompensas de nivel">
+                <div class="cardHead">
+                  <h3 class="h3">Recompensas de nivel</h3>
+                </div>
+                <div class="cardBody">
+                  <div id="rewardsHistoryList" class="rewardsList"></div>
+                  <div id="rewardsHistoryEmpty" class="muted" style="padding:8px;">Aún no hay recompensas reclamadas.</div>
+                </div>
+              </section>
+
+              <section class="card" aria-label="Victorias de jefes">
+                <div class="cardHead">
+                  <h3 class="h3">Victorias de jefes</h3>
+                </div>
+                <div class="cardBody">
+                  <div id="bossVictoriesList" class="rewardsList"></div>
+                  <div id="bossVictoriesEmpty" class="muted" style="padding:8px;">Aún no hay victorias registradas.</div>
+                </div>
+              </section>
+
+              <section class="card" aria-label="Canjes de tienda">
+                <div class="cardHead">
+                  <h3 class="h3">Canjes de tienda</h3>
+                </div>
+                <div class="cardBody">
+                  <div id="storeClaimsList" class="rewardsList"></div>
+                  <div id="storeClaimsEmpty" class="muted" style="padding:8px;">Aún no hay canjes realizados.</div>
+                </div>
+              </section>
+            </div>
+
+            <section class="card" aria-label="Resumen de recompensas">
               <div class="cardHead">
-                <h3 class="h3">Recompensas generales</h3>
-                <div class="muted small">Lo que pueden ganar al subir de nivel.</div>
+                <h3 class="h3">Resumen</h3>
+                <div class="muted small" id="rewardsSummarySubtitle">Selecciona un personaje.</div>
               </div>
               <div class="cardBody">
-                <div id="rewardsGeneralList" class="rewardsList"></div>
+                <div id="rewardsSummaryList" class="rewardsSummary"></div>
               </div>
             </section>
           </div>
