@@ -430,6 +430,31 @@ body{
 .menuitem:hover{ background: rgba(255,255,255,0.06); }
 .menudivider{ height:1px; background: rgba(255,255,255,0.10); margin: 8px 0; }
 
+/* GitHub save status indicator inside the Datos dropdown */
+.menuitem--status{
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  cursor: default;
+  border-radius: 8px;
+  line-height: 1.35;
+}
+.menuitem--status:hover{ background: transparent; }
+.menuitem--status-ok{
+  color: rgba(0, 220, 100, 0.9);
+  background: rgba(0, 220, 100, 0.07);
+}
+.menuitem--status-error{
+  color: rgba(255, 100, 80, 0.95);
+  background: rgba(255, 80, 60, 0.09);
+}
+/* Small warning badge on the Datos button when last save failed */
+#btnDatos.has-save-error::after{
+  content: ' ⚠';
+  font-size: 0.7em;
+  vertical-align: super;
+  color: rgba(255, 120, 80, 0.95);
+}
+
 /* Shell layout */
 .shell{
   position:relative;

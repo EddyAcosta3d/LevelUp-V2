@@ -1172,6 +1172,12 @@ export function normalizeData(data){
       c.id = String(c.id);
       if (c.subjectId !== undefined && c.subjectId !== null && c.subjectId !== '') c.subjectId = String(c.subjectId);
       // Compat: algunos datos traen "subject" en vez de "subjectId"; lo mantenemos como texto
+      // Normalize and validate difficulty — fall back to 'easy' if invalid/missing
+      c.difficulty = normalizeDifficulty(c.difficulty || '') || DIFFICULTY.EASY;
+      // Validate points — must be a positive finite number
+      const defaultPoints = POINTS_BY_DIFFICULTY[c.difficulty] ?? 10;
+      const parsedPoints = Number(c.points ?? defaultPoints);
+      c.points = (Number.isFinite(parsedPoints) && parsedPoints >= 0) ? parsedPoints : defaultPoints;
     });
     d.events.forEach(ev => { if (ev && ev.id !== undefined) ev.id = String(ev.id); else if (ev) ev.id = String(uid('ev')); });
 
@@ -1272,10 +1278,16 @@ d.heroes.forEach(h=>{
       h.age = h.age ?? '';
       h.role = h.role ?? '';
       h.level = Number(h.level ?? 1);
+      if (!Number.isFinite(h.level) || h.level < 1) h.level = 1;
+      h.level = Math.round(h.level);
       h.xp = Number(h.xp ?? 0);
+      if (!Number.isFinite(h.xp) || h.xp < 0) h.xp = 0;
       h.xpMax = Number(h.xpMax ?? 100);
+      if (!Number.isFinite(h.xpMax) || h.xpMax < 1) h.xpMax = 100;
       h.weekXp = Number(h.weekXp ?? 0);
+      if (!Number.isFinite(h.weekXp) || h.weekXp < 0) h.weekXp = 0;
       h.weekXpMax = Number(h.weekXpMax ?? DEFAULT_WEEK_XP_MAX);
+      if (!Number.isFinite(h.weekXpMax) || h.weekXpMax < 1) h.weekXpMax = DEFAULT_WEEK_XP_MAX;
       // Tope inicial de autoevaluación: 0–8. Después puedes subirlo en el JSON a 20.
       // statsCap was used in an older autoevaluación clamp; kept for future use but not enforced.
       // Default to 20 so it doesn't imply a hard cap.
@@ -1283,7 +1295,8 @@ d.heroes.forEach(h=>{
       h.photoSrc = h.photoSrc || '';
       h.desc = h.desc || '';
       h.goal = h.goal || '';
-      h.medals = Number(h.medals ?? 0); // Sistema de medallas
+      h.medals = Number(h.medals ?? 0);
+      if (!Number.isFinite(h.medals) || h.medals < 0) h.medals = 0;
       h.storeClaims = Array.isArray(h.storeClaims) ? h.storeClaims : []; // Historial de canjes
       h.assignedChallenges = Array.isArray(h.assignedChallenges)
         ? h.assignedChallenges.map(x => String(x))
@@ -1314,6 +1327,7 @@ d.heroes.forEach(h=>{
           .filter(p=> { const lv=Number(p.level); if (seen.has(lv)) return false; seen.add(lv); return true; });
       }catch(_e){}
       h.tokens = Number(h.tokens ?? 0);
+      if (!Number.isFinite(h.tokens) || h.tokens < 0) h.tokens = 0;
       // keep stats object
       h.stats = h.stats && typeof h.stats === 'object' ? h.stats : {};
       // Compat: algunos JSON viejos usan INT/SAB... (mayúsculas) y otros usan int/sab... (minúsculas)
@@ -1324,6 +1338,9 @@ d.heroes.forEach(h=>{
         if (h.stats[up] === undefined && h.stats[low] !== undefined) h.stats[up] = Number(h.stats[low] ?? 0);
         if (h.stats[low] === undefined) h.stats[low] = 0;
         if (h.stats[up] === undefined) h.stats[up] = 0;
+        // Clamp stat values to valid range [0, ∞) — negative stats can't exist in the game
+        h.stats[low] = Math.max(0, Number.isFinite(h.stats[low]) ? h.stats[low] : 0);
+        h.stats[up]  = Math.max(0, Number.isFinite(h.stats[up])  ? h.stats[up]  : 0);
       });
     });
     return d;

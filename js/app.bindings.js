@@ -7,7 +7,7 @@
 
 import { state, ROUTE, DIFFICULTY } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
-import { renderAll, handleImportJson, handleExportJson, bumpHeroXp, setRole } from './modules/app_actions.js';
+import { renderAll, handleImportJson, handleExportJson, handleExportCsv, bumpHeroXp, setRole } from './modules/app_actions.js';
 import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
 import { toggleSubjectDropdown, currentHero, renderHeroDetail } from './modules/fichas.js';
 import { bindTiendaEvents } from './modules/tienda.js';
@@ -18,6 +18,31 @@ import { getSession } from './modules/hero_session.js';
 function safeCall(fn, ...args){
   try{ if (typeof fn === 'function') return fn(...args); }catch(_e){}
   return undefined;
+}
+
+/**
+ * Actualiza el indicador de estado del último guardado en GitHub
+ * dentro del dropdown de Datos.
+ * @param {{ ok: boolean, savedAt?: Date, error?: string }} status
+ */
+function _updateGitHubSaveStatus({ ok, savedAt, error } = {}) {
+  const statusEl = document.getElementById('githubSaveStatus');
+  const btnDatos = document.getElementById('btnDatos');
+  if (!statusEl) return;
+
+  if (ok && savedAt) {
+    const timeStr = savedAt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    statusEl.textContent = `✅ Guardado a las ${timeStr}`;
+    statusEl.className = 'menuitem menuitem--status menuitem--status-ok';
+    btnDatos?.classList.remove('has-save-error');
+  } else {
+    const msg = error || 'Error al guardar';
+    // Truncate long messages for the status line (full message was shown in toast)
+    statusEl.textContent = `⚠️ ${msg.length > 80 ? msg.slice(0, 77) + '…' : msg}`;
+    statusEl.className = 'menuitem menuitem--status menuitem--status-error';
+    btnDatos?.classList.add('has-save-error');
+  }
+  statusEl.hidden = false;
 }
 
 function activateRoute(route){
@@ -84,6 +109,7 @@ export function bind(){
   });
   document.getElementById('btnImportJson')?.addEventListener('click', ()=> document.getElementById('fileImport')?.click());
   document.getElementById('btnExportJson')?.addEventListener('click', ()=> safeCall(handleExportJson));
+  document.getElementById('btnExportCsv')?.addEventListener('click', ()=> safeCall(handleExportCsv));
 
   document.getElementById('fileImport')?.addEventListener('change', async (e)=>{
     const file = e.target?.files?.[0];
@@ -156,19 +182,25 @@ export function bind(){
 
   document.getElementById('btnSaveToGitHub')?.addEventListener('click', async ()=> {
     const toast = window.toast || ((msg)=> console.log(msg));
+    const btn = document.getElementById('btnSaveToGitHub');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando…'; }
     try {
-      toast('Guardando en GitHub...');
       const result = await saveToGitHub({
         onProgress: (msg) => toast(msg)
       });
       if (result.success) {
         toast('✅ ' + result.message);
+        _updateGitHubSaveStatus({ ok: true, savedAt: new Date() });
       } else {
         toast('❌ ' + result.message);
+        _updateGitHubSaveStatus({ ok: false, error: result.message });
       }
     } catch (error) {
       toast('❌ Error al guardar en GitHub');
+      _updateGitHubSaveStatus({ ok: false, error: error?.message || 'Error desconocido' });
       console.error(error);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar a GitHub'; }
     }
   });
 
