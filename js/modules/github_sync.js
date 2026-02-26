@@ -295,6 +295,22 @@ export async function saveToGitHub(options = {}) {
         }
       }
 
+      // Provide actionable error messages per status code
+      if (response.status === 401) {
+        throw new Error('Token inválido o expirado. Ve a Configuración → GitHub y actualiza tu token.');
+      }
+      if (response.status === 403) {
+        throw new Error('Sin permiso de escritura. Verifica que el token tenga permisos de "Contents: Read and write" en este repositorio.');
+      }
+      if (response.status === 404) {
+        throw new Error('Repositorio o archivo no encontrado. Verifica el nombre del repo y que el archivo data/data.json exista en GitHub.');
+      }
+      if (response.status === 422) {
+        throw new Error(`Error de validación en GitHub: ${errorData.message || 'datos inválidos'}. Revisa que el archivo no esté corrupto.`);
+      }
+      if (response.status >= 500) {
+        throw new Error(`Error del servidor de GitHub (${response.status}). Espera unos minutos e intenta de nuevo.`);
+      }
       throw new Error(`GitHub API error: ${response.status} - ${errorData.message || response.statusText}`);
     }
 
