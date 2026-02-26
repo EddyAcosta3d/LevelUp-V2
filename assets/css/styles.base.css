@@ -2093,6 +2093,23 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{ width:0; height:0; }
   color:rgba(240,240,240,0.80);
 }
 
+/* --- Resumen de recompensas (columna derecha) --- */
+.rewardsHistoryCol{ display:flex; flex-direction:column; gap:14px; }
+.rewardsSummary{ display:flex; flex-direction:column; gap:6px; }
+.rewardsSummaryRow{
+  display:grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+.rewardsSummaryRow__icon{ font-size:1.1rem; text-align:center; }
+.rewardsSummaryRow__label{ font-size:.9rem; color:rgba(230,230,230,.80); }
+.rewardsSummaryRow__value{ font-weight:800; font-size:1rem; white-space:nowrap; }
+
 
 /* Make notes fill available width inside centered card (desktop) */
 .card--center .noteGrid{ width:100%; align-self:stretch; }
