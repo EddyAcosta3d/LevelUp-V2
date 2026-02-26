@@ -18,7 +18,8 @@ import {
   normalizeDifficulty,
   isChallengeDone,
   getFilteredChallenges,
-  DIFFICULTY
+  DIFFICULTY,
+  POINTS_BY_DIFFICULTY
 } from './core_globals.js';
 
 import {
@@ -488,6 +489,7 @@ export function openChallengeModal(mode = 'create', challenge = null){
   const inSubject = document.getElementById('inChSubject');
   const inDiff = document.getElementById('inChDiff');
   const btnSubject = document.getElementById('btnChModalSubject');
+  const subjectDropdown = document.getElementById('chModalSubjectDropdown');
   const subjectMenu = document.getElementById('chModalSubjectMenu');
   const diffPick = document.getElementById('inChDiffPick');
 
@@ -523,7 +525,8 @@ export function openChallengeModal(mode = 'create', challenge = null){
       btn.addEventListener('click', ()=>{
         if (inSubject) inSubject.value = btn.dataset.id || '';
         refreshSubjectLabel();
-        subjectMenu.classList.remove('is-open');
+        // El CSS usa .dropdown.is-open, así que cerramos el wrapper, no el menú.
+        subjectDropdown?.classList.remove('is-open');
       });
     });
   }
@@ -532,12 +535,20 @@ export function openChallengeModal(mode = 'create', challenge = null){
   // botones de diffPick son elementos permanentes del DOM (no se recrean con innerHTML).
   // Con addEventListener cada apertura del modal añadiría un handler extra acumulado;
   // con onclick la asignación reemplaza cualquier handler previo.
-  if (btnSubject) btnSubject.onclick = () => subjectMenu?.classList.toggle('is-open');
+
+  // Bug fix: el CSS requiere is-open en el wrapper .dropdown, no en el .dropdown__menu.
+  if (btnSubject) btnSubject.onclick = () => subjectDropdown?.classList.toggle('is-open');
+
+  // Bug fix: el CSS usa diffPick[data-active="easy|medium|hard"] para los colores;
+  // también actualizamos inChPoints según POINTS_BY_DIFFICULTY al cambiar dificultad.
+  if (diffPick) diffPick.dataset.active = initialDiff;
   diffPick?.querySelectorAll('[data-diff]').forEach(btn=>{
     btn.classList.toggle('is-active', btn.dataset.diff === initialDiff);
     btn.onclick = ()=>{
       const diff = normalizeDifficulty(btn.dataset.diff || DIFFICULTY.EASY);
       if (inDiff) inDiff.value = diff;
+      if (diffPick) diffPick.dataset.active = diff;
+      if (inPoints) inPoints.value = String(POINTS_BY_DIFFICULTY[diff] ?? 10);
       diffPick.querySelectorAll('[data-diff]').forEach(x=> x.classList.toggle('is-active', x === btn));
     };
   });
