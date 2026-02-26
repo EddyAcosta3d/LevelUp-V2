@@ -430,9 +430,14 @@ function bindChallengeButtons() {
   });
 
   // Add Challenge button
+  // Nota: openChallengeModal no retorna valor, así que no se puede usar el retorno
+  // de safeCall para detectar si la función estaba disponible. Se verifica directamente.
   const _openAddChallenge = () => {
-    const ok = safeCall(openChallengeModal, 'create');
-    if (typeof ok === 'undefined') toast('⚠️ Función openChallengeModal no disponible');
+    if (typeof openChallengeModal !== 'function') {
+      toast('⚠️ Función openChallengeModal no disponible');
+      return;
+    }
+    safeCall(openChallengeModal, 'create');
   };
   document.getElementById('btnAddChallenge')?.addEventListener('click', _openAddChallenge);
   document.getElementById('btnAddChallengeMenu')?.addEventListener('click', _openAddChallenge);
