@@ -71,7 +71,7 @@ export function renderTienda(){
     <div class="tiendaHeader">
       <div class="tiendaHeader__info">
         <div class="tiendaHeader__eyebrow">RECOMPENSAS</div>
-        <div class="tiendaHeader__title">Tienda del Héroe</div>
+
         <div class="tiendaHeader__medals">
           <div class="medalBadgeLarge">
             <svg viewBox="0 0 24 24" class="medalIcon">
