@@ -7,7 +7,7 @@
 
 import { state, ROUTE, DIFFICULTY } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
-import { renderAll, handleImportJson, handleExportJson, bumpHeroXp, setRole } from './modules/app_actions.js';
+import { renderAll, handleImportJson, handleExportJson, handleExportCsv, bumpHeroXp, setRole } from './modules/app_actions.js';
 import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
 import { toggleSubjectDropdown, currentHero, renderHeroDetail } from './modules/fichas.js';
 import { bindTiendaEvents } from './modules/tienda.js';
@@ -109,6 +109,7 @@ export function bind(){
   });
   document.getElementById('btnImportJson')?.addEventListener('click', ()=> document.getElementById('fileImport')?.click());
   document.getElementById('btnExportJson')?.addEventListener('click', ()=> safeCall(handleExportJson));
+  document.getElementById('btnExportCsv')?.addEventListener('click', ()=> safeCall(handleExportCsv));
 
   document.getElementById('fileImport')?.addEventListener('change', async (e)=>{
     const file = e.target?.files?.[0];

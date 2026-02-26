@@ -267,6 +267,89 @@ export function setRole(nextRole){
     URL.revokeObjectURL(a.href);
     toast('Exportado JSON');
   }
+
+  function handleExportCsv(){
+    const data = state.data || demoData();
+    const heroes = Array.isArray(data.heroes) ? data.heroes : [];
+    const challenges = Array.isArray(data.challenges) ? data.challenges : [];
+    const subjects = Array.isArray(data.subjects) ? data.subjects : [];
+
+    const chById = new Map(challenges.map(c => [String(c.id), c]));
+
+    // Sort: group asc, level desc, name asc
+    const sorted = [...heroes].sort((a, b) => {
+      const gCmp = String(a.group||'').localeCompare(String(b.group||''), 'es');
+      if (gCmp !== 0) return gCmp;
+      const lCmp = (Number(b.level)||0) - (Number(a.level)||0);
+      if (lCmp !== 0) return lCmp;
+      return String(a.name||'').localeCompare(String(b.name||''), 'es');
+    });
+
+    const subjectNames = subjects.map(s => s.name || s.id);
+    const header = [
+      'Grupo', 'Nombre', 'Rol', 'Nivel', 'XP', 'XP Semanal',
+      'Medallas', 'Tokens',
+      'Fáciles', 'Medios', 'Difíciles', 'Total Desafíos',
+      ...subjectNames,
+      'INT', 'SAB', 'CAR', 'RES', 'CRE'
+    ];
+    const rows = [header];
+
+    for (const hero of sorted) {
+      const comp = (hero.challengeCompletions && typeof hero.challengeCompletions === 'object')
+        ? hero.challengeCompletions : {};
+      let easy = 0, medium = 0, hard = 0;
+      const subjectCounts = new Map(subjects.map(s => [String(s.id), 0]));
+
+      for (const cid in comp) {
+        const ch = chById.get(String(cid));
+        if (!ch) continue;
+        const diff = String(ch.difficulty || '').toLowerCase();
+        if (diff === 'easy') easy++;
+        else if (diff === 'medium') medium++;
+        else if (diff === 'hard') hard++;
+        const sid = String(ch.subjectId || ch.subject || '');
+        if (subjectCounts.has(sid)) subjectCounts.set(sid, subjectCounts.get(sid) + 1);
+      }
+
+      const stats = hero.stats || {};
+      rows.push([
+        hero.group || '',
+        hero.name || '',
+        hero.role || '',
+        hero.level ?? '',
+        hero.xp ?? '',
+        hero.weekXp ?? '',
+        hero.medals ?? '',
+        hero.tokens ?? '',
+        easy, medium, hard, easy + medium + hard,
+        ...subjects.map(s => subjectCounts.get(String(s.id)) || 0),
+        stats.int ?? stats.INT ?? '',
+        stats.sab ?? stats.SAB ?? '',
+        stats.car ?? stats.CAR ?? '',
+        stats.res ?? stats.RES ?? '',
+        stats.cre ?? stats.CRE ?? ''
+      ]);
+    }
+
+    const escape = val => {
+      const s = String(val);
+      return (s.includes(',') || s.includes('"') || s.includes('\n'))
+        ? '"' + s.replace(/"/g, '""') + '"'
+        : s;
+    };
+
+    const csv = rows.map(r => r.map(escape).join(',')).join('\r\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    a.download = `LevelUp_progreso_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Exportado CSV');
+  }
   // Bind
   
   // --- Level-up context: determines eligibility for bonus medal and which stats can be upgraded ---
@@ -922,6 +1005,7 @@ export {
   bumpHeroXp,
   handleImportJson,
   handleExportJson,
+  handleExportCsv,
   openLevelUpModal,
   closeLevelUpModal,
   openConfirmModal,
@@ -939,6 +1023,7 @@ if (typeof window !== "undefined") {
   window.bumpHeroXp = bumpHeroXp;
   window.handleImportJson = handleImportJson;
   window.handleExportJson = handleExportJson;
+  window.handleExportCsv = handleExportCsv;
   window.openLevelUpModal = openLevelUpModal;
   window.closeLevelUpModal = closeLevelUpModal;
   window.openConfirmModal = openConfirmModal;
