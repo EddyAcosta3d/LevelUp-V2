@@ -858,54 +858,41 @@ function getRewardDescriptor(item){
     }
   }
 
-  // Columna derecha: catálogo de recompensas (más detallado)
-  if(genList){
-    genList.innerHTML = '';
+  // Columna derecha: resumen de stats del héroe
+  const summaryEl = document.querySelector('#rewardsSummaryList');
+  const summarySubtitle = document.querySelector('#rewardsSummarySubtitle');
+  if(summaryEl){
+    summaryEl.innerHTML = '';
+    if(!hero){
+      if(summarySubtitle) summarySubtitle.textContent = 'Selecciona un personaje.';
+    } else {
+      if(summarySubtitle) summarySubtitle.textContent = hero.name || '—';
 
-    const groups = [
-      { key:'stat', label:'Mejoras de stats' },
-      { key:'xp', label:'Impulso de XP' },
-      { key:'medal', label:'Medallas' },
-      { key:'doubleNext', label:'Bonificaciones' },
-    ];
+      const victories = Array.isArray(hero.bossVictories) ? hero.bossVictories : [];
+      const claims = Array.isArray(hero.storeClaims) ? hero.storeClaims : [];
+      const rewards = Array.isArray(hero.rewardsHistory) ? hero.rewardsHistory : [];
+      const bossXp = victories.reduce((s, v) => s + Number(v.xpEarned || 0), 0);
+      const bossMedals = victories.reduce((s, v) => s + Number(v.medalsEarned || 0), 0);
+      const medalsSpent = claims.reduce((s, c) => s + Number(c.cost || 0), 0);
 
-    groups.forEach(g=>{
-      const items = REWARD_OPTIONS.filter(r => (r.kind||'') === g.key);
-      if(!items.length) return;
+      const rows = [
+        { icon: '⭐', label: 'Recompensas de nivel', value: rewards.length },
+        { icon: '🏆', label: 'Jefes derrotados', value: (Array.isArray(hero.defeatedBosses) ? hero.defeatedBosses : []).length },
+        { icon: '⚡', label: 'XP ganado en batallas', value: bossXp + ' XP' },
+        { icon: '🏅', label: 'Medallas ganadas en batallas', value: bossMedals },
+        { icon: '🛒', label: 'Canjes realizados', value: claims.length },
+        { icon: '💸', label: 'Medallas gastadas', value: medalsSpent },
+      ];
 
-      const h = document.createElement('div');
-      h.className = 'rewardsSectionTitle';
-      h.textContent = g.label;
-      genList.appendChild(h);
-
-      items.forEach(r=>{
+      rows.forEach(row => {
         const div = document.createElement('div');
-        div.className = 'rewardItem';
-
-        const title = r.title || r.name || r.id;
-        const desc  = r.desc  || '';
-        const details = r.details || '';
-
+        div.className = 'rewardsSummaryRow';
         div.innerHTML =
-          '<div class="rewardItem__main">' +
-            '<div class="rewardItem__titleRow">' +
-              '<div class="rewardItem__title">' + escapeHtml(title) + '</div>' +
-              '<div class="rewardItem__kind">' + escapeHtml(g.label) + '</div>' +
-            '</div>' +
-            (desc ? '<div class="rewardItem__desc">' + escapeHtml(desc) + '</div>' : '') +
-            (details ? '<div class="rewardItem__details">' + escapeHtml(details) + '</div>' : '') +
-          '</div>';
-
-        genList.appendChild(div);
+          '<div class="rewardsSummaryRow__icon">' + row.icon + '</div>' +
+          '<div class="rewardsSummaryRow__label">' + escapeHtml(String(row.label)) + '</div>' +
+          '<div class="rewardsSummaryRow__value">' + escapeHtml(String(row.value)) + '</div>';
+        summaryEl.appendChild(div);
       });
-    });
-
-    // Si por alguna razón no hay nada, muestra fallback
-    if(!genList.children.length){
-      const p = document.createElement('div');
-      p.className = 'muted';
-      p.textContent = 'No hay recompensas configuradas todavía.';
-      genList.appendChild(p);
     }
   }
 }
