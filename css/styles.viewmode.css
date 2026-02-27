@@ -106,6 +106,17 @@ body.viewer-mode .statRange {
   }
 }
 
+/* ============================================
+   STUDENT MODE: Aislamiento de grupo
+   - Los alumnos solo ven su propio grupo
+   - Los tabs de grupo quedan ocultos
+   ============================================ */
+
+/* Ocultar el selector de grupo (2D/3D) para alumnos con sesión */
+body.student-mode .segmented[aria-label="Grupos"] {
+  display: none !important;
+}
+
 /* ADMIN MODE: Mostrar indicador visual (opcional) */
 body.admin-mode #btnEdicion {
   background: rgba(34, 211, 238, 0.2);

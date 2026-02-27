@@ -1017,7 +1017,13 @@ function _rulePassesForHero(hero, u){
  */
 export function isEventUnlocked(ev){
   if (!ev) return false;
-  if (ev.unlocked) return true;
+  // Soporte para desbloqueo manual por grupo (nuevo formato: ev.unlockedGroups = ['2D','3D'])
+  if (Array.isArray(ev.unlockedGroups) && ev.unlockedGroups.length > 0) {
+    if (ev.unlockedGroups.includes(_activeGroup())) return true;
+  } else if (ev.unlocked) {
+    // Formato legacy: desbloqueo global (compatibilidad con datos existentes)
+    return true;
+  }
   const u = ev.unlock || {};
   const scope = String(u.scope || 'any').trim(); // any | count | percent
   const heroesAll = Array.isArray(state.data?.heroes) ? state.data.heroes : [];

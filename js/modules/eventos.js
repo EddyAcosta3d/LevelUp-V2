@@ -52,12 +52,36 @@ function bindEventModalActions({ btnFight, btnToggleUnlock, unlocked, eligible, 
   });
 
   const boundToggle = resetAndBindClick(btnToggleUnlock, () => {
-    ev.unlocked = !isEventUnlocked(ev);
+    const activeGroup = state.group || '2D';
+    const isCurrentlyUnlocked = isEventUnlocked(ev);
+
+    // Migrar de formato legacy (ev.unlocked boolean) a formato por grupo (ev.unlockedGroups array)
+    if (!Array.isArray(ev.unlockedGroups)) {
+      if (ev.unlocked) {
+        // Era desbloqueo global: convertir a todos los grupos existentes excepto el actual si estamos bloqueando
+        const allGroups = [...new Set((state.data?.heroes || []).map(h => h.group).filter(Boolean))];
+        ev.unlockedGroups = isCurrentlyUnlocked ? allGroups.filter(g => g !== activeGroup) : allGroups;
+      } else {
+        ev.unlockedGroups = isCurrentlyUnlocked ? [] : [activeGroup];
+      }
+      delete ev.unlocked;
+    } else {
+      if (isCurrentlyUnlocked) {
+        ev.unlockedGroups = ev.unlockedGroups.filter(g => g !== activeGroup);
+      } else {
+        if (!ev.unlockedGroups.includes(activeGroup)) {
+          ev.unlockedGroups = [...ev.unlockedGroups, activeGroup];
+        }
+      }
+    }
+
     saveLocal(state.data);
     if (state.dataSource === DATA_SOURCE.REMOTE) state.dataSource = DATA_SOURCE.LOCAL;
     renderEvents();
     openEventModal(eventId);
-    toast(ev.unlocked ? 'Evento desbloqueado' : 'Evento bloqueado');
+    toast(isCurrentlyUnlocked
+      ? `Jefe bloqueado para grupo ${activeGroup}`
+      : `Jefe desbloqueado para grupo ${activeGroup}`);
   });
 
   return { boundFight, boundToggle };

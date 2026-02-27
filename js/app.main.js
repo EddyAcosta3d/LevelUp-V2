@@ -79,6 +79,9 @@ export async function init(){
       // Agregar clase al body para estilos condicionales
       document.body.classList.toggle('viewer-mode', !IS_ADMIN);
       document.body.classList.toggle('admin-mode', IS_ADMIN);
+      // student-mode: alumno con sesión activa (no admin, no invitado)
+      const IS_STUDENT = !!(_sess && !_sess.isAdmin && _sess.heroId && !_sess.guest);
+      document.body.classList.toggle('student-mode', IS_STUDENT);
     }catch(_e){}
 
     setActiveRoute(state.route);
