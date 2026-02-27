@@ -152,6 +152,10 @@ export function bind(){
   // Group segmented control (2D/3D)
   document.querySelectorAll('.segmented__btn[data-group]').forEach((btn)=>{
     btn.addEventListener('click', ()=>{
+      // Alumnos con sesión no pueden cambiar de grupo
+      const _sess = window.LevelUp?.getSession?.();
+      if (_sess && !_sess.isAdmin && _sess.heroId && !_sess.guest) return;
+
       const nextGroup = String(btn.dataset.group || '').trim();
       if (!nextGroup || state.group === nextGroup) return;
 
