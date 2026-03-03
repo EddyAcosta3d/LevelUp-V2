@@ -2,7 +2,7 @@
   "meta": {
     "app": "LevelUp",
     "version": "LevelUP_V2_00.033",
-    "updatedAt": "2026-02-26T00:00:00.000Z",
+    "updatedAt": "2026-03-03T21:09:37.400Z",
     "build": "LevelUP_V2_00.050"
   },
   "heroes": [
@@ -610,7 +610,8 @@
       "assignedChallenges": [
         "ch-tech-03",
         "ch-esp-03",
-        "ch-esp-01"
+        "ch-esp-01",
+        "ch-tech-01"
       ],
       "subjectMedals": {}
     },
