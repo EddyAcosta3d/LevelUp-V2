@@ -305,6 +305,23 @@ function bindHeroManagementButtons() {
     }
   });
 
+  // Hero info fields — save changes back to state.data on blur/change
+  const _bindHeroField = (id, applyFn) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', () => {
+      const hero = currentHero();
+      if (!hero) return;
+      applyFn(hero, el.value);
+      if (typeof window.saveLocal === 'function') window.saveLocal(state.data);
+      if (typeof window.renderHeroList === 'function') window.renderHeroList();
+    });
+  };
+  _bindHeroField('inNombre', (hero, v) => { hero.name = v.trim(); });
+  _bindHeroField('inEdad',   (hero, v) => { const n = parseInt(v, 10); if (!isNaN(n)) hero.age = n; });
+  _bindHeroField('txtDesc',  (hero, v) => { hero.desc = v; });
+  _bindHeroField('txtMeta',  (hero, v) => { hero.goal = v; });
+
   // Weekly XP Reset button
   document.getElementById('btnWeekReset')?.addEventListener('click', () => {
     const hero = currentHero();
