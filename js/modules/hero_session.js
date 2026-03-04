@@ -31,7 +31,7 @@ const HERO_MAP = {
   'josue@levelup.mx':       'h_2d_8',
   'santiago@levelup.mx':    'h_2d_9',
   'tadeo@levelup.mx':       'h_2d_10',
-  'eric@levelup.mx':        'h_2d_11',
+  'erick@levelup.mx':       'h_2d_11',
   'majo@levelup.mx':        'h_2d_12',
   'brandon@levelup.mx':     'h_2d_13',
   'arely@levelup.mx':       'h_2d_14',
