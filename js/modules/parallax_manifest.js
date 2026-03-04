@@ -73,5 +73,30 @@ window.__PARALLAX_MANIFEST__ = {
     "fg": "assets/hero_layers/thaily_fg.webp",
     "bg": "assets/hero_layers/thaily_bg.webp",
     "mid": ""
+  },
+  "melinna": {
+    "fg": "assets/hero_layers/melinna_fg.webp",
+    "bg": "assets/hero_layers/melinna_bg.webp",
+    "mid": ""
+  },
+  "juan": {
+    "fg": "assets/hero_layers/juan_fg.webp",
+    "bg": "assets/hero_layers/juan_bg.webp",
+    "mid": ""
+  },
+  "carlos": {
+    "fg": "assets/hero_layers/carlos_fg.webp",
+    "bg": "assets/hero_layers/carlos_bg.webp",
+    "mid": ""
+  },
+  "jannya": {
+    "fg": "assets/hero_layers/jannya_fg.webp",
+    "bg": "assets/hero_layers/jannya_bg.webp",
+    "mid": ""
+  },
+  "ximena": {
+    "fg": "assets/hero_layers/ximena_fg.webp",
+    "bg": "assets/hero_layers/ximena_bg.webp",
+    "mid": ""
   }
 };
