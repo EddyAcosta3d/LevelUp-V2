@@ -16,6 +16,8 @@
 
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase_client.js';
 
+const AUTH_TIMEOUT_MS = 12000;
+
 // ============================================
 // MAPA CORREO → HERO_ID
 // Edita esto para agregar o cambiar alumnos
@@ -86,18 +88,45 @@ function isStrictAdminSession(session) {
   return session?.heroId === 'admin' && session?.email === ADMIN_EMAIL;
 }
 
+async function safeReadJson(res) {
+  try {
+    return await res.json();
+  } catch (_) {
+    return {};
+  }
+}
+
+async function authFetch(path, body, timeoutMs = AUTH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(`${SUPABASE_URL}${path}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw new Error('La conexión tardó demasiado. Revisa internet e inténtalo de nuevo.');
+    }
+    throw new Error('No se pudo conectar al servidor. Revisa internet e inténtalo de nuevo.');
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
 
 export async function loginHero(email, password) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email: email.toLowerCase().trim(), password })
+  const res = await authFetch('/auth/v1/token?grant_type=password', {
+    email: email.toLowerCase().trim(),
+    password
   });
 
-  const data = await res.json();
+  const data = await safeReadJson(res);
   if (!res.ok) throw new Error(data.error_description || data.msg || 'Correo o contraseña incorrectos');
 
   const heroId = HERO_MAP[email.toLowerCase().trim()];
@@ -134,16 +163,12 @@ export async function registerHero(email, password) {
   const heroId = HERO_MAP[email.toLowerCase().trim()];
   if (!heroId) throw new Error('Este correo no está en la lista de LevelUp. Pídele a tu profe que te agregue primero.');
 
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email: email.toLowerCase().trim(), password })
+  const res = await authFetch('/auth/v1/signup', {
+    email: email.toLowerCase().trim(),
+    password
   });
 
-  const data = await res.json();
+  const data = await safeReadJson(res);
   if (!res.ok) throw new Error(data.error_description || data.msg || 'Error al crear cuenta');
   if (data.user?.identities?.length === 0) throw new Error('Este correo ya tiene cuenta. Usa "Iniciar sesión".');
   return true;
@@ -156,16 +181,12 @@ export async function changeHeroPassword(email, currentPassword, newPassword) {
     throw new Error('Este correo no está en la lista de LevelUp.');
   }
 
-  const loginRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email: normalizedEmail, password: currentPassword })
+  const loginRes = await authFetch('/auth/v1/token?grant_type=password', {
+    email: normalizedEmail,
+    password: currentPassword
   });
 
-  const loginData = await loginRes.json();
+  const loginData = await safeReadJson(loginRes);
   if (!loginRes.ok || !loginData.access_token) {
     throw new Error(loginData.error_description || 'La contraseña actual no es correcta.');
   }
