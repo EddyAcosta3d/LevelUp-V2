@@ -14,7 +14,7 @@
   <!-- Google Fonts: Inter + Oxanium -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oxanium:wght@700;800&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oxanium:wght@700;800&display=swap" media="print" onload="this.media='all'" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -238,6 +238,29 @@
   </style>
 </head>
 <body>
+<script>
+  (function(){
+    const CACHE_VERSION = 'v3';
+    const KEY = 'cacheVersion';
+    try {
+      if (localStorage.getItem(KEY) === CACHE_VERSION) return;
+      const clean = async () => {
+        try {
+          if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map((r) => r.unregister()));
+          }
+          if (window.caches && caches.keys) {
+            const names = await caches.keys();
+            await Promise.all(names.map((name) => caches.delete(name)));
+          }
+        } catch (_e) {}
+        try { localStorage.setItem(KEY, CACHE_VERSION); } catch (_e) {}
+      };
+      clean();
+    } catch (_e) {}
+  })();
+</script>
 
 <div class="card">
   <div class="logo">
