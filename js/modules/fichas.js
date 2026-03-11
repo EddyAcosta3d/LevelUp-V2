@@ -257,13 +257,49 @@ export function renderHeroList(){
     return HERO_BG_PLACEHOLDER;
   }
 
-  export function preloadImage(url){
+  const _heroImageWarmCache = new Set();
+
+  export function preloadImage(url, { timeoutMs = 12000 } = {}){
     return new Promise((resolve, reject)=>{
+      if (!url) return reject(new Error('image-empty-url'));
+      if (_heroImageWarmCache.has(url)) return resolve(url);
+
       const img = new Image();
-      img.onload = ()=>resolve(url);
-      img.onerror = ()=>reject(new Error('image-not-found'));
+      let done = false;
+      const timer = setTimeout(()=>{
+        if (done) return;
+        done = true;
+        try{ img.src = ''; }catch(_e){}
+        reject(new Error('image-timeout'));
+      }, timeoutMs);
+
+      img.onload = ()=>{
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        _heroImageWarmCache.add(url);
+        resolve(url);
+      };
+      img.onerror = ()=>{
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        reject(new Error('image-not-found'));
+      };
       img.src = url;
     });
+  }
+
+  async function preloadImageWithRetry(url, { attempts = 2, timeoutMs = 12000 } = {}){
+    let lastError = null;
+    for (let i = 0; i < attempts; i++){
+      try{
+        return await preloadImage(url, { timeoutMs });
+      }catch(err){
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('image-preload-failed');
   }
 
   export function applyThumbFallbacks(rootEl){
@@ -409,10 +445,30 @@ export function renderHeroAvatar(hero){
 
     if (heroAssets && (heroAssets.fg || heroAssets.bg || heroAssets.mid)){
       scene.dataset.parallax = '1';
-      // Aplicar de inmediato (sin preload) — las rutas existen (manifest)
-      scene.style.setProperty('--heroLayerBg', heroAssets.bg ? `url("${abs(heroAssets.bg)}")` : `url("${abs(HERO_BG_PLACEHOLDER)}")`);
+
+      const bgUrl = heroAssets.bg ? abs(heroAssets.bg) : abs(HERO_BG_PLACEHOLDER);
+      const fgUrl = heroAssets.fg ? abs(heroAssets.fg) : '';
+
+      // Pintar fallback rápido para evitar panel vacío en red móvil lenta.
+      scene.style.setProperty('--heroLayerBg', `url("${abs(HERO_BG_PLACEHOLDER)}")`);
       scene.style.setProperty('--heroLayerMid', 'none');
-      scene.style.setProperty('--heroLayerFg', heroAssets.fg ? `url("${abs(heroAssets.fg)}")` : 'none');
+      scene.style.setProperty('--heroLayerFg', 'none');
+
+      if (fgUrl){
+        scene.style.setProperty('--heroLayerFg', `url("${fgUrl}")`);
+      }
+
+      // Cargar BG con retry y aplicar solo si el héroe actual no cambió.
+      preloadImageWithRetry(bgUrl, { attempts: 2, timeoutMs: 14000 })
+        .then(()=>{
+          if (scene.__reqId !== __reqId) return;
+          scene.style.setProperty('--heroLayerBg', `url("${bgUrl}")`);
+        })
+        .catch(()=>{
+          if (scene.__reqId !== __reqId) return;
+          scene.style.setProperty('--heroLayerBg', `url("${abs(HERO_BG_PLACEHOLDER)}")`);
+        });
+
       ensureHeroNotesToggle(scene);
       return;
     }
