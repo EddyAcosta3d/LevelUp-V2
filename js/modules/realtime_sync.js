@@ -9,23 +9,22 @@
  *   - Alumno: cada POLL_INTERVAL_STUDENT_MS (5s) — necesita detectar nuevas asignaciones
  *   - Profe:  cada POLL_INTERVAL_TEACHER_MS  (8s) — ya ve actualizaciones optimistas
  *             inmediatas al asignar; el polling solo confirma el estado remoto.
- *             Con N alumnos, cada tick dispara N requests en paralelo (Promise.allSettled),
- *             por lo que un intervalo corto multiplica el costo de red rápidamente.
+ *             Usa una sola request por ciclo (in(...) con todos los hero_id) para reducir costo.
  *
  * USO:
  *   startAssignmentSync('h_2d_3', () => renderChallenges());
  *   stopAssignmentSync(); // al logout o unmount
  */
 
-import { getHeroAssignments } from './supabase_client.js';
+import { getHeroAssignments, getHeroAssignmentsForHeroes } from './supabase_client.js';
 import { state } from './core_globals.js';
 import { saveLocal } from './store.js';
 
 // Alumno: 5 s — suficiente para notar una nueva asignación sin saturar Supabase.
 const POLL_INTERVAL_STUDENT_MS = 5000;
-// Profe: 8 s — cada tick hace N peticiones paralelas (una por alumno), así que
-// un intervalo largo reduce el costo de red sin afectar la experiencia, ya que
-// la UI del profe usa actualizaciones optimistas inmediatas.
+// Profe: 8 s — cada tick hace una sola petición para todos los héroes.
+// Un intervalo algo largo reduce aún más costo de red sin afectar la experiencia,
+// porque la UI del profe usa actualizaciones optimistas inmediatas.
 const POLL_INTERVAL_TEACHER_MS = 8000;
 
 let _pollTimer = null;
@@ -123,13 +122,14 @@ export function startAllAssignmentsSync(onUpdate) {
       const heroIds = heroes.map(h => String(h.id || '')).filter(Boolean);
       if (!heroIds.length) return;
 
-      // Leer asignaciones por héroe evita inconsistencias de RLS/SELECT global.
-      const settled = await Promise.allSettled(heroIds.map(heroId => getHeroAssignments(heroId)));
+      // Una sola lectura para todos los héroes (reduce N requests -> 1 request por ciclo).
+      const rows = await getHeroAssignmentsForHeroes(heroIds);
       const byHero = {};
-      settled.forEach((res, idx) => {
-        const heroId = heroIds[idx];
-        if (res.status !== 'fulfilled') return;
-        byHero[heroId] = Array.isArray(res.value) ? res.value.map(x => String(x)) : [];
+      rows.forEach(row => {
+        const heroId = String(row.hero_id || '');
+        if (!heroId) return;
+        if (!Object.prototype.hasOwnProperty.call(byHero, heroId)) byHero[heroId] = [];
+        byHero[heroId].push(String(row.challenge_id));
       });
 
       const snapshot = JSON.stringify(
@@ -147,6 +147,8 @@ export function startAllAssignmentsSync(onUpdate) {
       _lastAllSnapshot = snapshot;
 
       heroes.forEach(hero => {
+        // Si un héroe no aparece en la respuesta, no lo tocamos para evitar
+        // bloquear por error cuando RLS/visibilidad oculta filas en este fetch global.
         if (!Object.prototype.hasOwnProperty.call(byHero, hero.id)) return;
         hero.assignedChallenges = _applyPendingMutations(
           hero.id,
@@ -209,18 +211,21 @@ export async function loadAllAssignmentsIntoState() {
     const heroIds = heroes.map(h => String(h.id || '')).filter(Boolean);
     if (!heroIds.length) return;
 
+    const rows = await getHeroAssignmentsForHeroes(heroIds);
     const byHero = {};
-    const settled = await Promise.allSettled(heroIds.map(heroId => getHeroAssignments(heroId)));
-    settled.forEach((res, idx) => {
-      if (res.status !== 'fulfilled') return;
-      const heroId = heroIds[idx];
-      byHero[heroId] = Array.isArray(res.value) ? res.value.map(x => String(x)) : [];
+    rows.forEach(row => {
+      const heroId = String(row.hero_id || '');
+      if (!heroId) return;
+      if (!Object.prototype.hasOwnProperty.call(byHero, heroId)) byHero[heroId] = [];
+      byHero[heroId].push(String(row.challenge_id));
     });
 
     // Supabase es la fuente de verdad: si un héroe no tiene filas,
     // su lista debe quedar vacía (desafíos bloqueados), pero solo
     // cuando logramos leer ese héroe en esta ronda.
     heroes.forEach(hero => {
+      // Si un héroe no aparece en la respuesta, no lo tocamos para evitar
+      // bloquear por error cuando RLS/visibilidad oculta filas en este fetch global.
       if (!Object.prototype.hasOwnProperty.call(byHero, hero.id)) return;
       hero.assignedChallenges = _applyPendingMutations(hero.id, Array.isArray(byHero[hero.id]) ? byHero[hero.id] : []);
     });

@@ -315,6 +315,27 @@ export async function getAllHeroAssignments() {
   }));
 }
 
+export async function getHeroAssignmentsForHeroes(heroIds) {
+  const ids = (Array.isArray(heroIds) ? heroIds : [])
+    .map(id => String(id || '').trim())
+    .filter(Boolean);
+  if (!ids.length) return [];
+
+  // PostgREST in() syntax: in.(id1,id2,id3)
+  // encodeURIComponent escapa comas/paréntesis para URL segura.
+  const inList = `(${ids.join(',')})`;
+  const res = await supabaseFetch(
+    `/rest/v1/hero_assignments?hero_id=in.${encodeURIComponent(inList)}&select=hero_id,challenge_id`
+  );
+  if (!res.ok) throw new Error(await parseError(res, `Error al leer asignaciones por héroes: ${res.status}`));
+  const rows = await res.json();
+  return rows.map(row => ({
+    ...row,
+    hero_id: String(row.hero_id),
+    challenge_id: String(row.challenge_id)
+  }));
+}
+
 // ============================================
 // STORAGE — Subir archivos de evidencia
 // ============================================
