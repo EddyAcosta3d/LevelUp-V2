@@ -1,4 +1,9 @@
 window.__PARALLAX_MANIFEST__ = {
+  "alumno_demo": {
+    "fg": "",
+    "bg": "assets/placeholders/placeholder_unlocked_16x9.webp",
+    "mid": ""
+  },
   "alexis": {
     "fg": "assets/hero_layers/alexis_fg.webp",
     "bg": "assets/hero_layers/alexis_bg.webp",
