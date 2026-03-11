@@ -71,3 +71,17 @@ Además, para `Leaked Password Protection Disabled`:
 1. Ve a **Auth → Providers → Email**.
 2. Activa **Leaked password protection**.
 3. Guarda cambios.
+
+
+## Configurar alumno demo en Supabase (recomendado)
+
+Para que el flujo de **alumno demo** pruebe asignaciones/bloqueos reales (RLS, `hero_assignments`, envíos, canjes), necesitas crear también el usuario en Supabase Auth:
+
+1. Ejecuta `docs/supabase_hero_assignments_rls.sql` (incluye mapeo `demo.alumno@levelup.mx -> h_demo_1`).
+2. En **Supabase → Auth → Users → Add user** crea:
+   - email: `demo.alumno@levelup.mx`
+   - password: la que usarás para pruebas
+3. En `login.html`, pulsa **"Usar alumno demo (Supabase)"**, ingresa la contraseña y entra normal.
+
+> Nota: el modo invitado no reemplaza este flujo porque no genera JWT de Supabase y no valida RLS real de alumno.
+
