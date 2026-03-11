@@ -106,9 +106,17 @@ values
   ('zoe@levelup.mx', 'h_3d_11'),
   ('david@levelup.mx', 'h_3d_12'),
   ('leslye@levelup.mx', 'h_3d_13'),
-  ('julissa@levelup.mx', 'h_3d_14')
+  ('julissa@levelup.mx', 'h_3d_14'),
+  -- Alumno demo (sandbox)
+  ('demo.alumno@levelup.mx', 'h_demo_1')
 on conflict (email) do update
 set hero_id = excluded.hero_id;
+
+-- IMPORTANTE: también crea el usuario en Supabase Auth (Email)
+-- para que pueda iniciar sesión real (no invitado):
+-- Auth > Users > Add user
+-- email: demo.alumno@levelup.mx
+-- password: <tu_password_demo>
 
 -- Validación rápida
 -- select count(*) as total_mapeos from public.hero_accounts;

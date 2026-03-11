@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
   <title>LevelUp — Acceso</title>
-  <link rel="icon" href="assets/logo_small.png">
-  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" href="assets/logo_small.webp">
+  <link rel="apple-touch-icon" href="assets/logo.webp">
   <!-- Google Fonts: Inter + Oxanium -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -241,7 +241,7 @@
 
 <div class="card">
   <div class="logo">
-    <img src="assets/logo.png" alt="LevelUp" onerror="this.style.display='none'">
+    <img src="assets/logo.webp" alt="LevelUp" onerror="this.style.display='none'">
     <h1>LEVELUP</h1>
     <p>MISIONES · RETOS · RECOMPENSAS</p>
   </div>
@@ -265,6 +265,7 @@
     </label>
     <button type="submit" class="btn" id="btnLogin">Entrar al juego</button>
     <button type="button" class="btn btn--guest" id="btnGuest">Entrar como invitado</button>
+    <button type="button" class="btn btn--guest" id="btnDemoStudent">Usar alumno demo (Supabase)</button>
   </form>
 
   <!-- REGISTRO -->
@@ -425,6 +426,34 @@
   document.getElementById('btnGuest')?.addEventListener('click', () => {
     window.location.href = 'index.html?guest=1';
   });
+
+  function setMsg(el, kind, text){
+    if (!el) return;
+    el.className = 'msg ' + kind;
+    el.textContent = text;
+  }
+
+  function preloadDemoStudentFromParams(){
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demoStudent') !== '1' && params.get('test') !== '1') return;
+    window.switchTab('login');
+    const emailEl = document.getElementById('loginEmail');
+    const passEl = document.getElementById('loginPassword');
+    if (emailEl) emailEl.value = 'demo.alumno@levelup.mx';
+    if (passEl) passEl.focus();
+    setMsg(document.getElementById('loginMsg'), 'success', 'Modo demo: usa la contraseña de Supabase del alumno demo para iniciar sesión real.');
+  }
+
+  document.getElementById('btnDemoStudent')?.addEventListener('click', () => {
+    window.switchTab('login');
+    const emailEl = document.getElementById('loginEmail');
+    const passEl = document.getElementById('loginPassword');
+    if (emailEl) emailEl.value = 'demo.alumno@levelup.mx';
+    if (passEl) passEl.focus();
+    setMsg(document.getElementById('loginMsg'), 'success', 'Alumno demo cargado. Ingresa su contraseña de Supabase y presiona "Entrar al juego".');
+  });
+
+  preloadDemoStudentFromParams();
 </script>
 
 </body>
