@@ -9,6 +9,8 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 export { SUPABASE_URL, SUPABASE_ANON_KEY };
 
+const FETCH_TIMEOUT_MS = 12000;
+
 function getSession() {
   try {
     const raw = sessionStorage.getItem('levelup:session');
@@ -56,7 +58,7 @@ async function refreshSessionToken() {
   const refreshToken = session?.refreshToken;
   if (!refreshToken) return null;
 
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+  const res = await fetchWithTimeout(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
     method: 'POST',
     headers: {
       'apikey': SUPABASE_ANON_KEY,
@@ -125,11 +127,29 @@ const buildHeaders = ({ useAnon = false, token = null } = {}) => ({
   'Prefer': 'return=representation'
 });
 
+async function fetchWithTimeout(url, init = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal
+    });
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw new Error('La conexión tardó demasiado. Revisa tus datos móviles o Wi‑Fi e inténtalo de nuevo.');
+    }
+    throw new Error('No se pudo conectar con el servidor. Verifica tu conexión a internet.');
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
 async function supabaseFetch(path, init = {}, { retryWithAnon = true } = {}) {
   const customHeaders = init.headers || {};
   const doFetch = async (useAnon = false, forcedToken = null) => {
     const token = useAnon ? SUPABASE_ANON_KEY : (forcedToken || await getUsableSessionToken() || SUPABASE_ANON_KEY);
-    return await fetch(`${SUPABASE_URL}${path}`, {
+    return await fetchWithTimeout(`${SUPABASE_URL}${path}`, {
     ...init,
     headers: {
       ...buildHeaders({ useAnon, token }),
