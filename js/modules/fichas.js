@@ -449,11 +449,13 @@ export function renderHeroAvatar(hero){
     };
   }
 
-  export function applyHeroSceneLayers(hero){
-    const scene = document.getElementById('heroScene');
-    if (!scene) return;
+export function applyHeroSceneLayers(hero){
+  const scene = document.getElementById('heroScene');
+  if (!scene) return;
+  const __reqId = (scene.__reqId || 0) + 1;
+  scene.__reqId = __reqId;
 
-    // Reset
+  // Reset
     try{ scene.classList.remove('is-silhouette'); }catch(_e){}
     scene.style.setProperty('--heroLayerBg', 'none');
     scene.style.setProperty('--heroLayerMid', 'none');
