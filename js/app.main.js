@@ -87,8 +87,9 @@ export async function init(){
     window.LevelUp = window.LevelUp || {};
     window.LevelUp.getSession = getSession;
 
-    // CARGAR DATOS PRIMERO (crítico para que los bindings tengan datos disponibles)
-    await loadData({forceRemote:false});
+    // CARGAR DATOS SIN BLOQUEAR PRIMERA PANTALLA:
+    // local-first (si existe copia local) + sync remota en background.
+    await loadData({ forceRemote:false, localFirst:true });
 
     // DESPUÉS de cargar datos: pre-seleccionar el héroe de la sesión
     // IMPORTANTE: debe hacerse ANTES de bind() para que renderHeroList

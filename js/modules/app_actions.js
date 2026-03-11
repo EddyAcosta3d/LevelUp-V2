@@ -456,8 +456,8 @@ export function setRole(nextRole){
     return out;
   }
 
-  const LU_HERO_FG_PLACEHOLDER = 'assets/placeholders/placeholder_unlocked_3x4.webp';
-  const LU_HERO_BG_PLACEHOLDER = 'assets/placeholders/placeholder_unlocked_16x9.webp';
+  const LU_HERO_FG_PLACEHOLDER = 'assets/placeholders/Placeholder_heroes.webp';
+  const LU_HERO_BG_PLACEHOLDER = 'assets/placeholders/Placeholder_heroes.webp';
 
   function _manifestHeroAssets(hero){
     const key = (hero && (hero.assetKey || hero.slug || hero.name)) ? String(hero.assetKey || hero.slug || hero.name) : '';

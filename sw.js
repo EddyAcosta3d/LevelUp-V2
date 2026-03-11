@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-020';
+const SW_VERSION = 'levelup-v2-sw-021';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -126,15 +126,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML y JS: network-first → nunca sirve archivos rotos del caché
-  // mientras haya conexión.
-  const isHtmlOrJs =
+  // HTML: network-first para mantener navegación consistente.
+  const isHtml =
     req.destination === 'document' ||
     path.endsWith('.html') ||
-    path.endsWith('.js') ||
     path === '/';
 
-  if (isHtmlOrJs) {
+  if (isHtml) {
     event.respondWith(
       fetchOrTimeout(toBypassHttpCacheRequest(req))
         .then((res) => {
@@ -152,16 +150,44 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // CSS: network-first para que cambios visuales se reflejen sin depender
-  // de cache-busting manual en cada release.
+  // JS del mismo origen: stale-while-revalidate para acelerar arranque repetido
+  // en móvil sin sacrificar actualización en background.
+  const isSameOriginJs = url.origin === self.location.origin && path.endsWith('.js');
+  if (isSameOriginJs) {
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req))
+          .then((res) => {
+            safeCachePut(req, res.clone());
+            return res;
+          });
+
+        if (cached) {
+          event.waitUntil(networkPromise.catch(() => {}));
+          return cached;
+        }
+        return networkPromise;
+      })
+    );
+    return;
+  }
+
+  // CSS: stale-while-revalidate para priorizar velocidad de apertura.
   if (path.endsWith('.css')) {
     event.respondWith(
-      fetchOrTimeout(toBypassHttpCacheRequest(req))
-        .then((res) => {
-          safeCachePut(req, res.clone());
-          return res;
-        })
-        .catch(() => caches.match(req))
+      caches.match(req).then((cached) => {
+        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req))
+          .then((res) => {
+            safeCachePut(req, res.clone());
+            return res;
+          });
+
+        if (cached) {
+          event.waitUntil(networkPromise.catch(() => {}));
+          return cached;
+        }
+        return networkPromise;
+      })
     );
     return;
   }
