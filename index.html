@@ -12,9 +12,9 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <!-- LevelUp v01.00 -->
 <title>LevelUp</title>
-  <!-- Icono de la pestaña (pon tu archivo en assets/logo.png o cambia la ruta) -->
-  <link rel="icon" href="assets/logo.png" type="image/png" />
-  <link rel="apple-touch-icon" href="assets/logo.png" />
+  <!-- Icono de la pestaña (pon tu archivo en assets/logo.webp o cambia la ruta) -->
+  <link rel="icon" href="assets/logo.webp" type="image/webp" />
+  <link rel="apple-touch-icon" href="assets/logo.webp" />
   <!-- Google Fonts: Inter (body) + Oxanium (brand/gaming headings) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,18 +34,34 @@
       var SESSION_KEY = 'levelup:session';
       var params = new URLSearchParams(location.search);
       var isGuest = params.get('guest') === '1';
+      var isDemoStudent = params.get('demoStudent') === '1' || params.get('test') === '1';
+
+      function bootstrapEphemeralSession(session){
+        try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(session)); } catch (e) {}
+        window.__LU_SESSION__ = session;
+      }
 
       if (isGuest) {
-        var guestSession = {
-          access_token: 'guest-mode',
-          refresh_token: '',
+        bootstrapEphemeralSession({
           email: 'invitado@levelup.local',
           heroId: null,
           isAdmin: false,
+          token: 'guest-mode',
           savedAt: Date.now(),
           guest: true
-        };
-        window.__LU_SESSION__ = guestSession;
+        });
+        return;
+      }
+
+      if (isDemoStudent) {
+        bootstrapEphemeralSession({
+          email: 'demo.alumno@levelup.mx',
+          heroId: 'h_demo_1',
+          isAdmin: false,
+          token: 'demo-mode',
+          savedAt: Date.now(),
+          demo: true
+        });
         return;
       }
 
@@ -181,7 +197,7 @@
         </button>
 
         <div class="brand" aria-label="LevelUp">
-          <img class="brand__logoImg" src="assets/logo.png" alt="LevelUp" />
+          <img class="brand__logoImg" src="assets/logo.webp" alt="LevelUp" />
           <div class="brand__text">
             <div class="brand__title">MISIONES · RETOS · RECOMPENSAS</div>
             <div class="brand__subtitle" id="brandSubtitle">LevelUp</div>

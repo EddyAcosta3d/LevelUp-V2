@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-017';
+const SW_VERSION = 'levelup-v2-sw-018';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -44,8 +44,8 @@ const APP_SHELL = [
   './js/modules/github_sync.js',
   './js/modules/supabase_client.js',
   './js/config.js',
-  './assets/logo.png',
-  './assets/logo_small.png',
+  './assets/logo.webp',
+  './assets/logo_small.webp',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './data/data.json'

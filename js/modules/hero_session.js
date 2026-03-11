@@ -54,6 +54,9 @@ const HERO_MAP = {
   'leslye@levelup.mx':      'h_3d_13',
   'julissa@levelup.mx':     'h_3d_14',
 
+  // Alumno de prueba (sandbox)
+  'demo.alumno@levelup.mx': 'h_demo_1',
+
   // Admin (tú)
   'eddy@levelup.mx':        'admin',
 };
