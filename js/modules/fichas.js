@@ -170,7 +170,7 @@ export function renderHeroList(){
 
       btn.innerHTML = `
         <div class="heroCard__row">
-          ${thumbSrc ? `<div class="heroCard__thumb" data-src="${thumbSrc}" data-hero-name="${String(hero.name||'').replace(/"/g,'&quot;')}"></div>` : `<div class="heroCard__thumb" data-src="" data-hero-name="${String(hero.name||'').replace(/"/g,'&quot;')}"></div>`}
+          <div class="heroCard__thumb" data-bg="${thumbSrc || ''}" data-hero-name="${String(hero.name||'').replace(/"/g,'&quot;')}"></div>
           <div class="heroCard__info">
             <div class="heroCard__name">${escapeHtml(hero.name || 'Nuevo héroe')}</div>
             <div class="heroCard__meta">${escapeHtml(heroLabel(hero))}</div>
@@ -358,13 +358,45 @@ export function renderHeroList(){
     throw lastError || new Error('image-preload-failed');
   }
 
+  const heroThumbObserverByRoot = new WeakMap();
+
   export function applyThumbFallbacks(rootEl){
     if (!rootEl) return;
-    const thumbs = rootEl.querySelectorAll('.heroCard__thumb[data-src]');
-    thumbs.forEach((el)=>{
-      const src = el.getAttribute('data-src') || HERO_FG_PLACEHOLDER;
+
+    const thumbs = rootEl.querySelectorAll('.heroCard__thumb[data-bg]');
+    if (!thumbs.length) return;
+
+    const assignBackground = (el) => {
+      if (!el || el.dataset.bgLoaded === '1') return;
+      const src = el.getAttribute('data-bg') || HERO_FG_PLACEHOLDER;
       el.style.backgroundImage = `url('${src}')`;
+      el.dataset.bgLoaded = '1';
+    };
+
+    if (!('IntersectionObserver' in window)) {
+      thumbs.forEach(assignBackground);
+      return;
+    }
+
+    const previousObserver = heroThumbObserverByRoot.get(rootEl);
+    if (previousObserver) {
+      try { previousObserver.disconnect(); } catch (_e) {}
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        assignBackground(entry.target);
+        obs.unobserve(entry.target);
+      });
+    }, {
+      root: rootEl,
+      rootMargin: '200px 0px',
+      threshold: 0.01
     });
+
+    thumbs.forEach((el) => observer.observe(el));
+    heroThumbObserverByRoot.set(rootEl, observer);
   }
 
   export function showFallbackAvatar(heroName){

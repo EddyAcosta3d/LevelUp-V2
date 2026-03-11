@@ -153,6 +153,29 @@
   </script>
 </head>
 <body>
+<script>
+  (function(){
+    const CACHE_VERSION = 'v3';
+    const KEY = 'cacheVersion';
+    try {
+      if (localStorage.getItem(KEY) === CACHE_VERSION) return;
+      const clean = async () => {
+        try {
+          if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map((r) => r.unregister()));
+          }
+          if (window.caches && caches.keys) {
+            const names = await caches.keys();
+            await Promise.all(names.map((name) => caches.delete(name)));
+          }
+        } catch (_e) {}
+        try { localStorage.setItem(KEY, CACHE_VERSION); } catch (_e) {}
+      };
+      clean();
+    } catch (_e) {}
+  })();
+</script>
   <!-- Boss unlock celebration (full-screen) -->
   <div class="bossUnlock bossUnlock--img" id="bossUnlockOverlay" hidden>
     <div class="bossUnlock__frame" role="dialog" aria-modal="true">
