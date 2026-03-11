@@ -421,9 +421,6 @@ export function renderHeroAvatar(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
 
-    // Token anti-carreras: evita que un preload viejo pise al héroe actual
-    const __reqId = (scene.__reqId = (scene.__reqId || 0) + 1);
-
     // Reset
     try{ scene.classList.remove('is-silhouette'); }catch(_e){}
     scene.style.setProperty('--heroLayerBg', 'none');
@@ -480,6 +477,36 @@ export function renderHeroAvatar(hero){
     scene.style.setProperty('--heroLayerMid', 'none');
     scene.style.setProperty('--heroLayerFg', 'none');
     ensureHeroNotesToggle(scene);
+  }
+
+
+
+  function prefetchVisibleHeroLayers(){
+    try{
+      const heroes = (state.data?.heroes || []).filter(h => (h.group || '2D') === state.group);
+      if (!heroes.length) return;
+      const idx = heroes.findIndex(h => h.id === state.selectedHeroId);
+      const targets = [];
+      if (idx >= 0){
+        targets.push(heroes[idx]);
+        if (heroes[idx + 1]) targets.push(heroes[idx + 1]);
+        if (heroes[idx + 2]) targets.push(heroes[idx + 2]);
+      }
+
+      targets.forEach((hero)=>{
+        const cleanName = stripDiacritics(String(hero?.name || '').trim())
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_+|_+$/g, '');
+        const assets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+        if (!assets) return;
+        const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(_e){ return u; } };
+        const bg = String(assets.bg || '').trim();
+        const fg = String(assets.fg || '').trim();
+        if (bg) preloadImageWithRetry(abs(bg), { attempts: 1, timeoutMs: 0 }).catch(()=>{});
+        if (fg) preloadImageWithRetry(abs(fg), { attempts: 1, timeoutMs: 0 }).catch(()=>{});
+      });
+    }catch(_e){}
   }
 
   export function ensureHeroNotesToggle(scene){
@@ -694,6 +721,7 @@ export function renderHeroDetail(){
 
   // Capas de escena (parallax demo)
   applyHeroSceneLayers(hero);
+  prefetchVisibleHeroLayers();
 
     // Foto del héroe (si existe). En este layout ocupa TODO el panel izquierdo.
     renderHeroAvatar(hero);
