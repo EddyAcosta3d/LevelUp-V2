@@ -87,8 +87,9 @@ export async function init(){
     window.LevelUp = window.LevelUp || {};
     window.LevelUp.getSession = getSession;
 
-    // CARGAR DATOS PRIMERO (crítico para que los bindings tengan datos disponibles)
-    await loadData({forceRemote:false});
+    // CARGAR DATOS SIN BLOQUEAR PRIMERA PANTALLA:
+    // local-first (si existe copia local) + sync remota en background.
+    await loadData({ forceRemote:false, localFirst:true });
 
     // DESPUÉS de cargar datos: pre-seleccionar el héroe de la sesión
     // IMPORTANTE: debe hacerse ANTES de bind() para que renderHeroList
@@ -257,11 +258,13 @@ function registerServiceWorker(){
       console.warn('[PWA] No se pudo registrar service worker', err);
     });
 
-    let reloadedBySW = false;
+    let handledSWControllerChange = false;
     navigator.serviceWorker.addEventListener('controllerchange', ()=>{
-      if (reloadedBySW) return;
-      reloadedBySW = true;
-      window.location.reload();
+      if (handledSWControllerChange) return;
+      handledSWControllerChange = true;
+      // Evita recarga forzada inmediata (doble carga perceptible en móvil).
+      // La nueva versión quedará activa en la siguiente navegación natural.
+      try{ window.toast?.('✅ Actualización lista. Se aplicará al reabrir la app.'); }catch(_e){}
     });
   });
 }

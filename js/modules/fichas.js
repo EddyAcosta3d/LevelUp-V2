@@ -31,8 +31,8 @@ import {
 
 // Placeholders globales para cuando aún no hay arte definido.
 // (Importante: NO inventar rutas por nombre para evitar 404.)
-const HERO_FG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_3x4.webp';
-const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.webp';
+const HERO_FG_PLACEHOLDER = './assets/placeholders/Placeholder_heroes.webp';
+const HERO_BG_PLACEHOLDER = './assets/placeholders/Placeholder_heroes.webp';
 
 
 const HERO_LAYER_BASE = './assets/hero_layers';
@@ -538,8 +538,8 @@ export function applyHeroSceneLayers(hero){
       const targets = [];
       if (idx >= 0){
         targets.push(heroes[idx]);
+        // En móvil priorizar interacción inmediata: solo 1 siguiente héroe.
         if (heroes[idx + 1]) targets.push(heroes[idx + 1]);
-        if (heroes[idx + 2]) targets.push(heroes[idx + 2]);
       }
 
       targets.forEach((hero)=>{
