@@ -54,7 +54,14 @@
       }
 
       if (isDemoStudent) {
-        window.location.replace('login.html?demoStudent=1');
+        bootstrapEphemeralSession({
+          email: 'demo.alumno@levelup.mx',
+          heroId: 'h_demo_1',
+          isAdmin: false,
+          token: 'demo-mode',
+          savedAt: Date.now(),
+          demo: true
+        });
         return;
       }
 
