@@ -259,39 +259,38 @@ export function renderHeroList(){
 
   const _heroImageWarmCache = new Set();
 
-  export function preloadImage(url, { timeoutMs = 0 } = {}){
+  export function preloadImage(url, { timeoutMs = 12000 } = {}){
     return new Promise((resolve, reject)=>{
       if (!url) return reject(new Error('image-empty-url'));
       if (_heroImageWarmCache.has(url)) return resolve(url);
 
       const img = new Image();
       let done = false;
-      const useTimeout = Number(timeoutMs) > 0;
-      const timer = useTimeout ? setTimeout(()=>{
+      const timer = setTimeout(()=>{
         if (done) return;
         done = true;
         try{ img.src = ''; }catch(_e){}
         reject(new Error('image-timeout'));
-      }, Number(timeoutMs)) : null;
+      }, timeoutMs);
 
       img.onload = ()=>{
         if (done) return;
         done = true;
-        if (timer) clearTimeout(timer);
+        clearTimeout(timer);
         _heroImageWarmCache.add(url);
         resolve(url);
       };
       img.onerror = ()=>{
         if (done) return;
         done = true;
-        if (timer) clearTimeout(timer);
+        clearTimeout(timer);
         reject(new Error('image-not-found'));
       };
       img.src = url;
     });
   }
 
-  async function preloadImageWithRetry(url, { attempts = 2, timeoutMs = 0 } = {}){
+  async function preloadImageWithRetry(url, { attempts = 2, timeoutMs = 12000 } = {}){
     let lastError = null;
     for (let i = 0; i < attempts; i++){
       try{
@@ -447,14 +446,25 @@ export function renderHeroAvatar(hero){
       const bgUrl = heroAssets.bg ? abs(heroAssets.bg) : abs(HERO_BG_PLACEHOLDER);
       const fgUrl = heroAssets.fg ? abs(heroAssets.fg) : '';
 
-      // Evita quedarse pegado en placeholder: aplicar BG real de inmediato.
-      scene.style.setProperty('--heroLayerBg', `url("${bgUrl}")`);
+      // Pintar fallback rápido para evitar panel vacío en red móvil lenta.
+      scene.style.setProperty('--heroLayerBg', `url("${abs(HERO_BG_PLACEHOLDER)}")`);
       scene.style.setProperty('--heroLayerMid', 'none');
-      scene.style.setProperty('--heroLayerFg', fgUrl ? `url("${fgUrl}")` : 'none');
+      scene.style.setProperty('--heroLayerFg', 'none');
 
-      // Warm-up en memoria para cambios siguientes (sin bloquear UI).
-      preloadImageWithRetry(bgUrl, { attempts: 2, timeoutMs: 0 }).catch(() => {});
-      if (fgUrl) preloadImageWithRetry(fgUrl, { attempts: 2, timeoutMs: 0 }).catch(() => {});
+      if (fgUrl){
+        scene.style.setProperty('--heroLayerFg', `url("${fgUrl}")`);
+      }
+
+      // Cargar BG con retry y aplicar solo si el héroe actual no cambió.
+      preloadImageWithRetry(bgUrl, { attempts: 2, timeoutMs: 14000 })
+        .then(()=>{
+          if (scene.__reqId !== __reqId) return;
+          scene.style.setProperty('--heroLayerBg', `url("${bgUrl}")`);
+        })
+        .catch(()=>{
+          if (scene.__reqId !== __reqId) return;
+          scene.style.setProperty('--heroLayerBg', `url("${abs(HERO_BG_PLACEHOLDER)}")`);
+        });
 
       ensureHeroNotesToggle(scene);
       return;
