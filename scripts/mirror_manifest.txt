@@ -1,11 +1,9 @@
 css/styles.base.css
 css/styles.challenges.css
-css/styles.splash.css
 css/styles.levelup.css
 css/styles.tienda.css
 css/styles.celebrations.css
 css/styles.mobile.css
-js/splash.js
 js/app.js
 js/app.bindings.js
 js/app.main.js
