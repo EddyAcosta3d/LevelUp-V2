@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-018';
+const SW_VERSION = 'levelup-v2-sw-020';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -13,6 +13,16 @@ function safeCachePut(request, res){
   caches.open(SW_VERSION)
     .then((cache) => cache.put(request, res))
     .catch(() => {});
+}
+
+
+function toBypassHttpCacheRequest(req){
+  try {
+    // Evita que el cache HTTP entregue versiones antiguas cuando hay red.
+    return new Request(req, { cache: 'no-store' });
+  } catch (_e) {
+    return req;
+  }
 }
 
 const APP_SHELL = [
@@ -112,7 +122,7 @@ self.addEventListener('fetch', (event) => {
     (path.startsWith('/rest/v1/') || path.startsWith('/auth/v1/') || path.startsWith('/storage/v1/'));
 
   if (isSupabaseApi) {
-    event.respondWith(fetch(req));
+    event.respondWith(fetchOrTimeout(req, 15000));
     return;
   }
 
@@ -126,7 +136,7 @@ self.addEventListener('fetch', (event) => {
 
   if (isHtmlOrJs) {
     event.respondWith(
-      fetchOrTimeout(req)
+      fetchOrTimeout(toBypassHttpCacheRequest(req))
         .then((res) => {
           safeCachePut(req, res.clone());
           return res;
@@ -146,7 +156,7 @@ self.addEventListener('fetch', (event) => {
   // de cache-busting manual en cada release.
   if (path.endsWith('.css')) {
     event.respondWith(
-      fetchOrTimeout(req)
+      fetchOrTimeout(toBypassHttpCacheRequest(req))
         .then((res) => {
           safeCachePut(req, res.clone());
           return res;
@@ -159,7 +169,7 @@ self.addEventListener('fetch', (event) => {
   // data.json: network-first con fallback a caché
   if (path.endsWith('/data/data.json') || path === '/data/data.json') {
     event.respondWith(
-      fetchOrTimeout(req)
+      fetchOrTimeout(toBypassHttpCacheRequest(req))
         .then((res) => {
           safeCachePut(req, res.clone());
           return res;

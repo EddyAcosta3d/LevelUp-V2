@@ -240,7 +240,7 @@ function setupPWAInstallPrompt(){
 function registerServiceWorker(){
   if (!('serviceWorker' in navigator)) return;
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js').then((registration)=>{
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((registration)=>{
       if (registration.waiting){
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       }
