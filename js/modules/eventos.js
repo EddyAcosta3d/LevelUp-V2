@@ -136,9 +136,9 @@ const DEFAULT_BOSS_QUIZ = [
 
     // --- Image helpers (1 intento + placeholder; sin swaps para evitar spam de 404) ---
   const EVT_PH_LOCKED_3x4   = './assets/placeholders/placeholder_locked_3x4.webp';
-  const EVT_PH_UNLOCKED_3x4 = './assets/placeholders/placeholder_unlocked_3x4.webp';
+  const EVT_PH_UNLOCKED_3x4 = './assets/placeholders/Placeholder_heroes.webp';
   const EVT_PH_LOCKED_16x9  = './assets/placeholders/placeholder_locked_16x9.webp';
-  const EVT_PH_UNLOCKED_16x9= './assets/placeholders/placeholder_unlocked_16x9.webp';
+  const EVT_PH_UNLOCKED_16x9= './assets/placeholders/Placeholder_heroes.webp';
 
   function _pickEventPlaceholder({ locked=false, modal=false } = {}){
     if (locked){

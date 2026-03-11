@@ -132,30 +132,60 @@ import {
    * @param {Function} [opts.renderAll]         - Re-renderiza la UI. Fallback: window.renderAll.
    * @param {Function} [opts.demoData]          - Genera datos demo. Fallback: window.demoData.
    */
-  export async function loadData({
-    forceRemote    = false,
-    toast          = null,
-    updateDataDebug = null,
-    renderAll      = null,
-    demoData       = null,
-  } = {}){
+export async function loadData({
+  forceRemote    = false,
+  localFirst     = true,
+  toast          = null,
+  updateDataDebug = null,
+  renderAll      = null,
+  demoData       = null,
+} = {}){
     // Resolver callbacks: parámetro explícito → window global → noop
     const _toast           = toast           ?? (typeof window.toast           === 'function' ? window.toast           : null);
     const _updateDataDebug = updateDataDebug ?? (typeof window.updateDataDebug === 'function' ? window.updateDataDebug : null);
     const _renderAll       = renderAll       ?? (typeof window.renderAll       === 'function' ? window.renderAll       : null);
     const _demoData        = demoData        ?? (typeof window.demoData        === 'function' ? window.demoData        : null);
 
-    try{
-      logger.info('Intentando cargar datos desde GitHub...');
-      const d = await fetchRemote();
+    const applyRemoteData = (d, {notify=false} = {})=>{
       const normalized = normalizeData(d);
       const merged = mergeLocalAssignments(normalized, loadLocal());
       state.data = merged; state.dataSource = DATA_SOURCE.REMOTE; state.loadedFrom = DATA_SOURCE.REMOTE;
       normalizeFilter();
       saveLocal(state.data);
-      if (forceRemote) _toast?.('Cargado desde GitHub');
+      if (notify) _toast?.('Cargado desde GitHub');
       _updateDataDebug?.();
       _renderAll?.();
+    };
+
+    const local = loadLocal();
+    if (localFirst && local){
+      logger.info('Usando datos de copia local (local-first)');
+      state.data = normalizeData(local); state.dataSource = DATA_SOURCE.LOCAL; state.loadedFrom = DATA_SOURCE.LOCAL;
+      normalizeFilter();
+      _updateDataDebug?.();
+      _renderAll?.();
+
+      // Refresh remoto en background para no bloquear el primer render.
+      fetchRemote()
+        .then((d)=>{
+          applyRemoteData(d, { notify: forceRemote });
+          logger.info('Datos remotos sincronizados en segundo plano');
+        })
+        .catch((e)=>{
+          if (forceRemote) {
+            logger.warn('No se pudo sincronizar desde GitHub', e.message);
+            _toast?.('No se pudo cargar GitHub. Usando copia local.');
+          } else {
+            logger.debug('Sync remota en background falló', e.message);
+          }
+        });
+      return;
+    }
+
+    try{
+      logger.info('Intentando cargar datos desde GitHub...');
+      const d = await fetchRemote();
+      applyRemoteData(d, { notify: forceRemote });
       logger.info('Datos cargados desde GitHub correctamente');
       return;
     }catch(e){
@@ -167,10 +197,10 @@ import {
       }
     }
 
-    const local = loadLocal();
-    if (local){
+    const localFallback = loadLocal();
+    if (localFallback){
       logger.info('Usando datos de copia local');
-      state.data = normalizeData(local); state.dataSource = DATA_SOURCE.LOCAL; state.loadedFrom = DATA_SOURCE.LOCAL;
+      state.data = normalizeData(localFallback); state.dataSource = DATA_SOURCE.LOCAL; state.loadedFrom = DATA_SOURCE.LOCAL;
       normalizeFilter();
       _updateDataDebug?.();
       _renderAll?.();
