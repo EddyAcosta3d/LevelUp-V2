@@ -33,6 +33,48 @@ import {
 // (Importante: NO inventar rutas por nombre para evitar 404.)
 const HERO_FG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_3x4.webp';
 const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.webp';
+
+
+const HERO_LAYER_BASE = './assets/hero_layers';
+let _manifestBootstrapped = false;
+
+function normalizeHeroSlug(name=''){
+  return stripDiacritics(String(name || '').trim())
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function getParallaxManifest(){
+  return (window && window.__PARALLAX_MANIFEST__) ? window.__PARALLAX_MANIFEST__ : null;
+}
+
+function getHeroAssetsFromManifest(heroName=''){
+  const manifest = getParallaxManifest();
+  if (!manifest) return null;
+  const slug = normalizeHeroSlug(heroName);
+  if (!slug) return null;
+  return manifest[slug] || null;
+}
+
+async function bootstrapParallaxManifest(){
+  if (_manifestBootstrapped) return;
+  _manifestBootstrapped = true;
+  if (getParallaxManifest()) return;
+
+  try{
+    const res = await fetch('./js/modules/parallax_manifest.js', { cache: 'force-cache' });
+    if (!res.ok) return;
+    const txt = await res.text();
+    const eq = txt.indexOf('=');
+    const semi = txt.lastIndexOf(';');
+    if (eq < 0) return;
+    const payload = txt.slice(eq + 1, semi > eq ? semi : undefined).trim();
+    const parsed = JSON.parse(payload);
+    window.__PARALLAX_MANIFEST__ = parsed;
+    try{ renderHeroDetail(); }catch(_e){}
+  }catch(_e){}
+}
 /**
  * Optimized hero selection - updates only what changed
  * Instead of re-rendering everything, just update classes and relevant UI
@@ -257,13 +299,50 @@ export function renderHeroList(){
     return HERO_BG_PLACEHOLDER;
   }
 
-  export function preloadImage(url){
+  const _heroImageWarmCache = new Set();
+
+  export function preloadImage(url, { timeoutMs = 0 } = {}){
     return new Promise((resolve, reject)=>{
+      if (!url) return reject(new Error('image-empty-url'));
+      if (_heroImageWarmCache.has(url)) return resolve(url);
+
       const img = new Image();
-      img.onload = ()=>resolve(url);
-      img.onerror = ()=>reject(new Error('image-not-found'));
+      let done = false;
+      const useTimeout = Number(timeoutMs) > 0;
+      const timer = useTimeout ? setTimeout(()=>{
+        if (done) return;
+        done = true;
+        try{ img.src = ''; }catch(_e){}
+        reject(new Error('image-timeout'));
+      }, Number(timeoutMs)) : null;
+
+      img.onload = ()=>{
+        if (done) return;
+        done = true;
+        if (timer) clearTimeout(timer);
+        _heroImageWarmCache.add(url);
+        resolve(url);
+      };
+      img.onerror = ()=>{
+        if (done) return;
+        done = true;
+        if (timer) clearTimeout(timer);
+        reject(new Error('image-not-found'));
+      };
       img.src = url;
     });
+  }
+
+  async function preloadImageWithRetry(url, { attempts = 2, timeoutMs = 0 } = {}){
+    let lastError = null;
+    for (let i = 0; i < attempts; i++){
+      try{
+        return await preloadImage(url, { timeoutMs });
+      }catch(err){
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('image-preload-failed');
   }
 
   export function applyThumbFallbacks(rootEl){
@@ -355,24 +434,14 @@ export function renderHeroAvatar(hero){
     const direct = String(hero.photo || hero.img || hero.image || hero.photoSrc || '').trim();
     if (direct) return direct;
 
-    const cleanName = stripDiacritics(String(hero.name || '').trim())
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-
-    const heroAssets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    const heroAssets = getHeroAssetsFromManifest(hero.name || '');
     return String(heroAssets?.fg || heroAssets?.bg || '').trim();
   }
 
   function resolveHeroSceneAssets(hero){
     if (!hero || !hero.name || !window.__PARALLAX_MANIFEST__) return null;
 
-    const cleanName = stripDiacritics(String(hero.name || '').trim())
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-
-    const heroAssets = cleanName ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    const heroAssets = getHeroAssetsFromManifest(hero.name || '');
     if (!heroAssets) return null;
 
     return {
@@ -385,9 +454,6 @@ export function renderHeroAvatar(hero){
     const scene = document.getElementById('heroScene');
     if (!scene) return;
 
-    // Token anti-carreras: evita que un preload viejo pise al héroe actual
-    const __reqId = (scene.__reqId = (scene.__reqId || 0) + 1);
-
     // Reset
     try{ scene.classList.remove('is-silhouette'); }catch(_e){}
     scene.style.setProperty('--heroLayerBg', 'none');
@@ -396,23 +462,32 @@ export function renderHeroAvatar(hero){
 
     const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
 
-    // Determinar assets por manifest (evita 404 por intentar nombres que no existen)
-    let cleanName = '';
-    if (hero && hero.name){
-      cleanName = stripDiacritics(String(hero.name).trim())
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_+|_+$/g, '');
-    }
-
-    const heroAssets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    // Determinar assets: manifest; fallback por convención de archivos.
+    const manifestAssets = getHeroAssetsFromManifest(hero?.name || '');
+    const slug = normalizeHeroSlug(hero?.name || '');
+    const heroAssets = (manifestAssets && (manifestAssets.fg || manifestAssets.bg || manifestAssets.mid))
+      ? manifestAssets
+      : (slug ? {
+          fg: `${HERO_LAYER_BASE}/${slug}_fg.webp`,
+          bg: `${HERO_LAYER_BASE}/${slug}_bg.webp`,
+          mid: ''
+        } : null);
 
     if (heroAssets && (heroAssets.fg || heroAssets.bg || heroAssets.mid)){
       scene.dataset.parallax = '1';
-      // Aplicar de inmediato (sin preload) — las rutas existen (manifest)
-      scene.style.setProperty('--heroLayerBg', heroAssets.bg ? `url("${abs(heroAssets.bg)}")` : `url("${abs(HERO_BG_PLACEHOLDER)}")`);
+
+      const bgUrl = heroAssets.bg ? abs(heroAssets.bg) : abs(HERO_BG_PLACEHOLDER);
+      const fgUrl = heroAssets.fg ? abs(heroAssets.fg) : '';
+
+      // Evita quedarse pegado en placeholder: aplicar BG real de inmediato.
+      scene.style.setProperty('--heroLayerBg', `url("${bgUrl}")`);
       scene.style.setProperty('--heroLayerMid', 'none');
-      scene.style.setProperty('--heroLayerFg', heroAssets.fg ? `url("${abs(heroAssets.fg)}")` : 'none');
+      scene.style.setProperty('--heroLayerFg', fgUrl ? `url("${fgUrl}")` : 'none');
+
+      // Warm-up en memoria para cambios siguientes (sin bloquear UI).
+      preloadImageWithRetry(bgUrl, { attempts: 2, timeoutMs: 0 }).catch(() => {});
+      if (fgUrl) preloadImageWithRetry(fgUrl, { attempts: 2, timeoutMs: 0 }).catch(() => {});
+
       ensureHeroNotesToggle(scene);
       return;
     }
@@ -424,6 +499,32 @@ export function renderHeroAvatar(hero){
     scene.style.setProperty('--heroLayerMid', 'none');
     scene.style.setProperty('--heroLayerFg', 'none');
     ensureHeroNotesToggle(scene);
+  }
+
+
+
+  function prefetchVisibleHeroLayers(){
+    try{
+      const heroes = (state.data?.heroes || []).filter(h => (h.group || '2D') === state.group);
+      if (!heroes.length) return;
+      const idx = heroes.findIndex(h => h.id === state.selectedHeroId);
+      const targets = [];
+      if (idx >= 0){
+        targets.push(heroes[idx]);
+        if (heroes[idx + 1]) targets.push(heroes[idx + 1]);
+      }
+
+      const run = ()=> targets.forEach((hero)=>{
+        const assets = getHeroAssetsFromManifest(hero?.name || '');
+        if (!assets) return;
+        const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(_e){ return u; } };
+        const bg = String(assets.bg || '').trim();
+        const fg = String(assets.fg || '').trim();
+        if (bg) preloadImageWithRetry(abs(bg), { attempts: 1, timeoutMs: 0 }).catch(()=>{});
+        if (fg) preloadImageWithRetry(abs(fg), { attempts: 1, timeoutMs: 0 }).catch(()=>{});
+      });
+      if ('requestIdleCallback' in window){ window.requestIdleCallback(run, { timeout: 1200 }); } else { setTimeout(run, 250); }
+    }catch(_e){}
   }
 
   export function ensureHeroNotesToggle(scene){
@@ -638,6 +739,7 @@ export function renderHeroDetail(){
 
   // Capas de escena (parallax demo)
   applyHeroSceneLayers(hero);
+  prefetchVisibleHeroLayers();
 
     // Foto del héroe (si existe). En este layout ocupa TODO el panel izquierdo.
     renderHeroAvatar(hero);
@@ -996,8 +1098,8 @@ export function toggleSubjectDropdown(){
 
 
 
-
-
+// Carga resiliente del manifest por si el script defer no llegó a tiempo.
+bootstrapParallaxManifest();
 
 // Animación parallax desactivada para mejorar rendimiento en móvil.
 (function initHeroSceneStaticLayers(){

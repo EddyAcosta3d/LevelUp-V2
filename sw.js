@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-016';
+const SW_VERSION = 'levelup-v2-sw-018';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -89,8 +89,8 @@ self.addEventListener('activate', (event) => {
 });
 
 // Race a fetch against a timeout so network-first handlers never hang forever.
-// 5 s is enough for a slow campus WiFi; cached fallback kicks in after that.
-function fetchOrTimeout(req, ms = 5000) {
+// 12 s reduce falsos timeout en datos móviles lentos antes de caer a caché.
+function fetchOrTimeout(req, ms = 12000) {
   return Promise.race([
     fetch(req),
     new Promise((_, reject) => setTimeout(() => reject(new Error('sw-timeout')), ms))
@@ -191,18 +191,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Todas las imágenes del mismo origen: network-first para que, al reemplazar
-  // archivos en el repo con la misma ruta, se refresquen en cualquier dispositivo.
+  // Imágenes del mismo origen: stale-while-revalidate.
+  // En datos móviles lentos evita timeouts de 5s en primera carga de imágenes
+  // grandes (heroes/jefes), pero sigue refrescando en background.
   const isSameOriginImage = url.origin === self.location.origin && req.destination === 'image';
 
   if (isSameOriginImage) {
     event.respondWith(
-      fetchOrTimeout(req)
-        .then((res) => {
+      caches.match(req).then((cached) => {
+        const networkPromise = fetch(req).then((res) => {
           safeCachePut(req, res.clone());
           return res;
-        })
-        .catch(() => caches.match(req))
+        });
+
+        if (cached) {
+          event.waitUntil(networkPromise.catch(() => {}));
+          return cached;
+        }
+        return networkPromise;
+      })
     );
     return;
   }
