@@ -361,18 +361,6 @@ body.is-modal-open .dropdown__menu{
    luModal tiene 50000, confirmModal tiene 110000 — ver sus propios archivos. */
 .modal{ z-index: 30000; }
 
-/* Splash: logo más grande + brillo menos invasivo (evita barra blanca) */
-.splash__inner{ max-width: 560px; }
-/* clamp original usaba 320px como mínimo = 100% del viewport en teléfonos ≤320px.
-   Con 70vw el logo escala fluidamente y nunca toca los bordes en pantallas pequeñas. */
-.splash__logo{ width: clamp(200px, 70vw, 620px); }
-.splash__shine{
-  opacity: 0.25;
-  filter: blur(1.2px);
-  mix-blend-mode: soft-light;
-}
-
-
 /* Hide edit-only controls in Solo ver */
 html:not(.is-edit) [data-edit-only="1"]{ display:none !important; }
 

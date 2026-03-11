@@ -23,11 +23,6 @@ const updateDeviceDebug = (...args) => {
 const syncDetailsUI = (...args) => {
   if (typeof window.syncDetailsUI === 'function') return window.syncDetailsUI(...args);
 };
-const hideSplash = (...args) => {
-  if (typeof window.hideSplash === 'function') return window.hideSplash(...args);
-  const splash = document.getElementById('splash');
-  if (splash) splash.hidden = true;
-};
 const toast = (...args) => {
   if (typeof window.toast === 'function') return window.toast(...args);
 };
@@ -145,7 +140,7 @@ export async function init(){
       });
     }
   }
-  (async()=>{ try{ await init(); } finally { hideSplash(); } })();
+  (async()=>{ await init(); })();
 
 	  // iOS Safari: reduce accidental double-tap zoom in non-interactive areas,
 	  // while keeping native pinch-to-zoom available for accessibility.
