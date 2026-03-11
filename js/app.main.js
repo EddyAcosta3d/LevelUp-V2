@@ -258,11 +258,13 @@ function registerServiceWorker(){
       console.warn('[PWA] No se pudo registrar service worker', err);
     });
 
-    let reloadedBySW = false;
+    let handledSWControllerChange = false;
     navigator.serviceWorker.addEventListener('controllerchange', ()=>{
-      if (reloadedBySW) return;
-      reloadedBySW = true;
-      window.location.reload();
+      if (handledSWControllerChange) return;
+      handledSWControllerChange = true;
+      // Evita recarga forzada inmediata (doble carga perceptible en móvil).
+      // La nueva versión quedará activa en la siguiente navegación natural.
+      try{ window.toast?.('✅ Actualización lista. Se aplicará al reabrir la app.'); }catch(_e){}
     });
   });
 }

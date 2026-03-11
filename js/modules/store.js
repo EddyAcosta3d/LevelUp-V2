@@ -113,7 +113,7 @@ import {
     } catch(error) {
       // Manejar diferentes tipos de errores
       if (error.name === 'AbortError') {
-        throw new Error('Tiempo de espera agotado (3.5s)');
+        throw new Error(`Tiempo de espera agotado (${(CONFIG.remoteTimeoutMs/1000).toFixed(1)}s)`);
       }
       if (error.message && (error.message.includes('NetworkError') || error.message.includes('Failed to fetch'))) {
         throw new Error('Sin conexión a Internet');

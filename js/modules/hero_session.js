@@ -16,7 +16,7 @@
 
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase_client.js';
 
-const AUTH_TIMEOUT_MS = 12000;
+const AUTH_TIMEOUT_MS = 8000;
 
 // ============================================
 // MAPA CORREO → HERO_ID

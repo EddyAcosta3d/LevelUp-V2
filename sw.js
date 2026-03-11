@@ -97,8 +97,8 @@ self.addEventListener('activate', (event) => {
 });
 
 // Race a fetch against a timeout so network-first handlers never hang forever.
-// 12 s reduce falsos timeout en datos móviles lentos antes de caer a caché.
-function fetchOrTimeout(req, ms = 12000) {
+// 8 s balancea rapidez percibida y tolerancia de red antes de caer a caché.
+function fetchOrTimeout(req, ms = 8000) {
   return Promise.race([
     fetch(req),
     new Promise((_, reject) => setTimeout(() => reject(new Error('sw-timeout')), ms))
