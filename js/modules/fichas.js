@@ -36,6 +36,20 @@ const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.web
 
 
 const HERO_LAYER_BASE = './assets/hero_layers';
+
+function getConnectionHints(){
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  return {
+    saveData: !!conn?.saveData,
+    effectiveType: String(conn?.effectiveType || '').toLowerCase()
+  };
+}
+
+function shouldUseLiteMediaMode(){
+  const hints = getConnectionHints();
+  return hints.saveData || hints.effectiveType === 'slow-2g' || hints.effectiveType === '2g' || hints.effectiveType === '3g';
+}
+
 let _manifestBootstrapped = false;
 
 function normalizeHeroSlug(name=''){
@@ -517,6 +531,7 @@ export function applyHeroSceneLayers(hero){
 
   function prefetchVisibleHeroLayers(){
     try{
+      if (shouldUseLiteMediaMode()) return;
       const heroes = (state.data?.heroes || []).filter(h => (h.group || '2D') === state.group);
       if (!heroes.length) return;
       const idx = heroes.findIndex(h => h.id === state.selectedHeroId);

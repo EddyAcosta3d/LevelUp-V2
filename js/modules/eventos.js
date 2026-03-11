@@ -30,6 +30,20 @@ import { saveLocal } from './store.js';
 import { currentHero } from './fichas.js';
 
 
+function getConnectionHints(){
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  return {
+    saveData: !!conn?.saveData,
+    effectiveType: String(conn?.effectiveType || '').toLowerCase()
+  };
+}
+
+function shouldUseLiteMediaMode(){
+  const hints = getConnectionHints();
+  return hints.saveData || hints.effectiveType === 'slow-2g' || hints.effectiveType === '2g' || hints.effectiveType === '3g';
+}
+
+
 
 function resetAndBindClick(buttonEl, handler) {
   if (!buttonEl) return null;
@@ -1006,7 +1020,7 @@ const DEFAULT_BOSS_QUIZ = [
       try{ ensureBossSfx(); }catch(_e){}
     }
 
-    if (!window.__bossUnlockSfxBound){
+    if (!window.__bossUnlockSfxBound && !shouldUseLiteMediaMode()){
       window.__bossUnlockSfxBound = true;
       document.addEventListener('pointerdown', preloadAudioOnce, { once: true, passive: true });
       document.addEventListener('touchstart', preloadAudioOnce, { once: true, passive: true });
@@ -1035,7 +1049,7 @@ const DEFAULT_BOSS_QUIZ = [
       }catch(_e){}
     }
     function preloadBattleSfxOnce(){ try{ ensureBattleSfx(); }catch(_e){} }
-    if (!window.__battleSfxBound){
+    if (!window.__battleSfxBound && !shouldUseLiteMediaMode()){
       window.__battleSfxBound = true;
       document.addEventListener('pointerdown', preloadBattleSfxOnce, { once: true, passive: true });
       document.addEventListener('touchstart', preloadBattleSfxOnce, { once: true, passive: true });

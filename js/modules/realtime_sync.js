@@ -27,8 +27,41 @@ const POLL_INTERVAL_STUDENT_MS = 10000;
 // porque la UI del profe usa actualizaciones optimistas inmediatas.
 const POLL_INTERVAL_TEACHER_MS = 30000;
 
+
+function getConnectionHints(){
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  return {
+    saveData: !!conn?.saveData,
+    effectiveType: String(conn?.effectiveType || '').toLowerCase(),
+    hidden: typeof document !== 'undefined' ? !!document.hidden : false,
+    online: typeof navigator !== 'undefined' ? navigator.onLine !== false : true
+  };
+}
+
+function getAdaptiveIntervalMs(baseMs, role){
+  const hints = getConnectionHints();
+  let interval = baseMs;
+
+  // Respeta ahorro de datos y redes lentas móviles.
+  if (hints.saveData || hints.effectiveType === 'slow-2g' || hints.effectiveType === '2g') {
+    interval = Math.max(interval, role === 'student' ? 25000 : 60000);
+  } else if (hints.effectiveType === '3g') {
+    interval = Math.max(interval, role === 'student' ? 15000 : 45000);
+  }
+
+  // Si la pestaña no está visible, bajar frecuencia evita consumo innecesario.
+  if (hints.hidden) interval = Math.max(interval, baseMs * 3);
+
+  // Si está offline, no hace falta insistir tan seguido.
+  if (!hints.online) interval = Math.max(interval, 60000);
+
+  return interval;
+}
+
 let _pollTimer = null;
 let _pollAllTimer = null;
+let _studentSyncRunning = false;
+let _teacherSyncRunning = false;
 let _lastSnapshot = null; // JSON stringificado de asignaciones, para detectar cambios
 let _lastAllSnapshot = null;
 let _warnedStudentSync = false;
@@ -69,7 +102,8 @@ function _applyPendingMutations(heroId, challengeIds){
 // ============================================
 
 export function startAssignmentSync(heroId, onUpdate) {
-  if (_pollTimer) return; // ya corriendo
+  if (_studentSyncRunning) return; // ya corriendo
+  _studentSyncRunning = true;
 
   async function poll() {
     try {
@@ -99,14 +133,20 @@ export function startAssignmentSync(heroId, onUpdate) {
     }
   }
 
+  async function pollAndSchedule(){
+    await poll();
+    if (!_studentSyncRunning) return;
+    _pollTimer = setTimeout(pollAndSchedule, getAdaptiveIntervalMs(POLL_INTERVAL_STUDENT_MS, 'student'));
+  }
+
   // Primera llamada inmediata para que el alumno vea asignaciones al abrir la app
-  poll();
-  _pollTimer = setInterval(poll, POLL_INTERVAL_STUDENT_MS);
+  pollAndSchedule();
 }
 
 export function stopAssignmentSync() {
+  _studentSyncRunning = false;
   if (_pollTimer) {
-    clearInterval(_pollTimer);
+    clearTimeout(_pollTimer);
     _pollTimer = null;
   }
   _lastSnapshot = null;
@@ -114,7 +154,8 @@ export function stopAssignmentSync() {
 }
 
 export function startAllAssignmentsSync(onUpdate) {
-  if (_pollAllTimer) return;
+  if (_teacherSyncRunning) return;
+  _teacherSyncRunning = true;
 
   async function pollAll() {
     try {
@@ -167,14 +208,20 @@ export function startAllAssignmentsSync(onUpdate) {
     }
   }
 
+  async function pollAllAndSchedule(){
+    await pollAll();
+    if (!_teacherSyncRunning) return;
+    _pollAllTimer = setTimeout(pollAllAndSchedule, getAdaptiveIntervalMs(POLL_INTERVAL_TEACHER_MS, 'teacher'));
+  }
+
   // Profe: diferir primer poll 3 s para no competir con el render inicial.
-  setTimeout(pollAll, 3000);
-  _pollAllTimer = setInterval(pollAll, POLL_INTERVAL_TEACHER_MS);
+  _pollAllTimer = setTimeout(pollAllAndSchedule, 3000);
 }
 
 export function stopAllAssignmentsSync() {
+  _teacherSyncRunning = false;
   if (_pollAllTimer) {
-    clearInterval(_pollAllTimer);
+    clearTimeout(_pollAllTimer);
     _pollAllTimer = null;
   }
   _lastAllSnapshot = null;
