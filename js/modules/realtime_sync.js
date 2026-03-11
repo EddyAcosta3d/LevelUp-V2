@@ -6,8 +6,8 @@
  *
  * Usa polling contra Supabase (tabla hero_assignments) con intervalos distintos
  * según el rol para no saturar la API:
- *   - Alumno: cada POLL_INTERVAL_STUDENT_MS (5s) — necesita detectar nuevas asignaciones
- *   - Profe:  cada POLL_INTERVAL_TEACHER_MS  (8s) — ya ve actualizaciones optimistas
+ *   - Alumno: cada POLL_INTERVAL_STUDENT_MS (10s) — detecta nuevas asignaciones sin saturar la API
+ *   - Profe:  cada POLL_INTERVAL_TEACHER_MS  (30s) — ya ve actualizaciones optimistas
  *             inmediatas al asignar; el polling solo confirma el estado remoto.
  *             Usa una sola request por ciclo (in(...) con todos los hero_id) para reducir costo.
  *
@@ -20,12 +20,12 @@ import { getHeroAssignments, getHeroAssignmentsForHeroes } from './supabase_clie
 import { state } from './core_globals.js';
 import { saveLocal } from './store.js';
 
-// Alumno: 5 s — suficiente para notar una nueva asignación sin saturar Supabase.
-const POLL_INTERVAL_STUDENT_MS = 5000;
-// Profe: 8 s — cada tick hace una sola petición para todos los héroes.
+// Alumno: 10 s — mantiene detección rápida (<10 s) sin saturar Supabase.
+const POLL_INTERVAL_STUDENT_MS = 10000;
+// Profe: 30 s — cada tick hace una sola petición para todos los héroes.
 // Un intervalo algo largo reduce aún más costo de red sin afectar la experiencia,
 // porque la UI del profe usa actualizaciones optimistas inmediatas.
-const POLL_INTERVAL_TEACHER_MS = 8000;
+const POLL_INTERVAL_TEACHER_MS = 30000;
 
 let _pollTimer = null;
 let _pollAllTimer = null;
@@ -167,7 +167,8 @@ export function startAllAssignmentsSync(onUpdate) {
     }
   }
 
-  pollAll();
+  // Profe: diferir primer poll 3 s para no competir con el render inicial.
+  setTimeout(pollAll, 3000);
   _pollAllTimer = setInterval(pollAll, POLL_INTERVAL_TEACHER_MS);
 }
 

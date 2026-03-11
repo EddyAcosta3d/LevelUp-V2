@@ -29,7 +29,7 @@ import {
 import {
   upsertHeroAssignment,
   deleteHeroAssignment,
-  getHeroAssignments,
+  getHeroAssignmentsForHeroes,
   hasActiveSessionToken
 } from './supabase_client.js';
 
@@ -435,7 +435,10 @@ export function renderChallengeDetail(){
         clearAssignmentMutationPending(targetHero.id, chId);
         // Releer desde Supabase para confirmar el estado real guardado.
         try {
-          const remoteAssignments = await getHeroAssignments(targetHero.id);
+          const rows = await getHeroAssignmentsForHeroes([targetHero.id]);
+          const remoteAssignments = rows
+            .filter(row => String(row.hero_id) === String(targetHero.id))
+            .map(row => String(row.challenge_id));
           targetHero.assignedChallenges = remoteAssignments;
           saveLocal(state.data);
           renderChallenges();
