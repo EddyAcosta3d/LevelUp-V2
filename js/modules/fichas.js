@@ -33,6 +33,48 @@ import {
 // (Importante: NO inventar rutas por nombre para evitar 404.)
 const HERO_FG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_3x4.webp';
 const HERO_BG_PLACEHOLDER = './assets/placeholders/placeholder_unlocked_16x9.webp';
+
+
+const HERO_LAYER_BASE = './assets/hero_layers';
+let _manifestBootstrapped = false;
+
+function normalizeHeroSlug(name=''){
+  return stripDiacritics(String(name || '').trim())
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function getParallaxManifest(){
+  return (window && window.__PARALLAX_MANIFEST__) ? window.__PARALLAX_MANIFEST__ : null;
+}
+
+function getHeroAssetsFromManifest(heroName=''){
+  const manifest = getParallaxManifest();
+  if (!manifest) return null;
+  const slug = normalizeHeroSlug(heroName);
+  if (!slug) return null;
+  return manifest[slug] || null;
+}
+
+async function bootstrapParallaxManifest(){
+  if (_manifestBootstrapped) return;
+  _manifestBootstrapped = true;
+  if (getParallaxManifest()) return;
+
+  try{
+    const res = await fetch('./js/modules/parallax_manifest.js', { cache: 'force-cache' });
+    if (!res.ok) return;
+    const txt = await res.text();
+    const eq = txt.indexOf('=');
+    const semi = txt.lastIndexOf(';');
+    if (eq < 0) return;
+    const payload = txt.slice(eq + 1, semi > eq ? semi : undefined).trim();
+    const parsed = JSON.parse(payload);
+    window.__PARALLAX_MANIFEST__ = parsed;
+    try{ renderHeroDetail(); }catch(_e){}
+  }catch(_e){}
+}
 /**
  * Optimized hero selection - updates only what changed
  * Instead of re-rendering everything, just update classes and relevant UI
@@ -391,24 +433,14 @@ export function renderHeroAvatar(hero){
     const direct = String(hero.photo || hero.img || hero.image || hero.photoSrc || '').trim();
     if (direct) return direct;
 
-    const cleanName = stripDiacritics(String(hero.name || '').trim())
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-
-    const heroAssets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    const heroAssets = getHeroAssetsFromManifest(hero.name || '');
     return String(heroAssets?.fg || heroAssets?.bg || '').trim();
   }
 
   function resolveHeroSceneAssets(hero){
     if (!hero || !hero.name || !window.__PARALLAX_MANIFEST__) return null;
 
-    const cleanName = stripDiacritics(String(hero.name || '').trim())
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-
-    const heroAssets = cleanName ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    const heroAssets = getHeroAssetsFromManifest(hero.name || '');
     if (!heroAssets) return null;
 
     return {
@@ -429,16 +461,16 @@ export function renderHeroAvatar(hero){
 
     const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
 
-    // Determinar assets por manifest (evita 404 por intentar nombres que no existen)
-    let cleanName = '';
-    if (hero && hero.name){
-      cleanName = stripDiacritics(String(hero.name).trim())
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_+|_+$/g, '');
-    }
-
-    const heroAssets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+    // Determinar assets: manifest; fallback por convención de archivos.
+    const manifestAssets = getHeroAssetsFromManifest(hero?.name || '');
+    const slug = normalizeHeroSlug(hero?.name || '');
+    const heroAssets = (manifestAssets && (manifestAssets.fg || manifestAssets.bg || manifestAssets.mid))
+      ? manifestAssets
+      : (slug ? {
+          fg: `${HERO_LAYER_BASE}/${slug}_fg.webp`,
+          bg: `${HERO_LAYER_BASE}/${slug}_bg.webp`,
+          mid: ''
+        } : null);
 
     if (heroAssets && (heroAssets.fg || heroAssets.bg || heroAssets.mid)){
       scene.dataset.parallax = '1';
@@ -1080,8 +1112,8 @@ export function toggleSubjectDropdown(){
 
 
 
-
-
+// Carga resiliente del manifest por si el script defer no llegó a tiempo.
+bootstrapParallaxManifest();
 
 // Animación parallax desactivada para mejorar rendimiento en móvil.
 (function initHeroSceneStaticLayers(){
