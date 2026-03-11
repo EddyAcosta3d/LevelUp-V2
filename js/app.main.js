@@ -11,7 +11,7 @@ import { loadData } from './modules/store.js';
 import { bind } from './app.bindings.js';
 import { setRole } from './modules/app_actions.js';
 import { getSession } from './modules/hero_session.js';
-import { startAssignmentSync, loadAllAssignmentsIntoState, preloadStudentAssignments, startAllAssignmentsSync } from './modules/realtime_sync.js';
+import { startAssignmentSync, preloadStudentAssignments, startAllAssignmentsSync } from './modules/realtime_sync.js';
 
 
 const setActiveRoute = (...args) => {
@@ -110,26 +110,23 @@ export async function init(){
       }
     }
 
-    // ALUMNO: pre-cargar asignaciones de Supabase ANTES del primer render,
-    // para que los desafíos asignados aparezcan desbloqueados desde el inicio.
-    if (!IS_ADMIN && _sess && _sess.heroId) {
-      await preloadStudentAssignments(_sess.heroId);
-    }
-
     // Modo normal: bind siempre (se eliminó modo proyector por URL)
     bind();
     setRole(IS_ADMIN ? ROLE.TEACHER : ROLE.VIEWER);
     syncDetailsUI();
 
+    // ALUMNO: precargar asignaciones en segundo plano para no bloquear
+    // el primer render. Cuando llega la data, refrescar desafíos.
+    if (!IS_ADMIN && _sess && _sess.heroId) {
+      preloadStudentAssignments(_sess.heroId)
+        .then(() => {
+          if (typeof window.renderChallenges === 'function') window.renderChallenges();
+        })
+        .catch(() => {});
+    }
+
     // Sincronización de asignaciones con Supabase
     if (IS_ADMIN) {
-      // Profe: cargar asignaciones de todos los alumnos al arrancar
-      loadAllAssignmentsIntoState().then(() => {
-        // Re-renderizar si ya había algo en pantalla
-        if (typeof window.renderChallenges === 'function') window.renderChallenges();
-      }).catch(() => {});
-
-      // Profe: sincronización continua para reflejar cambios remotos rápido
       startAllAssignmentsSync(() => {
         if (typeof window.renderChallenges === 'function') window.renderChallenges();
       });
