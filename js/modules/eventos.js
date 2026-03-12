@@ -423,6 +423,8 @@ const DEFAULT_BOSS_QUIZ = [
   }
 
   function openBossBattleModal(ev, hero){
+    try{ window.__levelupEnsureBattleSfx?.(true); }catch(_e){}
+
     const modal = $('#bossBattleModal');
     if (!modal) return;
 
@@ -716,6 +718,10 @@ const DEFAULT_BOSS_QUIZ = [
     });
   }
   export function renderEvents(){
+    try{
+      window.__levelupEnsureBossSfx?.(true);
+      window.__levelupEnsureBattleSfx?.(true);
+    }catch(_e){}
     const grid = $('#eventGrid');
     if (!grid) return;
 
@@ -997,63 +1003,57 @@ const DEFAULT_BOSS_QUIZ = [
 
 
   // ------------------------------------------------------------
-  // Boss unlock sound (pre-unlocked on first user gesture)
+  // Boss unlock sound
   // ------------------------------------------------------------
   (function(){
     const SFX_SRC = 'assets/sfx/challenger_approaching.mp3';
-    function ensureBossSfx(){
+    function ensureBossSfx(loadNow = false){
       try{
         if (window.__bossUnlockSfx) return window.__bossUnlockSfx;
         const a = new Audio(SFX_SRC);
-        a.preload = 'auto';
+        a.preload = 'none';
         a.volume = 0.9;
+        if (loadNow) a.load();
         window.__bossUnlockSfx = a;
         return a;
       }catch(_e){ return null; }
     }
 
-    // Pre-create the Audio element on first user gesture so it's ready
-    // when showBossUnlockOverlay actually needs to play it.
-    // NOTE: We intentionally do NOT call .play() here — doing so caused
-    // audible sound on some iOS devices despite setting volume to 0.
-    function preloadAudioOnce(){
-      try{ ensureBossSfx(); }catch(_e){}
-    }
-
-    if (!window.__bossUnlockSfxBound && !shouldUseLiteMediaMode()){
-      window.__bossUnlockSfxBound = true;
-      document.addEventListener('pointerdown', preloadAudioOnce, { once: true, passive: true });
-      document.addEventListener('touchstart', preloadAudioOnce, { once: true, passive: true });
-    }
+    window.__levelupEnsureBossSfx = ensureBossSfx;
   })();
 
 
   // ------------------------------------------------------------
-  // Battle SFX (punch, wrong, tecno loop) — preloaded on first gesture
+  // Battle SFX (punch, wrong, tecno loop)
   // ------------------------------------------------------------
   (function(){
     function makeSfx(src, volume, loop){
       try{
         const a = new Audio(src);
-        a.preload = 'auto';
+        a.preload = 'none';
         a.volume = volume ?? 0.8;
         a.loop = !!loop;
         return a;
       }catch(_e){ return null; }
     }
-    function ensureBattleSfx(){
+    function ensureBattleSfx(loadNow = false){
       try{
         if (!window.__battleSfxPunch) window.__battleSfxPunch = makeSfx('assets/sfx/punch sfx.mp3', 0.8, false);
         if (!window.__battleSfxWrong) window.__battleSfxWrong = makeSfx('assets/sfx/wrong sfx.mp3', 0.8, false);
         if (!window.__battleSfxLoop)  window.__battleSfxLoop  = makeSfx('assets/sfx/tecno loop sfx.mp3', 0.5, true);
+
+        if (loadNow && !window.__battleSfxLoaded){
+          window.__battleSfxLoaded = true;
+          [window.__battleSfxPunch, window.__battleSfxWrong, window.__battleSfxLoop]
+            .filter(Boolean)
+            .forEach((audio)=>{
+              try{ audio.load(); }catch(_e){}
+            });
+        }
       }catch(_e){}
     }
-    function preloadBattleSfxOnce(){ try{ ensureBattleSfx(); }catch(_e){} }
-    if (!window.__battleSfxBound && !shouldUseLiteMediaMode()){
-      window.__battleSfxBound = true;
-      document.addEventListener('pointerdown', preloadBattleSfxOnce, { once: true, passive: true });
-      document.addEventListener('touchstart', preloadBattleSfxOnce, { once: true, passive: true });
-    }
+
+    window.__levelupEnsureBattleSfx = ensureBattleSfx;
   })();
 
 
