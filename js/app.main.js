@@ -87,44 +87,47 @@ export async function init(){
     window.LevelUp = window.LevelUp || {};
     window.LevelUp.getSession = getSession;
 
-    // CARGAR DATOS SIN BLOQUEAR PRIMERA PANTALLA:
-    // local-first (si existe copia local) + sync remota en background.
-    await loadData({ forceRemote:false, localFirst:true });
-
-    // DESPUÉS de cargar datos: pre-seleccionar el héroe de la sesión
-    // IMPORTANTE: debe hacerse ANTES de bind() para que renderHeroList
-    // ya encuentre el selectedHeroId correcto en su primera ejecución
-    if (_sess && !_sess.isAdmin && _sess.heroId) {
+    const syncSessionHeroSelection = ()=>{
+      if (!_sess || _sess.isAdmin || !_sess.heroId) return;
       const heroes = state.data?.heroes || [];
       const sessionHero = heroes.find(h => h.id === _sess.heroId);
-      if (sessionHero) {
-        state.selectedHeroId = _sess.heroId;
-        state.group = sessionHero.group || '2D';
-        // Sincronizar el tab de grupo en la UI antes de que bind() renderice
-        try {
-          document.querySelectorAll('.segmented__btn[data-group]').forEach(btn => {
-            const isActive = btn.dataset.group === state.group;
-            btn.classList.toggle('is-active', isActive);
-            btn.setAttribute('aria-selected', String(isActive));
-          });
-        } catch(_e) {}
-      }
-    }
+      if (!sessionHero) return;
+
+      state.selectedHeroId = _sess.heroId;
+      state.group = sessionHero.group || '2D';
+      try {
+        document.querySelectorAll('.segmented__btn[data-group]').forEach(btn => {
+          const isActive = btn.dataset.group === state.group;
+          btn.classList.toggle('is-active', isActive);
+          btn.setAttribute('aria-selected', String(isActive));
+        });
+      } catch(_e) {}
+    };
 
     // Modo normal: bind siempre (se eliminó modo proyector por URL)
+    // Se ejecuta ANTES de que llegue la data para que la UI pinte al instante.
     bind();
     setRole(IS_ADMIN ? ROLE.TEACHER : ROLE.VIEWER);
     syncDetailsUI();
 
-    // ALUMNO: precargar asignaciones en segundo plano para no bloquear
-    // el primer render. Cuando llega la data, refrescar desafíos.
-    if (!IS_ADMIN && _sess && _sess.heroId) {
-      preloadStudentAssignments(_sess.heroId)
-        .then(() => {
-          if (typeof window.renderChallenges === 'function') window.renderChallenges();
-        })
-        .catch(() => {});
-    }
+    // CARGAR DATOS EN BACKGROUND:
+    // local-first (si existe copia local) + sync remota en background.
+    loadData({ forceRemote:false, localFirst:true, renderAll: window.renderAll })
+      .then(() => {
+        syncSessionHeroSelection();
+        if (typeof window.renderAll === 'function') window.renderAll();
+
+        // ALUMNO: precargar asignaciones en segundo plano para no bloquear
+        // el primer render. Cuando llega la data, refrescar desafíos.
+        if (!IS_ADMIN && _sess && _sess.heroId) {
+          preloadStudentAssignments(_sess.heroId)
+            .then(() => {
+              if (typeof window.renderChallenges === 'function') window.renderChallenges();
+            })
+            .catch(() => {});
+        }
+      })
+      .catch(() => {});
 
     // Sincronización de asignaciones con Supabase
     if (IS_ADMIN) {
