@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-027';
+const SW_VERSION = 'levelup-v2-sw-028';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -162,16 +162,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // JS del mismo origen: cache-first puro.
+  // JS del mismo origen: stale-while-revalidate.
   const isSameOriginJs = url.origin === self.location.origin && path.endsWith('.js');
   if (isSameOriginJs) {
     event.respondWith(
       caches.match(req).then((cached) => {
-        if (cached) return cached;
-        return fetchOrTimeout(toBypassHttpCacheRequest(req)).then((res) => {
+        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req)).then((res) => {
           safeCachePut(req, res.clone());
           return res;
         });
+
+        if (cached) {
+          event.waitUntil(networkPromise.catch(() => {}));
+          return cached;
+        }
+
+        return networkPromise;
       })
     );
     return;
