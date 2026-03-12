@@ -444,6 +444,7 @@ export function buildAssetCandidates(heroName){
 
 export function renderHeroAvatar(hero){
     const box = $('#avatarBox');
+    const scene = document.getElementById('heroScene');
     if (!box) return;
 
     const heroName = hero ? String(hero.name || hero.nombre || '').trim() : '';
@@ -456,10 +457,28 @@ export function renderHeroAvatar(hero){
       box.removeAttribute('aria-hidden');
       box.dataset.fullPhotoSrc = String(url);
       box.style.cursor = 'zoom-in';
+
+      if (scene) scene.dataset.photoLoading = '1';
+      box.classList.add('is-loading');
+
       const img = document.createElement('img');
-      img.src = String(url);
       img.alt = heroName ? `Foto de ${heroName}` : 'Foto del héroe';
       img.loading = 'lazy';
+
+      img.addEventListener('load', ()=>{
+        box.classList.remove('is-loading');
+        if (scene) delete scene.dataset.photoLoading;
+      }, { once: true });
+
+      img.addEventListener('error', ()=>{
+        box.classList.remove('is-loading');
+        if (scene) delete scene.dataset.photoLoading;
+        box.classList.add('is-empty');
+        box.setAttribute('aria-hidden','true');
+        box.removeAttribute('data-full-photo-src');
+      }, { once: true });
+
+      img.src = String(url);
       box.appendChild(img);
       return;
     }
@@ -469,6 +488,8 @@ export function renderHeroAvatar(hero){
     box.setAttribute('aria-hidden','true');
     box.removeAttribute('data-full-photo-src');
     box.style.cursor = '';
+    box.classList.remove('is-loading');
+    if (scene) delete scene.dataset.photoLoading;
 
     // Sin foto: se oculta la capa para que se vean las capas de escena (parallax/demo).
   }
