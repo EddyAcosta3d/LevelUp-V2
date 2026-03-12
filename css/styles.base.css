@@ -1497,6 +1497,18 @@ body::-webkit-scrollbar,
   object-fit: cover; /* llenar todo el panel para evitar huecos */
   object-position: 50% 100%;
   display:block;
+  opacity: 1;
+  transition: opacity .22s ease;
+}
+
+.heroPhotoFill.is-loading img{
+  opacity: 0;
+}
+
+.heroScene[data-photo-loading="1"] .heroSceneLayer--bg,
+.heroScene[data-photo-loading="1"] .heroSceneLayer--mid,
+.heroScene[data-photo-loading="1"] .heroSceneLayer--fg{
+  opacity: 0;
 }
 
 /* Asegura redondeo consistente en ambas esquinas superiores de la ficha */
