@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-028';
+const SW_VERSION = 'levelup-v2-sw-029';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -30,22 +30,22 @@ const APP_SHELL = [
   './index.html',
   './login.html',
   './manifest.webmanifest',
-  './css/styles.base.css',
-  './css/styles.challenges.css',
-  './css/styles.levelup.css',
-  './css/styles.mobile.css',
-  './css/styles.tienda.css',
-  './css/styles.celebrations.css',
-  './css/styles.viewmode.css',
-  './js/modules/ui_shell.js',
-  './js/modules/parallax_manifest.js',
-  './js/app.main.js',
-  './js/app.bindings.js',
-  './js/modules/core_globals.js',
-  './js/modules/store.js',
-  './js/modules/app_actions.js',
-  './js/modules/fichas.js',
-  './js/modules/desafios.js',
+  './css/styles.base.css?v=LevelUP_V2_01.00',
+  './css/styles.challenges.css?v=LevelUP_V2_01.00',
+  './css/styles.levelup.css?v=LevelUP_V2_01.00',
+  './css/styles.mobile.css?v=LevelUP_V2_01.00',
+  './css/styles.tienda.css?v=LevelUP_V2_01.00',
+  './css/styles.celebrations.css?v=LevelUP_V2_01.00',
+  './css/styles.viewmode.css?v=LevelUP_V2_01.00',
+  './js/modules/ui_shell.js?v=LevelUP_V2_01.00',
+  './js/modules/parallax_manifest.js?v=LevelUP_V2_01.00',
+  './js/app.main.js?v=LevelUP_V2_01.01',
+  './js/app.bindings.js?v=LevelUP_V2_01.00',
+  './js/modules/core_globals.js?v=LevelUP_V2_01.00',
+  './js/modules/store.js?v=LevelUP_V2_01.00',
+  './js/modules/app_actions.js?v=LevelUP_V2_01.00',
+  './js/modules/fichas.js?v=LevelUP_V2_01.00',
+  './js/modules/desafios.js?v=LevelUP_V2_01.00',
   './js/modules/eventos.js',
   './js/modules/tienda.js',
   './js/modules/celebrations.js',

@@ -6,10 +6,10 @@
  */
 
 // Import all dependencies
-import { state, logger, ROLE } from './modules/core_globals.js';
-import { loadData } from './modules/store.js';
-import { bind } from './app.bindings.js';
-import { setRole } from './modules/app_actions.js';
+import { state, logger, ROLE } from './modules/core_globals.js?v=LevelUP_V2_01.00';
+import { loadData } from './modules/store.js?v=LevelUP_V2_01.00';
+import { bind } from './app.bindings.js?v=LevelUP_V2_01.00';
+import { setRole } from './modules/app_actions.js?v=LevelUP_V2_01.00';
 import { getSession } from './modules/hero_session.js';
 import { startAssignmentSync, preloadStudentAssignments, startAllAssignmentsSync } from './modules/realtime_sync.js';
 

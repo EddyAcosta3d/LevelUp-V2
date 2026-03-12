@@ -5,11 +5,11 @@
  * @description Event bindings and UI orchestration
  */
 
-import { state, ROUTE, DIFFICULTY } from './modules/core_globals.js';
-import { loadData } from './modules/store.js';
-import { renderAll, handleImportJson, handleExportJson, handleExportCsv, bumpHeroXp, setRole } from './modules/app_actions.js';
-import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
-import { toggleSubjectDropdown, currentHero, renderHeroDetail } from './modules/fichas.js';
+import { state, ROUTE, DIFFICULTY } from './modules/core_globals.js?v=LevelUP_V2_01.00';
+import { loadData } from './modules/store.js?v=LevelUP_V2_01.00';
+import { renderAll, handleImportJson, handleExportJson, handleExportCsv, bumpHeroXp, setRole } from './modules/app_actions.js?v=LevelUP_V2_01.00';
+import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js?v=LevelUP_V2_01.00';
+import { toggleSubjectDropdown, currentHero, renderHeroDetail } from './modules/fichas.js?v=LevelUP_V2_01.00';
 import { ensureLazySection, getLazySectionModule } from './modules/lazy_sections.js';
 import { saveToGitHub, testGitHubConnection, setGitHubToken, clearGitHubToken } from './modules/github_sync.js';
 import { initStudentActions } from './modules/student_actions.js';
