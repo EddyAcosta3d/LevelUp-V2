@@ -4,6 +4,51 @@ window.__PARALLAX_MANIFEST__ = {
     "bg": "assets/placeholders/Placeholder_heroes.webp",
     "mid": ""
   },
+  "natanael": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
+  "alexa": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
+  "santiago": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
+  "erick": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
+  "jose_miguel": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
+  "luis": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
+  "zoe": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
+  "david": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
+  "julissa": {
+    "fg": "assets/placeholders/Placeholder_heroes.webp",
+    "bg": "assets/placeholders/Placeholder_heroes.webp",
+    "mid": ""
+  },
   "alexis": {
     "fg": "assets/hero_layers/alexis_fg.webp",
     "bg": "assets/hero_layers/alexis_bg.webp",
