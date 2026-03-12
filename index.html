@@ -33,6 +33,15 @@
   <link rel="stylesheet" href="css/styles.viewmode.css?v=LevelUP_V2_01.00" />
   <link rel="stylesheet" href="css/styles.mobile.css?v=LevelUP_V2_01.00" />
 
+  <!-- Reduce ES module waterfall on high-latency mobile networks -->
+  <link rel="modulepreload" href="js/app.main.js?v=LevelUP_V2_01.01" />
+  <link rel="modulepreload" href="js/app.bindings.js?v=LevelUP_V2_01.00" />
+  <link rel="modulepreload" href="js/modules/core_globals.js?v=LevelUP_V2_01.00" />
+  <link rel="modulepreload" href="js/modules/store.js?v=LevelUP_V2_01.00" />
+  <link rel="modulepreload" href="js/modules/app_actions.js?v=LevelUP_V2_01.00" />
+  <link rel="modulepreload" href="js/modules/fichas.js?v=LevelUP_V2_01.00" />
+  <link rel="modulepreload" href="js/modules/desafios.js?v=LevelUP_V2_01.00" />
+
   <!-- Verificación de sesión: NO bloquea el render -->
   <script>
     // Verificación rápida sin imports — usa sessionStorage directamente
