@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-024';
+const SW_VERSION = 'levelup-v2-sw-025';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -222,12 +222,13 @@ self.addEventListener('fetch', (event) => {
     url.hostname === 'fonts.gstatic.com';
 
   if (isGoogleFont) {
+    const fontCacheKey = req.url;
     event.respondWith(
-      caches.match(req).then((cached) => {
+      caches.match(fontCacheKey).then((cached) => {
         if (cached) return cached;
         return fetch(req).then((res) => {
           if (res && (res.ok || res.type === 'opaque')) {
-            caches.open(SW_VERSION).then((cache) => cache.put(req, res.clone())).catch(() => {});
+            caches.open(SW_VERSION).then((cache) => cache.put(fontCacheKey, res.clone())).catch(() => {});
           }
           return res;
         });
