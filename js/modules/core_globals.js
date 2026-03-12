@@ -155,7 +155,7 @@ window.LevelUp = window.LevelUp || {};
 
   export const CONFIG = {
     remoteUrl: './data/data.json',
-    remoteTimeoutMs: 3500,
+    remoteTimeoutMs: 8000,
     storageKey: 'levelup:data:v1'
   };
 

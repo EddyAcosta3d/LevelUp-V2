@@ -85,10 +85,10 @@ import {
     const ctrl = new AbortController();
     const t = setTimeout(()=> ctrl.abort(), CONFIG.remoteTimeoutMs);
     try{
-      const url = `${CONFIG.remoteUrl}?v=${Date.now()}`; // cache-buster
+      const url = CONFIG.remoteUrl;
       const res = await fetch(url, {
         signal: ctrl.signal,
-        cache: 'no-store',
+        cache: 'no-cache',
         headers: { 'Accept': 'application/json' }
       });
 
