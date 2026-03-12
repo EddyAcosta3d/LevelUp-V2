@@ -54,8 +54,9 @@ const APP_SHELL = [
   './js/modules/github_sync.js',
   './js/modules/supabase_client.js',
   './js/config.js',
-  './assets/logo.webp',
-  './assets/logo_small.webp',
+  './assets/logo_full.webp',
+  './assets/logo_full_200px.webp',
+  './assets/logo_variant.webp',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './data/data.json'
