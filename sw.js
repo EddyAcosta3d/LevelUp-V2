@@ -127,7 +127,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML: network-first para mantener navegación consistente.
+  // HTML: cache-first + refresh en background para evitar esperas de ~8-10s
+  // en datos móviles inestables. Si existe copia en caché, se entrega al instante
+  // y se intenta actualizar en segundo plano.
   const isHtml =
     req.destination === 'document' ||
     path.endsWith('.html') ||
@@ -135,18 +137,25 @@ self.addEventListener('fetch', (event) => {
 
   if (isHtml) {
     event.respondWith(
-      fetchOrTimeout(toBypassHttpCacheRequest(req))
-        .then((res) => {
-          safeCachePut(req, res.clone());
-          return res;
-        })
-        .catch(async () => {
+      caches.match(req, { ignoreSearch: true }).then((cached) => {
+        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req), 4500)
+          .then((res) => {
+            safeCachePut(req, res.clone());
+            return res;
+          });
+
+        if (cached) {
+          event.waitUntil(networkPromise.catch(() => {}));
+          return cached;
+        }
+
+        return networkPromise.catch(async () => {
           return (
-            (await caches.match(req, { ignoreSearch: true })) ||
             (await caches.match('./index.html')) ||
             (await caches.match('./login.html'))
           );
-        })
+        });
+      })
     );
     return;
   }
