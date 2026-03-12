@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-022';
+const SW_VERSION = 'levelup-v2-sw-023';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -160,23 +160,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // JS del mismo origen: stale-while-revalidate para acelerar arranque repetido
-  // en móvil sin sacrificar actualización en background.
+  // JS del mismo origen: cache-first puro.
   const isSameOriginJs = url.origin === self.location.origin && path.endsWith('.js');
   if (isSameOriginJs) {
     event.respondWith(
       caches.match(req).then((cached) => {
-        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req))
-          .then((res) => {
-            safeCachePut(req, res.clone());
-            return res;
-          });
-
-        if (cached) {
-          event.waitUntil(networkPromise.catch(() => {}));
-          return cached;
-        }
-        return networkPromise;
+        if (cached) return cached;
+        return fetchOrTimeout(toBypassHttpCacheRequest(req)).then((res) => {
+          safeCachePut(req, res.clone());
+          return res;
+        });
       })
     );
     return;
@@ -202,15 +195,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // data.json: network-first con fallback a caché
+  // data.json: cache-first con revalidación silenciosa
   if (path.endsWith('/data/data.json') || path === '/data/data.json') {
     event.respondWith(
-      fetchOrTimeout(toBypassHttpCacheRequest(req))
-        .then((res) => {
-          safeCachePut(req, res.clone());
-          return res;
-        })
-        .catch(() => caches.match(req))
+      caches.match(req).then((cached) => {
+        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req))
+          .then((res) => {
+            safeCachePut(req, res.clone());
+            return res;
+          });
+
+        if (cached) {
+          event.waitUntil(networkPromise.catch(() => {}));
+          return cached;
+        }
+
+        return networkPromise;
+      })
     );
     return;
   }
@@ -235,24 +236,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Imágenes del mismo origen: stale-while-revalidate.
-  // En datos móviles lentos evita timeouts de 5s en primera carga de imágenes
-  // grandes (heroes/jefes), pero sigue refrescando en background.
+  // Imágenes del mismo origen: cache-first puro.
   const isSameOriginImage = url.origin === self.location.origin && req.destination === 'image';
 
   if (isSameOriginImage) {
     event.respondWith(
       caches.match(req).then((cached) => {
-        const networkPromise = fetch(req).then((res) => {
+        if (cached) return cached;
+        return fetch(req).then((res) => {
           safeCachePut(req, res.clone());
           return res;
         });
-
-        if (cached) {
-          event.waitUntil(networkPromise.catch(() => {}));
-          return cached;
-        }
-        return networkPromise;
       })
     );
     return;
