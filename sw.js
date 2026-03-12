@@ -64,13 +64,13 @@ const APP_SHELL = [
 
 // ─── INSTALL ────────────────────────────────────────────────────────────────
 // Promise.allSettled: si un archivo falla no aborta la instalación completa.
-// cache: 'reload' evita leer el caché HTTP anterior al precachear.
+// cache: 'no-cache' permite revalidar con HTTP cache y evita redescargas completas.
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(SW_VERSION).then((cache) => {
       return Promise.allSettled(
         APP_SHELL.map((url) =>
-          fetch(new Request(url, { cache: 'reload' }))
+          fetch(new Request(url, { cache: 'no-cache' }))
             .then((res) => { if (shouldCacheResponse(res)) return cache.put(url, res); })
             .catch(() => {})   // ignora silenciosamente archivos no disponibles
         )
