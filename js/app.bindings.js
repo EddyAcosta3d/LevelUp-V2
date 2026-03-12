@@ -173,9 +173,9 @@ export function bind(){
   // Group segmented control (2D/3D)
   document.querySelectorAll('.segmented__btn[data-group]').forEach((btn)=>{
     btn.addEventListener('click', ()=>{
-      // Alumnos con sesión no pueden cambiar de grupo
-      const _sess = window.LevelUp?.getSession?.();
-      if (_sess && !_sess.isAdmin && _sess.heroId && !_sess.guest) return;
+      // En student-mode el selector está oculto por CSS.
+      // Si el control está visible, permitir cambiar de grupo.
+      if (document.body.classList.contains('student-mode')) return;
 
       const nextGroup = String(btn.dataset.group || '').trim();
       if (!nextGroup || state.group === nextGroup) return;
