@@ -10,7 +10,7 @@ import { loadData } from './modules/store.js';
 import { renderAll, handleImportJson, handleExportJson, handleExportCsv, bumpHeroXp, setRole } from './modules/app_actions.js';
 import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
 import { toggleSubjectDropdown, currentHero, renderHeroDetail } from './modules/fichas.js';
-import { bindTiendaEvents } from './modules/tienda.js';
+import { ensureLazySection, getLazySectionModule } from './modules/lazy_sections.js';
 import { saveToGitHub, testGitHubConnection, setGitHubToken, clearGitHubToken } from './modules/github_sync.js';
 import { initStudentActions } from './modules/student_actions.js';
 import { getSession } from './modules/hero_session.js';
@@ -45,16 +45,37 @@ function _updateGitHubSaveStatus({ ok, savedAt, error } = {}) {
   statusEl.hidden = false;
 }
 
-function activateRoute(route){
+async function activateRoute(route){
   if (!route) return;
+
+  if (route === ROUTE.EVENTOS || route === ROUTE.TIENDA) {
+    try {
+      const mod = await ensureLazySection(route);
+      if (route === ROUTE.TIENDA && typeof mod?.bindTiendaEvents === 'function') {
+        mod.bindTiendaEvents();
+      }
+    } catch (_e) {
+      safeCall(window.toast, '⚠️ No se pudo cargar esta sección');
+    }
+  }
+
   state.route = route;
   if (typeof window.setActiveRoute === 'function') {
     window.setActiveRoute(route);
-    return;
+  } else {
+    document.querySelectorAll('.page').forEach(p=>p.classList.toggle('is-active', p.dataset.page===route));
+    document.querySelectorAll('.pill[data-route]').forEach(b=>b.classList.toggle('is-active', b.dataset.route===route));
+    document.querySelectorAll('#bottomNav .bottomNav__btn').forEach(b=>b.classList.toggle('is-active', b.dataset.route===route));
   }
-  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('is-active', p.dataset.page===route));
-  document.querySelectorAll('.pill[data-route]').forEach(b=>b.classList.toggle('is-active', b.dataset.route===route));
-  document.querySelectorAll('#bottomNav .bottomNav__btn').forEach(b=>b.classList.toggle('is-active', b.dataset.route===route));
+
+  if (route === ROUTE.EVENTOS) {
+    const eventosModule = getLazySectionModule(ROUTE.EVENTOS);
+    if (typeof eventosModule?.renderEvents === 'function') safeCall(eventosModule.renderEvents);
+  }
+  if (route === ROUTE.TIENDA) {
+    const tiendaModule = getLazySectionModule(ROUTE.TIENDA);
+    if (typeof tiendaModule?.renderTienda === 'function') safeCall(tiendaModule.renderTienda);
+  }
 }
 
 export function bind(){
@@ -71,7 +92,7 @@ export function bind(){
     // Recompensas has its own toggle handler (go/reverse).
     // Skip generic route binding to avoid double navigation on click.
     if (btn.id === 'btnRecompensas' || btn.id === 'btnMobileRewards') return;
-    btn.addEventListener('click', ()=> activateRoute(btn.dataset.route));
+    btn.addEventListener('click', ()=> { void activateRoute(btn.dataset.route); });
   });
 
   document.getElementById('btnMenu')?.addEventListener('click', ()=> safeCall(window.openDrawer));
@@ -123,11 +144,11 @@ export function bind(){
   const handleRewardsToggle = ()=> {
     if (state.route === ROUTE.RECOMPENSAS) {
       // If we're already on rewards, go back to previous route
-      activateRoute(previousRoute);
+      void activateRoute(previousRoute);
     } else {
       // Save current route before switching to rewards
       previousRoute = state.route || ROUTE.FICHAS;
-      activateRoute('recompensas');
+      void activateRoute(ROUTE.RECOMPENSAS);
     }
   };
 
@@ -217,7 +238,6 @@ export function bind(){
   // Modal close buttons
   bindModalCloseButtons();
 
-  safeCall(bindTiendaEvents);
   safeCall(renderAll);
 }
 

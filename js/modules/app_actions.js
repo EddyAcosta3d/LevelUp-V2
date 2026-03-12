@@ -45,8 +45,7 @@ import {
 
 import { renderHeroList, renderHeroDetail, currentHero } from './fichas.js';
 import { renderChallenges, renderChallengeDetail } from './desafios.js';
-import { renderEvents } from './eventos.js';
-import { renderTienda } from './tienda.js';
+import { getLazySectionModule } from './lazy_sections.js';
 
 
 // Factory for window.* proxy functions (silent no-op when fn not ready yet)
@@ -64,6 +63,21 @@ const closeAllModals = (...args) => {
   document.querySelectorAll('.modal').forEach(m=>{ if (!args[0] || m.id!==args[0]) m.hidden = true; });
 };
 
+
+function renderEventsIfLoaded(){
+  const eventosModule = getLazySectionModule('eventos');
+  if (typeof eventosModule?.renderEvents === 'function') {
+    eventosModule.renderEvents();
+  }
+}
+
+function renderTiendaIfLoaded(){
+  const tiendaModule = getLazySectionModule('tienda');
+  if (typeof tiendaModule?.renderTienda === 'function') {
+    tiendaModule.renderTienda();
+  }
+}
+
 function renderAll(){
     const safe = (name, fn) => {
       try { fn(); }
@@ -76,8 +90,8 @@ function renderAll(){
     safe('Fichas (lista)', renderHeroList);
     safe('Fichas (detalle)', renderHeroDetail);
     safe('Desafíos', renderChallenges);
-    safe('Eventos', renderEvents);
-    safe('Tienda', ()=> { if (typeof renderTienda === 'function') renderTienda(); });
+    safe('Eventos', renderEventsIfLoaded);
+    safe('Tienda', renderTiendaIfLoaded);
     safe('Datos', updateDataDebug);
 
     // Celebración global: si se desbloquea un JEFE en cualquier momento,
@@ -97,7 +111,7 @@ export function setRole(nextRole){
     // Re-render lists so action buttons (editar/borrar) appear immediately on load
     try{ if (typeof renderChallenges === 'function') renderChallenges(); }catch(e){}
     try{ if (typeof renderChallengeDetail === 'function') renderChallengeDetail(); }catch(e){}
-    try{ if (typeof renderEvents === 'function') renderEvents(); }catch(e){}
+    try{ renderEventsIfLoaded(); }catch(e){}
     // Re-render hero list so adminOnly heroes appear/disappear with edit mode
     try{ renderHeroList(); renderHeroDetail(currentHero()); }catch(e){}
     toast(state.role === ROLE.TEACHER ? 'Edición activada' : 'Modo solo ver');
