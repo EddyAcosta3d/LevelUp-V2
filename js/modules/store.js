@@ -81,14 +81,16 @@ import {
    * @returns {Promise<AppData>} Datos remotos parseados.
    * @throws {Error} Si hay error de red, timeout o JSON inválido.
    */
-  export async function fetchRemote(){
+export async function fetchRemote(){
+  const url = CONFIG.remoteUrl;
+
+  const attemptFetchJson = async ({ timeoutMs, cacheMode }) => {
     const ctrl = new AbortController();
-    const t = setTimeout(()=> ctrl.abort(), CONFIG.remoteTimeoutMs);
-    try{
-      const url = CONFIG.remoteUrl;
+    const t = setTimeout(()=> ctrl.abort(), timeoutMs);
+    try {
       const res = await fetch(url, {
         signal: ctrl.signal,
-        cache: 'no-cache',
+        cache: cacheMode,
         headers: { 'Accept': 'application/json' }
       });
 
@@ -109,20 +111,40 @@ import {
         console.error('Error parseando JSON:', parseError);
         throw new Error('JSON inválido en la respuesta');
       }
-
-    } catch(error) {
-      // Manejar diferentes tipos de errores
-      if (error.name === 'AbortError') {
-        throw new Error(`Tiempo de espera agotado (${(CONFIG.remoteTimeoutMs/1000).toFixed(1)}s)`);
-      }
-      if (error.message && (error.message.includes('NetworkError') || error.message.includes('Failed to fetch'))) {
-        throw new Error('Sin conexión a Internet');
-      }
-      throw error;
     } finally {
       clearTimeout(t);
     }
+  };
+
+  try {
+    // 1) Intento rápido para abrir la app sin demoras cuando hay buena red.
+    return await attemptFetchJson({
+      timeoutMs: CONFIG.remoteTimeoutMs,
+      cacheMode: 'no-cache'
+    });
+  } catch (firstError) {
+    // 2) Reintento más tolerante para redes móviles lentas/intermitentes.
+    if (firstError?.name === 'AbortError') {
+      try {
+        return await attemptFetchJson({
+          timeoutMs: Math.max(CONFIG.remoteTimeoutMs * 2, 16000),
+          cacheMode: 'default'
+        });
+      } catch (retryError) {
+        firstError = retryError;
+      }
+    }
+
+    // Manejar diferentes tipos de errores
+    if (firstError?.name === 'AbortError') {
+      throw new Error(`Tiempo de espera agotado (${(CONFIG.remoteTimeoutMs/1000).toFixed(1)}s)`);
+    }
+    if (firstError?.message && (firstError.message.includes('NetworkError') || firstError.message.includes('Failed to fetch'))) {
+      throw new Error('Sin conexión a Internet');
+    }
+    throw firstError;
   }
+}
 
   /**
    * @param {object}   [opts]

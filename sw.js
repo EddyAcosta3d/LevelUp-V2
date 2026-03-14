@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-030';
+const SW_VERSION = 'levelup-v2-sw-032';
 const IMAGE_FALLBACK = './assets/placeholders/Placeholder_heroes.webp';
 
 function shouldCacheResponse(res){
@@ -127,7 +127,9 @@ self.addEventListener('fetch', (event) => {
     (path.startsWith('/rest/v1/') || path.startsWith('/auth/v1/') || path.startsWith('/storage/v1/'));
 
   if (isSupabaseApi) {
-    event.respondWith(fetchOrTimeout(req, 15000));
+    // No forzamos timeout aquí: en datos móviles variables, cortar a los 15s
+    // puede romper inicio de sesión o sincronización aun cuando la red siga viva.
+    event.respondWith(fetch(req));
     return;
   }
 
@@ -142,7 +144,7 @@ self.addEventListener('fetch', (event) => {
   if (isHtml) {
     event.respondWith(
       caches.match(req, { ignoreSearch: true }).then((cached) => {
-        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req), 4500)
+        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req), 12000)
           .then((res) => {
             safeCachePut(req, res.clone());
             return res;
@@ -154,10 +156,13 @@ self.addEventListener('fetch', (event) => {
         }
 
         return networkPromise.catch(async () => {
-          return (
+          const fallback =
             (await caches.match('./index.html')) ||
-            (await caches.match('./login.html'))
-          );
+            (await caches.match('./login.html'));
+          if (fallback) return fallback;
+
+          // Primer arranque sin caché: reintento final sin timeout artificial.
+          return fetch(req);
         });
       })
     );
@@ -179,7 +184,7 @@ self.addEventListener('fetch', (event) => {
           return cached;
         }
 
-        return networkPromise;
+        return networkPromise.catch(() => fetch(req));
       })
     );
     return;
@@ -199,7 +204,7 @@ self.addEventListener('fetch', (event) => {
           event.waitUntil(networkPromise.catch(() => {}));
           return cached;
         }
-        return networkPromise;
+        return networkPromise.catch(() => fetch(req));
       })
     );
     return;
@@ -220,7 +225,7 @@ self.addEventListener('fetch', (event) => {
           return cached;
         }
 
-        return networkPromise;
+        return networkPromise.catch(() => fetch(req));
       })
     );
     return;
