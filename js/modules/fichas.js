@@ -461,16 +461,26 @@ export function renderHeroAvatar(hero){
       if (scene) scene.dataset.photoLoading = '1';
       box.classList.add('is-loading');
 
+      let photoWatchdog = null;
+      photoWatchdog = setTimeout(()=>{
+        // En redes móviles inestables la descarga puede quedarse colgada.
+        // Liberamos el estado de loading para no ocultar eternamente el fondo.
+        box.classList.remove('is-loading');
+        if (scene) delete scene.dataset.photoLoading;
+      }, 15000);
+
       const img = document.createElement('img');
       img.alt = heroName ? `Foto de ${heroName}` : 'Foto del héroe';
       img.loading = 'lazy';
 
       img.addEventListener('load', ()=>{
+        if (photoWatchdog) clearTimeout(photoWatchdog);
         box.classList.remove('is-loading');
         if (scene) delete scene.dataset.photoLoading;
       }, { once: true });
 
       img.addEventListener('error', ()=>{
+        if (photoWatchdog) clearTimeout(photoWatchdog);
         box.classList.remove('is-loading');
         if (scene) delete scene.dataset.photoLoading;
         box.classList.add('is-empty');
@@ -547,8 +557,9 @@ export function applyHeroSceneLayers(hero){
       const bgUrl = heroAssets.bg ? abs(heroAssets.bg) : abs(HERO_BG_PLACEHOLDER);
       const fgUrl = heroAssets.fg ? abs(heroAssets.fg) : '';
 
-      // Pintar fallback rápido para evitar panel vacío en red móvil lenta.
-      scene.style.setProperty('--heroLayerBg', `url("${abs(HERO_BG_PLACEHOLDER)}")`);
+      // Pintar BG real inmediatamente con fallback en cascada.
+      // Evita depender de un preload con timeout (problemático en datos móviles lentos).
+      scene.style.setProperty('--heroLayerBg', `url("${bgUrl}"), url("${abs(HERO_BG_PLACEHOLDER)}")`);
       scene.style.setProperty('--heroLayerMid', 'none');
       scene.style.setProperty('--heroLayerFg', 'none');
 
@@ -556,16 +567,8 @@ export function applyHeroSceneLayers(hero){
         scene.style.setProperty('--heroLayerFg', `url("${fgUrl}")`);
       }
 
-      // Cargar BG con retry y aplicar solo si el héroe actual no cambió.
-      preloadImageWithRetry(bgUrl, { attempts: 2, timeoutMs: 14000 })
-        .then(()=>{
-          if (scene.__reqId !== __reqId) return;
-          scene.style.setProperty('--heroLayerBg', `url("${bgUrl}")`);
-        })
-        .catch(()=>{
-          if (scene.__reqId !== __reqId) return;
-          scene.style.setProperty('--heroLayerBg', `url("${abs(HERO_BG_PLACEHOLDER)}")`);
-        });
+      // Precalentamos caché en segundo plano sin bloquear render.
+      preloadImageWithRetry(bgUrl, { attempts: 1, timeoutMs: 20000 }).catch(()=>{});
 
       ensureHeroNotesToggle(scene);
       return;
