@@ -155,7 +155,9 @@ window.LevelUp = window.LevelUp || {};
 
   export const CONFIG = {
     remoteUrl: './data/data.json',
-    remoteTimeoutMs: 8000,
+    // Redes móviles lentas (3G/ahorro de datos) necesitan más margen.
+    // store.fetchRemote aplica un segundo intento aún más tolerante.
+    remoteTimeoutMs: 12000,
     storageKey: 'levelup:data:v1'
   };
 

@@ -11,6 +11,23 @@ export { SUPABASE_URL, SUPABASE_ANON_KEY };
 
 const FETCH_TIMEOUT_MS = 12000;
 
+function getNetworkAwareTimeout(baseMs = FETCH_TIMEOUT_MS) {
+  try {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const effectiveType = String(conn?.effectiveType || '').toLowerCase();
+    const saveData = !!conn?.saveData;
+
+    if (saveData || effectiveType === 'slow-2g' || effectiveType === '2g') {
+      return Math.max(baseMs, 30000);
+    }
+    if (effectiveType === '3g') {
+      return Math.max(baseMs, 20000);
+    }
+  } catch (_) {}
+
+  return baseMs;
+}
+
 function getSession() {
   try {
     const raw = sessionStorage.getItem('levelup:session');
@@ -128,8 +145,9 @@ const buildHeaders = ({ useAnon = false, token = null } = {}) => ({
 });
 
 async function fetchWithTimeout(url, init = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+  const effectiveTimeoutMs = getNetworkAwareTimeout(timeoutMs);
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+  const timeoutId = window.setTimeout(() => controller.abort(), effectiveTimeoutMs);
   try {
     return await fetch(url, {
       ...init,
