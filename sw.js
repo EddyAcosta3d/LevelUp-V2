@@ -2,7 +2,8 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-029';
+const SW_VERSION = 'levelup-v2-sw-030';
+const IMAGE_FALLBACK = './assets/placeholders/Placeholder_heroes.webp';
 
 function shouldCacheResponse(res){
   return !!res && res.ok && res.status === 200 && res.type !== 'opaque' && res.type !== 'opaqueredirect';
@@ -59,6 +60,7 @@ const APP_SHELL = [
   './assets/logo_full.webp',
   './assets/logo_full_200px.webp',
   './assets/logo_variant.webp',
+  IMAGE_FALLBACK,
   './assets/icons/icon-192.webp',
   './assets/icons/icon-512.png',
   './data/data.json'
@@ -252,10 +254,16 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(req).then((cached) => {
         if (cached) return cached;
-        return fetch(req).then((res) => {
-          safeCachePut(req, res.clone());
-          return res;
-        });
+        return fetchOrTimeout(req, 12000)
+          .then((res) => {
+            safeCachePut(req, res.clone());
+            return res;
+          })
+          .catch(async () => {
+            const fallback = await caches.match(IMAGE_FALLBACK, { ignoreSearch: true });
+            if (fallback) return fallback;
+            throw new Error('image-fetch-failed');
+          });
       })
     );
     return;
