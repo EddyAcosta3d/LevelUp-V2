@@ -1038,9 +1038,9 @@ const DEFAULT_BOSS_QUIZ = [
     }
     function ensureBattleSfx(loadNow = false){
       try{
-        if (!window.__battleSfxPunch) window.__battleSfxPunch = makeSfx('assets/sfx/punch sfx.mp3', 0.8, false);
-        if (!window.__battleSfxWrong) window.__battleSfxWrong = makeSfx('assets/sfx/wrong sfx.mp3', 0.8, false);
-        if (!window.__battleSfxLoop)  window.__battleSfxLoop  = makeSfx('assets/sfx/tecno loop sfx.mp3', 0.5, true);
+        if (!window.__battleSfxPunch) window.__battleSfxPunch = makeSfx('assets/sfx/punch-sfx.mp3', 0.8, false);
+        if (!window.__battleSfxWrong) window.__battleSfxWrong = makeSfx('assets/sfx/wrong-sfx.mp3', 0.8, false);
+        if (!window.__battleSfxLoop)  window.__battleSfxLoop  = makeSfx('assets/sfx/tecno-loop-sfx.mp3', 0.5, true);
 
         if (loadNow && !window.__battleSfxLoaded){
           window.__battleSfxLoaded = true;

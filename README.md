@@ -16,6 +16,15 @@ python scripts/mirror_sync.py check
 
 Guía completa: `docs/CODEBASE_WORKFLOW.md`.
 
+Para automatizarlo en cada commit local:
+
+```bash
+bash scripts/install_git_hooks.sh
+```
+
+Esto activa el hook `pre-commit` del repo (`.githooks/pre-commit`) que ejecuta `sync` + `check` antes de permitir el commit.
+
+
 ## Chequeo rápido de Supabase (sin abrir la app)
 
 Puedes validar que el proyecto está hablando bien con Supabase usando estos checks:

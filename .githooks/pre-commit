@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+printf '\n[pre-commit] Sync espejo raíz -> assets\n'
+python scripts/mirror_sync.py sync
+
+printf '\n[pre-commit] Validar consistencia del espejo\n'
+python scripts/mirror_sync.py check

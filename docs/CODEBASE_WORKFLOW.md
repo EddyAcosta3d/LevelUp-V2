@@ -49,6 +49,17 @@ Falla (exit code 1) si detecta diferencias entre raíz y `assets/` en archivos d
 4. Ejecutar pruebas funcionales.
 5. Commit.
 
+
+## Automatización recomendada (pre-commit)
+
+Instala los hooks versionados del repo:
+
+```bash
+bash scripts/install_git_hooks.sh
+```
+
+Esto configura `core.hooksPath=.githooks` y ejecuta automáticamente `python scripts/mirror_sync.py sync` + `python scripts/mirror_sync.py check` en cada commit.
+
 ## Regla de mantenimiento
 
 Si se crea un nuevo archivo duplicado entre raíz y `assets/`, agréguelo a `scripts/mirror_manifest.txt`.
