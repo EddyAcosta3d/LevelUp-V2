@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-034';
+const SW_VERSION = 'levelup-v2-sw-035';
 const IMAGE_FALLBACK = './assets/placeholders/Placeholder_heroes.webp';
 
 function shouldCacheResponse(res){
