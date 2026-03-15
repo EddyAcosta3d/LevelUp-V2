@@ -1,0 +1,1203 @@
+'use strict';
+
+/**
+ * @module fichas
+ * @description Hero management - list, details, stats, avatar rendering
+ *
+ * PUBLIC EXPORTS:
+ * - renderHeroList, renderHeroDetail, currentHero
+ * - renderStats, buildAssetCandidates, renderHeroAvatar
+ * - heroFirstName, isFemaleHeroName, FEMALE_NAME_SET
+ * - applyHeroSceneLayers, ensureHeroNotesToggle
+ * - renderRoleOptions, openRoleModal, closeRoleModal
+ * - formatDateMX, difficultyLabel
+ */
+
+// Import dependencies
+import {
+  state,
+  escapeHtml,
+  getSelectedHero,
+  CONFIG,
+  ROLE,
+  DATA_SOURCE,
+  DIFFICULTY
+} from './core_globals.js';
+
+import {
+  heroLabel,
+  saveLocal
+} from './store.js';
+
+// Placeholders globales para cuando aún no hay arte definido.
+// (Importante: NO inventar rutas por nombre para evitar 404.)
+const HERO_FG_PLACEHOLDER = './assets/placeholders/Placeholder_heroes.webp';
+const HERO_BG_PLACEHOLDER = './assets/placeholders/Placeholder_heroes.webp';
+
+
+const HERO_LAYER_BASE = './assets/hero_layers';
+
+function getConnectionHints(){
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  return {
+    saveData: !!conn?.saveData,
+    effectiveType: String(conn?.effectiveType || '').toLowerCase()
+  };
+}
+
+function shouldUseLiteMediaMode(){
+  const hints = getConnectionHints();
+  return hints.saveData || hints.effectiveType === 'slow-2g' || hints.effectiveType === '2g' || hints.effectiveType === '3g';
+}
+
+let _manifestBootstrapped = false;
+
+function normalizeHeroSlug(name=''){
+  return stripDiacritics(String(name || '').trim())
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function getParallaxManifest(){
+  return (window && window.__PARALLAX_MANIFEST__) ? window.__PARALLAX_MANIFEST__ : null;
+}
+
+function getHeroAssetsFromManifest(heroName=''){
+  const manifest = getParallaxManifest();
+  if (!manifest) return null;
+  const slug = normalizeHeroSlug(heroName);
+  if (!slug) return null;
+  return manifest[slug] || null;
+}
+
+async function bootstrapParallaxManifest(){
+  if (_manifestBootstrapped) return;
+  _manifestBootstrapped = true;
+  if (getParallaxManifest()) return;
+
+  try{
+    const res = await fetch('./js/modules/parallax_manifest.js', { cache: 'force-cache' });
+    if (!res.ok) return;
+    const txt = await res.text();
+    const eq = txt.indexOf('=');
+    const semi = txt.lastIndexOf(';');
+    if (eq < 0) return;
+    const payload = txt.slice(eq + 1, semi > eq ? semi : undefined).trim();
+    const parsed = JSON.parse(payload);
+    window.__PARALLAX_MANIFEST__ = parsed;
+    try{ renderHeroDetail(); }catch(_e){}
+  }catch(_e){}
+}
+/**
+ * Optimized hero selection - updates only what changed
+ * Instead of re-rendering everything, just update classes and relevant UI
+ */
+export function selectHero(heroId) {
+  if (state.selectedHeroId === heroId) return; // No change
+
+  const previousId = state.selectedHeroId;
+  state.selectedHeroId = heroId;
+
+  // Update hero list - just toggle classes (no re-render)
+  const heroList = document.getElementById('heroList');
+  if (heroList) {
+    const prevBtn = heroList.querySelector(`[data-hero-id="${previousId}"]`);
+    const newBtn = heroList.querySelector(`[data-hero-id="${heroId}"]`);
+
+    if (prevBtn) prevBtn.classList.remove('is-active');
+    if (newBtn) newBtn.classList.add('is-active');
+  }
+
+  // Update hero detail panel only
+  renderHeroDetail();
+
+  // Update current route view only if needed
+  const routeRenders = {
+    'desafios': () => typeof renderChallenges === 'function' && renderChallenges(),
+    'recompensas': () => typeof renderRewards === 'function' && renderRewards(),
+    'eventos': () => typeof renderEvents === 'function' && renderEvents(),
+    'tienda': () => typeof renderTienda === 'function' && renderTienda()
+  };
+
+  const renderFn = routeRenders[state.route];
+  if (renderFn) renderFn();
+
+  // Close drawer on mobile
+  if (typeof isDrawerLayout === 'function' && isDrawerLayout()) {
+    if (typeof closeDrawer === 'function') closeDrawer();
+  }
+}
+
+export function renderHeroList(){
+    const list = $('#heroList');
+    list.innerHTML = '';
+    const isEdit = state.role === ROLE.TEACHER;
+    const heroes = (state.data?.heroes || []).filter(h =>
+      (h.group || '2D') === state.group && (!h.adminOnly || isEdit)
+    );
+
+    if (!heroes.length){
+      list.innerHTML = '<div class="muted" style="padding:10px 6px;">No hay personajes.</div>';
+      return;
+    }
+    // Si hay sesión de alumno, forzar su héroe antes de que se seleccione el primero
+    try {
+      const _s = window.LevelUp?.getSession?.() || null;
+      if (_s && !_s.isAdmin && _s.heroId) {
+        const sessionHero = heroes.find(h => h.id === _s.heroId);
+        if (sessionHero) state.selectedHeroId = sessionHero.id;
+      }
+    } catch(_e) {}
+
+    if (!state.selectedHeroId || !heroes.some(h => h.id === state.selectedHeroId)){
+      state.selectedHeroId = heroes[0].id;
+    }
+
+    heroes.forEach(hero => {
+      const btn = document.createElement('button');
+      btn.className = 'heroCard' + (hero.id === state.selectedHeroId ? ' is-active' : '');
+      btn.dataset.heroId = hero.id;
+      const xp = Number(hero.xp ?? 0);
+      const xpMax = Number(hero.xpMax ?? 100);
+      const pct = xpMax > 0 ? Math.max(0, Math.min(100, (xp / xpMax) * 100)) : 0;
+
+      // Build parallax thumbnail path (solo si existe en manifest; si no, placeholder)
+      const heroClean = stripDiacritics(String(hero.name || '').trim())
+        .toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+      const heroAssets = (window.__PARALLAX_MANIFEST__ && heroClean) ? window.__PARALLAX_MANIFEST__[heroClean] : null;
+      const thumbSrc = (heroAssets && heroAssets.fg) ? heroAssets.fg : HERO_FG_PLACEHOLDER;
+
+      btn.innerHTML = `
+        <div class="heroCard__row">
+          <div class="heroCard__thumb" data-bg="${thumbSrc || ''}" data-hero-name="${String(hero.name||'').replace(/"/g,'&quot;')}"></div>
+          <div class="heroCard__info">
+            <div class="heroCard__name">${escapeHtml(hero.name || 'Nuevo héroe')}</div>
+            <div class="heroCard__meta">${escapeHtml(heroLabel(hero))}</div>
+          </div>
+          <div class="heroCard__badge">XP ${xp}/${xpMax}</div>
+        </div>
+        <div class="heroCard__progress">
+          <div class="heroCard__fill" style="width:${pct}%"></div>
+        </div>
+      `;
+      btn.addEventListener('click', ()=>{
+        // OPTIMIZED: Use selectHero() instead of multiple re-renders
+        selectHero(hero.id);
+      });
+      list.appendChild(btn);
+    });
+
+    // Miniaturas: intenta cargar la imagen por nombre; si falla, usa silueta por género.
+    applyThumbFallbacks(list);
+  }
+
+  export function currentHero(){
+    // Use global getSelectedHero() with fallback to first hero
+    const selected = getSelectedHero();
+    if (selected) return selected;
+    const heroes = state.data?.heroes || [];
+    return heroes[0] || null;
+  }
+
+  export function renderStats(hero){
+  const box = $('#statsBox');
+  if (!box) return;
+  hero.stats = hero.stats && typeof hero.stats === 'object' ? hero.stats : {};
+  const order = [
+    { key:'int', label:'INT' },
+    { key:'sab', label:'SAB' },
+    { key:'car', label:'CAR' },
+    { key:'res', label:'RES' },
+    { key:'cre', label:'CRE' },
+  ];
+  const maxVal = 20;
+
+  box.innerHTML = '';
+  order.forEach((s)=>{
+    const key = s.key;
+    const label = s.label;
+    const val = Math.max(0, Math.min(maxVal, Number(hero.stats[key] ?? 0)));
+
+    const row = document.createElement('div');
+    row.className = 'statLine';
+      const segs = Array.from({length:maxVal}, (_,i)=> {
+        const isOn = i < val;
+        return `<span class="statSeg ${isOn ? 'on' : ''}"></span>`;
+      }).join('');
+
+    row.innerHTML = `
+      <div class="statBadge badge">${label}</div>
+      <div class="statMeter" aria-label="Ajustar ${label}">
+        <div class="statSegs" data-key="${key}">${segs}</div>
+        <input class="statRange" type="range" min="0" max="${maxVal}" step="1" value="${val}" />
+      </div>
+      <div class="statNum" data-key="${key}">${val}</div>
+    `;
+
+    const range = row.querySelector('.statRange');
+      range.addEventListener('input', ()=>{
+        let v = Math.max(0, Math.min(maxVal, Number(range.value || 0)));
+      hero.stats[key] = v;
+      // mantener también la versión en mayúsculas para compatibilidad
+      const upKey = key.toUpperCase();
+      hero.stats[upKey] = v;
+
+      const numEl = row.querySelector('.statNum');
+      if(numEl){
+        numEl.textContent = String(v);
+        // tiny "pop" feedback
+        numEl.classList.remove('is-pop');
+        void numEl.offsetWidth;
+        numEl.classList.add('is-pop');
+        setTimeout(()=> numEl.classList.remove('is-pop'), 220);
+      }
+
+      const segWrap = row.querySelector('.statSegs');
+      if(segWrap){
+        const children = segWrap.children;
+        for(let i=0;i<children.length;i++){
+          children[i].classList.toggle('on', i < v);
+        }
+      }
+
+      saveData();
+      if (typeof window.renderHeroList === 'function') window.renderHeroList();
+      // En algunas versiones esta función no existe; evitamos crashear.
+      if (typeof window.updateHeroHeaderUI === 'function') window.updateHeroHeaderUI();
+    });
+
+    box.appendChild(row);
+  });
+
+    // Nota: el fallback de miniaturas se aplica al terminar de renderizar la lista,
+    // no aquí (aquí no existe la variable `list`).
+}
+
+  export function stripDiacritics(str){
+    try{ return String(str).normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }catch(_){ return String(str); }
+  }
+
+
+  // --- Helpers para determinación de género por nombre ---
+  export function heroFirstName(fullName){
+    if (!fullName) return '';
+    const parts = String(fullName).trim().split(/\s+/);
+    return parts[0].toLowerCase();
+  }
+
+  // Conjunto de nombres femeninos comunes en español
+  export const FEMALE_NAME_SET = new Set([
+    'maria', 'ana', 'carmen', 'laura', 'marta', 'sara', 'sofia', 'isabel',
+    'elena', 'paula', 'beatriz', 'teresa', 'rosa', 'patricia', 'andrea',
+    'lucia', 'raquel', 'monica', 'cristina', 'silvia', 'pilar', 'angela',
+    'susana', 'julia', 'clara', 'natalia', 'adriana', 'gabriela', 'diana',
+    'carolina', 'alejandra', 'victoria', 'mariana', 'daniela', 'valeria',
+    'camila', 'isabella', 'valentina', 'fernanda', 'paula', 'andrea',
+    'maia', 'emma', 'olivia', 'ava', 'mia', 'luna', 'eva', 'nora'
+  ]);
+
+  // --- Placeholders para héroes sin arte ---
+  export function isFemaleHeroName(heroName){
+    const n = heroFirstName(heroName);
+    if (!n) return false;
+    if (FEMALE_NAME_SET.has(n)) return true;
+    // Heurística suave (por si hay nombres que no estén en la lista)
+    if (n.endsWith('a') && !['jesus','josue','natanael','santiago','tadeo','luis','juan','carlos','david','eric','ernesto','alexis'].includes(n)) {
+      return true;
+    }
+    return false;
+  }
+
+  export function fallbackSiluetaFor(_heroName){
+    return HERO_BG_PLACEHOLDER;
+  }
+
+  const _heroImageWarmCache = new Set();
+
+  export function preloadImage(url, { timeoutMs = 12000 } = {}){
+    return new Promise((resolve, reject)=>{
+      if (!url) return reject(new Error('image-empty-url'));
+      if (_heroImageWarmCache.has(url)) return resolve(url);
+
+      const img = new Image();
+      let done = false;
+      const timer = setTimeout(()=>{
+        if (done) return;
+        done = true;
+        try{ img.src = ''; }catch(_e){}
+        reject(new Error('image-timeout'));
+      }, timeoutMs);
+
+      img.onload = ()=>{
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        _heroImageWarmCache.add(url);
+        resolve(url);
+      };
+      img.onerror = ()=>{
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        reject(new Error('image-not-found'));
+      };
+      img.src = url;
+    });
+  }
+
+  async function preloadImageWithRetry(url, { attempts = 2, timeoutMs = 12000 } = {}){
+    let lastError = null;
+    for (let i = 0; i < attempts; i++){
+      try{
+        return await preloadImage(url, { timeoutMs });
+      }catch(err){
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('image-preload-failed');
+  }
+
+  const heroThumbObserverByRoot = new WeakMap();
+
+  export function applyThumbFallbacks(rootEl){
+    if (!rootEl) return;
+
+    const thumbs = rootEl.querySelectorAll('.heroCard__thumb[data-bg]');
+    if (!thumbs.length) return;
+
+    const assignBackground = (el) => {
+      if (!el || el.dataset.bgLoaded === '1') return;
+      const src = el.getAttribute('data-bg') || HERO_FG_PLACEHOLDER;
+      el.style.backgroundImage = `url('${src}')`;
+      el.dataset.bgLoaded = '1';
+    };
+
+    if (!('IntersectionObserver' in window)) {
+      thumbs.forEach(assignBackground);
+      return;
+    }
+
+    const previousObserver = heroThumbObserverByRoot.get(rootEl);
+    if (previousObserver) {
+      try { previousObserver.disconnect(); } catch (_e) {}
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        assignBackground(entry.target);
+        obs.unobserve(entry.target);
+      });
+    }, {
+      root: rootEl,
+      rootMargin: '200px 0px',
+      threshold: 0.01
+    });
+
+    thumbs.forEach((el) => observer.observe(el));
+    heroThumbObserverByRoot.set(rootEl, observer);
+  }
+
+  export function showFallbackAvatar(heroName){
+    const box = document.getElementById('avatarBox');
+    if (!box) return;
+    box.replaceChildren();
+    box.classList.remove('is-empty');
+    box.removeAttribute('aria-hidden');
+    const img = document.createElement('img');
+    img.src = fallbackSiluetaFor(heroName);
+    img.alt = heroName ? `Silueta de ${heroName}` : 'Silueta del héroe';
+    img.loading = 'lazy';
+    box.appendChild(img);
+  }
+
+export function buildAssetCandidates(heroName){
+    const base = String(heroName || '').trim();
+    if (!base) return [];
+
+    const raw = base;
+    const noAcc = stripDiacritics(base);
+    const lower = noAcc.toLowerCase();
+    const slug = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+
+    const stems = [raw, noAcc, lower, slug].filter(Boolean);
+    // GitHub Pages is case-sensitive; try common upper/lowercase extensions too.
+    const exts = ['png','PNG','jpg','JPG','jpeg','JPEG','webp','WEBP'];
+    const folders = ['assets/hero_layers'];
+    const out = [];
+    for (const stem of stems){
+      for (const ext of exts){
+        for (const folder of folders){
+          out.push(`${folder}/${stem}_fg.${ext}`);
+          out.push(`${folder}/${stem}_mid.${ext}`);
+          out.push(`${folder}/${stem}_bg.${ext}`);
+        }
+      }
+    }
+    // de-duplicate while preserving order
+    return Array.from(new Set(out));
+  }
+
+  // Nota: Ya no existe editor ni auto-load de fotos. Las fotos se gestionan en /assets
+  // y se referencian en el JSON con hero.photo o hero.photoSrc.
+
+export function renderHeroAvatar(hero){
+    const box = $('#avatarBox');
+    const scene = document.getElementById('heroScene');
+    if (!box) return;
+
+    const heroName = hero ? String(hero.name || hero.nombre || '').trim() : '';
+    const url = hero ? (hero.photo || hero.img || hero.image || hero.photoSrc || '') : '';
+
+    box.replaceChildren();
+
+    if (url){
+      box.classList.remove('is-empty');
+      box.removeAttribute('aria-hidden');
+      box.dataset.fullPhotoSrc = String(url);
+      box.style.cursor = 'zoom-in';
+
+      if (scene) scene.dataset.photoLoading = '1';
+      box.classList.add('is-loading');
+
+      let photoWatchdog = null;
+      photoWatchdog = setTimeout(()=>{
+        // En redes móviles inestables la descarga puede quedarse colgada.
+        // Liberamos el estado de loading para no ocultar eternamente el fondo.
+        box.classList.remove('is-loading');
+        if (scene) delete scene.dataset.photoLoading;
+      }, 15000);
+
+      const img = document.createElement('img');
+      img.alt = heroName ? `Foto de ${heroName}` : 'Foto del héroe';
+      img.loading = 'lazy';
+
+      img.addEventListener('load', ()=>{
+        if (photoWatchdog) clearTimeout(photoWatchdog);
+        box.classList.remove('is-loading');
+        if (scene) delete scene.dataset.photoLoading;
+      }, { once: true });
+
+      img.addEventListener('error', ()=>{
+        if (photoWatchdog) clearTimeout(photoWatchdog);
+        box.classList.remove('is-loading');
+        if (scene) delete scene.dataset.photoLoading;
+        box.classList.add('is-empty');
+        box.setAttribute('aria-hidden','true');
+        box.removeAttribute('data-full-photo-src');
+      }, { once: true });
+
+      img.src = String(url);
+      box.appendChild(img);
+      return;
+    }
+
+    // Sin foto: oculta la capa de foto para que se vean las capas de prueba.
+    box.classList.add('is-empty');
+    box.setAttribute('aria-hidden','true');
+    box.removeAttribute('data-full-photo-src');
+    box.style.cursor = '';
+    box.classList.remove('is-loading');
+    if (scene) delete scene.dataset.photoLoading;
+
+    // Sin foto: se oculta la capa para que se vean las capas de escena (parallax/demo).
+  }
+
+  function resolveHeroPhotoSource(hero){
+    if (!hero) return '';
+
+    const direct = String(hero.photo || hero.img || hero.image || hero.photoSrc || '').trim();
+    if (direct) return direct;
+
+    const heroAssets = getHeroAssetsFromManifest(hero.name || '');
+    return String(heroAssets?.fg || heroAssets?.bg || '').trim();
+  }
+
+  function resolveHeroSceneAssets(hero){
+    if (!hero || !hero.name || !window.__PARALLAX_MANIFEST__) return null;
+
+    const heroAssets = getHeroAssetsFromManifest(hero.name || '');
+    if (!heroAssets) return null;
+
+    return {
+      bg: String(heroAssets.bg || '').trim(),
+      fg: String(heroAssets.fg || '').trim()
+    };
+  }
+
+export function applyHeroSceneLayers(hero){
+  const scene = document.getElementById('heroScene');
+  if (!scene) return;
+  const __reqId = (scene.__reqId || 0) + 1;
+  scene.__reqId = __reqId;
+
+  // Reset
+    try{ scene.classList.remove('is-silhouette'); }catch(_e){}
+    scene.style.setProperty('--heroLayerBg', 'none');
+    scene.style.setProperty('--heroLayerMid', 'none');
+    scene.style.setProperty('--heroLayerFg', 'none');
+
+    const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(e){ return u; } };
+
+    // Determinar assets: manifest; fallback por convención de archivos.
+    const manifestAssets = getHeroAssetsFromManifest(hero?.name || '');
+    const slug = normalizeHeroSlug(hero?.name || '');
+    const heroAssets = (manifestAssets && (manifestAssets.fg || manifestAssets.bg || manifestAssets.mid))
+      ? manifestAssets
+      : (slug ? {
+          fg: `${HERO_LAYER_BASE}/${slug}_fg.webp`,
+          bg: `${HERO_LAYER_BASE}/${slug}_bg.webp`,
+          mid: ''
+        } : null);
+
+    if (heroAssets && (heroAssets.fg || heroAssets.bg || heroAssets.mid)){
+      scene.dataset.parallax = '1';
+
+      const bgUrl = heroAssets.bg ? abs(heroAssets.bg) : abs(HERO_BG_PLACEHOLDER);
+      const fgUrl = heroAssets.fg ? abs(heroAssets.fg) : '';
+
+      // Pintar BG real inmediatamente con fallback en cascada.
+      // Evita depender de un preload con timeout (problemático en datos móviles lentos).
+      scene.style.setProperty('--heroLayerBg', `url("${bgUrl}"), url("${abs(HERO_BG_PLACEHOLDER)}")`);
+      scene.style.setProperty('--heroLayerMid', 'none');
+      scene.style.setProperty('--heroLayerFg', 'none');
+
+      if (fgUrl){
+        scene.style.setProperty('--heroLayerFg', `url("${fgUrl}")`);
+      }
+
+      // Precalentamos caché en segundo plano sin bloquear render.
+      preloadImageWithRetry(bgUrl, { attempts: 1, timeoutMs: 20000 }).catch(()=>{});
+
+      ensureHeroNotesToggle(scene);
+      return;
+    }
+
+    // Sin arte definido → placeholder
+    scene.dataset.parallax = '0';
+    try{ scene.classList.add('is-silhouette'); }catch(_e){}
+    scene.style.setProperty('--heroLayerBg', `url("${abs(HERO_BG_PLACEHOLDER)}")`);
+    scene.style.setProperty('--heroLayerMid', 'none');
+    scene.style.setProperty('--heroLayerFg', 'none');
+    ensureHeroNotesToggle(scene);
+  }
+
+
+
+  function prefetchVisibleHeroLayers(){
+    try{
+      if (shouldUseLiteMediaMode()) return;
+      const heroes = (state.data?.heroes || []).filter(h => (h.group || '2D') === state.group);
+      if (!heroes.length) return;
+      const idx = heroes.findIndex(h => h.id === state.selectedHeroId);
+      const targets = [];
+      if (idx >= 0){
+        targets.push(heroes[idx]);
+        // En móvil priorizar interacción inmediata: solo 1 siguiente héroe.
+        if (heroes[idx + 1]) targets.push(heroes[idx + 1]);
+      }
+
+      targets.forEach((hero)=>{
+        const cleanName = stripDiacritics(String(hero?.name || '').trim())
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_+|_+$/g, '');
+        const assets = (window.__PARALLAX_MANIFEST__ && cleanName) ? window.__PARALLAX_MANIFEST__[cleanName] : null;
+        if (!assets) return;
+        const abs = (u)=>{ try{ return new URL(u, document.baseURI).href; }catch(_e){ return u; } };
+        const bg = String(assets.bg || '').trim();
+        const fg = String(assets.fg || '').trim();
+        if (bg) preloadImageWithRetry(abs(bg), { attempts: 1, timeoutMs: 0 }).catch(()=>{});
+        if (fg) preloadImageWithRetry(abs(fg), { attempts: 1, timeoutMs: 0 }).catch(()=>{});
+      });
+    }catch(_e){}
+  }
+
+  export function ensureHeroNotesToggle(scene){
+    try{
+      if (!scene) return;
+
+      const placeBtn = ()=>{
+        const btn = scene.querySelector('.heroNotesToggleBtn');
+        if (!btn) return;
+
+        const collapsed = scene.classList.contains('notesCollapsed');
+
+        // Cuando está visible: poner el botón EN la línea superior del cuadro de Descripción.
+        if (!collapsed){
+          const row = scene.querySelector('.noteTitleRow--desc .noteTitleTools');
+          if (row && btn.parentElement !== row){
+            row.appendChild(btn);
+          }
+          btn.classList.add('is-inline');
+          return;
+        }
+
+        // Cuando está oculto: regresar el botón a la esquina inferior derecha (sobre la imagen)
+        if (btn.parentElement !== scene){
+          scene.appendChild(btn);
+        }
+        btn.classList.remove('is-inline');
+      };
+
+      // Crear botón una sola vez
+      let btn = scene.querySelector('.heroNotesToggleBtn');
+      if (!btn){
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'heroNotesToggleBtn';
+        btn.setAttribute('aria-label', 'Mostrar u ocultar descripción y meta');
+        btn.title = 'Mostrar/Ocultar Descripción y Meta';
+        btn.textContent = '🗒';
+
+        btn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          e.stopPropagation();
+
+          const next = !scene.classList.contains('notesCollapsed');
+          scene.classList.toggle('notesCollapsed', next);
+
+          try{ localStorage.setItem('lu_notesCollapsed', next ? '1' : '0'); }catch(_){ }
+
+          placeBtn();
+        });
+
+        // por default va en la esquina (si luego se muestra, placeBtn lo moverá)
+        scene.appendChild(btn);
+      }
+
+      // Restaurar preferencia
+      let saved = false;
+      try{ saved = (localStorage.getItem('lu_notesCollapsed') === '1'); }catch(_){ }
+      scene.classList.toggle('notesCollapsed', saved);
+
+      // Colocar según estado actual
+      placeBtn();
+    }catch(_){ }
+  }
+
+  const ROLE_OPTIONS = [
+    // Académico / mental
+    { id:'analista',      name:'Analista',      desc:'Observa con calma, detecta patrones y propone mejoras.' },
+    { id:'estratega',     name:'Estratega',     desc:'Planea pasos, organiza al equipo y decide prioridades.' },
+    { id:'investigador',  name:'Investigador',  desc:'Hace preguntas, busca evidencias y explica lo que encontró.' },
+    { id:'bibliotecario', name:'Bibliotecario', desc:'Encuentra recursos, resume ideas y ayuda a estudiar mejor.' },
+
+    // Creativo / expresión
+    { id:'creador',       name:'Creador',       desc:'Imagina soluciones nuevas y se anima a probar cosas.' },
+    { id:'artista',       name:'Artista',       desc:'Cuida el estilo, los detalles y expresa ideas con creatividad.' },
+    { id:'disenador',     name:'Diseñador',     desc:'Ordena la idea, la hace clara y la presenta con buena estética.' },
+
+    // Tecnología / manos a la obra
+    { id:'programador',   name:'Programador',   desc:'Piensa en pasos, lógica y arregla errores con paciencia.' },
+    { id:'tecnico',       name:'Técnico',       desc:'Configura, repara y hace que las cosas funcionen en la práctica.' },
+    { id:'inventor',      name:'Inventor',      desc:'Construye prototipos, mejora objetos y aprende probando.' },
+
+    // Social / liderazgo
+    { id:'lider',         name:'Líder',         desc:'Motiva, organiza y ayuda a que el grupo avance.' },
+    { id:'comunicador',   name:'Comunicador',   desc:'Explica claro, presenta ideas y conecta con los demás.' },
+    { id:'mediador',      name:'Mediador',      desc:'Calma conflictos y busca acuerdos justos.' },
+    { id:'colaborador',   name:'Colaborador',   desc:'Trabaja en equipo, apoya y comparte responsabilidades.' },
+    { id:'mentor',        name:'Mentor',        desc:'Acompaña a otros, enseña sin juzgar y da consejos útiles.' },
+
+    // Acción / energía
+    { id:'explorador',    name:'Explorador',    desc:'Se adapta rápido, prueba caminos nuevos y no se paraliza.' },
+    { id:'deportista',    name:'Deportista',    desc:'Trae energía, disciplina y empuja con constancia.' },
+    { id:'guardian',      name:'Guardián',      desc:'Cuida el orden, el enfoque y las reglas del equipo.' }
+  ];
+
+  export function renderRoleOptions(){
+    const list = $('#roleList');
+    if (!list) return;
+    list.innerHTML = '';
+    ROLE_OPTIONS.forEach(role=>{
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'roleItem';
+      btn.innerHTML = `
+        <div class="roleItem__name">${escapeHtml(role.name)}</div>
+        <div class="roleItem__desc">${escapeHtml(role.desc)}</div>
+      `;
+      btn.addEventListener('click', ()=>{
+        const hero = currentHero();
+        if (!hero) return;
+        hero.role = role.name;
+        $('#inRol').value = role.name;
+        saveLocal(state.data);
+        if (state.dataSource === DATA_SOURCE.REMOTE) state.dataSource = DATA_SOURCE.LOCAL;
+        updateDataDebug();
+        renderHeroList();
+        closeRoleModal();
+        toast(`Rol: ${role.name}`);
+      });
+      list.appendChild(btn);
+    });
+  }
+
+  export function openRoleModal(){
+    const modal = $('#roleModal');
+    if (!modal) return;
+    closeAllModals('roleModal');
+    renderRoleOptions();
+    modal.hidden = false;
+  }
+  export function closeRoleModal(){
+    const modal = $('#roleModal');
+    if (!modal) return;
+    modal.hidden = true;
+  }
+
+
+  export function openHeroPhotoModal(src, heroName='', sceneAssets=null){
+    const modal = document.getElementById('heroPhotoModal');
+    const img = document.getElementById('heroPhotoModalImg');
+    const bgLayer = document.getElementById('heroPhotoModalBg');
+    const fgLayer = document.getElementById('heroPhotoModalFg');
+    if (!modal || !img || !src) return;
+
+    closeAllModals('heroPhotoModal');
+    img.src = String(src);
+    img.alt = heroName ? `Foto completa de ${heroName}` : 'Foto del personaje en tamaño completo';
+    const bg = String(sceneAssets?.bg || '').trim();
+    const fg = String(sceneAssets?.fg || '').trim();
+    if (bgLayer) bgLayer.style.backgroundImage = bg ? `url("${bg}")` : 'none';
+    if (fgLayer) fgLayer.style.backgroundImage = fg ? `url("${fg}")` : 'none';
+    modal.hidden = false;
+    try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(_e){}
+  }
+
+  export function closeHeroPhotoModal(){
+    const modal = document.getElementById('heroPhotoModal');
+    const img = document.getElementById('heroPhotoModalImg');
+    const bgLayer = document.getElementById('heroPhotoModalBg');
+    const fgLayer = document.getElementById('heroPhotoModalFg');
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    if (img) img.removeAttribute('src');
+    if (bgLayer) bgLayer.style.backgroundImage = 'none';
+    if (fgLayer) fgLayer.style.backgroundImage = 'none';
+    try{ if (typeof syncModalOpenState === 'function') syncModalOpenState(); }catch(_e){}
+  }
+
+  // Binding de #inRol (input de solo lectura) → abre el modal de roles al hacer click
+  // Se ejecuta una sola vez al cargar el módulo; el input vive en el HTML estático.
+  (function(){
+    try{
+      const rolInput = document.getElementById('inRol');
+      if (rolInput){
+        rolInput.addEventListener('click', ()=>{ openRoleModal(); });
+        rolInput.addEventListener('keydown', (e)=>{
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRoleModal(); }
+        });
+      }
+
+      const avatarBox = document.getElementById('avatarBox');
+      const heroScene = document.getElementById('heroScene');
+      if (heroScene && !heroScene.dataset.photoModalBound){
+        heroScene.dataset.photoModalBound = '1';
+        heroScene.addEventListener('click', ()=>{
+          const hero = currentHero();
+          const src = (avatarBox?.dataset.fullPhotoSrc || resolveHeroPhotoSource(hero) || '').trim();
+          if (!src) return;
+          openHeroPhotoModal(src, hero?.name || '', resolveHeroSceneAssets(hero));
+        });
+      }
+
+      const closeHeroPhoto = ()=> closeHeroPhotoModal();
+      document.getElementById('btnCloseHeroPhotoModal')?.addEventListener('click', closeHeroPhoto);
+      document.getElementById('heroPhotoBackdrop')?.addEventListener('click', closeHeroPhoto);
+      document.addEventListener('keydown', (e)=>{
+        if (e.key === 'Escape') closeHeroPhoto();
+      });
+    }catch(_e){}
+  })();
+
+export function renderHeroDetail(){
+  const hero = currentHero();
+  if (!hero) return;
+
+  try{
+    const scene = document.getElementById('heroScene');
+    if (scene){
+      scene.style.cursor = resolveHeroPhotoSource(hero) ? 'zoom-in' : '';
+    }
+  }catch(_e){}
+
+  // Capas de escena (parallax demo)
+  applyHeroSceneLayers(hero);
+  prefetchVisibleHeroLayers();
+
+    // Foto del héroe (si existe). En este layout ocupa TODO el panel izquierdo.
+    renderHeroAvatar(hero);
+
+    $('#heroName').textContent = (hero.name || 'NUEVO HÉROE').toUpperCase();
+    $('#inNombre').value = hero.name || '';
+    $('#inEdad').value = (hero.age ?? '');
+    $('#inRol').value = hero.role || '';
+
+    // Medallas (read-only)
+    const medalsEl = document.getElementById('heroMedalsCount');
+    if (medalsEl){
+      medalsEl.textContent = String(Number(hero.medals ?? 0));
+    }
+
+    const tDesc = $('#txtDesc');
+    const tMeta = $('#txtMeta');
+    tDesc.value = hero.desc || '';
+    tMeta.value = hero.goal || '';
+    wireAutoGrow(document);
+    autoGrowTextarea(tDesc);
+    autoGrowTextarea(tMeta);
+
+    renderStats(hero);
+
+    const xp = Number(hero.xp ?? 0);
+    const xpMax = Number(hero.xpMax ?? 100);
+    const lvl = Number(hero.level ?? 1);
+    $('#xpLevel').textContent = `Lvl ${lvl}`;
+    $('#xpText').textContent = `· XP ${xp}/${xpMax}`;
+    $('#xpFill').style.width = `${xpMax > 0 ? Math.max(0, Math.min(100, (xp/xpMax)*100)) : 0}%`;
+
+    const w = Number(hero.weekXp ?? 0);
+    const wMax = Number(hero.weekXpMax ?? DEFAULT_WEEK_XP_MAX);
+    $('#weekXp').textContent = `${w}/${wMax} XP`;
+
+    // Disable small-activity chips when weekly cap is reached
+    const atMax = w >= wMax;
+    $$('#actChips [data-xp]').forEach(b=>{ b.disabled = atMax; });
+
+    renderRewards();
+
+    // Inline button to claim pending rewards (visible only when there are pending rewards)
+    _syncPendingRewardsInline(hero);
+
+    // Pending reward mini-notification
+    hero.pendingRewards = Array.isArray(hero.pendingRewards) ? hero.pendingRewards : [];
+    if (hero.pendingRewards.length){
+      // show a gentle toast once per selection
+      if (state.ui.pendingToastHeroId !== hero.id){
+        toast('🎁 Recompensa pendiente por reclamar');
+        state.ui.pendingToastHeroId = hero.id;
+      }
+    }
+
+    // Apply lock state after rendering dynamic controls (stats/chips)
+    updateEditButton();
+    applyFichaLock();
+  }
+
+  // Botón inline para reclamar recompensas pendientes (solo aparece si hay pendientes)
+  function _syncPendingRewardsInline(hero){
+    const btn = document.getElementById('btnClaimPendingInline');
+    const badge = document.getElementById('pendingRewardCountInline');
+    if (!btn || !badge) return;
+
+    const pending = Array.isArray(hero?.pendingRewards) ? hero.pendingRewards.filter(p=>p && Number.isFinite(Number(p.level??p)) && Number(p.level??p)>=2 && Number(p.level??p)<=Number(hero.level||0)).length : 0;
+    if (pending > 0){
+      btn.hidden = false;
+      badge.textContent = String(pending);
+      badge.hidden = false;
+    } else {
+      btn.hidden = true;
+      badge.hidden = true;
+    }
+
+    // Evita doble-binding: marcamos el botón con un flag
+    if (!btn.dataset.bound){
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', ()=>{
+        try{
+          // Abre el modal de subida de nivel EN MODO "pendiente" (si existe)
+          if (typeof openLevelUpModal === 'function') openLevelUpModal();
+          else if (typeof window.openLevelUpModal === 'function') window.openLevelUpModal();
+          else toast('No se pudo abrir el modal de recompensa.');
+        }catch(_){ toast('No se pudo abrir el modal de recompensa.'); }
+      });
+    }
+  }
+
+  // --- Recompensas (general + por héroe) ---
+  const REWARD_OPTIONS = [
+  { id: "stat+1", label: "+1 a una estadística", desc: "Elige una stat para subir en +1.", icon: "⚡", kind: "stat", amount: 1 },
+  { id: "xp+30", label: "+30 XP", desc: "Un empujón extra en tu barra de XP.", icon: "⭐", kind: "xp", amount: 30 },
+  { id: "medal+1", label: "+1 medalla", desc: "Una medalla para la tienda.", icon: "🏅", kind: "medal", amount: 1 },
+  { id: "doubleNext", label: "Doble XP (siguiente desafío)", desc: "El próximo desafío vale el doble de XP.", icon: "✨", kind: "doubleNext", amount: 2 },
+];
+
+const REWARD_OPTIONS_BY_ID = new Map(REWARD_OPTIONS.map(r => [String(r.id), r]));
+
+function getRewardDescriptor(item){
+  const id = String(item?.rewardId || item?.id || '').trim();
+  const mapped = REWARD_OPTIONS_BY_ID.get(id);
+  return {
+    title: item?.title || mapped?.label || 'Recompensa',
+    desc: item?.desc || mapped?.desc || '',
+    badge: item?.badge || mapped?.icon || '🏆'
+  };
+}
+
+  export function formatDateMX(iso){
+    try{
+      const d = new Date(iso);
+      return d.toLocaleDateString('es-MX', { year:'numeric', month:'short', day:'2-digit' });
+    }catch(_){ return iso || ''; }
+  }
+
+  export function renderHeroRewardsList(hero, listEl, emptyEl){
+    const hist = Array.isArray(hero.rewardsHistory) ? hero.rewardsHistory : [];
+    listEl.innerHTML = '';
+    if (!hist.length){
+      if (emptyEl) emptyEl.hidden = false;
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+
+    hist.slice().reverse().forEach(item=>{
+      const div = document.createElement('div');
+      div.className = 'rewardItem';
+
+      const rewardInfo = getRewardDescriptor(item);
+      const title = rewardInfo.title;
+      const desc = rewardInfo.desc;
+      const level = (item.level === 0 || item.level) ? String(item.level) : '—';
+      const date = item.date ? formatDateMX(item.date) : '—';
+      const badge = rewardInfo.badge;
+
+      div.innerHTML =
+        '<div class="rewardItem__left">' +
+          '<div class="rewardItem__title">' + escapeHtml(title) + '</div>' +
+          (desc ? '<div class="rewardItem__desc">' + escapeHtml(desc) + '</div>' : '') +
+          '<div class="rewardItem__meta">Nivel ' + escapeHtml(level) + ' · ' + escapeHtml(date) + '</div>' +
+        '</div>' +
+        '<div class="rewardItem__badge">' + escapeHtml(badge) + '</div>';
+
+      listEl.appendChild(div);
+    });
+  }
+
+  export function renderRewards(){
+  const listEl = document.querySelector('#rewardsHistoryList');
+  const emptyEl = document.querySelector('#rewardsHistoryEmpty');
+  const subtitle = document.querySelector('#rewardsHistorySubtitle');
+  const bossListEl = document.querySelector('#bossVictoriesList');
+  const bossEmptyEl = document.querySelector('#bossVictoriesEmpty');
+  const storeListEl = document.querySelector('#storeClaimsList');
+  const storeEmptyEl = document.querySelector('#storeClaimsEmpty');
+
+  const hero = currentHero();
+  if (subtitle) subtitle.textContent = hero ? `Historial de ${hero.name || '—'}` : 'Selecciona un personaje para ver su historial.';
+
+  // Sección 1: Recompensas de nivel
+  if(listEl && emptyEl){
+    renderHeroRewardsList(hero || {}, listEl, emptyEl);
+  }
+
+  // Sección 2: Victorias de jefes
+  if(bossListEl && bossEmptyEl){
+    const victories = Array.isArray((hero || {}).bossVictories) ? (hero || {}).bossVictories : [];
+    bossListEl.innerHTML = '';
+    if(!victories.length){
+      bossEmptyEl.hidden = false;
+    } else {
+      bossEmptyEl.hidden = true;
+      victories.slice().reverse().forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'rewardItem';
+        const isPerfect = v.outcome === 'perfect';
+        const badge = isPerfect ? '🏆' : '⚔️';
+        const title = escapeHtml(v.bossName || 'Jefe');
+        const desc = isPerfect ? 'Victoria perfecta' : 'Victoria';
+        const medals = Number(v.medalsEarned || 0);
+        const xp = Number(v.xpEarned || 0);
+        const date = v.date ? formatDateMX(v.date) : '—';
+        div.innerHTML =
+          '<div class="rewardItem__left">' +
+            '<div class="rewardItem__title">' + title + '</div>' +
+            '<div class="rewardItem__desc">' + escapeHtml(desc) + '</div>' +
+            '<div class="rewardItem__meta">+' + medals + ' medallas · +' + xp + ' XP · ' + escapeHtml(date) + '</div>' +
+          '</div>' +
+          '<div class="rewardItem__badge">' + badge + '</div>';
+        bossListEl.appendChild(div);
+      });
+    }
+  }
+
+  // Sección 3: Canjes de tienda
+  if(storeListEl && storeEmptyEl){
+    const claims = Array.isArray((hero || {}).storeClaims) ? (hero || {}).storeClaims : [];
+    storeListEl.innerHTML = '';
+    if(!claims.length){
+      storeEmptyEl.hidden = false;
+    } else {
+      storeEmptyEl.hidden = true;
+      claims.slice().reverse().forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'rewardItem';
+        const date = c.claimedAt ? formatDateMX(new Date(c.claimedAt).toISOString()) : '—';
+        div.innerHTML =
+          '<div class="rewardItem__left">' +
+            '<div class="rewardItem__title">' + escapeHtml(c.itemName || c.itemId || '—') + '</div>' +
+            '<div class="rewardItem__meta">−' + Number(c.cost || 0) + ' medallas · ' + escapeHtml(date) + '</div>' +
+          '</div>' +
+          '<div class="rewardItem__badge">🛒</div>';
+        storeListEl.appendChild(div);
+      });
+    }
+  }
+
+  // Columna derecha: resumen de stats del héroe
+  const summaryEl = document.querySelector('#rewardsSummaryList');
+  const summarySubtitle = document.querySelector('#rewardsSummarySubtitle');
+  if(summaryEl){
+    summaryEl.innerHTML = '';
+    if(!hero){
+      if(summarySubtitle) summarySubtitle.textContent = 'Selecciona un personaje.';
+    } else {
+      if(summarySubtitle) summarySubtitle.textContent = hero.name || '—';
+
+      const victories = Array.isArray(hero.bossVictories) ? hero.bossVictories : [];
+      const claims = Array.isArray(hero.storeClaims) ? hero.storeClaims : [];
+      const rewards = Array.isArray(hero.rewardsHistory) ? hero.rewardsHistory : [];
+      const bossXp = victories.reduce((s, v) => s + Number(v.xpEarned || 0), 0);
+      const bossMedals = victories.reduce((s, v) => s + Number(v.medalsEarned || 0), 0);
+      const medalsSpent = claims.reduce((s, c) => s + Number(c.cost || 0), 0);
+
+      const rows = [
+        { icon: '⭐', label: 'Recompensas de nivel', value: rewards.length },
+        { icon: '🏆', label: 'Jefes derrotados', value: (Array.isArray(hero.defeatedBosses) ? hero.defeatedBosses : []).length },
+        { icon: '⚡', label: 'XP ganado en batallas', value: bossXp + ' XP' },
+        { icon: '🏅', label: 'Medallas ganadas en batallas', value: bossMedals },
+        { icon: '🛒', label: 'Canjes realizados', value: claims.length },
+        { icon: '💸', label: 'Medallas gastadas', value: medalsSpent },
+      ];
+
+      rows.forEach(row => {
+        const div = document.createElement('div');
+        div.className = 'rewardsSummaryRow';
+        div.innerHTML =
+          '<div class="rewardsSummaryRow__icon">' + row.icon + '</div>' +
+          '<div class="rewardsSummaryRow__label">' + escapeHtml(String(row.label)) + '</div>' +
+          '<div class="rewardsSummaryRow__value">' + escapeHtml(String(row.value)) + '</div>';
+        summaryEl.appendChild(div);
+      });
+    }
+  }
+}
+
+  
+export function difficultyLabel(diff){
+  const d = String(diff || '').toLowerCase();
+  if (d === DIFFICULTY.EASY)   return 'Fácil';
+  if (d === DIFFICULTY.MEDIUM) return 'Medio';
+  if (d === DIFFICULTY.HARD)   return 'Difícil';
+  return '—';
+}
+
+
+export function ensureChallengeUI(onSubjectChange){
+  const menu = $('#subjectMenu');
+  const btn  = $('#btnSubject');
+  const ddWrap = $('#subjectDropdown');
+  if (!menu || !btn) return;
+
+  const subjects = state.data?.subjects || [];
+  menu.innerHTML = '';
+
+  // Single-subject view: default to first subject
+  if (!state.challengeFilter.subjectId && subjects.length){
+    state.challengeFilter.subjectId = subjects[0].id;
+  }
+
+  const addItem = (label, subjectId)=>{
+    const it = document.createElement('button');
+    it.type = 'button';
+    it.className = 'ddItem';
+    it.dataset.subjectId = String(subjectId);
+    it.textContent = label;
+    it.addEventListener('click', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      state.challengeFilter.subjectId = subjectId;
+      state.selectedChallengeId = null;
+      btn.textContent = (label + ' ▾');
+      closeSubjectDropdown();
+      if (typeof onSubjectChange === 'function') onSubjectChange();
+    });
+    menu.appendChild(it);
+  };
+
+  subjects.forEach(s=> addItem(s.name || 'Materia', s.id));
+
+  const activeName = subjects.find(s=>String(s.id)===String(state.challengeFilter.subjectId))?.name || 'Materia';
+  btn.textContent = (activeName + ' ▾');
+
+  // difficulty pills
+  $$('#diffPills [data-diff]').forEach(b=>{
+    const diff = b.dataset.diff;
+    b.classList.toggle('is-active', state.challengeFilter.diff === diff);
+  });
+
+  // Portal-like fixed dropdown (prevents clipping)
+  menu.classList.add('is-portal');
+  if (ddWrap) ddWrap.classList.add('dropdown--portal');
+}
+
+export function positionSubjectMenu(){
+  const btn = $('#btnSubject');
+  const menu = $('#subjectMenu');
+  if (!btn || !menu) return;
+
+  const r = btn.getBoundingClientRect();
+  const pad = 10;
+  const desiredW = Math.max(240, Math.round(r.width));
+  let left = Math.min(Math.max(pad, r.left), window.innerWidth - desiredW - pad);
+  let top = r.bottom + 10;
+
+  const maxH = Math.min(window.innerHeight * 0.6, 360);
+  if (top + maxH > window.innerHeight - pad){
+    top = Math.max(pad, r.top - 10 - maxH);
+  }
+
+  menu.style.position = 'fixed';
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
+  menu.style.minWidth = `${desiredW}px`;
+  menu.style.maxHeight = `${maxH}px`;
+  menu.style.overflow = 'auto';
+  menu.style.zIndex = '25050';
+}
+
+export function openSubjectDropdown(){
+  const dd = $('#subjectDropdown');
+  if (dd) dd.classList.add('is-open');
+  positionSubjectMenu();
+}
+export function closeSubjectDropdown(){
+  const dd = $('#subjectDropdown');
+  if (dd) dd.classList.remove('is-open');
+}
+export function toggleSubjectDropdown(){
+  const dd = $('#subjectDropdown');
+  if (!dd) return;
+  dd.classList.toggle('is-open');
+  if (dd.classList.contains('is-open')) positionSubjectMenu();
+}
+
+
+
+// Carga resiliente del manifest por si el script defer no llegó a tiempo.
+bootstrapParallaxManifest();
+
+// Animación parallax desactivada para mejorar rendimiento en móvil.
+(function initHeroSceneStaticLayers(){
+  try{
+    if (window.__luHeroSceneParallaxInit) return;
+    window.__luHeroSceneParallaxInit = true;
+    const scene = document.getElementById('heroScene');
+    if (!scene) return;
+    const layers = scene.querySelectorAll('.heroSceneLayer');
+    layers.forEach(l=>{ l.style.transform = 'translate3d(0,0,0)'; });
+  }catch(e){
+    console.warn('hero scene static init error', e);
+  }
+})();

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-printf '\n[1/2] Check required files exist\n'
+printf '\n[1/3] Check required files exist\n'
 required_files=(
   "index.html"
   "css/styles.base.css"
@@ -22,10 +22,13 @@ for f in "${required_files[@]}"; do
 done
 printf 'All required files present.\n'
 
-printf '\n[2/2] JS syntax check\n'
+printf '\n[2/3] Mirror integrity check\n'
+python scripts/mirror_sync.py check
+
+printf '\n[3/3] JS syntax check\n'
 node --input-type=module < /dev/null
-for f in js/app.js js/app.main.js js/app.bindings.js; do
+while IFS= read -r f; do
   node --check "$f" && printf 'OK: %s\n' "$f"
-done
+done < <(find js -type f -name '*.js' | sort)
 
 printf '\nQuality gate passed.\n'
