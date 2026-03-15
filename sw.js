@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-032';
+const SW_VERSION = 'levelup-v2-sw-033';
 const IMAGE_FALLBACK = './assets/placeholders/Placeholder_heroes.webp';
 
 function shouldCacheResponse(res){
@@ -27,55 +27,30 @@ function toBypassHttpCacheRequest(req){
 }
 
 const APP_SHELL = [
-  './',
-  './index.html',
   './login.html',
-  './manifest.webmanifest',
   './css/styles.base.css?v=LevelUP_V2_01.00',
-  './css/styles.challenges.css?v=LevelUP_V2_01.00',
-  './css/styles.levelup.css?v=LevelUP_V2_01.00',
-  './css/styles.mobile.css?v=LevelUP_V2_01.00',
-  './css/styles.tienda.css?v=LevelUP_V2_01.00',
-  './css/styles.celebrations.css?v=LevelUP_V2_01.00',
-  './css/styles.viewmode.css?v=LevelUP_V2_01.00',
-  './js/modules/ui_shell.js?v=LevelUP_V2_01.00',
-  './js/modules/parallax_manifest.js?v=LevelUP_V2_01.00',
-  './js/app.main.js?v=LevelUP_V2_01.01',
-  './js/app.bindings.js?v=LevelUP_V2_01.00',
-  './js/modules/core_globals.js?v=LevelUP_V2_01.00',
-  './js/modules/store.js?v=LevelUP_V2_01.00',
-  './js/modules/app_actions.js?v=LevelUP_V2_01.00',
-  './js/modules/fichas.js?v=LevelUP_V2_01.00',
-  './js/modules/desafios.js?v=LevelUP_V2_01.00',
-  './js/modules/eventos.js',
-  './js/modules/tienda.js',
-  './js/modules/celebrations.js',
-  './js/modules/hero_session.js',
-  './js/modules/realtime_sync.js',
-  './js/modules/student_actions.js',
-  './js/modules/lazy_sections.js',
-  './js/modules/github_sync.js',
   './js/modules/supabase_client.js',
   './js/config.js',
   './assets/logo_full.webp',
-  './assets/logo_full_200px.webp',
-  './assets/logo_variant.webp',
-  IMAGE_FALLBACK,
-  './assets/icons/icon-192.webp',
-  './assets/icons/icon-512.png',
-  './data/data.json'
+  './manifest.webmanifest'
 ];
 
 // ─── INSTALL ────────────────────────────────────────────────────────────────
 // Promise.allSettled: si un archivo falla no aborta la instalación completa.
 // cache: 'no-cache' permite revalidar con HTTP cache y evita redescargas completas.
 self.addEventListener('install', (event) => {
+  const fetchWithTimeout = (url) =>
+    Promise.race([
+      fetch(new Request(url, { cache: 'no-cache' })),
+      new Promise((resolve) => setTimeout(() => resolve(null), 6000))
+    ]);
+
   event.waitUntil(
     caches.open(SW_VERSION).then((cache) => {
       return Promise.allSettled(
         APP_SHELL.map((url) =>
-          fetch(new Request(url, { cache: 'no-cache' }))
-            .then((res) => { if (shouldCacheResponse(res)) return cache.put(url, res); })
+          fetchWithTimeout(url)
+            .then((res) => { if (res && shouldCacheResponse(res)) return cache.put(url, res); })
             .catch(() => {})   // ignora silenciosamente archivos no disponibles
         )
       );
