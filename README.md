@@ -24,6 +24,8 @@ bash scripts/install_git_hooks.sh
 
 Esto activa el hook `pre-commit` del repo (`.githooks/pre-commit`) que ejecuta `sync` + `check` antes de permitir el commit.
 
+Además, CI ejecuta `bash scripts/quality_gate.sh` en cada PR/push y falla si `sync` + `check` generan cambios sin commitear.
+
 
 ## Chequeo rápido de Supabase (sin abrir la app)
 
