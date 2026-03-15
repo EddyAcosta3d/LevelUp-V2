@@ -2,7 +2,7 @@
 
 // Incrementa SW_VERSION cada vez que haya un cambio importante.
 // El navegador detecta el cambio y fuerza la reinstalación.
-const SW_VERSION = 'levelup-v2-sw-033';
+const SW_VERSION = 'levelup-v2-sw-034';
 const IMAGE_FALLBACK = './assets/placeholders/Placeholder_heroes.webp';
 
 function shouldCacheResponse(res){
@@ -119,26 +119,19 @@ self.addEventListener('fetch', (event) => {
   if (isHtml) {
     event.respondWith(
       caches.match(req, { ignoreSearch: true }).then((cached) => {
-        const networkPromise = fetchOrTimeout(toBypassHttpCacheRequest(req), 12000)
+        const networkFetch = fetchOrTimeout(toBypassHttpCacheRequest(req), 12000)
           .then((res) => {
             safeCachePut(req, res.clone());
             return res;
           });
 
         if (cached) {
-          event.waitUntil(networkPromise.catch(() => {}));
+          event.waitUntil(networkFetch.catch(() => {}));
           return cached;
         }
 
-        return networkPromise.catch(async () => {
-          const fallback =
-            (await caches.match('./index.html')) ||
-            (await caches.match('./login.html'));
-          if (fallback) return fallback;
-
-          // Primer arranque sin caché: reintento final sin timeout artificial.
-          return fetch(req);
-        });
+        // Sin caché: ir a red únicamente, sin fallback a otras páginas.
+        return networkFetch;
       })
     );
     return;
