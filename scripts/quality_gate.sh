@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-printf '\n[1/3] Check required files exist\n'
+printf '\n[1/4] Check required files exist\n'
 required_files=(
   "index.html"
   "css/styles.base.css"
@@ -22,10 +22,29 @@ for f in "${required_files[@]}"; do
 done
 printf 'All required files present.\n'
 
-printf '\n[2/3] Mirror integrity check\n'
+before_diff_file="$(mktemp)"
+after_diff_file="$(mktemp)"
+cleanup() {
+  rm -f "$before_diff_file" "$after_diff_file"
+}
+trap cleanup EXIT
+
+git diff --name-only | sort > "$before_diff_file"
+
+printf '\n[2/4] Mirror sync + integrity check\n'
+python scripts/mirror_sync.py sync
 python scripts/mirror_sync.py check
 
-printf '\n[3/3] JS syntax check\n'
+printf '\n[3/4] Verify sync/check did not introduce new drift\n'
+git diff --name-only | sort > "$after_diff_file"
+new_drift="$(comm -13 "$before_diff_file" "$after_diff_file")"
+if [ -n "$new_drift" ]; then
+  printf 'Mirror drift detected after sync/check. Commit synchronized files:\n%s\n' "$new_drift"
+  git --no-pager diff --stat -- $new_drift
+  exit 1
+fi
+
+printf '\n[4/4] JS syntax check\n'
 node --input-type=module < /dev/null
 while IFS= read -r f; do
   node --check "$f" && printf 'OK: %s\n' "$f"

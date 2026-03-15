@@ -1,0 +1,36 @@
+name: Smoke Supabase Flows
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+      - work
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run smoke tests (if secrets are configured)
+        env:
+          SUPABASE_URL: ${{ secrets.SMOKE_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SMOKE_SUPABASE_ANON_KEY }}
+          SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+          SMOKE_STORAGE_PUBLIC_PATH: ${{ secrets.SMOKE_STORAGE_PUBLIC_PATH }}
+        run: |
+          if [ -z "${SUPABASE_URL}" ] || [ -z "${SUPABASE_ANON_KEY}" ]; then
+            echo "::warning::Skipping smoke tests. Configure SMOKE_SUPABASE_URL and SMOKE_SUPABASE_ANON_KEY secrets."
+            exit 0
+          fi
+          python scripts/smoke_supabase_flows.py

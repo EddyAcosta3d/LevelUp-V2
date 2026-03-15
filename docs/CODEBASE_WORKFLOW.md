@@ -41,13 +41,15 @@ python scripts/mirror_sync.py check
 
 Falla (exit code 1) si detecta diferencias entre raíz y `assets/` en archivos del manifiesto.
 
-## Flujo recomendado antes de commit
+## Flujo obligatorio antes de commit
 
 1. Editar solo en raíz.
 2. Ejecutar `python scripts/mirror_sync.py sync`.
 3. Ejecutar `python scripts/mirror_sync.py check`.
 4. Ejecutar pruebas funcionales.
 5. Commit.
+
+> CI también lo valida en cada PR/push con `scripts/quality_gate.sh` (ejecuta `sync` + `check` y falla si genera diffs sin commit).
 
 
 ## Automatización recomendada (pre-commit)
