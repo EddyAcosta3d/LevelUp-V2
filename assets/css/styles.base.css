@@ -1,0 +1,3052 @@
+:root{
+  /* Pro theme: black base + accents */
+  --obsidian: #07080B;
+  --cobalt: #121724;
+  --amethyst: #8B5CF6;
+  --ether: #22D3EE;
+  --steel: #E8ECF4;
+
+  --bg0: var(--obsidian);
+  --panel: rgba(13,16,22,0.92);
+  --panel2: rgba(18,23,36,0.86);
+
+  --border: rgba(27,35,51,0.92);
+  --borderSoft: rgba(27,35,51,0.70);
+
+  --accent: rgba(34,211,238,1);
+  --accentSoft: rgba(34,211,238,0.22);
+
+  --gold: rgba(251,191,36,1);
+  --goldSoft: rgba(251,191,36,0.14);
+
+  --danger: rgba(248,113,113,1);
+  --dangerBorder: rgba(248,113,113,0.30);
+  --dangerBg: rgba(248,113,113,0.10);
+
+  --stroke: var(--border);
+  --stroke2: rgba(34,211,238,0.38);
+
+  --text: rgba(232,236,244,0.96);
+  --muted: rgba(154,166,191,0.84);
+
+  --radius: 22px;
+  --radius2: 16px;
+
+  --shadow: 0 18px 60px rgba(0,0,0,0.66);
+  --glow: 0 0 0 1px rgba(0,0,0,0.38) inset;
+
+  /* Glow utilities */
+  --glowAccent: 0 0 16px rgba(34,211,238,0.22), 0 0 4px rgba(34,211,238,0.14);
+  --glowGold:   0 0 18px rgba(251,191,36,0.36), 0 0 6px rgba(255,210,60,0.22);
+  --glowPurple: 0 0 16px rgba(139,92,246,0.28), 0 0 4px rgba(139,92,246,0.16);
+
+  --maxw: 1480px;
+  --gap: 16px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+*{ box-sizing:border-box; }
+html, body{ height:100%; margin:0; padding:0; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar{ width: 5px; height: 5px; }
+::-webkit-scrollbar-track{ background: transparent; }
+::-webkit-scrollbar-thumb{
+  background: rgba(34,211,238,0.18);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover{
+  background: rgba(34,211,238,0.32);
+}
+body{
+  margin:0;
+  padding:0;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  color: var(--text);
+  background: var(--bg0);
+  overflow:hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app{
+  height:100%;
+  min-height:100vh;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  padding: calc(10px + var(--safe-top)) calc(10px + var(--safe-right)) calc(10px + var(--safe-bottom)) calc(10px + var(--safe-left));
+  position: relative;
+}
+/* Ambient orbs — visible depth behind all panels */
+.app::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 38% at 10% 6%,  rgba(34,211,238,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 42% 32% at 92% 88%, rgba(139,92,246,0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 38% 28% at 58% 0%,  rgba(251,191,36,0.03) 0%, transparent 60%);
+}
+
+/* Topbar */
+.topbar{
+  position: relative;
+  z-index: 20000;
+  overflow: visible;
+
+  min-height: 74px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(16,20,30,0.97) 0%, rgba(10,13,19,0.96) 100%);
+  box-shadow: var(--shadow), 0 1px 0 rgba(34,211,238,0.08) inset;
+  border: 1px solid rgba(34,211,238,0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+/* Glowing accent line at bottom of topbar */
+.topbar::after{
+  content: "";
+  position: absolute;
+  bottom: -1px; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34,211,238,0.45), transparent);
+  border-radius: 999px;
+  pointer-events: none;
+}
+.topbar__left{ display:flex; align-items:center; gap: 12px; min-width: 320px; }
+.topbar__right{ display:flex; align-items:center; gap: 10px; flex-wrap:wrap; justify-content:flex-end; }
+.notifBtn{
+  position:relative;
+  height: 42px;
+  min-width: 42px;
+  padding: 0 12px;
+  border-radius: 16px;
+  border: 1px solid var(--borderSoft);
+  background: rgba(0,0,0,0.20);
+  color: rgba(220,220,230,0.96);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+}
+.notifBtn:hover{ border-color: rgba(34,211,238,0.35); background: rgba(0,0,0,0.32); }
+
+/* Compact variant (used inside ficha week card) */
+.notifBtn--compact{
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 14px;
+  font-size: 13px;
+}
+
+/* Title row with inline action on the right */
+.subCard__titleRow{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.notifBadge{
+  position:absolute;
+  z-index:1;
+  top: -6px;
+  right: -6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .2px;
+  background: rgba(114,26,255,0.95);
+  border: 1px solid rgba(0,210,255,0.30);
+  color: rgba(220,220,230,0.98);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+}
+.topbar__menu{ display:none; }
+/* Mobile-only: botón de trofeo para ir a Recompensas */
+.topbar__trophyBtn{ display:none; }
+.trophyIcon{ width:22px; height:22px; }
+/* show hamburger only on small screens */
+@media (min-width: 901px){ .topbar__menu{ display:none !important; } }
+@media (max-width: 900px){ .topbar__menu{ display:inline-flex !important; align-items:center; justify-content:center; } }
+
+
+/* Mobile: compact overflow menu for header actions */
+.topbar__moreWrap{display:none;}
+.topbar__moreBtn{
+  display:none;
+  width:42px; height:42px; border-radius:12px;
+  align-items:center; justify-content:center;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(0,210,255,.18);
+  color:#eae7df;
+}
+.topMoreMenu{
+  position:absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 220px;
+
+  z-index: 20060;
+  background: rgba(10,12,18,0.92);
+  border: 1px solid rgba(0,210,255,0.26);
+  border-radius: 16px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.65);
+  padding: 8px;
+  backdrop-filter: blur(12px);
+}
+.topMoreMenu__item{
+  width: 100%;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  text-align:left;
+  cursor:pointer;
+  font-size: 14px;
+}
+.topMoreMenu__item:hover{
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(0,210,255,0.12);
+}
+.topMoreMenu__item:active{ transform: translateY(1px); }
+.topMoreMenu__item .emoji{ width: 18px; display:inline-block; opacity: .70; }
+
+.brand{ display:flex; align-items:center; gap: 12px; }
+.brand__title{
+  font-family: 'Oxanium', 'Inter', ui-sans-serif, system-ui;
+  font-size: 11px;
+  letter-spacing: 2.8px;
+  font-weight: 700;
+  opacity: .90;
+  text-transform: uppercase;
+  color: rgba(34,211,238,0.82);
+}
+.brand__subtitle{
+  font-family: 'Oxanium', 'Inter', ui-sans-serif, system-ui;
+  font-size: 16px;
+  font-weight: 800;
+  opacity: .92;
+  margin-top: 2px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(232,236,244,0.97), rgba(34,211,238,0.85));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand__logoImg{
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  display:block;
+  filter: drop-shadow(0 0 18px rgba(0,210,255,.42)) drop-shadow(0 2px 6px rgba(0,0,0,.60));
+  transition: filter .2s ease;
+}
+.brand__logoImg:hover{
+  filter: drop-shadow(0 0 24px rgba(0,210,255,.55)) drop-shadow(0 2px 8px rgba(0,0,0,.65));
+}
+
+/* Pills */
+.pill{
+  border: 1px solid var(--borderSoft);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor:pointer;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset;
+  transition: transform .08s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+.pill:hover{ background: rgba(255,255,255,0.06); border-color: rgba(34,211,238,0.35); }
+.pill:active{ transform: translateY(1px); }
+.pill.is-active{
+  background: rgba(34,211,238,0.14);
+  border-color: rgba(34,211,238,0.60);
+  color: rgba(34,211,238,0.97);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset, var(--glowAccent);
+  font-weight: 600;
+}
+.pill--ghost{ border-color: rgba(255,255,255,0.14); }
+.pill--danger{ color: var(--danger); border-color: var(--dangerBorder); background: var(--dangerBg); }
+.pill--small{ padding: 8px 12px; font-size: 12px; }
+.pill--icon{
+  padding: 0;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border-radius: 12px;
+}
+
+.sessionPill,
+.sidebarLogoutBtn{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,209,102,0.26);
+  background: linear-gradient(180deg, rgba(255,209,102,0.16), rgba(255,209,102,0.08));
+  color: #ffd978;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color .16s ease, transform .1s ease, background .16s ease;
+}
+.sessionPill{ padding: 7px 14px; white-space: nowrap; }
+.sessionPill:hover,
+.sidebarLogoutBtn:hover{
+  border-color: rgba(255,209,102,0.45);
+  background: linear-gradient(180deg, rgba(255,209,102,0.22), rgba(255,209,102,0.12));
+}
+.sessionPill:active,
+.sidebarLogoutBtn:active{ transform: translateY(1px); }
+.sessionPill__hint,
+.sidebarLogoutBtn__hint{ opacity: .58; font-size: 11px; white-space: nowrap; }
+.sessionPill__name,
+.sidebarLogoutBtn__name{
+  max-width: 145px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebarLogoutWrap,
+.sidebarInstallWrap{ padding: 0 0 10px 0; }
+.sidebarLogoutBtn{
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: rgba(255,255,255,0.82);
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(8,12,24,0.62);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.03);
+}
+.sidebarLogoutBtn__name{ flex:1; text-align:left; }
+
+@media (max-width: 980px){
+  .sidebarLogoutBtn{
+    border-color: rgba(255, 209, 102, 0.5);
+    background: linear-gradient(180deg, rgba(255, 209, 102, 0.2), rgba(255, 209, 102, 0.12));
+    color: #ffe6a6;
+  }
+  .sidebarLogoutBtn__hint{ opacity: .9; }
+}
+
+.sidebarInstallBtn{
+  width:100%;
+  justify-content: center;
+  border-color: rgba(34,211,238,0.42);
+  background: linear-gradient(180deg, rgba(34,211,238,0.22), rgba(34,211,238,0.11));
+  color: #c8f8ff;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+.sidebarInstallBtn:hover{
+  border-color: rgba(34,211,238,0.68);
+  background: linear-gradient(180deg, rgba(34,211,238,0.30), rgba(34,211,238,0.16));
+}
+
+.challengeAssignBtn{
+  margin-left: 8px;
+  min-width: 90px;
+  justify-content: center;
+}
+.challengeAssignBtn[data-state="assigned"]{
+  background: rgba(34, 197, 94, .18);
+  border-color: rgba(34, 197, 94, .55);
+  color: #dcfce7;
+}
+.challengeAssignBtn[data-state="locked"]{
+  background: rgba(239, 68, 68, .14);
+  border-color: rgba(239, 68, 68, .48);
+  color: #fee2e2;
+}
+
+.iconbtn{
+  border: 1px solid var(--borderSoft);
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  width: 42px; height: 42px;
+  color: var(--text);
+  cursor:pointer;
+}
+
+/* Top nav */
+.topnav{ display:flex; gap: 8px; align-items:center; justify-content:center; flex: 1; }
+
+/* Dropdown */
+.dropdown{ position:relative; z-index: 20040; }
+.dropdown__menu{
+  position:absolute;
+  right:0;
+  top: calc(100% + 10px);
+  min-width: 240px;
+  padding: 10px;
+  border-radius: 14px;
+
+  /* Opaque panel so it doesn't look "transparent" */
+  background: rgba(10,12,18,0.92);
+  border: 1px solid rgba(0,210,255,0.28);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.65);
+
+  display:none;
+  z-index: 20050;
+}
+.dropdown.is-open .dropdown__menu{ display:block; }
+.dropdown__menu.is-portal{ right:auto !important; }
+.challengeHintBadges{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+.menuitem{
+  width:100%;
+  text-align:left;
+  border:none;
+  background: transparent;
+  color: var(--text);
+  padding: 10px 10px;
+  border-radius: 10px;
+  cursor:pointer;
+}
+.menuitem:hover{ background: rgba(255,255,255,0.06); }
+.menudivider{ height:1px; background: rgba(255,255,255,0.10); margin: 8px 0; }
+
+/* GitHub save status indicator inside the Datos dropdown */
+.menuitem--status{
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  cursor: default;
+  border-radius: 8px;
+  line-height: 1.35;
+}
+.menuitem--status:hover{ background: transparent; }
+.menuitem--status-ok{
+  color: rgba(0, 220, 100, 0.9);
+  background: rgba(0, 220, 100, 0.07);
+}
+.menuitem--status-error{
+  color: rgba(255, 100, 80, 0.95);
+  background: rgba(255, 80, 60, 0.09);
+}
+/* Small warning badge on the Datos button when last save failed */
+#btnDatos.has-save-error::after{
+  content: ' ⚠';
+  font-size: 0.7em;
+  vertical-align: super;
+  color: rgba(255, 120, 80, 0.95);
+}
+
+/* Shell layout */
+.shell{
+  position:relative;
+  flex:1;
+  display:grid;
+  gap: var(--gap);
+  padding-top: var(--gap);
+  overflow:hidden;
+  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-areas: "sidebar content";
+  max-width: var(--maxw);
+  width:100%;
+  margin: 0 auto;
+  min-height: 0;
+}
+
+.sidebar, .content, .details{
+  border-radius: var(--radius);
+  background: linear-gradient(175deg, rgba(16,21,32,0.97) 0%, rgba(10,13,20,0.96) 100%);
+  border: 1px solid rgba(34,211,238,0.14);
+  box-shadow: var(--shadow), 0 0 0 0.5px rgba(34,211,238,0.06) inset;
+  overflow:hidden;
+  min-height: 0;
+  display:flex;
+  flex-direction:column;
+  position: relative;
+  z-index: 1;
+}
+/* Subtle cyan glow on top edge of each panel */
+.sidebar::before, .content::before, .details::before{
+  content: "";
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34,211,238,0.35), transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+.sidebar{ padding: 14px; grid-area: sidebar; }
+.details{ padding: 14px; grid-area: details; }
+.content{ padding: 14px; overflow:hidden; grid-area: content; }
+
+.details{ display:none; }
+.shell.is-details-open{
+  grid-template-columns: 320px minmax(0, 1fr) 360px;
+  grid-template-areas: "sidebar content details";
+}
+.shell.is-details-open .details{ display:flex; }
+
+.pages{ overflow:auto; overflow-x:hidden; padding-right: 6px; scrollbar-gutter: stable; }
+/* Sidebar bits */
+.panelHeader{ display:flex; align-items:center; justify-content:space-between; padding: 2px 0 10px 0; }
+.panelHeader__title{
+  font-family: 'Oxanium', 'Inter', ui-sans-serif, system-ui;
+  letter-spacing: 2.5px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(34,211,238,0.70);
+}
+
+/* Sidebar compact header: switches + "Nuevo" in one row */
+.panelHeader--compact{ gap:10px; padding: 2px 0 12px 0; }
+.panelHeader--compact .segmented{ margin-bottom: 0; }
+.segmented--compact{ min-width: 0; }
+.segmented--compact .segmented__btn{ padding: 10px 14px; font-size: 13px; }
+
+.segmented{
+  display:flex; gap: 6px; padding: 8px; border-radius: 999px;
+  background: rgba(0,0,0,0.20);
+  border: 1px solid rgba(0,210,255,0.10);
+  margin-bottom: 10px;
+}
+.segmented__btn{
+  flex:1; border:none; padding: 7px 8px; border-radius: 999px;
+  display:flex; align-items:center; justify-content:center; line-height:1;
+  background: transparent; color: rgba(255,255,255,0.55); cursor:pointer;
+  font-size: 12px;
+}
+.segmented__btn.is-active{
+  background: rgba(0,210,255,0.14);
+  color: rgba(34,211,238,0.97);
+  border: 1px solid rgba(0,210,255,0.35);
+  box-shadow: var(--glowAccent);
+  font-weight: 600;
+}
+.list{ overflow:auto; overflow-x:hidden; padding-right: 6px; flex:1; min-height:0; }
+.heroCard{
+  width:100%;
+  text-align:left;
+  border-radius: 18px;
+  padding: 12px 12px 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(0,210,255,0.18);
+  background:
+    radial-gradient(120px 80px at 10% -20%, rgba(0,210,255,0.10), transparent 70%),
+    rgba(255,255,255,0.035);
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+  transition: border-color .15s ease, background .2s ease, transform .08s ease, box-shadow .2s ease;
+}
+.heroCard:hover{ border-color: rgba(0,210,255,0.35); background: radial-gradient(140px 90px at 10% -20%, rgba(0,210,255,0.14), transparent 70%), rgba(255,255,255,0.045); }
+.heroCard:active{ transform: translateY(1px); }
+.heroCard.is-active{
+  border-color: rgba(0,210,255,0.55);
+  background:
+    radial-gradient(180px 100px at 5% -30%, rgba(0,210,255,0.22), transparent 72%),
+    rgba(0,210,255,0.09);
+  box-shadow: 0 0 0 1px rgba(0,210,255,0.14) inset, var(--glowAccent);
+}
+.heroCard__row{ display:flex; align-items:center; gap: 10px; }
+.heroCard__thumb{
+  width: 40px; height: 40px; min-width: 40px;
+  border-radius: 50%;
+  background-size: cover; background-position: center top;
+  border: 2px solid rgba(0,210,255,0.25);
+  box-shadow: 0 0 8px rgba(0,210,255,0.10);
+}
+.heroCard.is-active .heroCard__thumb{
+  border-color: rgba(0,210,255,0.50);
+  box-shadow: 0 0 12px rgba(0,210,255,0.20);
+}
+.heroCard__thumbEmpty{
+  width: 40px; height: 40px; min-width: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(0,210,255,0.12);
+}
+.heroCard__info{ flex:1; min-width:0; }
+.heroCard__name{ font-size: 14px; font-weight: 700; }
+.heroCard__meta{ font-size: 12px; opacity:.72; margin-top:3px; }
+.heroCard__badge{
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,210,255,0.28);
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,235,190,0.95);
+  white-space:nowrap;
+}
+.heroCard__progress{
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,210,255,0.12);
+  background: rgba(255,255,255,0.06);
+  overflow:hidden;
+}
+.heroCard__fill{
+  height:100%;
+  background: linear-gradient(90deg, rgba(0,210,255,0.35), rgba(34,211,238,0.65) 60%, rgba(120,255,200,0.70));
+  box-shadow: 0 0 8px rgba(0,210,255,0.28);
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Content header */
+.contentHeader{ display:flex; align-items:center; justify-content:space-between; gap: 10px; padding: 0 0 6px 0; }
+.contentHeader__left{ display:flex; align-items:center; gap: 12px; }
+.h1{ margin:0; font-size: 14px; letter-spacing: 2px; font-weight: 800; opacity:.9; }
+
+.tabs{
+  display:flex; gap: 8px; padding: 6px; border-radius: 999px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(0,210,255,0.10);
+}
+.tab{
+  border:none; background: transparent; color: rgba(255,255,255,0.55);
+  padding: 10px 12px; border-radius: 999px; cursor:pointer; font-size: 13px;
+}
+.tab.is-active{ background: rgba(0,210,255,0.10); color: var(--text); border: 1px solid rgba(0,210,255,0.20); }
+.tabs--single{ padding: 4px; background: transparent; border: none; }
+.tabs--single .tab{ padding: 9px 14px; }
+
+.page{ display:none; }
+.page.is-active{ display:block; }
+
+.cardGrid{
+  display:grid;
+  grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
+  gap: var(--gap);
+  padding-bottom: 14px;
+}
+
+.card{
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(15,19,27,0.90) 0%, rgba(10,13,19,0.88) 100%);
+  border: 1px solid rgba(34,211,238,0.10);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.04) inset;
+  padding: 14px;
+}
+.card--center{ display:flex; flex-direction:column; align-items:center; gap: 10px; }
+
+.avatarBox{
+  width: 260px;
+  height: 260px;
+  border-radius: 32px;
+  border: 1px solid rgba(0,210,255,0.18);
+  background: rgba(255,255,255,0.04);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: rgba(255,255,255,0.55);
+  font-size: 20px;
+}
+.avatarBox img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  border-radius: 32px;
+  display:block;
+}
+
+.h2{ margin: 0 0 8px 0; font-size: 18px; }
+.pageIntro{ padding: 4px 4px 14px 4px; }
+.pageIntro__row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.eventTabs{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.eventTabs .pill{ padding-left:14px; padding-right:14px; }
+.eventTabs .pill.is-active{ border-color: rgba(0,210,255,.45); box-shadow: 0 0 0 2px rgba(0,210,255,.12) inset; }
+
+/* Eventos/Jefes: header sin título; tabs centrados */
+.pageIntro--events .pageIntro__row{ justify-content:center; }
+.pageIntro--events .eventTabs{ justify-content:center; }
+.muted{ color: var(--muted); font-size: 13px; line-height: 1.4; }
+.cardTitle{ font-size: 14px; letter-spacing: 1px; opacity: .9; margin-bottom: 10px; }
+.avatar__frame{
+  width: 200px; height: 200px;
+  border-radius: 30px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0,210,255,0.12);
+  box-shadow: var(--glow);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  line-height: 1;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.avatar__frame img{ width:100%; height:100%; object-fit:cover; object-position:center; display:block; }
+.avatar__placeholder{ opacity:.55; }
+
+/* --- Avatar: contenedor con tamaño real (para que la imagen no se vaya a 0px) --- */
+.avatar__frame{ position:relative; }
+/* --- Avatar: parallax (solo móvil / pantallas con scroll) --- */
+.avatarParallax{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.avatarLayer{
+  position:absolute;
+  inset:-12%; /* margen para mover sin mostrar bordes */
+  transform: translate3d(0,0,0);
+  will-change: transform;
+  opacity: 1;
+}
+.avatarLayer--bg{
+  background:
+    radial-gradient(120px 120px at 22% 18%, rgba(255,255,255,0.14), transparent 55%),
+    radial-gradient(180px 180px at 68% 30%, rgba(0,210,255,0.14), transparent 60%),
+    radial-gradient(220px 220px at 52% 78%, rgba(114,26,255,0.18), transparent 65%),
+    linear-gradient(180deg, rgba(10,15,22,0.65), rgba(10,20,32,0.55));
+}
+.avatarLayer--mid{
+  background:
+    radial-gradient(240px 240px at 50% 45%, rgba(255,255,255,0.08), transparent 62%),
+    radial-gradient(180px 180px at 52% 80%, rgba(0,210,255,0.10), transparent 70%);
+  mix-blend-mode: screen;
+  opacity: .75;
+}
+
+/* Asegura que la foto quede encima de las capas */
+.avatar__box{ z-index:1; }
+
+/* En escritorio: sin "marco" visible (solo la imagen) */
+@media (min-width: 981px){
+  .avatar__frame{
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+
+@media (min-width: 981px){
+  /* Desktop: two-column layout — scene can be tall */
+  .heroScene{
+    min-height: 580px;
+    max-height: 82vh;
+  }
+
+  /* Photo: fill entire container, anchor character at bottom */
+  .heroPhotoFill img{
+    object-fit: cover;
+    object-position: 50% 100%;
+  }
+
+  /* Nombre fuera de la cara (también en escritorio) */
+  .heroName--overlay{
+    left: 18px;
+    top: 14px;
+    transform: none;
+    text-align: left;
+    max-width: 70%;
+  }
+
+  /* Fade superior menos oscuro en escritorio */
+  .heroSceneShade{
+    background:
+      radial-gradient(900px 620px at 50% 30%, rgba(0,210,255,0.10), rgba(0,0,0,0) 62%),
+      radial-gradient(1200px 900px at 50% 50%, rgba(0,0,0,0.10), rgba(0,0,0,0.55) 78%),
+      linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.00) 32%),
+      linear-gradient(0deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.00) 46%);
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce){
+  .avatarLayer{ transform:none !important; }
+}
+
+.avatar__box{
+  position:absolute;
+  z-index:1;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.avatar__box img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  max-width:none;
+  display:block;
+}
+.avatar__box .avatar__placeholder{ opacity:.55; }
+.avatarEditBtn{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,210,255,0.28);
+  background: rgba(25,42,86,0.72);
+  color: rgba(220,220,230,0.95);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .14s ease, transform .14s ease, border-color .14s ease, background .14s ease;
+  z-index: 5;
+}
+.avatar__frame:hover .avatarEditBtn{ opacity: 1; transform: translateY(0); }
+.avatarEditBtn:hover{ border-color: rgba(0,210,255,0.55); background: rgba(25,42,86,0.86); }
+
+/* Touch devices (iPad/iPhone): no hover -> keep the icon visible */
+@media (hover: none){
+  .avatarEditBtn{ opacity: 1; transform: none; }
+}
+.avatar__actions{ display:flex; gap: 10px; flex-wrap:nowrap; justify-content:center; width:100%; margin-top: 14px; }
+
+/* Eddy pidió simplificar: ocultar "Poner" y "Quitar"; dejar solo "Editar" (que también abre el selector) */
+.avatar__actions--secondary{ margin-top: -2px; }
+
+.heroName{ font-size: 28px; letter-spacing: 4px; font-weight: 900; opacity: .92; }
+
+/* Hero name overlay (encima del avatar, sin tocar la foto) */
+.heroAvatarWrap{ position:relative; display:flex; justify-content:center; align-items:center; width: fit-content; margin: 0 auto; }
+.heroName--overlay{
+  position:absolute;
+  left: 18px;
+  top: 14px;
+  transform: none;
+  z-index: 6;
+  pointer-events:none;
+  max-width: 92%;
+  text-align:left;
+
+  /* Estilo "nombre flotando" (sin pastilla) */
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+
+  color: rgba(245,248,255,0.92);
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+
+  /* 3D / glow sutil */
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.55),
+    0 6px 14px rgba(0,0,0,0.55),
+    0 0 18px rgba(0,210,255,0.20);
+  -webkit-text-stroke: 0.6px rgba(0,0,0,0.35);
+}
+
+@media (max-width: 520px){
+  .heroName{ font-size: 22px; letter-spacing: 4px; }
+  .heroName--overlay{ font-size: 22px; letter-spacing: 4px; top: 10px; left: 14px; }
+}
+
+
+/* Option C: move Meta/Descripción to the right panel */
+.notesCard{
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(0,210,255,0.10);
+  border-radius: 18px;
+  padding: 12px;
+  margin-top: 12px;
+}
+.notesCard .field label{ opacity: .70; }
+.notesCard textarea{
+  min-height: 74px;
+}
+@media (max-width: 980px){
+  .notesCard{ margin-top: 10px; }
+  .notesCard textarea{ min-height: 66px; }
+}
+.formCard{
+  width:100%;
+  border-radius: var(--radius);
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(0,210,255,0.12);
+  padding: 12px;
+}
+.label{ display:block; font-size: 13px; opacity:.8; margin-bottom: 8px; letter-spacing: .5px;}
+.labelSmall{ font-size: 12px; opacity:.7; margin-bottom: 6px;}
+.input{
+  width:100%;
+  border-radius: 999px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0,210,255,0.18);
+  background: rgba(0,0,0,0.22);
+  color: var(--text);
+}
+.input--select{
+  -webkit-appearance: none;
+  appearance: none;
+  /* iOS/Safari: keep custom styling */
+  background-color: rgba(0,0,0,0.22);
+  color-scheme: dark;
+  padding-right: 40px;
+  cursor:pointer;
+  position:relative;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(0,210,255,0.75) 50%),
+    linear-gradient(135deg, rgba(0,210,255,0.75) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(50% - 3px),
+    calc(100% - 14px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+.input--select::-ms-expand{ display:none; }
+.input--select:focus{ outline: none; border-color: rgba(0,210,255,0.32); }
+.textarea{
+  width:100%;
+  min-height: 94px;
+  border-radius: 16px;
+  padding: 12px 12px;
+  border: 1px solid rgba(0,210,255,0.18);
+  background: rgba(0,0,0,0.22);
+  color: var(--text);
+  resize: none;
+  overflow-x: hidden;
+  overflow: hidden;
+}
+
+/* Focus styles (keep modals consistent + avoid white default outline) */
+.input:focus,
+.input:focus-visible,
+.textarea:focus,
+.textarea:focus-visible,
+.input--select:focus,
+.input--select:focus-visible{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.18);
+}
+.textarea--small{ min-height: 88px; }
+.textarea--meta{ min-height: 72px; }
+.textarea--desc{ min-height: 96px; }
+
+.spacer{ height: 10px; }
+
+.fields3{ display:grid; grid-template-columns: 1fr 90px 1fr; gap: 12px; margin-bottom: 12px; }
+.fields3 .field{ min-width: 0; }
+
+.stats{
+  display:grid; grid-template-columns: 1fr 1fr; gap: 10px 14px;
+  padding: 10px; border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(0,210,255,0.04), rgba(255,255,255,0.015));
+  border: 1px solid rgba(0,210,255,0.18);
+  box-shadow: var(--glow), 0 0 20px rgba(0,210,255,0.05);
+  margin-bottom:10px;
+}
+.stat{ display:grid; grid-template-columns: 44px minmax(0, 1fr) 36px; align-items:center; gap: 10px; }
+.stat--wide{ grid-column: 1 / -1; }
+.badge{
+  width: 40px; height: 28px; border-radius: 10px; display:grid; place-items:center;
+  font-size: 12px;
+  border: 1px solid rgba(0,210,255,0.28);
+  background: linear-gradient(180deg, rgba(0,210,255,0.16), rgba(0,210,255,0.08));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 8px rgba(0,210,255,0.12);
+  font-weight: 600;
+}
+.stat__track{ position:relative; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.10); border: 1px solid rgba(0,0,0,0.40); min-width:0; }
+.stat__val{ text-align:right; font-weight: 700; }
+.stat__dot{
+  position:absolute; top: 50%; transform: translate(-50%, -50%);
+  width: 14px; height: 14px; border-radius: 999px;
+  background: rgba(255,225,160,0.92); border: 1px solid rgba(255,240,200,0.95);
+  box-shadow: 0 0 0 4px rgba(0,210,255,0.14), 0 6px 14px rgba(0,0,0,0.35);
+  z-index: 1;
+}
+
+/* Desktop: compact stats block so it doesn't eat too much vertical space */
+@media (min-width: 901px){
+  .stats{
+    padding: 8px;
+    gap: 6px 12px;
+    margin-bottom: 8px;
+  }
+  .stat{ gap: 8px; }
+  .badge{
+    width: 38px;
+    height: 24px;
+    border-radius: 9px;
+    font-size: 11px;
+  }
+  .stat__track{ height: 5px; }
+  .stat__dot{ width: 12px; height: 12px; box-shadow: 0 0 0 3px rgba(0,210,255,0.14), 0 6px 14px rgba(0,0,0,0.35); }
+  .stat__val{ font-size: 12px; }
+}
+.xpHeader{ display:flex; align-items:center; gap: 10px; flex-wrap:wrap; margin-top:24px; }
+.xpLevel{
+  font-family: 'Oxanium', 'Inter', ui-sans-serif, system-ui;
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, rgba(255,225,120,1), rgba(251,191,36,1));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(251,191,36,0.30));
+}
+.xpText{ opacity:.75; }
+.xpBtns{ margin-left:auto; display:flex; gap: 8px; flex-wrap:wrap; }
+.xpBar{
+  height: 16px; border-radius: 999px; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(251,191,36,0.28); overflow:hidden; margin: 12px 0 14px 0;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.40) inset, 0 0 10px rgba(251,191,36,0.10);
+}
+.xpFill{
+  height:100%;
+  background: linear-gradient(90deg, rgba(220,160,20,0.90), rgba(251,191,36,1) 50%, rgba(255,220,90,0.95));
+  box-shadow: var(--glowGold);
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.xpFooter{ display:grid; grid-template-columns: 1fr 220px; gap: 12px; margin-bottom: 12px; }
+.subCard{
+  border-radius: var(--radius2);
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(0,210,255,0.10);
+  padding: 12px;
+}
+.subCard__val{ font-size: 18px; font-weight: 800; opacity:.9; }
+.chipRow{ display:flex; gap: 10px; flex-wrap:wrap; }
+.twoCols{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cards2{ display:grid; grid-template-columns: 1fr 1fr; gap: var(--gap); padding-bottom: 14px; }
+
+/* --- Desafíos: jerarquías visuales y motivación --- */
+.cards2--ch{ grid-template-columns: minmax(0, 420px) minmax(0, 1fr); }
+@media (max-width: 980px){
+  .cards2--ch{ grid-template-columns: 1fr; }
+}
+
+.cardHead--ch{ margin-bottom: 8px; }
+.cardHead--chDetail{ margin-bottom: 8px; }
+
+.chProgressChips{ display:flex; flex-wrap:wrap; gap: 8px; justify-content:flex-end; align-items:center; }
+.chProgressBar{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(0,210,255,0.14);
+  overflow:hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset;
+}
+.chProgressFill{
+  height: 100%;
+  background: linear-gradient(90deg, rgba(114,26,255,0.72), rgba(0,210,255,0.62));
+  box-shadow: 0 0 18px rgba(114,26,255,0.18), 0 0 12px rgba(0,210,255,0.10);
+}
+
+.challengeList{ display:flex; flex-direction:column; gap: 10px; }
+
+.challengeItem{
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid rgba(0,210,255,0.12);
+  background: rgba(0,0,0,0.18);
+  padding: 12px 12px 12px 14px;
+  transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+.challengeItem::before{
+  content:"";
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width: 4px;
+  border-radius: 16px 0 0 16px;
+  background: rgba(220,220,230,0.16);
+  opacity: .95;
+}
+.challengeItem[data-diff="easy"]::before{ background: rgba(0,210,255,0.62); }
+.challengeItem[data-diff="medium"]::before{ background: rgba(114,26,255,0.62); }
+.challengeItem[data-diff="hard"]::before{ background: rgba(255,90,90,0.62); }
+
+.challengeItem:hover{
+  transform: translateY(-1px);
+  border-color: rgba(0,210,255,0.20);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+}
+.challengeItem.is-selected{
+  border-color: rgba(0,210,255,0.38);
+  box-shadow: 0 0 0 1px rgba(0,210,255,0.18) inset, 0 10px 26px rgba(0,0,0,0.28);
+}
+.challengeItem.is-done{ border-color: rgba(114,26,255,0.35); box-shadow: 0 0 0 1px rgba(114,26,255,0.12) inset; }
+.challengeItem.is-done .challengeName{ opacity:.72; text-decoration: line-through; }
+
+.challengeName{ font-weight: 850; letter-spacing: .2px; }
+
+.challengeDetailHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+  padding: 10px 0 10px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-top: 8px;
+}
+.challengeDetailMeta{ display:flex; flex-direction:column; gap: 6px; }
+.challengeDetailActions{ display:flex; flex-wrap:wrap; gap: 8px; justify-content:flex-end; }
+
+.chDetailBadges{ display:flex; flex-wrap:wrap; gap: 8px; justify-content:flex-end; align-items:center; }
+
+.challengeBody{
+  padding-top: 12px;
+  line-height: 1.55;
+}
+.chBodyP{ margin: 0 0 10px 0; opacity: .95; }
+.chBodyList{ margin: 0 0 12px 18px; padding: 0; }
+.chBodyList li{ margin: 6px 0; }
+.chCallout{
+  border-radius: 14px;
+  border: 1px solid rgba(0,210,255,0.14);
+  background: rgba(0,210,255,0.06);
+  padding: 10px 12px;
+  margin: 10px 0 12px 0;
+}
+.chCallout .muted{ opacity:.80; }
+
+/* Activities + Weekly XP row */
+.heroRight__weekRow{ display:grid; grid-template-columns: 1fr 260px; gap: var(--gap); align-items:stretch; }
+@media (max-width: 900px) and (orientation: portrait){
+  .heroRight__weekRow{ grid-template-columns: 1fr; }
+  #actChips{ flex-wrap: nowrap; justify-content:space-between; }
+  #actChips .pill{ padding: 8px 10px; font-size: 12px; }
+  #actChips .pill .i{ margin-right: 6px; }
+}
+.challengeRow{display:flex;flex-direction:column;gap:8px}
+.challengeMetaRow{display:flex;flex-wrap:wrap;column-gap:10px;row-gap:10px;opacity:.95}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;line-height:1;border:1px solid var(--borderSoft);background:rgba(255,255,255,0.03);color:var(--text,#e8ecf4);white-space:nowrap}
+.badge--subj{border-color:rgba(0,210,255,0.20)}
+.badge--pts{border-color:rgba(251,191,36,0.35);background:rgba(251,191,36,0.10);color:rgba(232,236,244,0.96)}
+.badge--done{border-color:rgba(34,211,238,0.40);background:rgba(34,211,238,0.10)}
+.badge--diff{border-color:rgba(220,220,230,0.18)}
+.badge--easy{border-color:rgba(0,210,255,0.34); background: rgba(0,210,255,0.10); color: rgba(220,220,230,0.95); }
+.badge--medium{border-color:rgba(114,26,255,0.36); background: rgba(114,26,255,0.12); color: rgba(220,220,230,0.95); }
+.badge--hard{border-color:rgba(255,90,90,0.38); background: rgba(255,90,90,0.10); color: rgba(220,220,230,0.95); }
+
+/* Bottom nav (solo móvil) */
+.bottomNav{
+  display:none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  gap: 10px;
+
+  /* Más visible sobre fondo negro */
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(0,0,0,0.96);
+  border-top: 1px solid rgba(34,211,238,0.22);
+  box-shadow:
+    0 -18px 48px rgba(0,0,0,0.88),
+    0 -1px 0 rgba(34,211,238,0.16) inset;
+
+  backdrop-filter: blur(12px);
+  pointer-events:auto;
+  touch-action:manipulation;
+}
+
+/* Línea/halo superior para separar el menú del contenido */
+.bottomNav::before{
+  content:"";
+  position:absolute;
+  left:0; right:0;
+  top:-18px;
+  height:18px;
+  background: linear-gradient(to top, rgba(0,0,0,0), rgba(0,0,0,0.85));
+  pointer-events:none;
+}
+
+
+.shell.is-drawer-open .bottomNav{ pointer-events: none; }
+.bottomNav__btn{
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 10px 6px;
+  font-size: 11px;
+  cursor:pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s, border-color .15s;
+}
+.bottomNav__icon{
+  font-size: 22px;
+  line-height: 1;
+  display: block;
+}
+.bottomNav__label{
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.bottomNav__btn.is-active{
+  background: rgba(34,211,238,0.16);
+  border-color: rgba(34,211,238,0.60);
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.14) inset, var(--glowAccent);
+  color: rgba(34,211,238,1);
+  font-weight: 600;
+  position: relative;
+}
+/* Indicator line at top of active nav button */
+.bottomNav__btn.is-active::before{
+  content: "";
+  position: absolute;
+  top: -1px; left: 20%; right: 20%;
+  height: 2px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, transparent, rgba(34,211,238,0.90), transparent);
+  box-shadow: 0 0 8px rgba(34,211,238,0.60);
+}
+
+/* Botón instalar: solo en desktop (el sidebar tiene el suyo para móvil/tablet) */
+#btnInstallApp{ display: none; }
+@media (min-width: 981px){ #btnInstallApp{ display: inline-flex; } }
+
+/* Sidebar install: solo en tablet/móvil */
+@media (min-width: 981px){ #sidebarInstallAppWrap{ display: none !important; } }
+
+/* Tablet */
+@media (max-width: 1180px){
+  :root{ --maxw: 1080px; }
+  .shell{
+    grid-template-columns: 320px 1fr;
+    grid-template-areas: "sidebar content";
+  }
+  .details{ display:none; }
+  .gridCards{ grid-template-columns: repeat(3, minmax(180px, 1fr)); }
+  .cardGrid{ grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); }
+}
+
+/* Drawer layouts */
+@media (max-width: 980px){
+  .brand__title{ display:none; }
+  .topnav{ display:none; }
+
+  .bottomNav{ display:flex; }
+  .pages{ padding-bottom: 96px; }
+  .topbar__right{ gap: 8px; overflow-x:auto; -webkit-overflow-scrolling: touch; scrollbar-width:none; }
+  .topbar__right::-webkit-scrollbar{ display:none; }
+  .topbar__right .pill, .topbar__right .dropdown__btn{ padding: 10px 12px; font-size: 12px; border-radius: 16px; }
+  .topbar__menu{ display:inline-grid; place-items:center; }
+  .shell{ grid-template-columns: 1fr; grid-template-areas: "content"; }
+  .details{ display:none; }
+  .gridCards{ grid-template-columns: repeat(3, minmax(180px, 1fr)); }
+  .cardGrid{ grid-template-columns: minmax(220px, 45vw) minmax(0, 1fr); }
+  .sidebar{
+    position:absolute;
+    left: 0; top: 0;
+    height: 100%;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+    width: min(360px, 86vw);
+    z-index: 30;
+    transform: translateX(-105%);
+    transition: transform .18s ease;
+  }
+  .shell.is-drawer-open .sidebar{ transform: translateX(0); }
+}
+
+/* Mobile */
+@media (max-width: 640px){
+  :root{ --gap: 12px; }
+  /* Mobile header: center brand, left hamburger, right trophy */
+  /* Reduce header height on phones (override desktop min-height: 74px) */
+  .topbar{
+    display: grid;
+    grid-template-columns: 46px 1fr 46px;
+    align-items: center;
+    gap: 10px;
+
+    min-height: 56px;
+    padding: 6px 10px;
+    border-radius: 22px;
+  }
+  .topbar{ position: relative; }
+  .topbar__left{ display: contents; padding-right: 0; width:auto; }
+  /* Force everything onto the same row (iOS was auto-placing the brand on row 2) */
+  #btnMenu{ grid-column:1; grid-row:1; justify-self:start; align-self:center; }
+  .brand{ grid-column:2; grid-row:1; justify-self:center; align-self:center; }
+  .topbar__right{ display: none; }
+  .topbar__trophyBtn{
+    display: inline-flex;
+    width:38px; height:38px; border-radius:12px;
+    align-items:center; justify-content:center;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(0,210,255,.18);
+    color:#eae7df;
+    grid-column:3;
+    grid-row:1;
+    justify-self:end;
+    align-self:center;
+  }
+  .trophyIcon{ width:22px; height:22px; }
+  .brand__logoImg{ width: 46px; height: 46px; }
+  .topbar__right .pill, .topbar__right .dropdown{ padding: 10px 10px; font-size: 12px; border-radius: 16px; }
+  .brand__subtitle{ display:none; }
+  .brand__text{ display:none; }
+  .bottomNav{ display:flex; padding-bottom: calc(10px + var(--safe-bottom)); }
+
+  .cardGrid{ grid-template-columns: 1fr; }
+  .fields3{ grid-template-columns: 1fr 80px; }
+  .fields3 .field:last-child{ grid-column: 1 / -1; }
+
+  .stats{ grid-template-columns: 1fr; }
+  .stat{ grid-template-columns: 44px minmax(0, 1fr) 36px; }
+
+  .xpFooter{ grid-template-columns: 1fr; }
+  .twoCols{ grid-template-columns: 1fr; }
+  .cards2{ grid-template-columns: 1fr; }
+  .gridCards{ grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+
+  .avatar__actions{ flex-wrap: wrap; }
+
+  .modal{ place-items:end center; padding: 10px; }
+  .modal__card{
+    width: 100%;
+    max-height: 82vh;
+    border-radius: 18px 18px 12px 12px;
+    padding: 14px;
+  }
+  .modal__header{
+    position: sticky;
+    top: 0;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    background: rgba(12,12,12,0.96);
+    z-index: 1;
+  }
+}
+
+/* 4K */
+@media (min-width: 1800px){
+  :root{ --maxw: 1660px; }
+  .shell{ grid-template-columns: 340px minmax(0, 1fr); grid-template-areas: "sidebar content"; }
+  .shell.is-details-open{ grid-template-columns: 340px minmax(0, 1fr) 380px; }
+}
+
+/* =========================
+   v17 – Ajustes compactos
+   ========================= */
+
+/* Ocultar barras de scroll (sin desactivar scroll) */
+body, .pages, .list{
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+body::-webkit-scrollbar,
+.pages::-webkit-scrollbar,
+.list::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+}
+
+/* Botón icono genérico (por defecto NO es absoluto; así no flota sobre otros UI) */
+.card--avatar{
+  position: relative;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap: 10px;
+  padding: 0; /* sin marco visible: la escena ocupa todo */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* --- Fichas: escena grande por capas (parallax en móvil) --- */
+.heroScene{
+  position: relative;
+  width: 100%;
+  /* Use aspect-ratio as intrinsic sizing hint, min/max-height as guardrails */
+  aspect-ratio: 3 / 4;
+  min-height: 360px;
+  max-height: 78vh;
+  border-radius: calc(var(--radius) - 4px);
+  overflow: hidden;
+  background: radial-gradient(1200px 700px at 50% 30%, rgba(255,255,255,0.10), rgba(0,0,0,0) 60%),
+              linear-gradient(180deg, rgba(9,14,22,0.92), rgba(6,10,18,0.92));
+}
+
+/* Fichas (desktop): estirar la imagen para alinear la base con la tarjeta de la derecha */
+@media (min-width: 981px){
+  .page[data-page="fichas"] .cardGrid{
+    align-items: stretch;
+  }
+
+  .page[data-page="fichas"] .card--avatar{
+    height: 100%;
+  }
+
+  .page[data-page="fichas"] .card--avatar .heroScene{
+    height: 100%;
+    min-height: 100%;
+    max-height: none;
+    aspect-ratio: auto;
+  }
+}
+
+/* Short viewports (landscape or small laptops): cap the scene */
+@media (max-height: 700px){
+  .heroScene{
+    aspect-ratio: auto;
+    min-height: 320px;
+    max-height: 58vh;
+  }
+}
+
+.heroSceneLayer{
+  position:absolute;
+  /* BG necesita más margen para moverse; FG/MID tendrán su propio inset */
+  inset: -28%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: translate3d(0,0,0);
+  will-change: transform;
+}
+
+/* Capas */
+.heroSceneLayer--bg{
+  background-image: var(--heroLayerBg);
+  filter: saturate(0.95) contrast(1.02);
+}
+
+.heroSceneLayer--mid{
+  background-image: var(--heroLayerMid);
+  opacity: .95;
+  inset: -18%;
+  background-position: 50% 65%;
+}
+
+.heroSceneLayer--fg{
+  background-image: var(--heroLayerFg);
+  opacity: .98;
+  inset: -4%;
+  background-size: cover;
+  background-position: 50% 100%;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 16px 28px rgba(0,0,0,.35));
+}
+
+/* Fallback: cuando no existe imagen del héroe, usar silueta como fondo que cubre todo */
+.heroScene.is-silhouette .heroSceneLayer--bg{
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: none;
+}
+
+.heroScene.is-silhouette .heroSceneLayer--mid,
+.heroScene.is-silhouette .heroSceneLayer--fg{
+  display: none !important;
+}
+
+
+/* Foto (si existe) ocupa TODO el panel; si no, se oculta y se ven las capas */
+.heroPhotoFill{
+  position:absolute;
+  inset: 0;
+  z-index: 3;
+  transform: translate3d(0,0,0);
+  background: radial-gradient(900px 600px at 50% 20%, rgba(255,255,255,0.06), rgba(0,0,0,0) 60%),
+              linear-gradient(180deg, rgba(8,12,20,0.35), rgba(0,0,0,0.55));
+}
+.heroPhotoFill.is-empty{
+  /* Sin foto: ocultar esta capa para que se vean las capas de escena (parallax/demo). */
+  display:none;
+}
+
+.heroPhotoFill img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* llenar todo el panel para evitar huecos */
+  object-position: 50% 100%;
+  display:block;
+  opacity: 1;
+  transition: opacity .22s ease;
+}
+
+.heroPhotoFill.is-loading img{
+  opacity: 0;
+}
+
+.heroScene[data-photo-loading="1"] .heroSceneLayer--bg,
+.heroScene[data-photo-loading="1"] .heroSceneLayer--mid,
+.heroScene[data-photo-loading="1"] .heroSceneLayer--fg{
+  opacity: 0;
+}
+
+/* Asegura redondeo consistente en ambas esquinas superiores de la ficha */
+.card--avatar .heroPhotoFill,
+.card--avatar .heroPhotoFill img{
+  border-radius: inherit;
+}
+
+.heroSceneShade{
+  position:absolute;
+  inset: 0;
+  z-index: 4;
+  /* Fades para legibilidad (sin "tapar" tanto el arte) */
+  background:
+    radial-gradient(900px 620px at 50% 30%, rgba(0,210,255,0.10), rgba(0,0,0,0) 62%),
+    radial-gradient(1200px 900px at 50% 50%, rgba(0,0,0,0.10), rgba(0,0,0,0.55) 78%),
+    linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.00) 38%),
+    linear-gradient(0deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.00) 46%);
+  pointer-events:none;
+}
+
+
+/* Botones dentro de la escena */
+.heroPhotoBtn{
+  position:absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 6;
+  border-color: rgba(0,210,255,0.24);
+}
+
+/* Notas como overlay, para que la imagen siga ocupando todo el bloque */
+.heroNotesOverlay{
+  position:absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 6;
+
+  /* Dock: que no invada toda la ilustración */
+  max-height: 34%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none; /* la rejilla vuelve a habilitarlo */
+}
+
+.heroNotesOverlay .noteGrid--overlay{
+  pointer-events: auto;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Overlay más "ligero" */
+.noteGrid--overlay{
+  margin-top: 0;
+  gap: 10px;
+}
+.noteGrid--overlay .noteCol{
+  background: #0b0f18;
+  border: 1px solid rgba(72, 186, 255, 0.42);
+  backdrop-filter: none;
+  padding: 10px;
+}
+
+.noteGrid--overlay .textarea{
+  background: #070b13;
+  border-color: rgba(72, 186, 255, 0.42);
+}
+.noteGrid--overlay .noteTitle{
+  font-size: 12px;
+  opacity: .86;
+}
+
+/* Textareas más compactas en overlay */
+.noteGrid--overlay .textarea--short{
+  min-height: 54px;
+  max-height: 96px;
+}
+
+/* Fila superior del cuadro de Descripción: título + botón de ocultar */
+.noteTitleRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 8px;
+}
+.noteTitleRow .noteTitleTools{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+}
+
+/* Botón de notas: por defecto (cuando está colapsado) va en esquina inferior derecha */
+.heroNotesToggleBtn{
+  position:absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 10050; /* arriba del bottomNav para que siempre detecte el click */
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  background: rgba(10,12,16,0.30);
+  border: 1px solid rgba(0,210,255,0.16);
+  backdrop-filter: none;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.35), 0 0 14px rgba(0,210,255,0.12);
+  cursor: pointer;
+}
+.heroNotesToggleBtn:hover{ background: rgba(10,12,16,0.40); }
+.heroNotesToggleBtn:active{ transform: translateY(1px); }
+.heroNotesToggleBtn:focus{ outline: 2px solid rgba(0,210,255,0.35); outline-offset: 2px; }
+
+/* Cuando las notas están visibles, el botón se coloca dentro del título de 'Descripción rápida' */
+.heroNotesToggleBtn.is-inline{
+  position: relative;
+  right: auto;
+  bottom: auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  z-index: 1;
+}
+
+
+@media (max-width: 980px){
+  .heroScene{
+    /* Full-width layout: use generous viewport-based height */
+    aspect-ratio: auto;
+    min-height: max(60svh, 460px);
+    max-height: 76vh;
+  }
+
+  /* Show more body, less cropping on head */
+  .heroSceneLayer--fg{
+    inset: -4%;
+    background-size: contain;
+    background-position: 50% 100%;
+    filter: drop-shadow(0 14px 24px rgba(0,0,0,.32));
+  }
+
+  /* Dock más compacto en móvil */
+  .heroNotesOverlay{ max-height: 30%; }
+  .heroNotesOverlay .noteGrid--overlay{ max-width: 92vw; }
+
+  /* Nombre fuera de la cara */
+  .heroName--overlay{
+    left: 16px;
+    top: 12px;
+    transform: none;
+    text-align: left;
+    max-width: 72%;
+    font-size: 22px;
+    letter-spacing: 4px;
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .heroSceneLayer{ transform: none !important; }
+}
+.iconBtn{
+  width: 40px; height: 40px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius: 12px;
+  border: 1px solid var(--dangerBorder);
+  background: rgba(0,0,0,0.18);
+  color: rgba(255,255,255,0.78);
+  cursor: pointer;
+  z-index: 5;
+}
+.iconBtn:hover{ background: rgba(0,0,0,0.28); border-color: var(--danger); }
+.iconBtn:active{ transform: scale(0.98); }
+
+.iconBtn--danger{
+  /* Rojo más discreto */
+  border-color: rgba(240, 104, 104, 0.32);
+  background: rgba(60, 10, 10, 0.22);
+}
+.heroDeleteBtn{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 6;
+}
+
+/* Cofre de recompensas (por ficha) */
+.heroChestBtn{
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 6;
+  border-color: rgba(0,210,255,0.24);
+  background: rgba(0,0,0,0.18);
+  color: rgba(220,220,230,0.92);
+}
+.heroChestBtn:hover{ border-color: rgba(0,210,255,0.52); }
+.heroChestBtn.is-pending{ box-shadow: 0 0 0 2px rgba(0,210,255,0.10), 0 0 18px rgba(114,26,255,0.22); }
+.chestIcon{ width:18px; height:18px; display:block; }
+.iconBtn:hover{ background: rgba(26, 26, 26, 0.72); opacity: 1; }
+.iconBtn:active{ transform: translateY(1px); }
+
+/* Inline small icon buttons (e.g., reset weekly XP) */
+.iconBtn--inline{
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  box-shadow: none;
+  border: 1px solid rgba(0,210,255,0.18);
+  background: rgba(22, 22, 22, 0.45);
+}
+
+/* Alias used by some HTML versions */
+.btnIcon{ 
+  position: static;
+  top: auto; right: auto;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 10px;
+  box-shadow: none;
+  border: 1px solid rgba(0,210,255,0.18);
+  background: rgba(22, 22, 22, 0.45);
+  color: rgba(255,255,255,0.92);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.btnIcon:hover{ background: rgba(22, 22, 22, 0.60); }
+.btnIcon:active{ transform: translateY(1px); }
+
+.subCard__valRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+
+/* Botones 2D/3D más compactos */
+.segBtn{ padding: 9px 12px; font-size: 13px; display:flex; align-items:center; justify-content:center; line-height:1; }
+
+/* Evitar que los valores de stats se salgan del contenedor */
+.stats{ overflow-x: hidden;
+  overflow: hidden; }
+.stat{ min-width: 0; max-width: 100%; }
+.stat__track{ min-width: 0; }
+.segmented{ height: 40px; }
+
+
+/* Mobile kebab (⋯) centering */
+.kebab{display:block; font-size:22px; line-height:1; transform:translateY(0);}
+
+
+/* Notes under avatar (desktop) */
+.noteGrid{margin-top:14px; display:grid; grid-template-columns:1fr; gap:12px;}
+.noteCol{background:rgba(0,0,0,.22); border:1px solid rgba(0,210,255,.12); border-radius:18px; padding:12px;}
+.noteTitle{font-size:13px; opacity:.85; margin-bottom:8px;}
+.textarea--short{min-height:72px; max-height:140px;}
+@media (max-width:980px){
+  .noteGrid{grid-template-columns:1fr; }
+}
+
+/* =========================
+   v21 layout overrides
+   ========================= */
+
+.kebab{display:block;font-size:20px;line-height:1;transform:translateY(0);}
+
+/* Notes under avatar: stack on desktop (we have space now) */
+.noteGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px;}
+.noteCol{background:rgba(0,0,0,.25);border:1px solid rgba(0,210,255,.12);border-radius:16px;padding:12px;}
+.noteTitle{font-size:13px;color:rgba(234,231,223,.8);margin:0 0 8px 2px;letter-spacing:.02em;}
+.textarea--short{min-height:72px; max-height:140px;}
+.noteCol textarea{ scrollbar-width: none; }
+.noteCol textarea::-webkit-scrollbar{ width:0; height:0; }
+@media (max-width: 900px){
+  .noteGrid{grid-template-columns:1fr;}
+}
+
+/* Weekly XP: make it more compact (desktop + mobile) */
+.subCard--week .subCard__val{ font-size: 15px; }
+.subCard--week .subCard__title{ font-size: 12px; opacity: .8; }
+
+@media (min-width: 901px){
+  .xpFooter{ grid-template-columns: 1fr 200px; }
+  .subCard--week{ padding: 10px; }
+  .subCard--week .iconBtn--tiny{ transform: scale(.95); }
+}
+
+/* Stats: force single column and add breathing room above XP */
+.stats{grid-template-columns:1fr !important;margin-bottom:12px;}
+.stat--wide{grid-column:auto !important;}
+.xpHeader{margin-top:24px;}
+
+/* Segmented 2D/3D label centering */
+.segmented__btn{line-height:1;}
+
+/* Bottom nav: ensure it's always on top and reliably clickable on iOS */
+.bottomNav{z-index:10000;}
+.bottomNav button{touch-action:manipulation;}
+
+/* Hide scrollbars where possible */
+.pages{scrollbar-width:none;}
+.pages::-webkit-scrollbar{width:0;height:0;}
+.sidebar{scrollbar-width:none;}
+.sidebar::-webkit-scrollbar{width:0;height:0;}
+
+/* iPad portrait/tablet: keep normal header actions, hide 3-dots */
+@media (min-width: 641px) and (max-width: 900px){
+  .topbar{flex-wrap:nowrap;}
+  .topbar__left{flex:1; min-width:0;}
+  .topbar__right{display:flex !important;}
+  /* nowrap + scroll horizontal para que los botones no fuercen una segunda fila */
+  .topbar__right{flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; justify-content:flex-end; gap:8px;}
+  .topbar__right::-webkit-scrollbar{display:none;}
+  .topbar__right .pill{padding:8px 12px; font-size:12px;}
+  .topbar__moreBtn{display:none !important;}
+  .topbar__moreWrap{display:none !important;}
+
+  .fields3{ grid-template-columns: 1fr 86px 1fr; }
+  .select{ max-width: 100%; text-overflow: ellipsis; }
+}
+
+
+/* PATCH v25: avatar + weekly reset + spacing */
+.avatar__frame{ position:relative; }
+
+/* Place the delete icon relative to the avatar frame (not the whole card) */
+.iconBtn--inAvatar{ top:12px; right:12px; }
+
+/* Photo buttons spacing */
+.pillRow--photo{ margin-top:16px; }
+
+/* Weekly reset button must be inline (iconBtn is absolute by default) */
+#btnWeekReset{ position:static !important; inset:auto !important; transform:none !important; margin-left:8px; }
+
+/* Give a bit more air between stats and XP section */
+/* --- v29: hero delete button (subtle) --- */
+#heroDeleteBtn{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background: var(--dangerBg);
+  border:1px solid var(--dangerBorder);
+  color: var(--textSoft);
+  opacity:.75;
+}
+#heroDeleteBtn:hover{ background: var(--dangerBgHover); opacity:.9; }
+
+
+/* --- v29: avatarWrap alignment --- */
+.avatarWrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;}
+
+
+/* ---- CLEAN PASS v29: avatar centering + spacing ---- */
+.avatar__frame{ margin: 0 auto; }
+.avatar__box{ margin: 0 auto; }
+.avatar__actions{ margin-top: 14px; gap: 10px; }
+.avatar__actions .btn{ padding: 8px 12px; }
+#heroDeleteBtn{ opacity: 0.72; }
+#heroDeleteBtn:hover{ opacity: 0.95; }
+
+
+/* Flash highlight for new hero in list */
+.heroCard.flash{ outline:2px solid rgba(180,150,80,.55); box-shadow:0 0 0 6px rgba(180,150,80,.12); }
+
+/* Fichas: simplify photo controls (keep only Edit) */
+.confirmMsg{ white-space:pre-line; }
+
+/* Hide scrollbars (keep scrolling) */
+html, body{ scrollbar-width:none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar{ width:0; height:0; }
+*{ scrollbar-width:none; }
+*::-webkit-scrollbar{ width:0; height:0; }
+
+/* Reward history in ficha */
+.heroRewardsBox{
+  margin-top: 12px;
+  width: 100%;
+}
+.rewardHistory{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top: 8px;
+}
+.rewardItem{
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  border-radius:12px;
+  padding:10px 12px;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+.rewardItem__left{ min-width: 0; }
+.rewardItem__title{ font-weight:800; }
+.rewardItem__meta{ opacity:.75; font-size:.9rem; margin-top:2px; }
+.rewardItem__badge{
+  font-size:.85rem;
+  opacity:.9;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.05);
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space:nowrap;
+}
+
+
+
+/* Stats sliders (Fichas) */
+.statRow{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:10px 10px;
+  border:1px solid rgba(0,210,255,.18);
+  background: rgba(0,0,0,.22);
+  border-radius:14px;
+  box-shadow: 0 0 0 1px rgba(0,210,255,0.06), 0 18px 50px rgba(0,0,0,0.35) inset;
+}
+.statRow__label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.statRow__val{
+  font-weight:800;
+  opacity:.9;
+}
+.statRow__bar{
+  position:relative;
+  height:14px;
+  border-radius:999px;
+  background: rgba(0,0,0,0.28);
+  border: 1px solid rgba(0,210,255,0.14);
+  overflow:hidden;
+}
+.statRow__fill{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, rgba(114,26,255,0.70), rgba(0,210,255,0.60));
+  box-shadow: 0 0 18px rgba(0,210,255,0.12);
+}
+.statRow__range{
+  position:absolute;
+  inset: -6px 0 -6px 0;
+  width:100%;
+  opacity:0;
+  cursor:pointer;
+}
+
+/* --- Recompensas (layout) --- */
+.pageIntro{ margin: 0 0 14px 0; }
+.rewardsGrid{ display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; }
+.cardHead{ display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.cardHead .muted{ font-size: 12px; opacity: .75; }
+
+@media (max-width: 980px){
+  .rewardsGrid{ grid-template-columns: 1fr; }
+}
+
+.rewardGeneralItem .rewardItem__badge{ opacity: .85; }
+
+
+/* --- Stats: segmentos (compacto) --- */
+.statLine{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:10px 0;
+}
+.statBadge{
+  min-width:54px;
+  text-align:center;
+}
+.statMeter{
+  position:relative;
+  flex:1;
+  height:18px;
+  border-radius:999px;
+  padding:4px;
+  background: rgba(0,0,0,0.30);
+  border: 1px solid rgba(0,210,255,0.18);
+  box-shadow: inset 0 0 0 1px rgba(0,210,255,0.06);
+}
+.statSegs{
+  display:grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap:3px;
+  height:100%;
+}
+.statSeg{
+  border-radius:3px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(0,210,255,0.12);
+}
+.statSeg.locked{
+  opacity: 0.28;
+  filter: saturate(0.7);
+}
+.statSeg.on.locked{
+  opacity: 0.28;
+  box-shadow: none;
+}
+.statSeg.on{
+  background: linear-gradient(180deg, rgba(114,26,255,0.70), rgba(0,210,255,0.52));
+  border-color: rgba(0,210,255,0.30);
+  box-shadow: 0 0 10px rgba(114,26,255,0.14);
+}
+.statRange{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:pointer;
+  touch-action: pan-x;
+}
+/* Ocultar thumb del slider en modo viewer (alumnos) */
+.viewer-mode .statRange{
+  display: none;
+  pointer-events: none;
+}
+.statNum{
+  min-width: 34px;
+  text-align:center;
+  font-weight: 1000;
+  font-size: 16px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+  color: rgba(250,250,255,0.98);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Sin "pill": más limpio */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+
+  transform: translateZ(0);
+  -webkit-text-stroke: 0.7px rgba(0,0,0,0.45);
+
+  /* Efecto 3D (extrusión) + glow */
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.60),
+    0 2px 0 rgba(0,0,0,0.55),
+    0 3px 0 rgba(0,0,0,0.45),
+    0 6px 14px rgba(0,0,0,0.55),
+    0 0 16px rgba(0,210,255,0.22);
+}
+
+
+.statNum.is-pop{ animation: statPop .18s ease-out both; }
+@keyframes statPop{
+  0%{ transform: scale(0.92); filter: brightness(0.9); }
+  100%{ transform: scale(1); filter: brightness(1); }
+}
+
+/* --- Rewards list (derecha): más detalle --- */
+.rewardItem__titleRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.rewardItem__kind{
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(0,0,0,0.25);
+  border:1px solid rgba(0,210,255,0.14);
+  color:rgba(240,240,240,0.85);
+  white-space:nowrap;
+}
+.rewardItem__desc{
+  margin-top:6px;
+  color:rgba(230,230,230,0.80);
+}
+.rewardItem__details{
+  margin-top:6px;
+  font-size:12px;
+  color:rgba(230,230,230,0.66);
+  line-height:1.35;
+}
+.rewardsSectionTitle{
+  margin:10px 2px 6px;
+  font-weight:700;
+  letter-spacing:0.6px;
+  color:rgba(240,240,240,0.80);
+}
+
+/* --- Resumen de recompensas (columna derecha) --- */
+.rewardsHistoryCol{ display:flex; flex-direction:column; gap:14px; }
+.rewardsSummary{ display:flex; flex-direction:column; gap:6px; }
+.rewardsSummaryRow{
+  display:grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+.rewardsSummaryRow__icon{ font-size:1.1rem; text-align:center; }
+.rewardsSummaryRow__label{ font-size:.9rem; color:rgba(230,230,230,.80); }
+.rewardsSummaryRow__value{ font-weight:800; font-size:1rem; white-space:nowrap; }
+
+
+/* Make notes fill available width inside centered card (desktop) */
+.card--center .noteGrid{ width:100%; align-self:stretch; }
+.card--center .noteCol{ width:100%; }
+
+/* Edit button visibility & contrast */
+#btnEdicion{
+  border-color: rgba(0,210,255,0.28);
+  color: rgb(220,220,230);
+}
+#btnEdicion.is-active{
+  border-color: rgba(114,26,255,0.55);
+  box-shadow: 0 0 0 1px rgba(114,26,255,0.20), 0 10px 26px rgba(114,26,255,0.12);
+}
+#btnEdicion.pill--danger{ /* keep danger class but make it subtle (locked state) */
+  background: rgba(0,0,0,0.20);
+  border-color: rgba(0,210,255,0.28);
+  color: rgba(220,220,230,0.85);
+}
+
+/* Confirm modal: cleaner + centered */
+#confirmModal .modal__card{
+  max-width: 420px;
+  text-align: center;
+}
+#confirmModal .modal__header{
+  justify-content: center;
+}
+#confirmModal #confirmMessage{
+  font-size: 14px;
+  line-height: 1.35;
+  opacity: .92;
+}
+#confirmModal .modal__body > div[style*="justify-content:flex-end"]{
+  justify-content: center !important;
+}
+
+/* PATCH v16: iPhone header smaller + better hamburger icon alignment */
+@media (max-width: 640px){
+  /* Reduce overall top padding so the header doesn't feel like a banner */
+  .app{
+    padding: calc(6px + var(--safe-top)) calc(8px + var(--safe-right)) calc(10px + var(--safe-bottom)) calc(8px + var(--safe-left));
+  }
+
+  /* Force compact header (override any later layout overrides) */
+  .topbar{
+    min-height: 52px !important;
+    padding: 4px 8px !important;
+    gap: 8px !important;
+    border-radius: 18px !important;
+    background: rgba(10,12,18,0.88) !important;
+    backdrop-filter: blur(8px);
+  }
+
+  /* Make icon buttons slightly smaller and perfectly centered */
+  .iconbtn{
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+  #btnMenu{
+    font-size: 22px !important;
+    line-height: 1 !important;
+    transform: translateY(-1px);
+    grid-row: 1 !important;
+    align-self: center !important;
+  }
+
+  .topbar__trophyBtn{
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+    grid-row: 1 !important;
+    align-self: center !important;
+  }
+  .trophyIcon{ width: 20px !important; height: 20px !important; }
+
+  /* Logo más visible, sin marco/figura alrededor */
+  .brand__logoImg{ width: 44px !important; height: 44px !important; }
+}
+
+@media (min-width: 981px){
+  .heroNotesOverlay .noteGrid--overlay{ max-width: 520px; }
+}
+
+
+
+
+
+/* --- Notes toggle button: esquina inferior derecha de la foto --- */
+/* Al colapsar: ocultar COMPLETO Descripción/Meta (los dos cuadros) */
+.heroScene.notesCollapsed .heroNotesOverlay{
+  display: none !important;
+}
+
+/* Parallax 2 capas: esconder capa mid si existe */
+.heroSceneLayer--mid{ display:none !important; }
+
+/* Quitar el oscurecido extra encima de la imagen (mantener legibilidad con shade suave) */
+.heroPhotoFill{
+  background: none !important;
+}
+.heroSceneShade{
+  opacity: .50; /* menos oscuro */
+}
+
+.lvlBurst{
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(0, 200, 255, .25);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.25) inset;
+  font-size: 18px;
+  animation: lvlPulse 1.4s ease-in-out infinite;
+}
+
+.lvlHeroNameInline{
+  color: rgba(255,255,255,.92);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  overflow-x: hidden;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes lvlPulse{
+  0%,100%{ transform: translateY(0); filter: drop-shadow(0 0 0 rgba(0,200,255,0)); }
+  50%{ transform: translateY(-1px); filter: drop-shadow(0 0 12px rgba(0,200,255,.25)); }
+}
+
+.lvlCenter{
+  display:flex;
+  justify-content:center;
+  padding: 10px 0 6px;
+}
+
+@keyframes lvlPop{
+  0%{ transform: translateY(10px) scale(.92); opacity: .0; }
+  100%{ transform: translateY(0) scale(1); opacity: 1; }
+}
+
+
+@keyframes lvlReveal{
+  to{ transform: translateY(0); opacity: 1; }
+}
+
+/* Accesibilidad: si el usuario desactiva animaciones */
+@media (prefers-reduced-motion: reduce){
+}
+@media (max-width: 760px){
+}
+@media (max-width: 560px){
+}
+@keyframes lvlBurstSpin{ 0%{ transform: rotate(-10deg);} 100%{ transform: rotate(350deg);} }
+@keyframes lvlBurstPulse{ 0%,100%{ opacity: .82;} 50%{ opacity: 1;} }
+@keyframes lvlFloat{
+  0%,100%{ transform: translateY(4px) rotate(-0.25deg); }
+  50%{ transform: translateY(-6px) rotate(0.25deg); }
+}
+@media (prefers-reduced-motion: reduce){
+}
+
+/* =========================================================
+   MOBILE SAFARI FIXES (iPhone)
+   - Fichas: anclar FG al piso (evitar que "suba" y se corte abajo)
+   - LevelUp: en móvil ocultar arte y mostrar solo medalla + recompensas
+   ========================================================= */
+
+@media (max-width: 560px){
+}
+@keyframes lvlRingSpin{ to{ transform: rotate(360deg);} }
+@keyframes lvlAuraPulse{ 0%,100%{ transform: scale(.98); opacity:.7;} 50%{ transform: scale(1.02); opacity: 1;} }
+@keyframes lvlSlideIn{ from{ opacity:0; transform: translateX(-26px);} to{ opacity:1; transform: translateX(0);} }
+@keyframes lvlPop{ 0%{ opacity:0; transform: translateY(10px) scale(.86);} 60%{ opacity:1; transform: translateY(0) scale(1.06);} 100%{ opacity:1; transform: translateY(0) scale(1);} }
+@keyframes lvlRise{ from{ opacity:0; transform: translateY(14px);} to{ opacity:1; transform: translateY(0);} }
+
+/* Responsiveness */
+@media (max-width: 900px){
+}
+@media (max-width: 560px){
+}
+
+/* --- Mobile framing fixes (iPhone): keep FG aligned to bottom --- */
+@media (max-width: 560px){
+}
+
+
+
+
+/* --- Hard hide for elements using the HTML `hidden` attribute (author CSS must not override) --- */
+[hidden]{ display:none !important; }
+
+
+
+/* =========================================================
+   MOBILE HOTFIX (iPhone): Hero FG bottom + LevelUp compact
+   ========================================================= */
+@media (max-width: 560px){
+
+  /* Asegura scroll en el cuerpo del modal */
+  #levelUpModal .modal__body{
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+    max-height: calc(100svh - 140px);
+  }
+}
+
+
+
+/* =========================================================
+   FINAL iPhone tuning (v50.10): hero card framing + LevelUp centering
+   ========================================================= */
+@media (max-width: 560px){
+}
+#levelUpModal .levelUpScrollArea{
+  flex: 1 1 auto;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px;
+}
+@keyframes lvlGlintSweep{
+  0%,55%{ transform: translateX(-140%) rotate(12deg); opacity: 0; }
+  62%{ opacity: .22; }
+  78%{ opacity: .30; }
+  100%{ transform: translateX(140%) rotate(12deg); opacity: 0; }
+}
+
+@media (max-width: 560px){ /* header space */
+}
+#levelUpModal #levelUpTitle{font-size:22px;letter-spacing:3px;}
+@media (min-width: 900px){
+}
+@keyframes medalGlint{0%,55%{left:-60%;opacity:0;}60%{opacity:.0;}65%{opacity:.55;}75%{left:140%;opacity:0;}100%{left:140%;opacity:0;}}
+#levelUpModal .lvlTitle{
+  text-align:center;
+}
+#levelUpModal .lvlName{
+  text-align:center;
+}
+
+/* Smaller section title */
+#levelUpModal #levelUpTitle{
+  font-size: 1.05rem;
+  letter-spacing: 0.20em;
+}
+@keyframes medalSweep{
+  0%{ transform: translateX(-80%) rotate(25deg); opacity:0; }
+  18%{ opacity:.65; }
+  45%{ transform: translateX(80%) rotate(25deg); opacity:0; }
+  100%{ transform: translateX(80%) rotate(25deg); opacity:0; }
+}
+
+/* =========================================================
+   RESPONSIVE HERO SCENE (consolidated)
+   Replaces the old scattered hotfix blocks.
+   Cascade: base → ≥981 (desktop) → ≤980 (tablet) → ≤640 (mobile) → ≤430 (phone, in styles.mobile.css)
+   ========================================================= */
+
+/* Mobile (≤640px): single column, use explicit height for predictable sizing */
+@media (max-width: 640px){
+  .heroScene{
+    height: max(380px, 58vh);
+    min-height: 0;            /* let height control */
+    max-height: 74vh;
+  }
+
+  /* FG: contain to show full character, anchored at bottom */
+  .heroSceneLayer--fg{
+    inset: 0;
+    background-size: contain;
+    background-position: 50% 100%;
+  }
+
+  /* BG: cover the full scene */
+  .heroSceneLayer--bg{
+    inset: -12%;
+    background-size: cover;
+    background-position: 50% 52%;
+  }
+
+  .heroSceneLayer--mid{
+    inset: -8%;
+    background-position: 50% 68%;
+  }
+}
+
+/* Small phones (≤560px) */
+@media (max-width: 560px){
+  .heroScene{
+    height: max(360px, 55vh);
+    max-height: 70vh;
+  }
+}
+
+/* Desktop: slightly reduce header height */
+@media (min-width: 901px){
+}
+
+/* Remove bottom hint text (redundant) */
+#levelUpModal .lvlFooter{ display:none !important; }
+
+/* Reduce header height a bit so the stage has more protagonism */
+#levelUpModal .modal__header--levelup{ padding: 14px 18px !important; }
+#levelUpModal .modal__headerTitle--levelup{ font-size: 34px !important; }
+
+/* Make title slightly smaller */
+#levelUpModal .lvlRewardTitle{ font-size: 15px !important; letter-spacing: .12em; }
+
+/* Remove bottom hint text (not needed) */
+#levelUpModal .lvlFooter{ display:none !important; }
+
+/* Reduce dead space in the header */
+#levelUpModal .modal__cardHeader{ padding: 14px 16px 12px !important; }
+#levelUpModal .lvlTitle{ margin-top: 0 !important; }
+
+/* On very small screens, keep the badge section compact and let rewards scroll */
+@media (max-width: 520px){
+  #levelUpModal .lvlRewardTitle{ font-size: 18px !important; letter-spacing: 0.08em !important; }
+}
+
+/* Remove tiny helper line at bottom (not needed) */
+#levelUpModal .lvlFooter,
+#levelUpModal .lvlPendingHint{ display:none !important; }
+
+/* Make reward title a bit smaller */
+#levelUpModal .lvlRewardTitle{ font-size:16px !important; letter-spacing:0.12em; }
+
+@media (max-width: 720px){
+}
+
+/* Reduce title size a bit */
+#levelUpModal .lvlRewardTitle{ font-size: 16px !important; letter-spacing: 0.12em; }
+
+/* Remove bottom helper text in the modal */
+#levelUpModal .lvlFooter{ display:none !important; }
+
+@media (max-width: 720px){
+}
+
+@keyframes lvlRaysSpin{
+  0%{transform: translate3d(-50%,-50%,0) rotate(0deg);} 
+  100%{transform: translate3d(-50%,-50%,0) rotate(360deg);} 
+}
+
+/* Título de recompensas más pequeño */
+#levelUpModal .lvlTitle{
+  font-size: clamp(16px, 3.8vw, 22px) !important;
+  letter-spacing: 0.12em;
+}
+
+/* Scroll SOLO en recompensas (modal completo fijo) */
+#levelUpModal .lvlRewards{
+  max-height: 44vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 720px){
+  #levelUpModal .lvlModalContent{
+    max-height: min(90vh, 820px);
+  }
+  #levelUpModal .lvlRewards{max-height: 42vh;}
+}
+
+/* Micro brillo en la medalla/iconos (sutil) */
+#levelUpModal .rewardCardIcon{
+  position: relative;
+  overflow: hidden;
+}
+#levelUpModal .rewardCardIcon::after{
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: linear-gradient(120deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0) 65%);
+  transform: translateX(-120%) rotate(12deg);
+  opacity: 0.7;
+  animation: lvlIconShine 5.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes lvlIconShine{
+  0%, 55%{transform: translateX(-120%) rotate(12deg); opacity: 0.0;}
+  60%{opacity: 0.75;}
+  72%{transform: translateX(120%) rotate(12deg); opacity: 0.0;}
+  100%{transform: translateX(120%) rotate(12deg); opacity: 0.0;}
+}
+#levelUpModal .lvlTitle{
+  grid-row: 2;
+  margin-top: 0;
+}
+#levelUpModal .lvlRewards{
+  grid-row: 2;
+}
+#levelUpModal #levelUpNum{
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Cleaner pop without blur */
+@keyframes lvlPop{
+  0%{transform: translate3d(-50%,-50%,0) scale(0.90); opacity:0;}
+  55%{transform: translate3d(-50%,-50%,0) scale(1.06); opacity:1;}
+  100%{transform: translate3d(-50%,-50%,0) scale(1.00); opacity:1;}
+}
+
+/* Rays: keep square + GPU translate so it doesn't look like it warps on rotation */
+#levelUpModal .lvlRays{
+  width: 180vmax;
+  height: 180vmax;
+  left: 50%;
+  top: calc(var(--lvlPad) + (var(--lvlHeroH) / 2));
+  transform: translate3d(-50%,-50%,0);
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+@keyframes lvlRaysSpin{
+  0%{transform: translate3d(-50%,-50%,0) rotate(0deg);}
+  100%{transform: translate3d(-50%,-50%,0) rotate(360deg);}
+}
+
+@media (max-width: 560px){
+}
+
+/* ===============================
+   Historial de desafíos
+   =============================== */
+#historyModal .modal__card{ max-width: 900px; }
+
+/* Modal de foto completa (fichas) */
+#heroPhotoModal{
+  padding: clamp(10px, 2vw, 18px);
+}
+#heroPhotoModal .modal__card--photo{
+  width: min(96vw, 920px);
+  max-width: 920px;
+  max-height: min(94vh, 980px);
+  background: rgba(8, 11, 19, 0.94);
+  border: 1px solid rgba(121, 143, 186, 0.28);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  overflow: hidden;
+}
+#heroPhotoModal #btnCloseHeroPhotoModal{
+  position: absolute;
+  top: clamp(14px, 2vw, 20px);
+  right: clamp(14px, 2vw, 20px);
+  z-index: 8;
+  min-width: 42px;
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(121, 143, 186, 0.42);
+  background: rgba(8, 12, 22, 0.92);
+  box-shadow: 0 8px 24px rgba(0,0,0,.42);
+  font-size: 20px;
+  font-weight: 800;
+}
+#heroPhotoModal .modal__body--photo{
+  display: block;
+  padding: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+#heroPhotoModal .heroPhotoModalScene{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: min(86vh, 860px);
+  max-height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0a0d16;
+}
+#heroPhotoModal .heroPhotoModalLayer{
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+}
+#heroPhotoModal .heroPhotoModalLayer--bg{
+  z-index: 1;
+  background-size: cover;
+  filter: saturate(0.95) contrast(1.02);
+}
+#heroPhotoModal .heroPhotoModalLayer--fg{
+  z-index: 3;
+  background-size: contain;
+  background-position: 50% 100%;
+  filter: drop-shadow(0 16px 28px rgba(0,0,0,.35));
+}
+#heroPhotoModalImg{
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  display:block;
+}
+@media (max-width: 560px){
+  #heroPhotoModal{
+    padding: max(8px, env(safe-area-inset-top, 8px)) 8px max(14px, env(safe-area-inset-bottom, 14px));
+    align-items: center;
+  }
+  #heroPhotoModal .modal__card--photo{
+    width: 100%;
+    max-height: min(88dvh, 820px);
+    border-radius: 18px;
+    padding: 8px;
+  }
+  #heroPhotoModal #btnCloseHeroPhotoModal{
+    top: max(12px, env(safe-area-inset-top, 12px));
+    right: 12px;
+  }
+  #heroPhotoModal .heroPhotoModalScene{
+    min-height: min(80dvh, 760px);
+    border-radius: 14px;
+  }
+}
+.historyList{ display:flex; flex-direction:column; gap:10px; }
+.historyRow{ display:grid; grid-template-columns: 1.1fr .8fr 2fr 1fr; gap:10px; align-items:center;
+  padding:10px 12px;
+  border:1px solid rgba(80,170,255,.22);
+  border-radius:14px;
+  background:rgba(16,25,44,.55);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.historyRow .muted{ opacity:.78; }
+.historyRow .pillMini{ display:inline-flex; align-items:center; justify-content:center; padding:2px 8px; border-radius:999px;
+  border:1px solid rgba(80,170,255,.25);
+  background:rgba(10,18,34,.55);
+  font-size:12px; letter-spacing:.02em;
+}
+@media (max-width: 640px){
+  .historyRow{ grid-template-columns: 1fr; gap:6px; align-items:start; }
+}
+#levelUpModal .lvlNum{ transform: translateZ(0); -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+
+/* =========================================================
+   LEVEL UP MODAL — Center lock + tidy rewards (v060f)
+   ========================================================= */
+
+/* Keep LevelUp modal centered (don't behave like bottom-sheet on mobile) */
+#levelUpModal{
+  place-items: center !important;
+  padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left)) !important;
+}
+
+/* Make the cine layout breathe vertically */
+#levelUpModal .levelUpCine{
+  display: grid !important;
+  grid-template-rows: auto 1fr !important;
+  gap: 12px !important;
+}
+
+/* Choices area */
+#levelUpModal .levelUpScrollArea{
+  overflow: visible !important;
+}
+
+@media (max-width: 700px){
+}
+
+
+/* =========================================================
+   LevelUp — Medallas en ficha (read-only) + refinamiento modal (v060i)
+   ========================================================= */
+
+/* Ficha: compactar inputs y agregar contador de medallas arriba a la derecha */
+.fields3{
+  display: grid;
+  grid-template-columns: 1.35fr .65fr 1.35fr .75fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.field--small .input{ text-align:center; }
+
+.field--medals .labelSmall{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+
+/* Ficha: medallas con el mismo lenguaje visual que Tienda (SVG + contador) */
+.medalBadgeSmall{
+  height: 44px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  padding: 0 14px;
+  font-weight: 950;
+  font-size: 18px;
+  letter-spacing: .02em;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(0,210,255,.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+  user-select:none;
+}
+.medalBadgeSmall .medalCount{ line-height:1; color: rgba(245,245,255,0.95); text-shadow: 0 1px 0 rgba(0,0,0,.65), 0 0 10px rgba(0,0,0,.35); }
+.medalSvg{
+  width: 22px;
+  height: 22px;
+  display:block;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+  opacity: .95;
+}
+
+.medalIcon{ 
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); 
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  margin: 0;
+  transform: translateY(1px);
+}
+
+/* Legacy: se mantiene por compatibilidad (por si algún layout aún lo usa) */
+.medalsPill{
+  height: 44px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 950;
+  font-size: 18px;
+  letter-spacing: .02em;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(0,210,255,.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+  user-select:none;
+}
+
+@media (max-width: 720px){
+  .fields3{
+    grid-template-columns: 1fr .8fr;
+  }
+  .field--medals{ justify-self: end; width: 100%; }
+  .field--medals .medalsPill{ width: 110px; }
+}
+
+/* Modal: nota fuera de la grilla para que no rompa tamaños */
+#levelUpModal .luNote{
+  margin: 0 0 10px 0;
+  opacity: .88;
+  font-size: 13px;
+  line-height: 1.25;
+  text-align: left;
+}
+
+/* Iconos del modal: estilo consistente tipo UI */
+#levelUpModal .luPickIcon{
+  background: rgba(0,0,0,.22);
+}
+
+#levelUpModal .luPickIcon svg{
+  width: 18px;
+  height: 18px;
+  display:block;
+}
+
+
+/* =========================
+   LEVEL UP MODAL WOW (opaco + tarjetas)
+   (override seguro)
+   ========================= */
+#levelUpModal{
+  position: fixed;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding: clamp(10px, 2vw, 18px);
+  z-index: 9999;
+}
+#levelUpModal[hidden]{ display:none !important; }
+#levelUpModal .modal__backdrop{
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(3px);
+}
+
+#levelUpModal .levelUpCine{
+  display:grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+}
+@keyframes luRaysSpin{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
+@keyframes luBadgePop{ 0%{ transform: scale(.65); filter: blur(1px);} 80%{ transform: scale(1.06);} 100%{ transform: scale(1);} }
+
+#levelUpModal .levelUpScrollArea{
+  padding: 4px 14px 16px;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: calc(92dvh - 360px);
+}
+
+#levelUpModal .luChoicesGrid{
+  display:grid;
+  gap: 12px;
+  justify-content:center;
+}
+#levelUpModal .luChoicesGrid--rewards{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#levelUpModal .luChoicesGrid--stats{
+  grid-template-columns: repeat(6, 1fr);
+}
+
+@media (max-width: 520px){
+}
+
+/* =========================
+   LEVEL UP MODAL WOW (opaco + tarjetas)
+   Override seguro para centrar, quitar transparencias y hacer recompensas más "wow".
+   ========================= */
+
+#levelUpModal{
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(10px, 2vw, 18px);
+  z-index: 9999;
+}
+#levelUpModal[hidden]{ display:none !important; }
+
+#levelUpModal .modal__backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.70);
+  backdrop-filter: blur(10px) saturate(130%);
+}
+
+.levelUpTitle{
+  text-align:center;
+  font-size: 20px;
+  font-weight: 1000;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.92);
+  margin: 6px 0 14px;
+}
+
+/* Grid de recompensas */
+.rewardGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 18px 18px;
+}
+
+/* Paso 1: stats (obligatorio) */
+.statGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 18px 10px;
+}
+
+.statPick{
+  border: 1px solid rgba(90,200,255,.22);
+  background: #121a24;
+  border-radius: 18px;
+  padding: 12px 12px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  min-height: 76px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 12px 26px rgba(0,0,0,.34);
+}
+
+.statPick__left{ display:flex; align-items:center; gap: 10px; }
+
+.statPick__icon{
+  width: 46px;
+  height: 46px;
+  display:grid;
+  place-items:center;
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.statPick__code{ font-weight: 1000; letter-spacing: .08em; }
+
+@media (max-width: 760px){
+  .rewardGrid{ grid-template-columns: repeat(2, 1fr); }
+  .statGrid{ grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 420px){
+}
+
+/* =========================
+   LEVEL UP MODAL WOW (opaco + tarjetas)
+   Override seguro para centrar, quitar transparencias y hacer recompensas más "wow".
+   ========================= */
+
+#levelUpModal{
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(10px, 2vw, 18px);
+  z-index: 9999;
+}
+#levelUpModal[hidden]{ display:none !important; }
+#levelUpModal .modal__backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(10px);
+}
+
+#levelUpModal .levelUpBody{
+  padding: 12px 18px 18px;
+}
+#levelUpModal .levelUpTitle{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255,255,255,.9);
+}
+
+#levelUpModal .rewardGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+#levelUpModal .rewardGrid--twoRows{
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#levelUpModal .statGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+#levelUpModal .statPick{
+  border-radius: 16px;
+  background: #0f141c;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+  padding: 12px 12px;
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 78px;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+#levelUpModal .statPick:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(0,0,0,.42), inset 0 0 0 1px rgba(0,0,0,.18);
+}
+#levelUpModal .statPick__left{ display:flex; align-items:center; gap: 10px; }
+#levelUpModal .statPick__icon{
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display:grid;
+  place-items:center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+}
+#levelUpModal .statPick__label{ font-size: 16px; font-weight: 900; letter-spacing: .08em; }
+#levelUpModal .statPick__right{ display:flex; align-items:center; gap: 10px; }
+#levelUpModal .statPick__cur{
+  width: 44px;
+  height: 34px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.80);
+  font-weight: 800;
+}
+#levelUpModal .statPick__plus{
+  font-size: 16px;
+  font-weight: 900;
+  color: rgba(120,210,255,.95);
+}
+
+@media (max-width: 560px){
+  #levelUpModal{ padding: 10px; }
+  #levelUpModal .rewardGrid{ grid-template-columns: repeat(2, 1fr); }
+  #levelUpModal .statGrid{ grid-template-columns: repeat(2, 1fr); }
+}
+
+/* LevelUp cleanup: logic-first choice layout (design pending) */
+#levelUpModal .levelupChoicesSimple{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:10px;
+}
+#levelUpModal .levelupChoicesSimple .pill{
+  width:100%;
+  justify-content:center;
+  text-align:center;
+  min-height:46px;
+}
+@media (max-width: 680px){
+  #levelUpModal .levelupChoicesSimple{ grid-template-columns: 1fr; }
+}
