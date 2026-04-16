@@ -21,6 +21,14 @@ import {
   normalizeFilter
 } from './core_globals.js';
 
+const DEMO_GUEST_HEROES = Object.freeze([
+  { id: 'demo_zara', group: 'Demo', name: 'Zara', age: 10, role: 'Estratega', level: 3, xp: 248, xpMax: 300, weekXp: 30, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Explora patrones y propone soluciones.', goal: 'Resolver retos de lógica semanalmente.', goodAt: 'Pensamiento crítico', improve: 'Colaboración', medals: 9, tokens: 0, stats: { int: 15, sab: 12, car: 8, res: 9, cre: 11 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
+  { id: 'demo_kael', group: 'Demo', name: 'Kael', age: 9, role: 'Comunicador', level: 2, xp: 138, xpMax: 300, weekXp: 18, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Presenta ideas con claridad y empatía.', goal: 'Mejorar exposiciones en equipo.', goodAt: 'Expresión oral', improve: 'Organización', medals: 6, tokens: 0, stats: { int: 10, sab: 11, car: 16, res: 7, cre: 9 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
+  { id: 'demo_nova', group: 'Demo', name: 'Nova', age: 8, role: 'Creador', level: 1, xp: 74, xpMax: 300, weekXp: 12, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Diseña ideas originales y prototipos.', goal: 'Terminar un proyecto creativo.', goodAt: 'Imaginación', improve: 'Atención al detalle', medals: 3, tokens: 0, stats: { int: 9, sab: 8, car: 10, res: 6, cre: 17 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
+  { id: 'demo_ryu', group: 'Demo', name: 'Ryu', age: 10, role: 'Guardián', level: 2, xp: 186, xpMax: 300, weekXp: 22, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Mantiene enfoque y constancia en metas.', goal: 'Aumentar precisión en tareas.', goodAt: 'Disciplina', improve: 'Creatividad', medals: 7, tokens: 0, stats: { int: 11, sab: 13, car: 7, res: 16, cre: 8 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
+  { id: 'demo_lyra', group: 'Demo', name: 'Lyra', age: 9, role: 'Mentor', level: 3, xp: 272, xpMax: 300, weekXp: 34, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Apoya al equipo y comparte aprendizajes.', goal: 'Guiar una actividad colaborativa.', goodAt: 'Liderazgo', improve: 'Gestión del tiempo', medals: 10, tokens: 0, stats: { int: 13, sab: 14, car: 15, res: 10, cre: 12 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] }
+]);
+
   /**
    * Guarda los datos en localStorage.
    * @param {AppData} [data] - Datos a guardar. Si se omite, usa state.data.
@@ -168,9 +176,13 @@ export async function loadData({
     const _renderAll       = renderAll       ?? (typeof window.renderAll       === 'function' ? window.renderAll       : null);
     const _demoData        = demoData        ?? (typeof window.demoData        === 'function' ? window.demoData        : null);
 
-    const applyRemoteData = (d, {notify=false} = {})=>{
+    const applyRemoteData = async (d, {notify=false} = {})=>{
       const normalized = normalizeData(d);
       const merged = mergeLocalAssignments(normalized, loadLocal());
+      const sess = (window.LevelUp && typeof window.LevelUp.getSession === 'function') ? window.LevelUp.getSession() : null;
+      if (sess?.guest) {
+        merged.heroes = DEMO_GUEST_HEROES.map((hero) => JSON.parse(JSON.stringify(hero)));
+      }
       state.data = merged; state.dataSource = DATA_SOURCE.REMOTE; state.loadedFrom = DATA_SOURCE.REMOTE;
       normalizeFilter();
       saveLocal(state.data);
@@ -189,8 +201,8 @@ export async function loadData({
 
       // Refresh remoto en background para no bloquear el primer render.
       fetchRemote()
-        .then((d)=>{
-          applyRemoteData(d, { notify: forceRemote });
+        .then(async (d)=>{
+          await applyRemoteData(d, { notify: forceRemote });
           logger.info('Datos remotos sincronizados en segundo plano');
         })
         .catch((e)=>{
@@ -207,7 +219,7 @@ export async function loadData({
     try{
       logger.info('Intentando cargar datos desde GitHub...');
       const d = await fetchRemote();
-      applyRemoteData(d, { notify: forceRemote });
+      await applyRemoteData(d, { notify: forceRemote });
       logger.info('Datos cargados desde GitHub correctamente');
       return;
     }catch(e){

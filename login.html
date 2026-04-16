@@ -274,7 +274,7 @@
       <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
     </label>
     <button type="submit" class="btn" id="btnLogin">Entrar al juego</button>
-    <button type="button" class="btn btn--guest" id="btnGuest">Entrar como invitado</button>
+    <button type="button" class="btn btn--guest" id="btnGuest">Ver demo</button>
   </form>
 
   <!-- REGISTRO -->
@@ -327,47 +327,7 @@
 <script>
   const AUTH_TIMEOUT_MS = 8000;
 
-  const HERO_MAP = {
-    // Grupo 2D
-    'natanael@levelup.mx':    'h_2d_2',
-    'maia@levelup.mx':        'h_2d_3',
-    'jesus@levelup.mx':       'h_2d_4',
-    'alexa@levelup.mx':       'h_2d_5',
-    'ernesto@levelup.mx':     'h_2d_6',
-    'alexis@levelup.mx':      'h_2d_7',
-    'josue@levelup.mx':       'h_2d_8',
-    'santiago@levelup.mx':    'h_2d_9',
-    'tadeo@levelup.mx':       'h_2d_10',
-    'erick@levelup.mx':       'h_2d_11',
-    'majo@levelup.mx':        'h_2d_12',
-    'brandon@levelup.mx':     'h_2d_13',
-    'arely@levelup.mx':       'h_2d_14',
-
-    // Grupo 3D
-    'jannya@levelup.mx':      'h_3d_1',
-    'anabrenda@levelup.mx':   'h_3d_2',
-    'carlos@levelup.mx':      'h_3d_3',
-    'josemiguel@levelup.mx':  'h_3d_4',
-    'lizeth@levelup.mx':      'h_3d_5',
-    'thaily@levelup.mx':      'h_3d_6',
-    'ximena@levelup.mx':      'h_3d_7',
-    'juan@levelup.mx':        'h_3d_8',
-    'luis@levelup.mx':        'h_3d_9',
-    'melinna@levelup.mx':     'h_3d_10',
-    'zoe@levelup.mx':         'h_3d_11',
-    'david@levelup.mx':       'h_3d_12',
-    'leslye@levelup.mx':      'h_3d_13',
-    'julissa@levelup.mx':     'h_3d_14',
-
-    // Alumno de prueba (sandbox)
-    'demo.alumno@levelup.mx': 'h_demo_1',
-
-    // Admin (tú)
-    'eddy@levelup.mx':        'admin',
-  };
-
   const SESSION_KEY = 'levelup:session';
-  const ADMIN_EMAIL = 'eddy@levelup.mx';
 
   function decodeJwtPayload(token) {
     try {
@@ -388,7 +348,7 @@
   }
 
   function isStrictAdminSession(session) {
-    return session?.heroId === 'admin' && session?.email === ADMIN_EMAIL;
+    return session?.role === 'admin';
   }
 
   async function safeReadJson(res) {
@@ -422,22 +382,73 @@
     }
   }
 
+  async function resolveCurrentUserContext(accessToken) {
+    const authUserRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+    if (!authUserRes.ok) return null;
+    const authUser = await authUserRes.json();
+    if (!authUser?.id) return null;
+
+    const profileRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/profiles?user_id=eq.${encodeURIComponent(authUser.id)}&select=role&limit=1`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    if (!profileRes.ok) return null;
+    const profileRows = await profileRes.json();
+    const role = profileRows?.[0]?.role || null;
+    if (!role) return null;
+
+    if (role !== 'student') {
+      return { role, studentId: null };
+    }
+
+    const studentRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/students?user_id=eq.${encodeURIComponent(authUser.id)}&select=id&limit=1`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    if (!studentRes.ok) return null;
+    const studentRows = await studentRes.json();
+    const studentId = studentRows?.[0]?.id ? String(studentRows[0].id) : null;
+    return { role, studentId };
+  }
+
   async function loginHero(email, password) {
+    const normalizedEmail = email.toLowerCase().trim();
     const res = await authFetch('/auth/v1/token?grant_type=password', {
-      email: email.toLowerCase().trim(),
+      email: normalizedEmail,
       password
     });
 
     const data = await safeReadJson(res);
     if (!res.ok) throw new Error(data.error_description || data.msg || 'Correo o contraseña incorrectos');
-
-    const heroId = HERO_MAP[email.toLowerCase().trim()];
-    if (!heroId) throw new Error('Este correo no está registrado en LevelUp. Pídele a tu profe que te agregue.');
+    const context = await resolveCurrentUserContext(data.access_token);
+    if (!context?.role) throw new Error('Tu cuenta no tiene perfil en LevelUp. Pide al admin que te asigne un rol.');
+    if (context.role === 'student' && !context.studentId) {
+      throw new Error('Tu cuenta no está vinculada a ningún alumno. Pide al admin que la vincule.');
+    }
 
     const session = {
-      email: email.toLowerCase().trim(),
-      heroId,
-      isAdmin: heroId === 'admin' && email.toLowerCase().trim() === ADMIN_EMAIL,
+      email: normalizedEmail,
+      role: context.role,
+      heroId: context.role === 'student' ? context.studentId : null,
+      isAdmin: context.role === 'admin',
       token: data.access_token,
       refreshToken: data.refresh_token || null,
       savedAt: Date.now()
@@ -447,9 +458,6 @@
   }
 
   async function registerHero(email, password) {
-    const heroId = HERO_MAP[email.toLowerCase().trim()];
-    if (!heroId) throw new Error('Este correo no está en la lista de LevelUp. Pídele a tu profe que te agregue primero.');
-
     const res = await authFetch('/auth/v1/signup', {
       email: email.toLowerCase().trim(),
       password
@@ -463,11 +471,6 @@
 
   async function changeHeroPassword(email, currentPassword, newPassword) {
     const normalizedEmail = email.toLowerCase().trim();
-    const heroId = HERO_MAP[normalizedEmail];
-    if (!heroId) {
-      throw new Error('Este correo no está en la lista de LevelUp.');
-    }
-
     const loginRes = await authFetch('/auth/v1/token?grant_type=password', {
       email: normalizedEmail,
       password: currentPassword
@@ -525,13 +528,7 @@
       }
 
       // Never trust client flag blindly: recompute admin from strict conditions
-      s.isAdmin = isStrictAdminSession({ ...s, email });
-
-      // Reject impossible admin state
-      if (s.heroId === 'admin' && !s.isAdmin) {
-        sessionStorage.removeItem(SESSION_KEY);
-        return null;
-      }
+      s.isAdmin = isStrictAdminSession(s);
 
       return s;
     } catch (_) { return null; }

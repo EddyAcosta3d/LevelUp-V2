@@ -457,7 +457,7 @@ export function renderChallengeDetail(){
         const msg = rawMsg === 'AUTH_REQUIRED'
           ? 'Tu sesión expiró. Inicia sesión de nuevo para sincronizar.'
           : (rawMsg === 'DELETE_NOOP'
-            ? 'Supabase no borró filas (RLS o filtros). Revisa policy DELETE en hero_assignments para eddy@levelup.mx.'
+            ? 'Supabase no borró filas (RLS o filtros). Revisa policy DELETE en hero_assignments para tu rol actual.'
           : (rawMsg.startsWith('RLS_DENIED:')
             ? 'Permiso denegado por Supabase (RLS). Revisa políticas INSERT/DELETE/SELECT en hero_assignments para el admin autenticado.'
             : (err.message || 'revisa tu conexión')));

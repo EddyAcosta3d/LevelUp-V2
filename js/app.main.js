@@ -27,6 +27,57 @@ const toast = (...args) => {
   if (typeof window.toast === 'function') return window.toast(...args);
 };
 
+function applyDemoModeGuards(session){
+  if (!session?.guest) return;
+  document.body.classList.add('demo-mode');
+
+  const installBanner = () => {
+    if (document.getElementById('demoModeBadge')) return;
+    const badge = document.createElement('div');
+    badge.id = 'demoModeBadge';
+    badge.textContent = 'Modo Demo · Vista de muestra';
+    badge.style.cssText = 'position:fixed;top:10px;right:10px;z-index:130000;padding:8px 12px;border-radius:999px;background:rgba(251,191,36,.18);border:1px solid rgba(251,191,36,.65);color:#fde68a;font-weight:700;font-size:12px;letter-spacing:.02em;';
+    document.body.appendChild(badge);
+  };
+
+  const lockDemoActions = () => {
+    const selectors = [
+      '#btnXpM5', '#btnXpM1', '#btnXpP1', '#btnXpP5',
+      '#btnWeekReset', '#actChips button',
+      '#statsBox .statRange', '#statsBox .statSegs button',
+      '#btnAddStoreItem', '.tiendaItem__claimBtn', '[data-action=\"claim\"]',
+      '#btnNewChallenge', '#btnSaveChallenge'
+    ];
+    selectors.forEach((sel) => {
+      document.querySelectorAll(sel).forEach((el) => {
+        try { el.disabled = true; } catch(_e) {}
+        el.setAttribute('aria-disabled', 'true');
+        el.style.pointerEvents = 'none';
+        el.style.opacity = '0.5';
+      });
+    });
+
+    document.querySelectorAll('[data-route=\"desafios\"], [data-route=\"tienda\"]').forEach((el) => {
+      el.hidden = true;
+      el.style.display = 'none';
+      el.setAttribute('aria-hidden', 'true');
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      installBanner();
+      lockDemoActions();
+    }, { once: true });
+  } else {
+    installBanner();
+    lockDemoActions();
+  }
+
+  // Reaplicar al cambiar vistas/renderizar secciones dinámicas.
+  window.setInterval(lockDemoActions, 1500);
+}
+
 export function updateTopbarHeightVar(){
   try{
     const tb = document.querySelector('.topbar');
@@ -49,7 +100,8 @@ export async function init(){
     // Admin solo por sesión real (cuenta de Eddy)
     // Usar window.__LU_SESSION__ que ya fue parseado sin bloquear en index.html
     const _sess = window.__LU_SESSION__ || getSession();
-    const IS_ADMIN = !!(_sess && _sess.isAdmin === true);
+    const IS_ADMIN = !!(_sess && (_sess.role === 'admin' || _sess.isAdmin === true));
+    applyDemoModeGuards(_sess);
 
     // Captura errores para que en iPhone no se sienta "se rompió" sin pista
     window.addEventListener('error', (ev)=>{
@@ -75,7 +127,7 @@ export async function init(){
       document.body.classList.toggle('viewer-mode', !IS_ADMIN);
       document.body.classList.toggle('admin-mode', IS_ADMIN);
       // student-mode: alumno con sesión activa (no admin, no invitado)
-      const IS_STUDENT = !!(_sess && !_sess.isAdmin && _sess.heroId && !_sess.guest);
+      const IS_STUDENT = !!(_sess && _sess.role === 'student' && _sess.heroId && !_sess.guest);
       document.body.classList.toggle('student-mode', IS_STUDENT);
     }catch(_e){}
 
