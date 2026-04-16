@@ -58,12 +58,14 @@
 
       if (isGuest) {
         bootstrapEphemeralSession({
-          email: 'invitado@levelup.local',
+          email: 'demo@levelup.local',
+          role: 'guest',
           heroId: null,
           isAdmin: false,
           token: 'guest-mode',
           savedAt: Date.now(),
-          guest: true
+          guest: true,
+          demo: true
         });
         return;
       }
@@ -151,7 +153,7 @@
           if (badge) {
             badge.hidden = false;
             badge.style.cssText = '';
-            var label = session.guest ? 'Invitado' : name;
+            var label = session.guest ? 'Modo Demo' : name;
             badge.textContent = '';
 
             var button = document.createElement('button');

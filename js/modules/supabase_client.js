@@ -218,6 +218,58 @@ async function callAssignmentRpc(functionName, payload) {
 }
 
 // ============================================
+// USER CONTEXT — Perfil/rol actual y vistas por rol
+// ============================================
+
+export async function getAuthUser() {
+  const token = await getUsableSessionToken();
+  if (!token) return null;
+
+  const res = await fetchWithTimeout(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'GET',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  if (!res.ok) return null;
+  return await res.json();
+}
+
+export async function getCurrentUserContext() {
+  const user = await getAuthUser();
+  if (!user?.id) return null;
+
+  const profileRes = await supabaseFetch(
+    `/rest/v1/profiles?user_id=eq.${encodeURIComponent(user.id)}&select=user_id,role,display_name&limit=1`,
+    { method: 'GET' }
+  );
+  if (!profileRes.ok) throw new Error(await parseError(profileRes, `Error al leer perfil: ${profileRes.status}`));
+  const profiles = await profileRes.json();
+  const profile = profiles?.[0] || null;
+  if (!profile?.role) return null;
+
+  let studentId = null;
+  if (profile.role === 'student') {
+    const studentRes = await supabaseFetch(
+      `/rest/v1/students?user_id=eq.${encodeURIComponent(user.id)}&select=id&limit=1`,
+      { method: 'GET' }
+    );
+    if (!studentRes.ok) throw new Error(await parseError(studentRes, `Error al leer alumno: ${studentRes.status}`));
+    const students = await studentRes.json();
+    studentId = students?.[0]?.id ? String(students[0].id) : null;
+  }
+
+  return {
+    userId: user.id,
+    email: (user.email || '').toLowerCase().trim(),
+    role: String(profile.role),
+    displayName: profile.display_name || null,
+    studentId
+  };
+}
+
+// ============================================
 // SUBMISSIONS — Evidencias de desafíos
 // ============================================
 
