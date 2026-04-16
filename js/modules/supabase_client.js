@@ -379,13 +379,16 @@ export async function getHeroAssignmentsForHeroes(heroIds) {
 // ============================================
 
 export async function uploadEvidencia(heroId, challengeId, file) {
+  if (!hasActiveSessionToken()) throw new Error('AUTH_REQUIRED');
+
   const ext = file.name.split('.').pop();
   const fileName = `${heroId}/${challengeId}_${Date.now()}.${ext}`;
+  const path = `/storage/v1/object/evidencias/${fileName}`;
 
-  const token = getSessionToken() || SUPABASE_ANON_KEY;
-  const res = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/evidencias/${fileName}`,
-    {
+  const uploadWithToken = async (forcedToken = null) => {
+    const token = forcedToken || await getUsableSessionToken();
+    if (!token) throw new Error('AUTH_REQUIRED');
+    return await fetchWithTimeout(`${SUPABASE_URL}${path}`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_ANON_KEY,
@@ -394,8 +397,21 @@ export async function uploadEvidencia(heroId, challengeId, file) {
         'x-upsert': 'true'
       },
       body: file
+    });
+  };
+
+  let res = await uploadWithToken();
+  if (res.status === 401) {
+    const refreshedToken = await refreshSessionToken();
+    if (refreshedToken) {
+      res = await uploadWithToken(refreshedToken);
     }
-  );
+  }
+  if (res.status === 401) {
+    clearSessionToken();
+    throw new Error('Tu sesión expiró. Vuelve a iniciar sesión para subir evidencia.');
+  }
+
   if (!res.ok) throw new Error(await parseError(res, `Error al subir archivo: ${res.status}`));
   return `${SUPABASE_URL}/storage/v1/object/public/evidencias/${fileName}`;
 }

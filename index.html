@@ -152,7 +152,30 @@
             badge.hidden = false;
             badge.style.cssText = '';
             var label = session.guest ? 'Invitado' : name;
-            badge.innerHTML = '<button class="sessionPill" onclick="window.LevelUp.logout()"><span class="sessionPill__icon">⚔️</span><span class="sessionPill__name">' + label + '</span><span class="sessionPill__hint">· salir</span></button>';
+            badge.textContent = '';
+
+            var button = document.createElement('button');
+            button.className = 'sessionPill';
+            button.addEventListener('click', function() {
+              window.LevelUp.logout();
+            });
+
+            var icon = document.createElement('span');
+            icon.className = 'sessionPill__icon';
+            icon.textContent = '⚔️';
+
+            var nameEl = document.createElement('span');
+            nameEl.className = 'sessionPill__name';
+            nameEl.textContent = label;
+
+            var hint = document.createElement('span');
+            hint.className = 'sessionPill__hint';
+            hint.textContent = '· salir';
+
+            button.appendChild(icon);
+            button.appendChild(nameEl);
+            button.appendChild(hint);
+            badge.appendChild(button);
           }
           if (!hero && n > 0) setTimeout(function() { fillName(n - 1); }, 500);
         }
