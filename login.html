@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <script>
-    // Emergency SW reset: unregister all workers so broken cache doesn't block load
-    if ('serviceWorker' in navigator) {
+    // Herramienta de emergencia: usar ?reset-sw=1 para desregistrar SW; no es el flujo normal.
+    if ('serviceWorker' in navigator && new URLSearchParams(window.location.search).get('reset-sw') === '1') {
       navigator.serviceWorker.getRegistrations().then(regs => {
         regs.forEach(r => r.unregister());
       });
