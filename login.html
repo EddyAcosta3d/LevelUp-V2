@@ -425,7 +425,22 @@
     );
     if (!studentRes.ok) return null;
     const studentRows = await studentRes.json();
-    const studentId = studentRows?.[0]?.id ? String(studentRows[0].id) : null;
+    let studentId = studentRows?.[0]?.id ? String(studentRows[0].id) : null;
+    if (!studentId && authUser.email) {
+      const heroRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/hero_accounts?email=eq.${encodeURIComponent(String(authUser.email).toLowerCase().trim())}&select=hero_id&limit=1`,
+        {
+          method: 'GET',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }
+      );
+      if (!heroRes.ok) return null;
+      const heroRows = await heroRes.json();
+      studentId = heroRows?.[0]?.hero_id ? String(heroRows[0].hero_id) : null;
+    }
     return { role, studentId };
   }
 

@@ -258,6 +258,15 @@ export async function getCurrentUserContext() {
     if (!studentRes.ok) throw new Error(await parseError(studentRes, `Error al leer alumno: ${studentRes.status}`));
     const students = await studentRes.json();
     studentId = students?.[0]?.id ? String(students[0].id) : null;
+    if (!studentId && user.email) {
+      const heroAccountRes = await supabaseFetch(
+        `/rest/v1/hero_accounts?email=eq.${encodeURIComponent(String(user.email).toLowerCase().trim())}&select=hero_id&limit=1`,
+        { method: 'GET' }
+      );
+      if (!heroAccountRes.ok) throw new Error(await parseError(heroAccountRes, `Error al leer hero_accounts: ${heroAccountRes.status}`));
+      const heroAccounts = await heroAccountRes.json();
+      studentId = heroAccounts?.[0]?.hero_id ? String(heroAccounts[0].hero_id) : null;
+    }
   }
 
   return {
