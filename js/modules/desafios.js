@@ -20,7 +20,8 @@ import {
   getFilteredChallenges,
   DIFFICULTY,
   POINTS_BY_DIFFICULTY,
-  getOrderedSubjects
+  getOrderedSubjects,
+  getChallengeSubjectCatalogItem
 } from './core_globals.js';
 
 import {
@@ -70,11 +71,9 @@ function isChallengeUnlockedForHero(hero, challengeId){
 }
 
 export function renderChallenges(){
-    // Ensure default filters: one subject + easy difficulty
-    const subjectsAll = getOrderedSubjects();
+    // Ensure default filters: dificultad por defecto; materia opcional ("Todas")
     if (!state.challengeFilter) state.challengeFilter = { subjectId: null, diff: DIFFICULTY.EASY };
     if (!state.challengeFilter.diff) state.challengeFilter.diff = DIFFICULTY.EASY;
-    if (!state.challengeFilter.subjectId && subjectsAll.length) state.challengeFilter.subjectId = subjectsAll[0].id;
 
   ensureChallengeUI(renderChallenges);
 
@@ -517,12 +516,24 @@ export function openChallengeModal(mode = 'create', challenge = null){
     if (!btnSubject) return;
     const selectedId = inSubject?.value;
     const subj = subjects.find(s => String(s.id) === String(selectedId));
-    btnSubject.textContent = `${subj?.name || 'Materia'} ▾`;
+    const label = subj?.name || 'Materia';
+    const catalogItem = subj ? (getChallengeSubjectCatalogItem(subj.name) || getChallengeSubjectCatalogItem(subj.id)) : null;
+    const accent = catalogItem?.accent || 'rgba(220,220,230,0.35)';
+    btnSubject.style.setProperty('--subject-accent', accent);
+    btnSubject.classList.toggle('is-neutral', !subj);
+    btnSubject.innerHTML = `
+      <span class="subjectFilterBtn__icon" aria-hidden="true">🧪</span>
+      <span class="subjectFilterBtn__label">${escapeHtml(label)}</span>
+      <span class="subjectFilterBtn__caret" aria-hidden="true">▾</span>
+    `;
   };
 
   if (subjectMenu){
     subjectMenu.innerHTML = subjects.map(s =>
-      `<button class="menuitem" type="button" data-id="${escapeHtml(String(s.id))}">${escapeHtml(String(s.name || 'Materia'))}</button>`
+      `<button class="menuitem subjectFilterItem" type="button" data-id="${escapeHtml(String(s.id))}" style="--subject-accent:${escapeHtml(String((getChallengeSubjectCatalogItem(s?.name) || getChallengeSubjectCatalogItem(s?.id))?.accent || 'rgba(220,220,230,0.35)'))}">
+        <span class="subjectFilterItem__dot" aria-hidden="true"></span>
+        <span class="subjectFilterItem__label">${escapeHtml(String(s.name || 'Materia'))}</span>
+      </button>`
     ).join('') || '<div class="menuitem muted">Sin materias</div>';
 
     subjectMenu.querySelectorAll('[data-id]').forEach(btn=>{
@@ -531,6 +542,7 @@ export function openChallengeModal(mode = 'create', challenge = null){
         refreshSubjectLabel();
         // El CSS usa .dropdown.is-open, así que cerramos el wrapper, no el menú.
         subjectDropdown?.classList.remove('is-open');
+        btnSubject?.setAttribute('aria-expanded', 'false');
       });
     });
   }
@@ -541,7 +553,11 @@ export function openChallengeModal(mode = 'create', challenge = null){
   // con onclick la asignación reemplaza cualquier handler previo.
 
   // Bug fix: el CSS requiere is-open en el wrapper .dropdown, no en el .dropdown__menu.
-  if (btnSubject) btnSubject.onclick = () => subjectDropdown?.classList.toggle('is-open');
+  if (btnSubject) btnSubject.onclick = () => {
+    const next = !subjectDropdown?.classList.contains('is-open');
+    subjectDropdown?.classList.toggle('is-open', next);
+    btnSubject.setAttribute('aria-expanded', String(next));
+  };
 
   // Bug fix: el CSS usa diffPick[data-active="easy|medium|hard"] para los colores;
   // también actualizamos inChPoints según POINTS_BY_DIFFICULTY al cambiar dificultad.
@@ -558,11 +574,46 @@ export function openChallengeModal(mode = 'create', challenge = null){
   });
 
   refreshSubjectLabel();
+
+  if (modal.__subjectOutsideClick){
+    document.removeEventListener('click', modal.__subjectOutsideClick);
+  }
+  modal.__subjectOutsideClick = (evt)=>{
+    if (!subjectDropdown?.contains(evt.target)){
+      subjectDropdown?.classList.remove('is-open');
+      btnSubject?.setAttribute('aria-expanded', 'false');
+    }
+  };
+  document.addEventListener('click', modal.__subjectOutsideClick);
+
+  if (modal.__subjectEscape){
+    document.removeEventListener('keydown', modal.__subjectEscape);
+  }
+  modal.__subjectEscape = (evt)=>{
+    if (evt.key === 'Escape'){
+      subjectDropdown?.classList.remove('is-open');
+      btnSubject?.setAttribute('aria-expanded', 'false');
+    }
+  };
+  document.addEventListener('keydown', modal.__subjectEscape);
+
   modal.hidden = false;
 }
 
 export function closeChallengeModal(){
   const modal = document.getElementById('challengeModal');
+  if (modal?.__subjectOutsideClick){
+    document.removeEventListener('click', modal.__subjectOutsideClick);
+    modal.__subjectOutsideClick = null;
+  }
+  if (modal?.__subjectEscape){
+    document.removeEventListener('keydown', modal.__subjectEscape);
+    modal.__subjectEscape = null;
+  }
+  const dd = document.getElementById('chModalSubjectDropdown');
+  const btn = document.getElementById('btnChModalSubject');
+  dd?.classList.remove('is-open');
+  btn?.setAttribute('aria-expanded', 'false');
   if (modal) modal.hidden = true;
 }
 

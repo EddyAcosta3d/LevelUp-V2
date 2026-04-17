@@ -476,8 +476,13 @@
           <article class="page" data-page="desafios">
             <div class="challengeTop">
               <div class="challengeTop__main">
-                <div id="subjectDropdown" aria-label="Materias">
-                  <div id="subjectMenu" class="subjectTabs" role="tablist" aria-label="Materias"></div>
+                <div id="subjectDropdown" class="dropdown challengeSubjectDropdown" aria-label="Materias">
+                  <button class="pill subjectFilterBtn" id="btnSubject" type="button" aria-haspopup="menu" aria-expanded="false">
+                    <span class="subjectFilterBtn__icon" aria-hidden="true">🧪</span>
+                    <span class="subjectFilterBtn__label">Materia</span>
+                    <span class="subjectFilterBtn__caret" aria-hidden="true">▾</span>
+                  </button>
+                  <div id="subjectMenu" class="dropdown__menu subjectFilterMenu" role="menu" aria-label="Materias"></div>
                 </div>
 
                 <div class="diffPills" id="diffPills" role="group" aria-label="Dificultad">
