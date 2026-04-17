@@ -1100,38 +1100,56 @@ export function difficultyLabel(diff){
 export function ensureChallengeUI(onSubjectChange){
   const menu = $('#subjectMenu');
   const ddWrap = $('#subjectDropdown');
+  const btn = $('#btnSubject');
   if (!menu) return;
 
   const subjects = getOrderedSubjects();
   menu.innerHTML = '';
+  const selectedSubjectId = state.challengeFilter?.subjectId ? String(state.challengeFilter.subjectId) : '';
 
-  if (!state.challengeFilter.subjectId && subjects.length){
-    state.challengeFilter.subjectId = subjects[0].id;
-  }
+  const updateTrigger = ()=>{
+    if (!btn) return;
+    const selected = subjects.find(s => String(s.id) === selectedSubjectId);
+    const label = selected?.name || 'Materia';
+    const catalogItem = selected ? (getChallengeSubjectCatalogItem(selected.name) || getChallengeSubjectCatalogItem(selected.id)) : null;
+    const accent = catalogItem?.accent || 'rgba(224,232,246,0.34)';
+    btn.style.setProperty('--subject-accent', accent);
+    btn.classList.toggle('is-neutral', !selected);
+    const labelEl = btn.querySelector('.subjectFilterBtn__label');
+    if (labelEl) labelEl.textContent = label;
+  };
 
-  const addItem = (subject)=>{
-    const label = subject?.name || 'Materia';
-    const subjectId = subject?.id;
-    const catalogItem = getChallengeSubjectCatalogItem(label) || getChallengeSubjectCatalogItem(subjectId);
-    const accent = catalogItem?.accent || 'rgba(220,220,230,0.35)';
+  const createItem = ({ label, id, accent, all = false })=>{
     const it = document.createElement('button');
     it.type = 'button';
-    it.className = 'subjectTab';
-    it.dataset.subjectId = String(subjectId);
-    it.style.setProperty('--subject-accent', accent);
-    it.setAttribute('role', 'tab');
-    it.setAttribute('aria-selected', String(String(state.challengeFilter.subjectId) === String(subjectId)));
-    it.innerHTML = `<span>${escapeHtml(label)}</span>`;
+    it.className = 'menuitem subjectFilterItem' + (all ? ' is-all' : '');
+    it.dataset.subjectId = String(id || '');
+    it.style.setProperty('--subject-accent', accent || 'rgba(220,220,230,0.35)');
+    const isSelected = all ? !selectedSubjectId : selectedSubjectId === String(id || '');
+    it.setAttribute('role', 'menuitemradio');
+    it.setAttribute('aria-checked', String(isSelected));
+    it.innerHTML = `
+      <span class="subjectFilterItem__dot" aria-hidden="true"></span>
+      <span class="subjectFilterItem__label">${escapeHtml(label)}</span>
+      ${isSelected ? '<span class="subjectFilterItem__check" aria-hidden="true">✓</span>' : ''}
+    `;
     it.addEventListener('click', (e)=>{
       e.preventDefault(); e.stopPropagation();
-      state.challengeFilter.subjectId = subjectId;
+      state.challengeFilter.subjectId = all ? null : String(id || '');
       state.selectedChallengeId = null;
+      if (ddWrap) ddWrap.classList.remove('is-open');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
       if (typeof onSubjectChange === 'function') onSubjectChange();
     });
     menu.appendChild(it);
   };
 
-  subjects.forEach(addItem);
+  createItem({ label: 'Todas', id: '', accent: 'rgba(150,166,194,0.45)', all: true });
+  subjects.forEach((subject)=>{
+    const label = subject?.name || 'Materia';
+    const catalogItem = getChallengeSubjectCatalogItem(label) || getChallengeSubjectCatalogItem(subject?.id);
+    createItem({ label, id: subject?.id, accent: catalogItem?.accent || 'rgba(220,220,230,0.35)' });
+  });
 
   // difficulty pills
   $$('#diffPills [data-diff]').forEach(b=>{
@@ -1139,11 +1157,33 @@ export function ensureChallengeUI(onSubjectChange){
     b.classList.toggle('is-active', state.challengeFilter.diff === diff);
   });
 
-  menu.classList.remove('dropdown__menu', 'is-portal');
-  menu.classList.add('subjectTabs');
-  menu.setAttribute('role', 'tablist');
+  updateTrigger();
+
+  menu.classList.add('dropdown__menu', 'subjectFilterMenu');
   menu.setAttribute('aria-label', 'Materias');
-  if (ddWrap) ddWrap.classList.remove('is-open', 'dropdown--portal');
+  if (ddWrap) ddWrap.classList.remove('dropdown--portal');
+
+  if (btn){
+    btn.onclick = (e)=>{
+      e.preventDefault();
+      const next = !ddWrap?.classList.contains('is-open');
+      ddWrap?.classList.toggle('is-open', next);
+      btn.setAttribute('aria-expanded', String(next));
+    };
+  }
+
+  if (ddWrap){
+    if (ddWrap.__subjectOutsideClick){
+      document.removeEventListener('click', ddWrap.__subjectOutsideClick);
+    }
+    ddWrap.__subjectOutsideClick = (evt)=>{
+      if (!ddWrap.contains(evt.target)){
+        ddWrap.classList.remove('is-open');
+        btn?.setAttribute('aria-expanded', 'false');
+      }
+    };
+    document.addEventListener('click', ddWrap.__subjectOutsideClick);
+  }
 }
 
 export function positionSubjectMenu(){
@@ -1172,13 +1212,26 @@ export function positionSubjectMenu(){
 }
 
 export function openSubjectDropdown(){
-  // Compat: la selección de materias ahora usa pills visibles (sin dropdown).
+  const dd = $('#subjectDropdown');
+  const btn = $('#btnSubject');
+  if (!dd || !btn) return;
+  dd.classList.add('is-open');
+  btn.setAttribute('aria-expanded', 'true');
 }
 export function closeSubjectDropdown(){
-  // Compat noop.
+  const dd = $('#subjectDropdown');
+  const btn = $('#btnSubject');
+  if (!dd || !btn) return;
+  dd.classList.remove('is-open');
+  btn.setAttribute('aria-expanded', 'false');
 }
 export function toggleSubjectDropdown(){
-  // Compat noop.
+  const dd = $('#subjectDropdown');
+  const btn = $('#btnSubject');
+  if (!dd || !btn) return;
+  const next = !dd.classList.contains('is-open');
+  dd.classList.toggle('is-open', next);
+  btn.setAttribute('aria-expanded', String(next));
 }
 
 
