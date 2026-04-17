@@ -626,21 +626,26 @@
   }
 
   #subjectDropdown {
-    flex: 1 1 42% !important;
+    flex: 1 1 100% !important;
   }
 
-  #subjectDropdown .pill {
+  .subjectTabs {
     width: 100% !important;
-    justify-content: space-between !important;
-    font-size: 13px !important;
-    padding: 9px 12px !important;
-    min-height: 38px !important;
-    border-color: rgba(34, 211, 238, 0.45) !important;
-    background: rgba(34, 211, 238, 0.08) !important;
+    gap: 6px !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .subjectTab {
+    width: 100% !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+    min-height: 34px !important;
   }
 
   .challengeTop__main .diffPills {
-    flex: 1 1 55% !important;
+    flex: 1 1 100% !important;
     min-width: 0 !important;
   }
 

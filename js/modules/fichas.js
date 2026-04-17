@@ -21,7 +21,9 @@ import {
   CONFIG,
   ROLE,
   DATA_SOURCE,
-  DIFFICULTY
+  DIFFICULTY,
+  getOrderedSubjects,
+  getChallengeSubjectCatalogItem
 } from './core_globals.js';
 
 import {
@@ -1097,39 +1099,39 @@ export function difficultyLabel(diff){
 
 export function ensureChallengeUI(onSubjectChange){
   const menu = $('#subjectMenu');
-  const btn  = $('#btnSubject');
   const ddWrap = $('#subjectDropdown');
-  if (!menu || !btn) return;
+  if (!menu) return;
 
-  const subjects = state.data?.subjects || [];
+  const subjects = getOrderedSubjects();
   menu.innerHTML = '';
 
-  // Single-subject view: default to first subject
   if (!state.challengeFilter.subjectId && subjects.length){
     state.challengeFilter.subjectId = subjects[0].id;
   }
 
-  const addItem = (label, subjectId)=>{
+  const addItem = (subject)=>{
+    const label = subject?.name || 'Materia';
+    const subjectId = subject?.id;
+    const catalogItem = getChallengeSubjectCatalogItem(label) || getChallengeSubjectCatalogItem(subjectId);
+    const accent = catalogItem?.accent || 'rgba(220,220,230,0.35)';
     const it = document.createElement('button');
     it.type = 'button';
-    it.className = 'ddItem';
+    it.className = 'subjectTab';
     it.dataset.subjectId = String(subjectId);
-    it.textContent = label;
+    it.style.setProperty('--subject-accent', accent);
+    it.setAttribute('role', 'tab');
+    it.setAttribute('aria-selected', String(String(state.challengeFilter.subjectId) === String(subjectId)));
+    it.innerHTML = `<span>${escapeHtml(label)}</span>`;
     it.addEventListener('click', (e)=>{
       e.preventDefault(); e.stopPropagation();
       state.challengeFilter.subjectId = subjectId;
       state.selectedChallengeId = null;
-      btn.textContent = (label + ' ▾');
-      closeSubjectDropdown();
       if (typeof onSubjectChange === 'function') onSubjectChange();
     });
     menu.appendChild(it);
   };
 
-  subjects.forEach(s=> addItem(s.name || 'Materia', s.id));
-
-  const activeName = subjects.find(s=>String(s.id)===String(state.challengeFilter.subjectId))?.name || 'Materia';
-  btn.textContent = (activeName + ' ▾');
+  subjects.forEach(addItem);
 
   // difficulty pills
   $$('#diffPills [data-diff]').forEach(b=>{
@@ -1137,9 +1139,11 @@ export function ensureChallengeUI(onSubjectChange){
     b.classList.toggle('is-active', state.challengeFilter.diff === diff);
   });
 
-  // Portal-like fixed dropdown (prevents clipping)
-  menu.classList.add('is-portal');
-  if (ddWrap) ddWrap.classList.add('dropdown--portal');
+  menu.classList.remove('dropdown__menu', 'is-portal');
+  menu.classList.add('subjectTabs');
+  menu.setAttribute('role', 'tablist');
+  menu.setAttribute('aria-label', 'Materias');
+  if (ddWrap) ddWrap.classList.remove('is-open', 'dropdown--portal');
 }
 
 export function positionSubjectMenu(){
@@ -1168,19 +1172,13 @@ export function positionSubjectMenu(){
 }
 
 export function openSubjectDropdown(){
-  const dd = $('#subjectDropdown');
-  if (dd) dd.classList.add('is-open');
-  positionSubjectMenu();
+  // Compat: la selección de materias ahora usa pills visibles (sin dropdown).
 }
 export function closeSubjectDropdown(){
-  const dd = $('#subjectDropdown');
-  if (dd) dd.classList.remove('is-open');
+  // Compat noop.
 }
 export function toggleSubjectDropdown(){
-  const dd = $('#subjectDropdown');
-  if (!dd) return;
-  dd.classList.toggle('is-open');
-  if (dd.classList.contains('is-open')) positionSubjectMenu();
+  // Compat noop.
 }
 
 

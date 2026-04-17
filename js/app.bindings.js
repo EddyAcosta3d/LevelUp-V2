@@ -9,7 +9,7 @@ import { state, ROUTE, DIFFICULTY } from './modules/core_globals.js';
 import { loadData } from './modules/store.js';
 import { renderAll, handleImportJson, handleExportJson, handleExportCsv, bumpHeroXp, setRole } from './modules/app_actions.js';
 import { renderChallenges, openChallengeModal, saveNewChallenge, closeChallengeModal } from './modules/desafios.js';
-import { toggleSubjectDropdown, currentHero, renderHeroDetail } from './modules/fichas.js';
+import { currentHero, renderHeroDetail } from './modules/fichas.js';
 import { ensureLazySection, getLazySectionModule } from './modules/lazy_sections.js';
 import { saveToGitHub, testGitHubConnection, setGitHubToken, clearGitHubToken } from './modules/github_sync.js';
 import { initStudentActions } from './modules/student_actions.js';
@@ -191,9 +191,6 @@ export function bind(){
       safeCall(renderAll);
     });
   });
-
-  // Subject dropdown button in Desafíos
-  document.getElementById('btnSubject')?.addEventListener('click', ()=> safeCall(toggleSubjectDropdown));
 
   // Edit mode is controlled by authenticated admin session only (cuenta Eddy).
   // No manual toggle button.
