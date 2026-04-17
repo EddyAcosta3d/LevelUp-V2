@@ -140,8 +140,24 @@ export async function init(){
     window.LevelUp.getSession = getSession;
 
     const syncSessionHeroSelection = ()=>{
-      if (!_sess || _sess.isAdmin || !_sess.heroId) return;
       const heroes = state.data?.heroes || [];
+      if (_sess?.guest) {
+        if (!heroes.length) return;
+        const demoHero = heroes.find(h => String(h.group || '').toLowerCase() === 'demo') || heroes[0];
+        if (!demoHero) return;
+        state.selectedHeroId = demoHero.id;
+        state.group = demoHero.group || 'Demo';
+        try {
+          document.querySelectorAll('.segmented__btn[data-group]').forEach(btn => {
+            const isActive = btn.dataset.group === state.group;
+            btn.classList.toggle('is-active', isActive);
+            btn.setAttribute('aria-selected', String(isActive));
+          });
+        } catch(_e) {}
+        return;
+      }
+
+      if (!_sess || _sess.isAdmin || !_sess.heroId) return;
       const sessionHero = heroes.find(h => h.id === _sess.heroId);
       if (!sessionHero) return;
 
