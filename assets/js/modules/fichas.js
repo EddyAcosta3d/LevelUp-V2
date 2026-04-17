@@ -1105,8 +1105,9 @@ export function ensureChallengeUI(onSubjectChange){
   menu.innerHTML = '';
 
   // Single-subject view: default to first subject
+  if (!state.challengeFilter) state.challengeFilter = {};
   if (!state.challengeFilter.subjectId && subjects.length){
-    state.challengeFilter.subjectId = subjects[0].id;
+    state.challengeFilter.subjectId = String(subjects[0].id);
   }
 
   const addItem = (label, subjectId)=>{
@@ -1128,7 +1129,7 @@ export function ensureChallengeUI(onSubjectChange){
 
   subjects.forEach(s=> addItem(s.name || 'Materia', s.id));
 
-  const activeName = subjects.find(s=>String(s.id)===String(state.challengeFilter.subjectId))?.name || 'Materia';
+  const activeName = subjects.find(s=>String(s.id)===String(state.challengeFilter.subjectId))?.name || 'Sin materia';
   btn.textContent = (activeName + ' ▾');
 
   // difficulty pills

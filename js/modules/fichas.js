@@ -1104,13 +1104,17 @@ export function ensureChallengeUI(onSubjectChange){
   if (!menu) return;
 
   const subjects = getOrderedSubjects();
+  if (!state.challengeFilter) state.challengeFilter = {};
+  if (!state.challengeFilter.subjectId && subjects.length){
+    state.challengeFilter.subjectId = String(subjects[0].id);
+  }
   menu.innerHTML = '';
   const selectedSubjectId = state.challengeFilter?.subjectId ? String(state.challengeFilter.subjectId) : '';
 
   const updateTrigger = ()=>{
     if (!btn) return;
     const selected = subjects.find(s => String(s.id) === selectedSubjectId);
-    const label = selected?.name || 'Materia';
+    const label = selected?.name || 'Sin materia';
     const catalogItem = selected ? (getChallengeSubjectCatalogItem(selected.name) || getChallengeSubjectCatalogItem(selected.id)) : null;
     const accent = catalogItem?.accent || 'rgba(224,232,246,0.34)';
     btn.style.setProperty('--subject-accent', accent);
@@ -1144,7 +1148,6 @@ export function ensureChallengeUI(onSubjectChange){
     menu.appendChild(it);
   };
 
-  createItem({ label: 'Todas', id: '', accent: 'rgba(150,166,194,0.45)', all: true });
   subjects.forEach((subject)=>{
     const label = subject?.name || 'Materia';
     const catalogItem = getChallengeSubjectCatalogItem(label) || getChallengeSubjectCatalogItem(subject?.id);

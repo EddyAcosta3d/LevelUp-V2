@@ -128,6 +128,16 @@ export function renderChallenges(){
   }catch(_e){}
 
   const filtered = getFilteredChallenges();
+  try{
+    const subtitle = $('#chSubtitle');
+    if (subtitle){
+      const subjects = getOrderedSubjects();
+      const selectedSubject = subjects.find(s => String(s.id) === String(state.challengeFilter?.subjectId || ''));
+      const subjectLabel = selectedSubject?.name || 'Sin materia';
+      const diffLabel = difficultyLabel(state.challengeFilter?.diff || DIFFICULTY.EASY);
+      subtitle.textContent = `Mostrando ${subjectLabel} · ${diffLabel}.`;
+    }
+  }catch(_e){}
 
   // --- Progress UI (counts + bar) ---
   try{
