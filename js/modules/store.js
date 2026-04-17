@@ -22,11 +22,24 @@ import {
 } from './core_globals.js';
 
 const DEMO_GUEST_HEROES = Object.freeze([
-  { id: 'demo_zara', group: 'Demo', name: 'Zara', age: 10, role: 'Estratega', level: 3, xp: 248, xpMax: 300, weekXp: 30, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Explora patrones y propone soluciones.', goal: 'Resolver retos de lógica semanalmente.', goodAt: 'Pensamiento crítico', improve: 'Colaboración', medals: 9, tokens: 0, stats: { int: 15, sab: 12, car: 8, res: 9, cre: 11 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
-  { id: 'demo_kael', group: 'Demo', name: 'Kael', age: 9, role: 'Comunicador', level: 2, xp: 138, xpMax: 300, weekXp: 18, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Presenta ideas con claridad y empatía.', goal: 'Mejorar exposiciones en equipo.', goodAt: 'Expresión oral', improve: 'Organización', medals: 6, tokens: 0, stats: { int: 10, sab: 11, car: 16, res: 7, cre: 9 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
-  { id: 'demo_nova', group: 'Demo', name: 'Nova', age: 8, role: 'Creador', level: 1, xp: 74, xpMax: 300, weekXp: 12, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Diseña ideas originales y prototipos.', goal: 'Terminar un proyecto creativo.', goodAt: 'Imaginación', improve: 'Atención al detalle', medals: 3, tokens: 0, stats: { int: 9, sab: 8, car: 10, res: 6, cre: 17 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
-  { id: 'demo_ryu', group: 'Demo', name: 'Ryu', age: 10, role: 'Guardián', level: 2, xp: 186, xpMax: 300, weekXp: 22, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Mantiene enfoque y constancia en metas.', goal: 'Aumentar precisión en tareas.', goodAt: 'Disciplina', improve: 'Creatividad', medals: 7, tokens: 0, stats: { int: 11, sab: 13, car: 7, res: 16, cre: 8 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
-  { id: 'demo_lyra', group: 'Demo', name: 'Lyra', age: 9, role: 'Mentor', level: 3, xp: 272, xpMax: 300, weekXp: 34, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Apoya al equipo y comparte aprendizajes.', goal: 'Guiar una actividad colaborativa.', goodAt: 'Liderazgo', improve: 'Gestión del tiempo', medals: 10, tokens: 0, stats: { int: 13, sab: 14, car: 15, res: 10, cre: 12 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] }
+  { id: 'demo_zara', group: '2D', name: 'Zara', age: 10, role: 'Estratega', level: 3, xp: 248, xpMax: 300, weekXp: 30, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Explora patrones y propone soluciones.', goal: 'Resolver retos de lógica semanalmente.', goodAt: 'Pensamiento crítico', improve: 'Colaboración', medals: 9, tokens: 0, stats: { int: 15, sab: 12, car: 8, res: 9, cre: 11 }, assignedChallenges: ['demo_ch_2d_1', 'demo_ch_2d_2'], challengeCompletions: { demo_ch_2d_1: true }, challengeHistory: ['demo_ch_2d_1'], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
+  { id: 'demo_kael', group: '2D', name: 'Kael', age: 9, role: 'Comunicador', level: 2, xp: 138, xpMax: 300, weekXp: 18, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Presenta ideas con claridad y empatía.', goal: 'Mejorar exposiciones en equipo.', goodAt: 'Expresión oral', improve: 'Organización', medals: 6, tokens: 0, stats: { int: 10, sab: 11, car: 16, res: 7, cre: 9 }, assignedChallenges: ['demo_ch_2d_2'], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
+  { id: 'demo_nova', group: '2D', name: 'Nova', age: 8, role: 'Creador', level: 1, xp: 74, xpMax: 300, weekXp: 12, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Diseña ideas originales y prototipos.', goal: 'Terminar un proyecto creativo.', goodAt: 'Imaginación', improve: 'Atención al detalle', medals: 3, tokens: 0, stats: { int: 9, sab: 8, car: 10, res: 6, cre: 17 }, assignedChallenges: [], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
+  { id: 'demo_ryu', group: '3D', name: 'Ryu', age: 10, role: 'Guardián', level: 2, xp: 186, xpMax: 300, weekXp: 22, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Mantiene enfoque y constancia en metas.', goal: 'Aumentar precisión en tareas.', goodAt: 'Disciplina', improve: 'Creatividad', medals: 7, tokens: 0, stats: { int: 11, sab: 13, car: 7, res: 16, cre: 8 }, assignedChallenges: ['demo_ch_3d_1'], challengeCompletions: {}, challengeHistory: [], rewardsHistory: [], storeClaims: [], pendingRewards: [] },
+  { id: 'demo_lyra', group: '3D', name: 'Lyra', age: 9, role: 'Mentor', level: 3, xp: 272, xpMax: 300, weekXp: 34, weekXpMax: 40, statsCap: 20, photo: null, photoSrc: null, desc: 'Apoya al equipo y comparte aprendizajes.', goal: 'Guiar una actividad colaborativa.', goodAt: 'Liderazgo', improve: 'Gestión del tiempo', medals: 10, tokens: 0, stats: { int: 13, sab: 14, car: 15, res: 10, cre: 12 }, assignedChallenges: ['demo_ch_3d_1', 'demo_ch_3d_2'], challengeCompletions: { demo_ch_3d_1: true }, challengeHistory: ['demo_ch_3d_1'], rewardsHistory: [], storeClaims: [], pendingRewards: [] }
+]);
+
+const DEMO_GUEST_CHALLENGES = Object.freeze([
+  { id: 'demo_ch_2d_1', title: '2D · Laboratorio de lectura', subject: 'Español', difficulty: 'facil', status: 'available', body: 'Lee un texto corto y resume la idea principal en 3 líneas.' },
+  { id: 'demo_ch_2d_2', title: '2D · Misión de lógica', subject: 'Matemáticas', difficulty: 'medio', status: 'locked', body: 'Resuelve una secuencia numérica y explica tu estrategia.' },
+  { id: 'demo_ch_3d_1', title: '3D · Prototipo creativo', subject: 'Tecnología', difficulty: 'medio', status: 'available', body: 'Diseña un boceto de app en papel y presenta su flujo principal.' },
+  { id: 'demo_ch_3d_2', title: '3D · Reto de debate', subject: 'Formación Cívica', difficulty: 'dificil', status: 'locked', body: 'Defiende una postura con 3 argumentos y contraargumento final.' }
+]);
+
+const DEMO_GUEST_STORE_ITEMS = Object.freeze([
+  { id: 'demo_store_1', name: 'Sticker legendario', cost: 4, stock: 30, category: 'Coleccionables', description: 'Sticker holográfico edición demo.' },
+  { id: 'demo_store_2', name: 'Pase sin tarea', cost: 10, stock: 5, category: 'Beneficios', description: 'Un pase para canjear una tarea ligera.' },
+  { id: 'demo_store_3', name: 'Minuto de gloria', cost: 7, stock: 8, category: 'Reconocimientos', description: 'Espacio para compartir un logro frente al grupo.' }
 ]);
 
   /**
@@ -182,6 +195,10 @@ export async function loadData({
       const sess = (window.LevelUp && typeof window.LevelUp.getSession === 'function') ? window.LevelUp.getSession() : null;
       if (sess?.guest) {
         merged.heroes = DEMO_GUEST_HEROES.map((hero) => JSON.parse(JSON.stringify(hero)));
+        merged.challenges = DEMO_GUEST_CHALLENGES.map((challenge) => JSON.parse(JSON.stringify(challenge)));
+        merged.store = {
+          items: DEMO_GUEST_STORE_ITEMS.map((item) => JSON.parse(JSON.stringify(item)))
+        };
       }
       state.data = merged; state.dataSource = DATA_SOURCE.REMOTE; state.loadedFrom = DATA_SOURCE.REMOTE;
       normalizeFilter();

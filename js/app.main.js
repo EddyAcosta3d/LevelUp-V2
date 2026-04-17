@@ -57,11 +57,6 @@ function applyDemoModeGuards(session){
       });
     });
 
-    document.querySelectorAll('[data-route=\"desafios\"], [data-route=\"tienda\"]').forEach((el) => {
-      el.hidden = true;
-      el.style.display = 'none';
-      el.setAttribute('aria-hidden', 'true');
-    });
   };
 
   if (document.readyState === 'loading') {
@@ -139,22 +134,26 @@ export async function init(){
     window.LevelUp = window.LevelUp || {};
     window.LevelUp.getSession = getSession;
 
-    const syncSessionHeroSelection = ()=>{
-      if (!_sess || _sess.isAdmin || !_sess.heroId) return;
-      const heroes = state.data?.heroes || [];
-      const sessionHero = heroes.find(h => h.id === _sess.heroId);
-      if (!sessionHero) return;
+  const syncSessionHeroSelection = ()=>{
+    if (!_sess || _sess.isAdmin) return;
+    const heroes = state.data?.heroes || [];
+    let sessionHero = _sess.heroId ? heroes.find(h => h.id === _sess.heroId) : null;
 
-      state.selectedHeroId = _sess.heroId;
-      state.group = sessionHero.group || '2D';
-      try {
-        document.querySelectorAll('.segmented__btn[data-group]').forEach(btn => {
-          const isActive = btn.dataset.group === state.group;
-          btn.classList.toggle('is-active', isActive);
-          btn.setAttribute('aria-selected', String(isActive));
-        });
-      } catch(_e) {}
-    };
+    if (!sessionHero && _sess?.guest) {
+      sessionHero = heroes[0] || null;
+    }
+    if (!sessionHero) return;
+
+    state.selectedHeroId = sessionHero.id || state.selectedHeroId;
+    state.group = sessionHero.group || state.group || '2D';
+    try {
+      document.querySelectorAll('.segmented__btn[data-group]').forEach(btn => {
+        const isActive = btn.dataset.group === state.group;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-selected', String(isActive));
+      });
+    } catch(_e) {}
+  };
 
     // Modo normal: bind siempre (se eliminó modo proyector por URL)
     // Se ejecuta ANTES de que llegue la data para que la UI pinte al instante.
