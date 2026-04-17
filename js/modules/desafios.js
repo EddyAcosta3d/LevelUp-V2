@@ -19,7 +19,8 @@ import {
   isChallengeDone,
   getFilteredChallenges,
   DIFFICULTY,
-  POINTS_BY_DIFFICULTY
+  POINTS_BY_DIFFICULTY,
+  getOrderedSubjects
 } from './core_globals.js';
 
 import {
@@ -70,7 +71,7 @@ function isChallengeUnlockedForHero(hero, challengeId){
 
 export function renderChallenges(){
     // Ensure default filters: one subject + easy difficulty
-    const subjectsAll = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
+    const subjectsAll = getOrderedSubjects();
     if (!state.challengeFilter) state.challengeFilter = { subjectId: null, diff: DIFFICULTY.EASY };
     if (!state.challengeFilter.diff) state.challengeFilter.diff = DIFFICULTY.EASY;
     if (!state.challengeFilter.subjectId && subjectsAll.length) state.challengeFilter.subjectId = subjectsAll[0].id;
@@ -484,7 +485,7 @@ export function openChallengeModal(mode = 'create', challenge = null){
   const modal = document.getElementById('challengeModal');
   if (!modal) return;
 
-  const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
+  const subjects = getOrderedSubjects();
   const titleEl = document.getElementById('challengeModalTitle');
   const inTitle = document.getElementById('inChTitle');
   const inBody = document.getElementById('inChBody');

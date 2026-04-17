@@ -287,12 +287,34 @@ body.is-modal-open .dropdown__menu{
 .challengeTop__actions{display:flex;align-items:center;gap:10px;min-width:0}
 .challengeTop__main{flex-wrap:wrap}
 .challengeTop__actions{justify-content:flex-end}
-#subjectDropdown{flex:0 0 auto; z-index: 20090;}
-#subjectDropdown .pill{font-weight:700}
-#subjectDropdown .dropdown__menu{ z-index: 20100; }
+#subjectDropdown{flex:1 1 420px; min-width:260px;}
 .challengeTop__main .diffPills{flex:1 1 320px;min-width:220px}
 .challengeTop__actions #btnHistory{border-style:dashed;opacity:0.92}
 #subjectMenu{min-width:220px}
+.subjectTabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.subjectTab{
+  --subject-accent: rgba(220,220,230,0.35);
+  border:1px solid var(--subject-accent);
+  background:rgba(255,255,255,0.03);
+  color:var(--text,#dcdce6);
+  border-radius:999px;
+  min-height:36px;
+  padding:7px 12px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:700;
+  cursor:pointer;
+}
+.subjectTab[aria-selected="true"]{
+  color: var(--subject-accent);
+  border-color: var(--subject-accent);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset;
+}
 .diffPills{display:flex;gap:8px;flex-wrap:wrap}
 .challengeDetailHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 10px}
 .challengeDetailActions{display:flex;gap:8px;flex-wrap:wrap}

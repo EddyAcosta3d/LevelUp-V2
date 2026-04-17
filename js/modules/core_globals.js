@@ -178,6 +178,51 @@ window.LevelUp = window.LevelUp || {};
     [DIFFICULTY.HARD]: 40
   });
 
+  /**
+   * Catálogo visual/orden de materias para la vista de Desafíos.
+   * Está separado del resto de la UI para facilitar su futura migración
+   * a una tabla de Supabase por grupo (ej: group_subject_settings).
+   * Por ahora se mantiene local y global para todos los roles.
+   */
+  export const CHALLENGE_SUBJECT_CATALOG = Object.freeze([
+    { key: 'tecnologia',  label: 'Tecnología',  accent: '#FFB300', order: 0 },
+    { key: 'matematicas', label: 'Matemáticas', accent: '#FF8C42', order: 1 },
+    { key: 'espanol',     label: 'Español',     accent: '#4CAF50', order: 2 },
+    { key: 'ingles',      label: 'Inglés',      accent: '#9B59B6', order: 3 },
+    { key: 'historia',    label: 'Historia',    accent: '#F0A500', order: 4 },
+    { key: 'fisica',      label: 'Física',      accent: '#00BCD4', order: 5 }
+  ]);
+
+  function _normalizeSubjectName(value){
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  const SUBJECT_CATALOG_BY_KEY = new Map(CHALLENGE_SUBJECT_CATALOG.map(item => [item.key, item]));
+
+  export function getChallengeSubjectCatalogItem(subjectLike){
+    const key = _normalizeSubjectName(subjectLike);
+    return SUBJECT_CATALOG_BY_KEY.get(key) || null;
+  }
+
+  export function getOrderedSubjects(subjects = null){
+    const src = Array.isArray(subjects)
+      ? subjects
+      : (Array.isArray(state.data?.subjects) ? state.data.subjects : []);
+
+    return [...src].sort((a, b) => {
+      const aKey = _normalizeSubjectName(a?.name || a?.id || '');
+      const bKey = _normalizeSubjectName(b?.name || b?.id || '');
+      const aRank = SUBJECT_CATALOG_BY_KEY.get(aKey)?.order ?? Number.MAX_SAFE_INTEGER;
+      const bRank = SUBJECT_CATALOG_BY_KEY.get(bKey)?.order ?? Number.MAX_SAFE_INTEGER;
+      if (aRank !== bRank) return aRank - bRank;
+      return aKey.localeCompare(bKey, 'es', { sensitivity: 'base' });
+    });
+  }
+
   /** @enum {string} Roles de usuario para state.role */
   export const ROLE = Object.freeze({
     VIEWER:  'viewer',
@@ -813,7 +858,7 @@ export function isChallengeDone(hero, challengeId){
  * state.data, NO durante el render.
  */
 export function normalizeFilter(){
-  const subjects = Array.isArray(state.data?.subjects) ? state.data.subjects : [];
+  const subjects = getOrderedSubjects();
   if (!subjects.length) return;
 
   const validSubjectIds = new Set(subjects.map(s => String(s.id || '')));
@@ -1019,6 +1064,12 @@ function _rulePassesForHero(hero, u){
  */
 export function isEventUnlocked(ev){
   if (!ev) return false;
+  try{
+    const sess = (window.LevelUp && typeof window.LevelUp.getSession === 'function')
+      ? window.LevelUp.getSession()
+      : null;
+    if (sess?.guest) return false;
+  }catch(_e){}
   // Soporte para desbloqueo manual por grupo (nuevo formato: ev.unlockedGroups = ['2D','3D'])
   if (Array.isArray(ev.unlockedGroups) && ev.unlockedGroups.length > 0) {
     if (ev.unlockedGroups.includes(_activeGroup())) return true;
