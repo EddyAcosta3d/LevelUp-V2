@@ -859,21 +859,18 @@ export function isChallengeDone(hero, challengeId){
  */
 export function normalizeFilter(){
   const subjects = getOrderedSubjects();
-  if (!subjects.length) return;
-
-  const validSubjectIds = new Set(subjects.map(s => String(s.id || '')));
   const f = state.challengeFilter || {};
+  const validSubjectIds = new Set(subjects.map(s => String(s.id || '')));
 
   let sub = f.subjectId ? String(f.subjectId) : '';
   // Si el filtro apunta a una materia que ya no existe, resetear.
   if (sub && !validSubjectIds.has(sub)) sub = '';
-  // Asegurar que siempre haya una materia seleccionada.
-  if (!sub) sub = String(subjects[0].id);
+  // Permitimos sub vacío para representar "Todas".
 
   // Normalizar dificultad (ej: "Fácil" -> "easy").
   const diff = normalizeDifficulty(f.diff ? String(f.diff) : '') || DIFFICULTY.EASY;
 
-  state.challengeFilter = { ...f, subjectId: sub, diff };
+  state.challengeFilter = { ...f, subjectId: sub || null, diff };
 }
 
 /**
